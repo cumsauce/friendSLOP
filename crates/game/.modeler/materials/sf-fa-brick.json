@@ -1,0 +1,725 @@
+{
+  "name": "sf-fa-brick",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 8.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "b",
+      "size": [
+        0.5,
+        0.125
+      ],
+      "stagger": 0.5,
+      "type": "tile_grid"
+    },
+    {
+      "in": [
+        0.006,
+        0.012
+      ],
+      "input": "b.edge",
+      "name": "mort",
+      "type": "levels"
+    },
+    {
+      "id": "b.id",
+      "max": 1.1,
+      "min": 0.85,
+      "name": "bt",
+      "out": "color",
+      "seed": 21,
+      "type": "random"
+    },
+    {
+      "a": [
+        0.42,
+        0.17,
+        0.12
+      ],
+      "b": "bt",
+      "name": "brk",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": [
+        0.55,
+        0.53,
+        0.5
+      ],
+      "b": "brk",
+      "name": "wall",
+      "opacity": "mort",
+      "type": "blend"
+    },
+    {
+      "name": "w",
+      "size": [
+        2.0,
+        4.0
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "center": [
+        0.0,
+        -0.1
+      ],
+      "coords": "w.local",
+      "name": "wr",
+      "size": [
+        1.1,
+        2.0
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "win",
+      "sdf": "wr",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.0,
+        -1.15
+      ],
+      "coords": "w.local",
+      "name": "sr",
+      "size": [
+        1.3,
+        0.12
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "sill",
+      "sdf": "sr",
+      "type": "mask"
+    },
+    {
+      "a": "wall",
+      "b": [
+        0.7,
+        0.68,
+        0.64
+      ],
+      "name": "w2",
+      "opacity": "sill",
+      "type": "blend"
+    },
+    {
+      "id": "w.id",
+      "max": 0.12,
+      "min": 0.04,
+      "name": "blind",
+      "seed": 4,
+      "type": "random"
+    },
+    {
+      "a": [
+        0.7,
+        0.75,
+        0.9
+      ],
+      "b": "blind",
+      "name": "gl",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "w2",
+      "b": "gl",
+      "name": "col",
+      "opacity": "win",
+      "type": "blend"
+    },
+    {
+      "a": 0.9,
+      "b": 0.1,
+      "c": "win",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "mort",
+      "b": 0.006,
+      "name": "m1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "win",
+      "b": -0.06,
+      "name": "wd",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "m1",
+      "b": "wd",
+      "name": "hh",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "id": "w.id",
+      "max": 1,
+      "min": 0,
+      "name": "lr",
+      "seed": 7,
+      "type": "random"
+    },
+    {
+      "in": [
+        0.75,
+        0.76
+      ],
+      "input": "lr",
+      "name": "lit",
+      "type": "levels"
+    },
+    {
+      "a": "lit",
+      "b": "win",
+      "name": "litw",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "id": "w.id",
+      "max": 1.0,
+      "min": 0.7,
+      "name": "warm",
+      "out": "color",
+      "seed": 9,
+      "type": "random"
+    },
+    {
+      "a": "warm",
+      "b": [
+        1.0,
+        0.75,
+        0.45
+      ],
+      "name": "wc",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "wc",
+      "b": 2.5,
+      "name": "wcs",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "wcs",
+      "b": "litw",
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "height": "hh",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-fa-brick",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 8.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "b",
+              "size": [
+                0.25,
+                0.0667
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.004,
+                0.007
+              ],
+              "input": "b.edge",
+              "name": "mort",
+              "type": "levels"
+            },
+            {
+              "id": "b.id",
+              "max": 1.1,
+              "min": 0.85,
+              "name": "bt",
+              "out": "color",
+              "seed": 21,
+              "type": "random"
+            },
+            {
+              "a": [
+                0.42,
+                0.17,
+                0.12
+              ],
+              "b": "bt",
+              "name": "brk",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": [
+                0.55,
+                0.53,
+                0.5
+              ],
+              "b": "brk",
+              "name": "wall",
+              "opacity": "mort",
+              "type": "blend"
+            },
+            {
+              "name": "w",
+              "size": [
+                2.0,
+                4.0
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "center": [
+                0.0,
+                -0.1
+              ],
+              "coords": "w.local",
+              "name": "wr",
+              "size": [
+                1.1,
+                2.0
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "win",
+              "sdf": "wr",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.0,
+                -1.15
+              ],
+              "coords": "w.local",
+              "name": "sr",
+              "size": [
+                1.3,
+                0.12
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "sill",
+              "sdf": "sr",
+              "type": "mask"
+            },
+            {
+              "a": "wall",
+              "b": [
+                0.7,
+                0.68,
+                0.64
+              ],
+              "name": "w2",
+              "opacity": "sill",
+              "type": "blend"
+            },
+            {
+              "id": "w.id",
+              "max": 0.12,
+              "min": 0.04,
+              "name": "blind",
+              "seed": 4,
+              "type": "random"
+            },
+            {
+              "a": [
+                0.7,
+                0.75,
+                0.9
+              ],
+              "b": "blind",
+              "name": "gl",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "w2",
+              "b": "gl",
+              "name": "col",
+              "opacity": "win",
+              "type": "blend"
+            },
+            {
+              "a": 0.9,
+              "b": 0.1,
+              "c": "win",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "mort",
+              "b": 0.004,
+              "name": "m1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "win",
+              "b": -0.06,
+              "name": "wd",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "m1",
+              "b": "wd",
+              "name": "hh",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "id": "w.id",
+              "max": 1,
+              "min": 0,
+              "name": "lr",
+              "seed": 7,
+              "type": "random"
+            },
+            {
+              "in": [
+                0.75,
+                0.76
+              ],
+              "input": "lr",
+              "name": "lit",
+              "type": "levels"
+            },
+            {
+              "a": "lit",
+              "b": "win",
+              "name": "litw",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "id": "w.id",
+              "max": 1.0,
+              "min": 0.7,
+              "name": "warm",
+              "out": "color",
+              "seed": 9,
+              "type": "random"
+            },
+            {
+              "a": "warm",
+              "b": [
+                1.0,
+                0.75,
+                0.45
+              ],
+              "name": "wc",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "wc",
+              "b": 2.5,
+              "name": "wcs",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "wcs",
+              "b": "litw",
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "height": "hh",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+b +mort +bt +brk +wall +w +wr +win +sr +sill +w2 +blind +gl +col +rough +m1 +wd +hh +lr +lit +litw +warm +wc +wcs +em +out"
+      },
+      {
+        "model": {
+          "name": "sf-fa-brick",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 8.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "b",
+              "size": [
+                0.5,
+                0.125
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.006,
+                0.012
+              ],
+              "input": "b.edge",
+              "name": "mort",
+              "type": "levels"
+            },
+            {
+              "id": "b.id",
+              "max": 1.1,
+              "min": 0.85,
+              "name": "bt",
+              "out": "color",
+              "seed": 21,
+              "type": "random"
+            },
+            {
+              "a": [
+                0.42,
+                0.17,
+                0.12
+              ],
+              "b": "bt",
+              "name": "brk",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": [
+                0.55,
+                0.53,
+                0.5
+              ],
+              "b": "brk",
+              "name": "wall",
+              "opacity": "mort",
+              "type": "blend"
+            },
+            {
+              "name": "w",
+              "size": [
+                2.0,
+                4.0
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "center": [
+                0.0,
+                -0.1
+              ],
+              "coords": "w.local",
+              "name": "wr",
+              "size": [
+                1.1,
+                2.0
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "win",
+              "sdf": "wr",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.0,
+                -1.15
+              ],
+              "coords": "w.local",
+              "name": "sr",
+              "size": [
+                1.3,
+                0.12
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "sill",
+              "sdf": "sr",
+              "type": "mask"
+            },
+            {
+              "a": "wall",
+              "b": [
+                0.7,
+                0.68,
+                0.64
+              ],
+              "name": "w2",
+              "opacity": "sill",
+              "type": "blend"
+            },
+            {
+              "id": "w.id",
+              "max": 0.12,
+              "min": 0.04,
+              "name": "blind",
+              "seed": 4,
+              "type": "random"
+            },
+            {
+              "a": [
+                0.7,
+                0.75,
+                0.9
+              ],
+              "b": "blind",
+              "name": "gl",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "w2",
+              "b": "gl",
+              "name": "col",
+              "opacity": "win",
+              "type": "blend"
+            },
+            {
+              "a": 0.9,
+              "b": 0.1,
+              "c": "win",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "mort",
+              "b": 0.006,
+              "name": "m1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "win",
+              "b": -0.06,
+              "name": "wd",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "m1",
+              "b": "wd",
+              "name": "hh",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "id": "w.id",
+              "max": 1,
+              "min": 0,
+              "name": "lr",
+              "seed": 7,
+              "type": "random"
+            },
+            {
+              "in": [
+                0.75,
+                0.76
+              ],
+              "input": "lr",
+              "name": "lit",
+              "type": "levels"
+            },
+            {
+              "a": "lit",
+              "b": "win",
+              "name": "litw",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "id": "w.id",
+              "max": 1.0,
+              "min": 0.7,
+              "name": "warm",
+              "out": "color",
+              "seed": 9,
+              "type": "random"
+            },
+            {
+              "a": "warm",
+              "b": [
+                1.0,
+                0.75,
+                0.45
+              ],
+              "name": "wc",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "wc",
+              "b": 2.5,
+              "name": "wcs",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "wcs",
+              "b": "litw",
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "height": "hh",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~b ~mort ~m1"
+      }
+    ],
+    "current": 1
+  }
+}

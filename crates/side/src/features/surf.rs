@@ -163,10 +163,28 @@ fn starts() -> Vec<(String, Vec3)> {
 
 pub fn plugin(app: &mut App) {
     crate::features::start::provide(starts);
+    app.add_systems(Update, facades.run_if(any_with_component::<FacadeSwatch>));
     app.add_observer(click)
         .spawn_into("surf", build)
         .spawn_into("nyc", build_sign)
-        .add_systems(Update, timer.run_if(in_state(AppState::InGame)));
+        .add_systems(Update, timer.run_if(in_state(AppState::InGame)))
+        .add_systems(
+            Update,
+            music_signals
+                .in_set(crate::music::MusicSignalSet)
+                .run_if(in_state(AppState::InGame)),
+        );
+}
+
+/// For the music: the camera's in the surf hall (`surf`), so the liquid DnB plays.
+fn music_signals(
+    camera: Query<&GlobalTransform, With<Camera3d>>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+) {
+    let Some(mut signals) = signals else { return };
+    let t = tuning();
+    let at = crate::music::camera_at(&camera);
+    signals.flag("surf", at.is_some_and(|p| in_hall(&t, p).is_some()));
 }
 
 #[derive(Component)]
@@ -302,6 +320,26 @@ pub struct Dressing {
     /// The finish arch's height and width (m).
     pub arch_height: f32,
     pub arch_width: f32,
+    /// The city's tower facades, one per tower style (the style wraps).
+    pub facades: Vec<Skin>,
+    /// The towers' roofs and the building sites' concrete.
+    pub roof: Skin,
+    pub deck: Skin,
+}
+
+/// A city surface: a modeler swatch tiled at real size, and the flat
+/// colour it keeps if the swatch file is missing.
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct Skin {
+    /// The swatch model (`models/surfaces/...`).
+    pub file: String,
+    /// How wide (m) one repeat of its texture is.
+    pub tile: f32,
+    /// Emissive multiplier for its lit windows / neon (0: none).
+    pub glow: f32,
+    /// Flat colour (r, g, b, 0..1) and roughness without the swatch.
+    pub colour: (f32, f32, f32),
+    pub rough: f32,
 }
 
 pub static DRESSING: friendslop_data::Data<Dressing> =
@@ -497,6 +535,7 @@ fn build_city(
 ) {
     use avian3d::prelude::{Collider, RigidBody};
     let o = hall_at(t);
+    let d = DRESSING.get();
     let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
     let mat = |m: &mut Assets<StandardMaterial>, c: Color, rough: f32, glow: f32| {
         m.add(StandardMaterial {
@@ -507,35 +546,71 @@ fn build_city(
             ..default()
         })
     };
-    let glass = [
-        mat(materials, Color::srgb(0.25, 0.38, 0.52), 0.25, 0.0),
-        mat(materials, Color::srgb(0.55, 0.6, 0.62), 0.3, 0.0),
-        mat(materials, Color::srgb(0.18, 0.22, 0.3), 0.2, 0.0),
-        mat(materials, Color::srgb(0.62, 0.5, 0.4), 0.6, 0.0),
-    ];
+    // Textured surfaces: one material per skin, flat until its swatch loads.
+    let mut skin = |s: &Skin| {
+        let c = Color::srgb(s.colour.0, s.colour.1, s.colour.2);
+        let h = mat(materials, c, s.rough, 0.0);
+        if let Some(mut m) = materials.get_mut(&h) {
+            m.uv_transform = bevy::math::Affine2::from_scale(Vec2::splat(1.0 / s.tile.max(0.01)));
+        }
+        commands.spawn(FacadeSwatch {
+            file: s.file.clone(),
+            material: h.clone(),
+            glow: s.glow,
+        });
+        h
+    };
+    let glass: Vec<_> = d.facades.iter().map(&mut skin).collect();
+    let roof = skin(&d.roof);
+    let concrete = skin(&d.deck);
     let band = mat(materials, Color::srgb(1.0, 0.45, 0.85), 0.5, 4.0);
-    let roof = mat(materials, Color::srgb(0.32, 0.32, 0.34), 0.9, 0.0);
-    let concrete = mat(materials, Color::srgb(0.6, 0.58, 0.55), 0.95, 0.0);
     let netting = mat(materials, Color::srgb(1.0, 0.45, 0.1), 0.8, 0.6);
     let steel = mat(materials, Color::srgb(0.95, 0.75, 0.1), 0.6, 0.0);
     let ply = mat(materials, Color::srgb(0.8, 0.62, 0.38), 0.85, 0.0);
     let pallet = mat(materials, Color::srgb(0.5, 0.36, 0.22), 0.9, 0.0);
-    let part = |c: &mut Commands, b: &Block, m: &Handle<StandardMaterial>, at: Vec3, size: Vec3| {
+    let Some(fallback) = glass.first().cloned() else {
+        return;
+    };
+    // Textured boxes get a metric-uv mesh per size (cm buckets, shared), so
+    // windows stay window-sized; flat ones stay a scaled unit cube.
+    let mut boxes: std::collections::HashMap<[i32; 3], Handle<Mesh>> = default();
+    let blocks = city(t);
+    let wedges: Vec<Option<Handle<Mesh>>> = (blocks.iter())
+        .map(|b| (b.piece == Piece::Kicker).then(|| meshes.add(wedge_mesh(b.wedge()))))
+        .collect();
+    let mut part = |c: &mut Commands,
+                    b: &Block,
+                    m: &Handle<StandardMaterial>,
+                    at: Vec3,
+                    size: Vec3,
+                    textured: bool| {
+        let tf = Transform::from_translation(o + b.centre + b.rotation() * at)
+            .with_rotation(b.rotation());
+        let (mesh, tf) = if textured {
+            let key = (size * 100.0).round().as_ivec3().to_array();
+            let mesh = boxes
+                .entry(key)
+                .or_insert_with(|| {
+                    meshes.add(metric_box(Vec3::from(key.map(|k| k as f32)) / 100.0))
+                })
+                .clone();
+            (mesh, tf)
+        } else {
+            (cube.clone(), tf.with_scale(size))
+        };
         c.spawn((
-            Mesh3d(cube.clone()),
+            Mesh3d(mesh),
             MeshMaterial3d(m.clone()),
-            Transform::from_translation(o + b.centre + b.rotation() * at)
-                .with_rotation(b.rotation())
-                .with_scale(size),
+            tf,
             DespawnOnExit(AppState::InGame),
         ));
     };
-    for b in city(t) {
+    for (b, wedge) in blocks.into_iter().zip(wedges) {
         let tf = Transform::from_translation(o + b.centre).with_rotation(b.rotation());
-        if b.piece == Piece::Kicker {
+        if let Some(wedge) = wedge {
             let corners = b.wedge();
             commands.spawn((
-                Mesh3d(meshes.add(wedge_mesh(corners))),
+                Mesh3d(wedge),
                 MeshMaterial3d(ply.clone()),
                 tf,
                 RigidBody::Static,
@@ -554,14 +629,15 @@ fn build_city(
         let top = b.size.y / 2.0;
         match b.piece {
             Piece::Tower { style } => {
-                let m = &glass[style as usize % glass.len()];
-                part(commands, &b, m, Vec3::ZERO, b.size);
+                let m = glass.get(style as usize % glass.len()).unwrap_or(&fallback);
+                part(commands, &b, m, Vec3::ZERO, b.size, true);
                 part(
                     commands,
                     &b,
                     &roof,
                     Vec3::Y * (top + 0.15),
                     b.size.with_y(0.3) - Vec3::new(0.4, 0.0, 0.4),
+                    true,
                 );
                 // A neon band under the roof, and a parapet.
                 if style % 2 == 0 {
@@ -571,6 +647,7 @@ fn build_city(
                         &band,
                         Vec3::Y * (top - 2.5),
                         b.size.with_y(0.5) + Vec3::new(0.2, 0.0, 0.2),
+                        false,
                     );
                 }
             }
@@ -581,6 +658,7 @@ fn build_city(
                     &concrete,
                     Vec3::ZERO,
                     b.size - Vec3::new(0.6, 0.0, 0.6),
+                    true,
                 );
                 // The open top floors: columns at the corners and a slab.
                 part(
@@ -589,6 +667,7 @@ fn build_city(
                     &concrete,
                     Vec3::Y * (top - 0.3),
                     b.size.with_y(0.6),
+                    true,
                 );
                 for (x, z) in [(-1.0, -1.0), (1.0, -1.0), (-1.0, 1.0), (1.0, 1.0)] {
                     let at = Vec3::new(
@@ -596,7 +675,7 @@ fn build_city(
                         top - 5.0,
                         z * (b.size.z / 2.0 - 0.6),
                     );
-                    part(commands, &b, &concrete, at, Vec3::new(0.8, 9.4, 0.8));
+                    part(commands, &b, &concrete, at, Vec3::new(0.8, 9.4, 0.8), true);
                 }
                 // Safety netting round the floors under the deck.
                 part(
@@ -605,11 +684,116 @@ fn build_city(
                     &netting,
                     Vec3::Y * (top - 6.0),
                     b.size.with_y(5.0) + Vec3::new(0.1, 0.0, 0.1),
+                    false,
                 );
             }
-            Piece::Steel => part(commands, &b, &steel, Vec3::ZERO, b.size),
-            Piece::Clutter => part(commands, &b, &pallet, Vec3::ZERO, b.size),
+            Piece::Steel => part(commands, &b, &steel, Vec3::ZERO, b.size, false),
+            Piece::Clutter => part(commands, &b, &pallet, Vec3::ZERO, b.size, false),
             Piece::Kicker => {}
+        }
+    }
+}
+
+/// A city material waiting for its modeler swatch's textures.
+#[derive(Component)]
+struct FacadeSwatch {
+    file: String,
+    material: Handle<StandardMaterial>,
+    glow: f32,
+}
+
+/// A box `size` (m) about its centre with uvs in metres from its top-left,
+/// so a tiled texture keeps its real size on any box. Tangents point along
+/// u, bitangents up (sides) or towards -z (top and bottom).
+fn metric_box(size: Vec3) -> Mesh {
+    use bevy::asset::RenderAssetUsages;
+    use bevy::mesh::{Indices, PrimitiveTopology};
+    let h = size / 2.0;
+    let (mut pos, mut nor, mut uv, mut tan, mut idx) =
+        (Vec::new(), Vec::new(), Vec::new(), Vec::new(), Vec::new());
+    for n in [Vec3::X, -Vec3::X, Vec3::Z, -Vec3::Z, Vec3::Y, -Vec3::Y] {
+        let side = n.y == 0.0;
+        // u along t, v along -up.
+        let (t, up) = if side {
+            (Vec3::Y.cross(n), Vec3::Y)
+        } else {
+            (Vec3::X, -Vec3::Z)
+        };
+        let (ht, hu) = (t.abs().dot(h), up.abs().dot(h));
+        let base = pos.len() as u32;
+        for (a, b) in [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)] {
+            let p = n * n.abs().dot(h) + t * a * ht + up * b * hu;
+            pos.push(p.to_array());
+            nor.push(n.to_array());
+            uv.push([(a + 1.0) * ht, (1.0 - b) * hu]);
+            let w = if n.cross(t).dot(up) > 0.0 { 1.0 } else { -1.0 };
+            tan.push([t.x, t.y, t.z, w]);
+        }
+        let quad = [base, base + 1, base + 2, base, base + 2, base + 3];
+        let (p0, p1, p2) = (
+            Vec3::from(pos[base as usize]),
+            Vec3::from(pos[base as usize + 1]),
+            Vec3::from(pos[base as usize + 2]),
+        );
+        if (p1 - p0).cross(p2 - p0).dot(n) >= 0.0 {
+            idx.extend(quad);
+        } else {
+            idx.extend(quad.iter().rev());
+        }
+    }
+    Mesh::new(
+        PrimitiveTopology::TriangleList,
+        RenderAssetUsages::default(),
+    )
+    .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, pos)
+    .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, nor)
+    .with_inserted_attribute(Mesh::ATTRIBUTE_UV_0, uv)
+    .with_inserted_attribute(Mesh::ATTRIBUTE_TANGENT, tan)
+    .with_inserted_indices(Indices::U32(idx))
+}
+
+/// Put each city swatch's textures on its material once the file loads;
+/// with no file (no LFS data) the flat colour stays.
+fn facades(
+    mut commands: Commands,
+    mut files: Local<std::collections::HashMap<String, Handle<bevy::gltf::Gltf>>>,
+    waiting: Query<(Entity, &FacadeSwatch)>,
+    assets: Res<AssetServer>,
+    gltfs: Res<Assets<bevy::gltf::Gltf>>,
+    looks: Res<Assets<bevy::gltf::GltfMaterial>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    for (e, w) in &waiting {
+        let h = files
+            .entry(w.file.clone())
+            .or_insert_with(|| assets.load(w.file.clone()))
+            .clone();
+        if assets.load_state(&h).is_failed() {
+            commands.entity(e).despawn();
+            continue;
+        }
+        if !assets.is_loaded_with_dependencies(&h) {
+            continue;
+        }
+        commands.entity(e).despawn();
+        let look = (gltfs.get(&h))
+            .and_then(|g| g.materials.first())
+            .and_then(|m| looks.get(m));
+        let (Some(look), Some(mut m)) = (look, materials.get_mut(&w.material)) else {
+            continue;
+        };
+        let Some(base) = look.base_color_texture.clone() else {
+            continue;
+        };
+        m.base_color = Color::WHITE;
+        m.base_color_texture = Some(base);
+        m.metallic_roughness_texture = look.metallic_roughness_texture.clone();
+        m.normal_map_texture = look.normal_map_texture.clone();
+        m.perceptual_roughness = 1.0;
+        m.metallic = look.metallic;
+        if let Some(em) = look.emissive_texture.clone() {
+            m.emissive_texture = Some(em);
+            m.emissive = LinearRgba::WHITE * w.glow;
         }
     }
 }
@@ -660,7 +844,7 @@ fn run_step(
             run.started = None;
             Some(RunEvent::WipedOut(now - t0))
         }
-        Some(t0) if on_pad(finish, l) => {
+        Some(t0) if through_checkpoint(finish, l, tuning().checkpoint_reach) => {
             run.started = None;
             let secs = now - t0;
             let best = run.best.map_or(secs, |b| b.min(secs));
@@ -733,6 +917,13 @@ mod tests {
         assert!(d.pad_light > 0.0 && d.pad_light_range > 0.0 && d.marker_height > 0.0);
         assert!(d.lane_every > 0 && d.lane_size > 0.0 && d.lane_drop > 0.0);
         assert!(d.arch_height > 2.0 && d.arch_width > 0.0);
+        assert!(d.facades.len() >= 4);
+        for s in d.facades.iter().chain([&d.roof, &d.deck]) {
+            assert!(
+                s.tile > 0.0 && s.file.starts_with("models/surfaces/"),
+                "{s:?}"
+            );
+        }
     }
 
     #[test]

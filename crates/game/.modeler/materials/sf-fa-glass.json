@@ -1,0 +1,596 @@
+{
+  "name": "sf-fa-glass",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 8.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "w",
+      "size": [
+        2.0,
+        4.0
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "in": [
+        0.05,
+        0.07
+      ],
+      "input": "w.edge",
+      "name": "pane",
+      "type": "levels"
+    },
+    {
+      "name": "fl",
+      "size": [
+        8.0,
+        4.0
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "in": [
+        0.45,
+        0.5
+      ],
+      "input": "fl.edge",
+      "name": "spand",
+      "type": "levels"
+    },
+    {
+      "a": "pane",
+      "b": "spand",
+      "name": "glass",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "id": "w.id",
+      "max": 1.1,
+      "min": 0.8,
+      "name": "tint",
+      "seed": 3,
+      "type": "random"
+    },
+    {
+      "a": [
+        0.06,
+        0.11,
+        0.18
+      ],
+      "b": "tint",
+      "name": "gc",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "name": "refl",
+      "octaves": 2,
+      "seed": 5,
+      "size": 4.0,
+      "type": "noise"
+    },
+    {
+      "a": "refl",
+      "b": 0.08,
+      "name": "rf",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "gc",
+      "b": "rf",
+      "name": "gc2",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": [
+        0.42,
+        0.45,
+        0.5
+      ],
+      "b": "gc2",
+      "name": "col",
+      "opacity": "glass",
+      "type": "blend"
+    },
+    {
+      "a": 0.45,
+      "b": 0.06,
+      "c": "glass",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.8,
+      "b": 0.3,
+      "c": "glass",
+      "name": "metal",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "glass",
+      "b": -0.01,
+      "name": "hh",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "id": "w.id",
+      "max": 1,
+      "min": 0,
+      "name": "lr",
+      "seed": 7,
+      "type": "random"
+    },
+    {
+      "in": [
+        0.7,
+        0.71
+      ],
+      "input": "lr",
+      "name": "lit",
+      "type": "levels"
+    },
+    {
+      "a": "lit",
+      "b": "glass",
+      "name": "litw",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "id": "w.id",
+      "max": 1.0,
+      "min": 0.7,
+      "name": "warm",
+      "out": "color",
+      "seed": 9,
+      "type": "random"
+    },
+    {
+      "a": "warm",
+      "b": [
+        1.0,
+        0.85,
+        0.6
+      ],
+      "name": "wc",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "wc",
+      "b": 2.0,
+      "name": "wcs",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "wcs",
+      "b": "litw",
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "height": "hh",
+      "metallic": "metal",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-fa-glass",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 8.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "w",
+              "size": [
+                2.0,
+                4.0
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.05,
+                0.07
+              ],
+              "input": "w.edge",
+              "name": "pane",
+              "type": "levels"
+            },
+            {
+              "name": "fl",
+              "size": [
+                8.0,
+                4.0
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.45,
+                0.5
+              ],
+              "input": "fl.edge",
+              "name": "spand",
+              "type": "levels"
+            },
+            {
+              "a": "pane",
+              "b": "spand",
+              "name": "glass",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "id": "w.id",
+              "max": 1.1,
+              "min": 0.8,
+              "name": "tint",
+              "seed": 3,
+              "type": "random"
+            },
+            {
+              "a": [
+                0.06,
+                0.11,
+                0.18
+              ],
+              "b": "tint",
+              "name": "gc",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "name": "refl",
+              "octaves": 2,
+              "seed": 5,
+              "size": 4.0,
+              "type": "noise"
+            },
+            {
+              "a": "refl",
+              "b": 0.08,
+              "name": "rf",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "gc",
+              "b": "rf",
+              "name": "gc2",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": [
+                0.42,
+                0.45,
+                0.5
+              ],
+              "b": "gc2",
+              "name": "col",
+              "opacity": "glass",
+              "type": "blend"
+            },
+            {
+              "a": 0.45,
+              "b": 0.06,
+              "c": "glass",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.8,
+              "b": 0.3,
+              "c": "glass",
+              "name": "metal",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "glass",
+              "b": -0.01,
+              "name": "hh",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "id": "w.id",
+              "max": 1,
+              "min": 0,
+              "name": "lr",
+              "seed": 7,
+              "type": "random"
+            },
+            {
+              "in": [
+                0.88,
+                0.89
+              ],
+              "input": "lr",
+              "name": "lit",
+              "type": "levels"
+            },
+            {
+              "a": "lit",
+              "b": "glass",
+              "name": "litw",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "id": "w.id",
+              "max": 1.0,
+              "min": 0.7,
+              "name": "warm",
+              "out": "color",
+              "seed": 9,
+              "type": "random"
+            },
+            {
+              "a": "warm",
+              "b": [
+                1.0,
+                0.85,
+                0.6
+              ],
+              "name": "wc",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "wc",
+              "b": 2.0,
+              "name": "wcs",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "wcs",
+              "b": "litw",
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "height": "hh",
+              "metallic": "metal",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+w +pane +fl +spand +glass +tint +gc +refl +rf +gc2 +col +rough +metal +hh +lr +lit +litw +warm +wc +wcs +em +out"
+      },
+      {
+        "model": {
+          "name": "sf-fa-glass",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 8.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "w",
+              "size": [
+                2.0,
+                4.0
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.05,
+                0.07
+              ],
+              "input": "w.edge",
+              "name": "pane",
+              "type": "levels"
+            },
+            {
+              "name": "fl",
+              "size": [
+                8.0,
+                4.0
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.45,
+                0.5
+              ],
+              "input": "fl.edge",
+              "name": "spand",
+              "type": "levels"
+            },
+            {
+              "a": "pane",
+              "b": "spand",
+              "name": "glass",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "id": "w.id",
+              "max": 1.1,
+              "min": 0.8,
+              "name": "tint",
+              "seed": 3,
+              "type": "random"
+            },
+            {
+              "a": [
+                0.06,
+                0.11,
+                0.18
+              ],
+              "b": "tint",
+              "name": "gc",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "name": "refl",
+              "octaves": 2,
+              "seed": 5,
+              "size": 4.0,
+              "type": "noise"
+            },
+            {
+              "a": "refl",
+              "b": 0.08,
+              "name": "rf",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "gc",
+              "b": "rf",
+              "name": "gc2",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": [
+                0.42,
+                0.45,
+                0.5
+              ],
+              "b": "gc2",
+              "name": "col",
+              "opacity": "glass",
+              "type": "blend"
+            },
+            {
+              "a": 0.45,
+              "b": 0.06,
+              "c": "glass",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.8,
+              "b": 0.3,
+              "c": "glass",
+              "name": "metal",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "glass",
+              "b": -0.01,
+              "name": "hh",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "id": "w.id",
+              "max": 1,
+              "min": 0,
+              "name": "lr",
+              "seed": 7,
+              "type": "random"
+            },
+            {
+              "in": [
+                0.7,
+                0.71
+              ],
+              "input": "lr",
+              "name": "lit",
+              "type": "levels"
+            },
+            {
+              "a": "lit",
+              "b": "glass",
+              "name": "litw",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "id": "w.id",
+              "max": 1.0,
+              "min": 0.7,
+              "name": "warm",
+              "out": "color",
+              "seed": 9,
+              "type": "random"
+            },
+            {
+              "a": "warm",
+              "b": [
+                1.0,
+                0.85,
+                0.6
+              ],
+              "name": "wc",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "wc",
+              "b": 2.0,
+              "name": "wcs",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "wcs",
+              "b": "litw",
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "height": "hh",
+              "metallic": "metal",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~lit"
+      }
+    ],
+    "current": 1
+  }
+}

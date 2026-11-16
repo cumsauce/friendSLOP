@@ -2714,11 +2714,11 @@
     },
     {
       "name": "commune-map",
-      "description": "The commune map (see AGENTS.md); now with cv- lived-in dressing: laundry lines, vegetable beds, storm repair piles.",
+      "description": "The commune's map: ground terrain, spots, paths, districts, plots, set pieces.",
       "tags": [],
       "prompt": "",
       "file": "commune-map.json",
-      "created_at": "2026-11-16T19:57:58Z"
+      "created_at": "2026-11-16T21:59:55Z"
     },
     {
       "name": "sp-wendys",
@@ -3686,15 +3686,15 @@
     },
     {
       "name": "surf-hall",
-      "description": "Surf map hall (#306): two surf ramps (triangular ridges, 59 degree faces) dropping from a start pad to a neon finish pad, walled, over a dark void floor. Origin = start pad top.",
+      "description": "The surf course (#306): pads, ramps (ridge joints hulled), skyline towers and neon signs, built from data/side/surf.ron; four speed-check gaps between ramps.",
       "tags": [
-        "nyc",
         "surf",
-        "level"
+        "course",
+        "feature"
       ],
-      "prompt": "surf map in one of the buildings in nyc",
+      "prompt": "",
       "file": "surf-hall.json",
-      "created_at": "2026-11-13T07:41:59Z"
+      "created_at": "2026-11-16T22:00:43Z"
     },
     {
       "name": "surf-door-sign",
@@ -6095,6 +6095,201 @@
       "prompt": "a 12 m mirrored disco ball (faceted, very shiny metal, a few emissive facets) hanging from a chain going up 20 m",
       "file": "sf-disco-ball.json",
       "created_at": "2026-11-16T21:41:20Z"
+    },
+    {
+      "name": "sf-swatch-facade-glass",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "sf-swatch-facade-glass.json",
+      "created_at": "2026-11-16T21:50:23Z"
+    },
+    {
+      "name": "sf-swatch-facade-office",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "sf-swatch-facade-office.json",
+      "created_at": "2026-11-16T21:50:23Z"
+    },
+    {
+      "name": "sf-swatch-facade-brick",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "sf-swatch-facade-brick.json",
+      "created_at": "2026-11-16T21:50:23Z"
+    },
+    {
+      "name": "sf-swatch-facade-neon",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "sf-swatch-facade-neon.json",
+      "created_at": "2026-11-16T21:50:24Z"
+    },
+    {
+      "name": "sf-swatch-facade-roof",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "sf-swatch-facade-roof.json",
+      "created_at": "2026-11-16T21:50:24Z"
+    },
+    {
+      "name": "sf-swatch-facade-deck",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "sf-swatch-facade-deck.json",
+      "created_at": "2026-11-16T21:50:24Z"
+    },
+    {
+      "name": "cfm-fan-two",
+      "description": "Ceiling Fan Museum: 2-blade retro fan, slim oak blades, brass motor. Parts mnt_* static mount (canopy top at y=0), rot_* rotor (hub at y=-0.43).",
+      "tags": [
+        "museum",
+        "fan",
+        "ceiling"
+      ],
+      "prompt": "Ceiling Fan Museum fan: 2 long slim wooden blades, retro brass motor, ~1.3 m span; exported as mount + rotor glTFs.",
+      "file": "cfm-fan-two.json",
+      "created_at": "2026-11-16T21:52:25Z"
+    },
+    {
+      "name": "cfm-fan-three",
+      "description": "Ceiling Fan Museum: 3-blade modern matte black fan, flat disc motor. mnt_* mount, rot_* rotor (hub y=-0.29).",
+      "tags": [
+        "museum",
+        "fan",
+        "ceiling"
+      ],
+      "prompt": "Ceiling Fan Museum fan: 3-blade sleek modern matte black, flat disc motor, ~1.3 m.",
+      "file": "cfm-fan-three.json",
+      "created_at": "2026-11-16T21:52:47Z"
+    },
+    {
+      "name": "cfm-fan-eight",
+      "description": "Ceiling Fan Museum: 8-blade art-deco chrome fan, 1.2 m span. m_* = mount, r_* = rotor (hub at y=-0.44).",
+      "tags": [
+        "museum",
+        "fan",
+        "ceiling"
+      ],
+      "prompt": "",
+      "file": "cfm-fan-eight.json",
+      "created_at": "2026-11-16T21:53:11Z"
+    },
+    {
+      "name": "cfm-fan-four",
+      "description": "Ceiling Fan Museum: 4-blade classic white fan with frosted glass light bowl (static, part of mount). mnt_* mount, rot_* rotor (hub y=-0.344).",
+      "tags": [
+        "museum",
+        "fan",
+        "ceiling"
+      ],
+      "prompt": "Ceiling Fan Museum fan: 4-blade classic white with frosted glass light bowl under the hub, ~1.3 m.",
+      "file": "cfm-fan-four.json",
+      "created_at": "2026-11-16T21:53:10Z"
+    },
+    {
+      "name": "cfm-fan-five",
+      "description": "Ceiling Fan Museum: 5-blade Victorian fan, walnut paddle blades, ornate brass housing and down-rod. mnt_* mount, rot_* rotor (hub y=-0.535).",
+      "tags": [
+        "museum",
+        "fan",
+        "ceiling"
+      ],
+      "prompt": "Ceiling Fan Museum fan: 5-blade Victorian walnut with ornate brass housing and down-rod, ~1.3 m.",
+      "file": "cfm-fan-five.json",
+      "created_at": "2026-11-16T21:53:28Z"
+    },
+    {
+      "name": "cfm-fan-ten",
+      "description": "Ceiling Fan Museum: 10-blade bamboo fan, thin cane blades, 1.5 m span. m_* mount, r_* rotor (hub y=-0.455).",
+      "tags": [
+        "museum",
+        "fan",
+        "ceiling"
+      ],
+      "prompt": "",
+      "file": "cfm-fan-ten.json",
+      "created_at": "2026-11-16T21:53:29Z"
+    },
+    {
+      "name": "cfm-fan-leaf",
+      "description": "Ceiling Fan Museum: 6-blade tropical fan, palm-leaf green blades, rattan motor. mnt_* mount, rot_* rotor (hub y=-0.375).",
+      "tags": [
+        "museum",
+        "fan",
+        "ceiling"
+      ],
+      "prompt": "Ceiling Fan Museum fan: 6-blade tropical, palm-leaf shaped green blades, rattan-look motor, ~1.4 m.",
+      "file": "cfm-fan-leaf.json",
+      "created_at": "2026-11-16T21:53:44Z"
+    },
+    {
+      "name": "cfm-fan-twelve",
+      "description": "Ceiling Fan Museum: 12-blade HVLS warehouse fan, yellow aerofoil blades, 6 m span, gearbox on long down-rod with safety cables. m_* mount, r_* rotor (hub y=-2.0).",
+      "tags": [
+        "museum",
+        "fan",
+        "ceiling",
+        "industrial"
+      ],
+      "prompt": "",
+      "file": "cfm-fan-twelve.json",
+      "created_at": "2026-11-16T21:53:56Z"
+    },
+    {
+      "name": "cfm-building",
+      "description": "The Ceiling Fan Museum: 40x28x9 m converted big-box store, open 4 m door, glass shopfront, neon CEILING FAN MUSEUM sign and fan logo, ticket desk, gift shelf, rope line, info signs, ceiling light panels, parking strip to z=-26.",
+      "tags": [
+        "museum",
+        "building",
+        "friendslop"
+      ],
+      "prompt": "Ceiling Fan Museum building shell for friendSLOP (fans and celebrity wall are separate models).",
+      "file": "cfm-building.json",
+      "created_at": "2026-11-16T21:54:15Z"
+    },
+    {
+      "name": "cfm-fan-caged",
+      "description": "Ceiling Fan Museum: caged drum fan, 6 blades in a round black wire cage, 0.9 m. m_* mount+cage, r_* rotor (hub y=-0.35).",
+      "tags": [
+        "museum",
+        "fan",
+        "ceiling",
+        "industrial"
+      ],
+      "prompt": "",
+      "file": "cfm-fan-caged.json",
+      "created_at": "2026-11-16T21:54:36Z"
+    },
+    {
+      "name": "cfm-fan-propeller",
+      "description": "Ceiling Fan Museum: 3-blade aircraft-propeller fan, polished aluminium, spinner cone pointing down, 1.6 m. m_* mount, r_* rotor (hub y=-0.5).",
+      "tags": [
+        "museum",
+        "fan",
+        "ceiling"
+      ],
+      "prompt": "",
+      "file": "cfm-fan-propeller.json",
+      "created_at": "2026-11-16T21:54:56Z"
+    },
+    {
+      "name": "cfm-celeb-wall",
+      "description": "Ceiling Fan Museum 'Wall of Fans': 22x5x0.4 m feature wall with 10 fictional celebrity plaques (portrait, gold signature, nameplate) and mini trophy fans; rotors exported separately (rotor_i at origin, axis +Y).",
+      "tags": [
+        "museum",
+        "ceiling fan",
+        "wall",
+        "set piece"
+      ],
+      "prompt": "Wall of Fans in the Ceiling Fan Museum: invented celebrities who signed with their favourite ceiling fan; mini rotors spin in game.",
+      "file": "cfm-celeb-wall.json",
+      "created_at": "2026-11-16T21:55:04Z"
     }
   ]
 }

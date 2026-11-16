@@ -1,0 +1,390 @@
+{
+  "name": "sf-fa-neon",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 16.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "w",
+      "size": [
+        1.6,
+        4.0
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "in": [
+        0.08,
+        0.1
+      ],
+      "input": "w.edge",
+      "name": "pane",
+      "type": "levels"
+    },
+    {
+      "id": "w.id",
+      "max": 1.1,
+      "min": 0.7,
+      "name": "tint",
+      "seed": 31,
+      "type": "random"
+    },
+    {
+      "a": [
+        0.04,
+        0.03,
+        0.07
+      ],
+      "b": "tint",
+      "name": "gc",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": [
+        0.08,
+        0.08,
+        0.1
+      ],
+      "b": "gc",
+      "name": "base",
+      "opacity": "pane",
+      "type": "blend"
+    },
+    {
+      "name": "nb",
+      "size": [
+        16.0,
+        16.0
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "coords": "nb.local",
+      "name": "br",
+      "size": [
+        40.0,
+        0.4
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "band",
+      "sdf": "br",
+      "type": "mask"
+    },
+    {
+      "a": "base",
+      "b": [
+        1.0,
+        0.4,
+        0.85
+      ],
+      "name": "col",
+      "opacity": "band",
+      "type": "blend"
+    },
+    {
+      "a": [
+        1.0,
+        0.3,
+        0.8
+      ],
+      "b": "band",
+      "name": "bem",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "bem",
+      "b": 6.0,
+      "name": "bem2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "id": "w.id",
+      "max": 1,
+      "min": 0,
+      "name": "lr",
+      "seed": 7,
+      "type": "random"
+    },
+    {
+      "in": [
+        0.9,
+        0.91
+      ],
+      "input": "lr",
+      "name": "lit",
+      "type": "levels"
+    },
+    {
+      "a": "lit",
+      "b": "pane",
+      "name": "litw",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": [
+        0.9,
+        0.3,
+        1.0
+      ],
+      "b": "litw",
+      "name": "wem",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "wem",
+      "b": 0.8,
+      "name": "wem2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "bem2",
+      "b": "wem2",
+      "name": "em",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": 0.5,
+      "b": 0.08,
+      "c": "pane",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.7,
+      "b": 0.4,
+      "c": "pane",
+      "name": "metal",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "band",
+      "b": 0.02,
+      "name": "hh",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "height": "hh",
+      "metallic": "metal",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-fa-neon",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 16.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "w",
+              "size": [
+                1.6,
+                4.0
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.08,
+                0.1
+              ],
+              "input": "w.edge",
+              "name": "pane",
+              "type": "levels"
+            },
+            {
+              "id": "w.id",
+              "max": 1.1,
+              "min": 0.7,
+              "name": "tint",
+              "seed": 31,
+              "type": "random"
+            },
+            {
+              "a": [
+                0.04,
+                0.03,
+                0.07
+              ],
+              "b": "tint",
+              "name": "gc",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": [
+                0.08,
+                0.08,
+                0.1
+              ],
+              "b": "gc",
+              "name": "base",
+              "opacity": "pane",
+              "type": "blend"
+            },
+            {
+              "name": "nb",
+              "size": [
+                16.0,
+                16.0
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "coords": "nb.local",
+              "name": "br",
+              "size": [
+                40.0,
+                0.4
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "band",
+              "sdf": "br",
+              "type": "mask"
+            },
+            {
+              "a": "base",
+              "b": [
+                1.0,
+                0.4,
+                0.85
+              ],
+              "name": "col",
+              "opacity": "band",
+              "type": "blend"
+            },
+            {
+              "a": [
+                1.0,
+                0.3,
+                0.8
+              ],
+              "b": "band",
+              "name": "bem",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "bem",
+              "b": 6.0,
+              "name": "bem2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "id": "w.id",
+              "max": 1,
+              "min": 0,
+              "name": "lr",
+              "seed": 7,
+              "type": "random"
+            },
+            {
+              "in": [
+                0.9,
+                0.91
+              ],
+              "input": "lr",
+              "name": "lit",
+              "type": "levels"
+            },
+            {
+              "a": "lit",
+              "b": "pane",
+              "name": "litw",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": [
+                0.9,
+                0.3,
+                1.0
+              ],
+              "b": "litw",
+              "name": "wem",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "wem",
+              "b": 0.8,
+              "name": "wem2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "bem2",
+              "b": "wem2",
+              "name": "em",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": 0.5,
+              "b": 0.08,
+              "c": "pane",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.7,
+              "b": 0.4,
+              "c": "pane",
+              "name": "metal",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "band",
+              "b": 0.02,
+              "name": "hh",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "height": "hh",
+              "metallic": "metal",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+w +pane +tint +gc +base +nb +br +band +col +bem +bem2 +lr +lit +litw +wem +wem2 +em +rough +metal +hh +out"
+      }
+    ],
+    "current": 0
+  }
+}

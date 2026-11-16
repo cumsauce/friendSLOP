@@ -32,4 +32,17 @@
     // The finish arch over the finish pad: height and width (m).
     arch_height: 8.0,
     arch_width: 18.0,
+    // The city under the course: each tower style's facade (a modeler
+    // swatch tiled at real size; the style wraps round this list), then the
+    // roofs and the building sites' concrete. `tile`: metres per repeat;
+    // `glow`: how bright lit windows and neon bands shine; `colour` and
+    // `rough`: the flat look if the swatch file is missing.
+    facades: [
+        (file: "models/surfaces/surf_glass.gltf", tile: 8.0, glow: 1.4, colour: (0.25, 0.38, 0.52), rough: 0.25),
+        (file: "models/surfaces/surf_office.gltf", tile: 8.0, glow: 1.4, colour: (0.55, 0.6, 0.62), rough: 0.3),
+        (file: "models/surfaces/surf_brick.gltf", tile: 8.0, glow: 1.4, colour: (0.62, 0.5, 0.4), rough: 0.6),
+        (file: "models/surfaces/surf_neon.gltf", tile: 16.0, glow: 8.0, colour: (0.18, 0.22, 0.3), rough: 0.2),
+    ],
+    roof: (file: "models/surfaces/surf_roof.gltf", tile: 8.0, glow: 0.0, colour: (0.32, 0.32, 0.34), rough: 0.9),
+    deck: (file: "models/surfaces/surf_deck.gltf", tile: 8.0, glow: 0.0, colour: (0.6, 0.58, 0.55), rough: 0.95),
 )

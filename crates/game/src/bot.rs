@@ -33,6 +33,10 @@ pub struct Routes {
     pub give_up: f32,
     /// A frame over this many ms is a hitch.
     pub hitch_ms: f32,
+    /// How fast `Spin` turns (degrees a second).
+    pub spin_degs: f32,
+    /// Sprint on every walk (`Walk` too, not just `Run`).
+    pub always_run: bool,
     /// Each route by name: its steps in order.
     pub routes: BTreeMap<String, Vec<Step>>,
 }
@@ -142,11 +146,29 @@ struct Bot {
     point: usize,
     /// Closest we got to the current target, and when that was.
     best: (f32, f32),
+    /// Where the body last made real progress (moved half a metre).
+    anchor: Vec2,
     /// A ride: on board yet.
     aboard: bool,
+    /// Starts looked up so far (a lookup asks every feature, and some work
+    /// their places out from scratch: never every frame), and when a missing
+    /// one was last tried.
+    found: std::collections::HashMap<String, Vec3>,
+    missing: std::collections::HashMap<String, f32>,
     stats: Vec<Stats>,
     /// Seconds since the game started, before the route begins.
     warmup: f32,
+    /// The bot's landmass agent (`nav.rs`): which way the area's navmesh
+    /// says to go this frame, and where the walk wants it to go.
+    agent: Option<Entity>,
+    nav_dir: Option<Vec2>,
+    /// The agent says it's as close as the mesh lets it get.
+    nav_reached: bool,
+    /// The agent can't put the target on the mesh (inside something solid).
+    nav_unreachable: bool,
+    nav_target: Option<Vec3>,
+    /// Real seconds since the route began.
+    clock: f32,
     done: bool,
 }
 
@@ -205,6 +227,14 @@ fn drive(
         Option<&mut crate::kcc::Kcc>,
     )>,
     runs: Query<&crate::features::trains::Run>,
+    navs: Res<friendslop_base::nav::AreaNavs>,
+    states: Query<&bevy_landmass::AgentState>,
+    mut agents: Query<(
+        &mut Transform,
+        &mut bevy_landmass::AgentTarget3d,
+        &mut bevy_landmass::ArchipelagoRef3d,
+        Option<&bevy_landmass::AgentDesiredVelocity3d>,
+    )>,
     clickables: Query<(Entity, &GlobalTransform), With<crate::features::interact::Clickable>>,
     mut commands: Commands,
     mut exit: MessageWriter<AppExit>,
@@ -222,6 +252,7 @@ fn drive(
         };
         bot.steps = flatten(steps);
         bot.stats = (0..bot.steps.len()).map(|_| Stats::default()).collect();
+        bot.best = (f32::MAX, 0.0);
         info!("bot: route {} ({} steps)", bot.route, bot.steps.len());
     }
     // Let the first load settle before timing anything.
@@ -248,8 +279,31 @@ fn drive(
         info!("bot: {name}");
     }
     bot.secs += dt;
+    bot.clock += dt;
     let pos = walker.pos;
+    // The navmesh's way this frame (from last frame's agent), if any.
+    let archipelago = crate::areas::area_at(pos).and_then(|a| navs.archipelago(&a));
+    bot.nav_dir = bot
+        .agent
+        .and_then(|e| agents.get(e).ok())
+        .filter(|a| Some(a.2.entity) == archipelago)
+        .and_then(|a| a.3)
+        .map(|d| d.velocity().xz())
+        .filter(|v| v.length() > 0.1)
+        .map(|v| v.normalize());
+    bot.nav_reached = bot
+        .agent
+        .and_then(|e| states.get(e).ok())
+        .is_some_and(|s| matches!(s, bevy_landmass::AgentState::ReachedTarget));
+    bot.nav_unreachable = bot.agent.and_then(|e| states.get(e).ok()).is_some_and(|s| {
+        matches!(
+            s,
+            bevy_landmass::AgentState::TargetNotOnNavMesh | bevy_landmass::AgentState::NoPath
+        )
+    });
+    bot.nav_target = None;
     let out = step_out(&mut bot, &step, pos, &points, &runs, &t);
+    steer_agent(&mut bot, &mut commands, &mut agents, archipelago, pos);
     if let Some(at) = out.teleport {
         let yaw = walker.yaw;
         teleport(
@@ -287,7 +341,11 @@ fn drive(
     };
     if out.next || out.skip {
         if out.skip {
-            warn!("bot: gave up on {name} at {pos:.1}");
+            let state = bot.agent.and_then(|e| states.get(e).ok());
+            warn!(
+                "bot: gave up on {name} at {pos:.1} (mesh {}, agent {state:?})",
+                archipelago.is_some()
+            );
             let i = bot.at;
             bot.stats[i].skipped = true;
         }
@@ -308,15 +366,19 @@ fn step_out(
     runs: &Query<&crate::features::trains::Run>,
     t: &Routes,
 ) -> Out {
-    let find = |n: &str| crate::features::start::find(points, n);
     match step {
-        Step::Start(n) => match find(n) {
-            Some(at) if bot.secs < 0.5 => Out {
-                teleport: (bot.secs <= 0.1).then_some(at + Vec3::Y * 0.05),
-                ..default()
-            },
+        Step::Start(n) => match lookup(bot, points, n) {
+            // `aboard` marks the teleport done; then half a second to land.
+            Some(at) if !bot.aboard => {
+                bot.aboard = true;
+                bot.best = (0.0, bot.secs);
+                Out {
+                    teleport: Some(at + Vec3::Y * 0.05),
+                    ..default()
+                }
+            }
             Some(_) => Out {
-                next: true,
+                next: bot.secs - bot.best.1 > 0.5,
                 ..default()
             },
             // A place built only when its area loads: wait for it.
@@ -342,17 +404,17 @@ fn step_out(
             }
             o
         }
-        Step::WalkTo(n) => match find(n) {
+        Step::WalkTo(n) => match lookup(bot, points, n) {
             Some(at) => go(bot, pos, at.xz(), false, t),
             None => Out {
-                skip: true,
+                skip: bot.secs > t.give_up,
                 ..default()
             },
         },
         Step::Ride { from, to } => {
-            let Some(dest) = find(to) else {
+            let Some(dest) = lookup(bot, points, to) else {
                 return Out {
-                    skip: true,
+                    skip: bot.secs > t.give_up,
                     ..default()
                 };
             };
@@ -375,6 +437,11 @@ fn step_out(
                 };
             };
             let skip = bot.secs > t.give_up * 30.0;
+            // Anywhere inside a car (the standing train or the ride car) is
+            // aboard: stand still and let it carry us; no steering at doors.
+            if crate::features::trains::car_at(&trains, pos).is_some() {
+                bot.aboard = true;
+            }
             if bot.aboard {
                 // Stand still on board until it sets us down.
                 return Out { skip, ..default() };
@@ -388,14 +455,19 @@ fn step_out(
                 // Wait on the platform for the train.
                 return Out { skip, ..default() };
             }
-            let car = crate::features::trains::stop_origin(s);
-            let (yaw, stick) = steer(pos, car.xz());
-            if pos.xz().distance(car.xz()) < 1.0 {
-                bot.aboard = true;
+            // To the door first, then in through it.
+            let (front, inside) = crate::features::trains::door_way(s);
+            let in_front = bot.point > 0 || pos.xz().distance(front.xz()) < 0.6;
+            if in_front {
+                bot.point = 1;
             }
+            let to = if in_front { inside } else { front };
+            let (yaw, stick) = steer(pos, to.xz());
+
             Out {
                 yaw: Some(yaw),
                 stick,
+                run: t.always_run,
                 skip,
                 ..default()
             }
@@ -405,7 +477,7 @@ fn step_out(
             ..default()
         },
         Step::Spin(s) => Out {
-            turn: std::f32::consts::TAU / 4.0,
+            turn: t.spin_degs.to_radians(),
             next: bot.secs >= *s,
             ..default()
         },
@@ -427,6 +499,24 @@ fn step_out(
     }
 }
 
+/// Where the start `name` is, looked up once (a missing one is tried again
+/// at most once a second: its place may only be built when its area loads).
+fn lookup(bot: &mut Bot, points: &crate::features::start::StartPoints, name: &str) -> Option<Vec3> {
+    if let Some(at) = bot.found.get(name) {
+        return Some(*at);
+    }
+    let now = bot.clock;
+    if bot.missing.get(name).is_some_and(|t| now - t < 1.0) {
+        return None;
+    }
+    let Some(at) = crate::features::start::find(points, name) else {
+        bot.missing.insert(name.to_owned(), now);
+        return None;
+    };
+    bot.found.insert(name.to_owned(), at);
+    Some(at)
+}
+
 /// Walk (or run) towards `target`: done in reach, a hop when stuck, skipped
 /// when hopelessly stuck.
 fn go(bot: &mut Bot, pos: Vec3, target: Vec2, run: bool, t: &Routes) -> Out {
@@ -437,19 +527,96 @@ fn go(bot: &mut Bot, pos: Vec3, target: Vec2, run: bool, t: &Routes) -> Out {
             ..default()
         };
     }
-    if dist < bot.best.0 - 0.25 {
+    // Progress is moving, not closing in: a path round a wall leads away first.
+    if pos.xz().distance(bot.anchor) > 0.5 || bot.best.0 == f32::MAX {
+        bot.anchor = pos.xz();
         bot.best = (dist, bot.secs);
     }
     let stuck = bot.secs - bot.best.1;
-    let (yaw, stick) = steer(pos, target);
+    // A place that's solid in the middle (the warehouse, the windmill): done
+    // when the mesh says this is as close as it gets, or stuck close by.
+    let close = stuck > t.stuck_jump && (dist < 20.0 || bot.nav_unreachable);
+    if bot.nav_reached && bot.secs > 0.5 || close {
+        return Out {
+            next: true,
+            ..default()
+        };
+    }
+    bot.nav_target = Some(Vec3::new(target.x, pos.y, target.y));
+    let (mut yaw, mut stick) = steer(pos, target);
+    // Follow the navmesh round walls when it knows a way; straight otherwise.
+    if let Some(d) = bot.nav_dir {
+        yaw = (-d.x).atan2(-d.y);
+    }
+    // Stuck on the mesh: against something it leaves out (a tree, a rock).
+    // Sidestep, one way then the other, rather than climb it.
+    if bot.nav_dir.is_some() && stuck > t.stuck_jump {
+        let side = if (stuck / 1.5) as i32 % 2 == 0 {
+            1.0
+        } else {
+            -1.0
+        };
+        stick = Vec2::new(side, 0.5).normalize();
+    }
     Out {
         yaw: Some(yaw),
         stick,
-        run,
-        jump: stuck > t.stuck_jump && (stuck * 2.0).fract() < 0.5,
-        skip: stuck > t.give_up,
+        run: run || t.always_run,
+        // Hop only without a path: on the mesh, hopping just climbs walls.
+        jump: bot.nav_dir.is_none() && stuck > t.stuck_jump && (stuck * 2.0).fract() < 0.5,
+        // Stuck too long, or wandering far too long.
+        skip: stuck > t.give_up || bot.secs > t.give_up * 15.0,
         ..default()
     }
+}
+
+/// Keep the bot's landmass agent at its feet, aimed at the walk's target, on
+/// the area's archipelago; drop it where there's no mesh or nowhere to go.
+fn steer_agent(
+    bot: &mut Bot,
+    commands: &mut Commands,
+    agents: &mut Query<(
+        &mut Transform,
+        &mut bevy_landmass::AgentTarget3d,
+        &mut bevy_landmass::ArchipelagoRef3d,
+        Option<&bevy_landmass::AgentDesiredVelocity3d>,
+    )>,
+    archipelago: Option<Entity>,
+    pos: Vec3,
+) {
+    let (Some(arch), Some(target)) = (archipelago, bot.nav_target) else {
+        if let Some(e) = bot.agent.take() {
+            commands.entity(e).try_despawn();
+        }
+        return;
+    };
+    if let Some(e) = bot.agent
+        && let Ok((mut tf, mut aim, mut on, _)) = agents.get_mut(e)
+    {
+        tf.translation = pos;
+        *aim = bevy_landmass::AgentTarget3d::Point(target);
+        if on.entity != arch {
+            *on = bevy_landmass::ArchipelagoRef3d::new(arch);
+        }
+        return;
+    }
+    let radius = friendslop_base::nav::TUNING.get().agent_radius;
+    bot.agent = Some(
+        commands
+            .spawn((
+                Transform::from_translation(pos),
+                bevy_landmass::Agent3d::default(),
+                bevy_landmass::AgentSettings {
+                    radius,
+                    desired_speed: crate::kcc::RUN_SPEED,
+                    max_speed: crate::kcc::RUN_SPEED,
+                },
+                bevy_landmass::ArchipelagoRef3d::new(arch),
+                bevy_landmass::AgentTarget3d::Point(target),
+                crate::areas::Global,
+            ))
+            .id(),
+    );
 }
 
 /// Every frame: the frame time and any hitch, filed under the step.
@@ -574,7 +741,7 @@ mod tests {
         assert!(ROUTES.set_bytes(&bytes), "{path} doesn't parse");
         let r = ROUTES.get();
         assert!(r.reach > 0.0 && r.stuck_jump > 0.0 && r.give_up > r.stuck_jump);
-        assert!(r.hitch_ms > 0.0);
+        assert!(r.hitch_ms > 0.0 && r.spin_degs > 0.0);
         for name in ["tour", "borders"] {
             let steps = r.routes.get(name).map(|s| flatten(s)).unwrap_or_default();
             assert!(!steps.is_empty(), "route {name}");

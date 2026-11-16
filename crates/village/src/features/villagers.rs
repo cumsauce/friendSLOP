@@ -394,48 +394,51 @@ fn hold_fooled(
 pub fn plugin(app: &mut App) {
     // Drawn only while its area shows (dressed again each time it does).
     friendslop_base::areas::dress_in_area::<Villager>(app);
-    app.add_plugins((
-        // Navmesh plumbing for the villagers' brains: rerecast builds the mesh
-        // from the world's avian colliders, landmass walks agents over it. The
-        // mesh is only built on the host (see `build_navmesh`).
-        NavmeshPlugins::default(),
-        AvianBackendPlugin::default(),
-        Landmass3dPlugin::default(),
-        LandmassRerecastPlugin::default(),
-    ))
-    .add_observer(on_navmesh_ready)
-    .init_resource::<NavBuild>()
-    .add_systems(OnExit(ServerState::Running), forget_navmesh)
-    .add_observer(click_villager)
-    .add_systems(
-        Update,
-        (dress_villagers, move_villagers, mutter).run_if(in_state(AppState::InGame)),
-    )
-    .add_systems(
-        Update,
-        (tag_navmesh_exclusions, build_navmesh, attach_agents)
-            .chain()
-            .run_if(in_state(ServerState::Running))
-            .run_if(in_state(AppState::InGame))
-            // Built from the commune's colliders: only while they're loaded,
-            // and again each time they load (the host may start elsewhere).
-            .run_if(friendslop_base::areas::live(COMMUNE)),
-    )
-    .add_systems(
-        PreUpdate,
-        (forget_navmesh, drop_agents)
-            .after(friendslop_base::areas::AreaSet)
-            .run_if(friendslop_base::areas::unloaded(
-                friendslop_base::areas::Layer::Sim,
-                COMMUNE,
-            )),
-    )
-    .add_systems(
-        Update,
-        avoid_cover
-            .run_if(in_state(ServerState::Running))
-            .run_if(in_state(AppState::InGame)),
-    );
+    // Navmesh plumbing for the villagers' brains: rerecast builds the mesh
+    // from the world's avian colliders, landmass walks agents over it. The
+    // mesh is only built on the host (see `build_navmesh`). `nav.rs` adds
+    // the same plugins for every area's mesh; whoever comes first adds them.
+    if !app.is_plugin_added::<AvianBackendPlugin>() {
+        app.add_plugins((
+            NavmeshPlugins::default(),
+            AvianBackendPlugin::default(),
+            Landmass3dPlugin::default(),
+            LandmassRerecastPlugin::default(),
+        ));
+    }
+    app.add_observer(on_navmesh_ready)
+        .init_resource::<NavBuild>()
+        .add_systems(OnExit(ServerState::Running), forget_navmesh)
+        .add_observer(click_villager)
+        .add_systems(
+            Update,
+            (dress_villagers, move_villagers, mutter).run_if(in_state(AppState::InGame)),
+        )
+        .add_systems(
+            Update,
+            (tag_navmesh_exclusions, build_navmesh, attach_agents)
+                .chain()
+                .run_if(in_state(ServerState::Running))
+                .run_if(in_state(AppState::InGame))
+                // Built from the commune's colliders: only while they're loaded,
+                // and again each time they load (the host may start elsewhere).
+                .run_if(friendslop_base::areas::live(COMMUNE)),
+        )
+        .add_systems(
+            PreUpdate,
+            (forget_navmesh, drop_agents)
+                .after(friendslop_base::areas::AreaSet)
+                .run_if(friendslop_base::areas::unloaded(
+                    friendslop_base::areas::Layer::Sim,
+                    COMMUNE,
+                )),
+        )
+        .add_systems(
+            Update,
+            avoid_cover
+                .run_if(in_state(ServerState::Running))
+                .run_if(in_state(AppState::InGame)),
+        );
 }
 
 /// Server: every scattered collider (tree trunks, rocks, fences, logs, crates,
@@ -448,7 +451,13 @@ pub fn plugin(app: &mut App) {
 fn tag_navmesh_exclusions(
     mut build: ResMut<NavBuild>,
     mut commands: Commands,
-    colliders: Query<(Entity, &RigidBody), With<Collider>>,
+    colliders: Query<
+        (Entity, &RigidBody),
+        (
+            With<Collider>,
+            Without<avian_rerecast::ExcludeColliderFromNavmesh>,
+        ),
+    >,
     keep: Query<
         (),
         Or<(
@@ -457,7 +466,9 @@ fn tag_navmesh_exclusions(
         )>,
     >,
 ) {
-    if build.tagged {
+    // Every frame until the mesh is queued: props keep arriving as the
+    // commune loads, and the build waits until each one is tagged.
+    if build.built {
         return;
     }
     build.tagged = true;
@@ -504,15 +515,22 @@ struct NavBuild {
 fn forget_navmesh(
     mut commands: Commands,
     mut build: ResMut<NavBuild>,
+    mut navs: ResMut<friendslop_base::nav::AreaNavs>,
     nav: Option<Res<VillageNav>>,
-    islands: Query<Entity, With<bevy_landmass::Island>>,
+    islands: Query<(Entity, &ArchipelagoRef3d), With<bevy_landmass::Island>>,
 ) {
     *build = NavBuild::default();
-    if let Some(nav) = nav {
-        commands.entity(nav.archipelago).try_despawn();
-    }
-    for e in &islands {
-        commands.entity(e).try_despawn();
+    navs.forget(COMMUNE);
+    let Some(nav) = nav else {
+        commands.remove_resource::<VillageNav>();
+        return;
+    };
+    commands.entity(nav.archipelago).try_despawn();
+    // Only the commune's island: other areas keep theirs (`nav.rs`).
+    for (e, r) in &islands {
+        if r.entity == nav.archipelago {
+            commands.entity(e).try_despawn();
+        }
     }
     commands.remove_resource::<VillageNav>();
 }
@@ -566,9 +584,9 @@ fn build_navmesh(
     }
     build.built = true;
     let archipelago = commands
-        .spawn(Archipelago3d::new(ArchipelagoOptions::from_agent_radius(
-            tuning().agent_radius,
-        )))
+        .spawn(Archipelago3d::new(
+            friendslop_base::nav::archipelago_options(tuning().agent_radius),
+        ))
         .id();
     let mesh = generator.generate(navmesh_settings());
     commands.insert_resource(VillageNav {
@@ -584,10 +602,15 @@ fn build_navmesh(
 /// so landmass can path over it.
 fn on_navmesh_ready(
     ready: On<NavmeshReady>,
-    mut nav: ResMut<VillageNav>,
+    nav: Option<ResMut<VillageNav>>,
+    mut navs: ResMut<friendslop_base::nav::AreaNavs>,
     navmeshes: Res<Assets<bevy_rerecast::Navmesh>>,
     mut commands: Commands,
 ) {
+    // Other areas' meshes (`nav.rs`) are ready too: only ours counts here.
+    let Some(mut nav) = nav else {
+        return;
+    };
     if ready.event().0 != nav.mesh.id() {
         return;
     }
@@ -599,6 +622,8 @@ fn on_navmesh_ready(
     );
     info!("villager navmesh ready: {verts} vertices, built in {secs:.1}s");
     nav.ready = true;
+    // The commune's mesh for everyone else too (`nav.rs`).
+    navs.provide(COMMUNE, nav.archipelago, true);
     commands.spawn(Island3dBundle {
         island: bevy_landmass::Island,
         archipelago_ref: ArchipelagoRef3d::new(nav.archipelago),

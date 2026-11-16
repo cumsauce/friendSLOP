@@ -242,13 +242,13 @@ impl StereoEq {
 }
 
 /// A fractional delay line.
-struct Line {
+pub(crate) struct Line {
     buf: Vec<f32>,
     w: usize,
 }
 
 impl Line {
-    fn new(n: usize) -> Self {
+    pub(crate) fn new(n: usize) -> Self {
         Self {
             buf: vec![0.0; n],
             w: 0,
@@ -256,7 +256,7 @@ impl Line {
     }
 
     #[inline]
-    fn write(&mut self, x: f32) {
+    pub(crate) fn write(&mut self, x: f32) {
         self.buf[self.w] = x;
         self.w += 1;
         if self.w == self.buf.len() {
@@ -266,7 +266,7 @@ impl Line {
 
     /// Read `d` samples back (linear interpolation), `d < len - 1`.
     #[inline]
-    fn read(&self, d: f32) -> f32 {
+    pub(crate) fn read(&self, d: f32) -> f32 {
         let n = self.buf.len();
         let d = d.clamp(1.0, (n - 2) as f32);
         let di = d as usize;
@@ -360,70 +360,6 @@ impl AutoPan {
             *xl *= 1.0 - s;
             *xr *= 1.0 + s;
         }
-    }
-}
-
-/// The echo's feedback as mixed (songs can automate it: `master.feedback`).
-pub const ECHO_FEEDBACK: f32 = 0.42;
-
-/// Ping-pong echo with a darkening feedback path, its time set from the
-/// tempo (and glided, so tempo changes don't click).
-pub struct Echo {
-    l: Line,
-    r: Line,
-    time: f32,
-    target: f32,
-    fb: f32,
-    damp_l: f32,
-    damp_r: f32,
-    hp: Biquad,
-}
-
-impl Echo {
-    pub fn new() -> Self {
-        Self {
-            l: Line::new((1.3 * FS) as usize),
-            r: Line::new((1.3 * FS) as usize),
-            time: 0.4 * FS,
-            target: 0.4 * FS,
-            fb: ECHO_FEEDBACK,
-            damp_l: 0.0,
-            damp_r: 0.0,
-            hp: Biquad::new(Eq::Hp(350.0, 0.7)),
-        }
-    }
-
-    /// How much of each repeat comes back (clamped below runaway).
-    pub fn set_feedback(&mut self, fb: f32) {
-        self.fb = fb.clamp(0.0, 0.95);
-    }
-
-    /// Dotted eighths at `bpm`.
-    pub fn set_tempo(&mut self, bpm: f32) {
-        self.target = (0.75 * 60.0 / bpm.max(40.0) * FS).min(1.2 * FS);
-    }
-
-    /// Add the echoes of mono `send` into `l`/`r`.
-    pub fn process(&mut self, send: &[f32], l: &mut [f32], r: &mut [f32]) {
-        for ((s, xl), xr) in send.iter().zip(l.iter_mut()).zip(r.iter_mut()) {
-            self.time += (self.target - self.time) * 0.0005;
-            let a = self.l.read(self.time);
-            let b = self.r.read(self.time);
-            self.damp_l += 0.45 * (a - self.damp_l);
-            self.damp_r += 0.45 * (b - self.damp_r);
-            let input = self.hp.tick(*s);
-            // Left feeds right and right feeds left: ping-pong.
-            self.l.write(input + self.damp_r * self.fb);
-            self.r.write(self.damp_l * self.fb);
-            *xl += a * 0.55;
-            *xr += b * 0.55;
-        }
-    }
-}
-
-impl Default for Echo {
-    fn default() -> Self {
-        Self::new()
     }
 }
 

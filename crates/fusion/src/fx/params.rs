@@ -138,7 +138,7 @@ impl Master {
     pub const DEFAULT: Master = Master {
         wet: 1.0,
         echo: 1.0,
-        feedback: crate::dsp::ECHO_FEEDBACK,
+        feedback: crate::fx::echo::FEEDBACK,
     };
 }
 
@@ -371,7 +371,7 @@ mod tests {
         assert_eq!(p.param("eq.0.hz").copied(), Some(80.0));
         assert_eq!(p.trim, 0.5);
         assert!(buses[Bus::Bass as usize].chorus.is_none());
-        assert!((master.feedback - (crate::dsp::ECHO_FEEDBACK + 0.2)).abs() < 1e-6);
+        assert!((master.feedback - (crate::fx::echo::FEEDBACK + 0.2)).abs() < 1e-6);
         assert_eq!(master.wet, 0.0);
     }
 
@@ -399,6 +399,44 @@ mod tests {
             .lane()
             .is_none()
         );
+    }
+
+    /// Every bus effect the mixer has can be reached by name.
+    #[test]
+    fn every_effect_is_automatable() {
+        let mut m: BusMix = ron::from_str(
+            "(drive: Some((0.5, 0.4)), comp: Some((-20.0, 4.0, 3.0, 90.0, 0.5)),
+              filter: Some((Lp, 800.0, 2.0)), width: Some((1.2, 120.0)),
+              crush: Some((8.0, 11025.0, 0.5)), transient: Some((0.3, -0.2)),
+              phaser: Some((0.3, 0.6, 0.4, 0.5)))",
+        )
+        .unwrap_or_else(|e| panic!("{e}"));
+        for (path, want) in [
+            ("drive.amount", 0.5),
+            ("drive.tone", 0.4),
+            ("comp.threshold", -20.0),
+            ("comp.mix", 0.5),
+            ("filter.cutoff", 800.0),
+            ("filter.q", 2.0),
+            ("width.amount", 1.2),
+            ("width.mono_below", 120.0),
+            ("crush.bits", 8.0),
+            ("crush.rate", 11025.0),
+            ("transient.attack", 0.3),
+            ("transient.sustain", -0.2),
+            ("phaser.depth", 0.6),
+            ("phaser.feedback", 0.4),
+        ] {
+            assert_eq!(m.param(path).copied(), Some(want), "{path}");
+        }
+        assert!(m.param("filter.kind").is_none());
+        // And overridden per song, field by field.
+        let o: crate::synth::BusOverride =
+            ron::from_str("(drive: None, crush: Some((4.0, 8000.0, 1.0)))")
+                .unwrap_or_else(|e| panic!("{e}"));
+        m.merge(&o);
+        assert!(m.drive.is_none() && m.comp.is_some());
+        assert_eq!(m.crush, Some((4.0, 8000.0, 1.0)));
     }
 
     #[test]

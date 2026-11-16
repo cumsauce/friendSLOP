@@ -1651,6 +1651,8 @@ pub const STAIRS_W: f32 = 2.4;
 const STAIRS_MODEL_DROP: f32 = 1.6;
 /// How tall a deck's railing's collider is.
 const RAIL_H: f32 = 1.1;
+/// How far a wall's top stays under the floor of the level above (m).
+const FLUSH_GAP: f32 = 0.02;
 /// How deep (m, across the side) a rubble heap's collider is.
 const RUBBLE_DEPTH: f32 = 2.4;
 
@@ -1697,11 +1699,14 @@ pub fn shapes(t: &Tuning, li: usize, level: &Level) -> Vec<Shape> {
                     let stretch = Vec3::new(1.0, drop, 1.0);
                     if f.mask & bit(s) == 0 {
                         out.push(put(ShapePiece::Wall, floor, turn, Vec3::ONE, None));
+                        // The wall's top up to the ceiling, stopping short of
+                        // it: its tiled top would lie flush in the floor of
+                        // the level above and flicker there.
                         out.push(put(
                             ShapePiece::WallPlain,
-                            floor + Vec3::Y * ROOM_H,
+                            floor + Vec3::Y * (ROOM_H - FLUSH_GAP),
                             turn,
-                            stretch,
+                            Vec3::new(1.0, drop - FLUSH_GAP, 1.0),
                             None,
                         ));
                     } else if wfc::neighbour(w, h, c, s)
@@ -3572,6 +3577,43 @@ mod tests {
         }
         println!("tall rooms on {tall} levels, {stairs} stairs");
         assert!(tall >= 3 && stairs >= tall);
+    }
+
+    /// How tall each piece is as modelled (its top cap, before scaling).
+    fn piece_top(p: ShapePiece) -> Option<f32> {
+        match p {
+            ShapePiece::Wall | ShapePiece::Ceiling => Some(3.99),
+            ShapePiece::WallPlain => Some(1.0),
+            ShapePiece::Rail => Some(1.025),
+            _ => None,
+        }
+    }
+
+    #[test]
+    fn no_piece_lies_flush_in_the_floor_above_or_is_flattened() {
+        let (t, set) = data();
+        let levels = generate(&t, &set);
+        for (li, l) in levels.iter().enumerate() {
+            let above = level_floor(li) + STATION_LEVEL_H;
+            for sh in shapes(&t, li, l) {
+                let s = sh.transform.scale;
+                assert!(
+                    s.min_element() > 0.05,
+                    "level {li}: {:?} squashed to {s}",
+                    sh.piece
+                );
+                let Some(top) = piece_top(sh.piece) else {
+                    continue;
+                };
+                let top = sh.transform.translation.y + top * s.y;
+                assert!(
+                    top < above - 0.005,
+                    "level {li}: {:?} tops out at {top}, flush with the floor above ({above}) at {}",
+                    sh.piece,
+                    sh.transform.translation
+                );
+            }
+        }
     }
 
     #[test]

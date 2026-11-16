@@ -116,6 +116,10 @@ pub struct Bar {
     pub echo: f32,
     /// The mood's colour and feel.
     pub tone: Tone,
+    /// Automation lanes playing this bar, and how many bars into its
+    /// section the bar starts.
+    pub auto: Vec<crate::auto::Lane>,
+    pub at_bar: f32,
 }
 
 impl Bar {
@@ -129,6 +133,8 @@ impl Bar {
             wet: 1.0,
             echo: 1.0,
             tone: Tone::NEUTRAL,
+            auto: Vec::new(),
+            at_bar: 0.0,
         }
     }
 }
@@ -390,6 +396,7 @@ impl Composer {
     /// Decide and write the next bar. Called exactly at every bar line.
     pub fn next_bar(&mut self, cue: Cue, bar: &mut Bar) {
         bar.events.clear();
+        bar.auto.clear();
         self.intensity += (cue.intensity.clamp(0.0, 1.0) - self.intensity) * 0.5;
         self.climb = cue.climb.clamp(-1.0, 1.0);
         if self.bars_played > 0 {
@@ -518,6 +525,7 @@ impl Composer {
         bar.len = (self.steps as f32 * self.step_len) as u32;
         self.bars_played += 1;
 
+        bar.at_bar = self.plan.bar as f32;
         self.layers(&mut bar.bus);
         bar.gain = 10f32.powf(self.mood.level_db() / 20.0);
         self.colour(bar);
@@ -646,6 +654,15 @@ impl Composer {
             }
             if !part.on(&ctx) {
                 continue;
+            }
+            for a in part.auto.iter().filter(|a| a.on(kind)) {
+                bar.auto.push(crate::auto::Lane {
+                    inst: part.inst,
+                    param: a.param.clone(),
+                    how: a.how,
+                    curve: a.curve.clone(),
+                    bars: a.bars,
+                });
             }
             match &part.play {
                 G::Kime { .. } => self.write_kime(bar, part, crash),

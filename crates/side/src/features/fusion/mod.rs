@@ -840,6 +840,7 @@ mod tests {
             "fulton",
             "miami",
             "factory_town",
+            "surf",
             "boba",
             "penn_njt",
             "penn_lirr",

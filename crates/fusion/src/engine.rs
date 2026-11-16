@@ -72,6 +72,9 @@ impl Engine {
                 self.band.set_tempo(self.composer.bpm());
                 self.band.master_target = self.bar.gain;
                 self.band.bright = self.bar.bright;
+                self.band.auto.clone_from(&self.bar.auto);
+                self.band.auto_pos = self.bar.at_bar;
+                self.band.auto_step = 1.0 / self.bar.len.max(1) as f32;
                 self.band.wet_target = self.bar.wet;
                 self.band.echo_target = self.bar.echo;
                 self.band.tone_target = self.bar.tone;

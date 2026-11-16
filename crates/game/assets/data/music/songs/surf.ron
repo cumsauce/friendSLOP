@@ -1,0 +1,35 @@
+#![enable(implicit_some)]
+// Surf: song 1 (its own song). See moods.ron for what the fields mean.
+// "Tidewater": chill liquid drum and bass for the surf hall (#306). A rolling
+// two-step at 174 and a long sub, with a wobbling Reese doubling the bass all
+// through. Warm analog chords and a slow pulse pad; supersaw stabs take the
+// hook and B. The Reese calls and a warm analog lead answers, two bars
+// each; the chords and pad duck hard under the drums. No bells, no flute.
+(
+    mood: "Surf", band: "street",
+    bpm: 174.0, swing: 0.0, key: 2,
+    a: "MARKET_A", b: "EXPLORE_B", hook: "KITE_B",
+    intensity: 0.6, odd: 0.0, modulate: 0.0, kime: 0.0,
+    parts: [
+        (play: Drums(groove: "Liquid", kit: "liquid", ride: true), not: [Intro]),
+        (play: Lane(lane: "shaker"), not: [Intro, Breakdown]),
+        (play: Bass(lines: ["LIQUID", "LIQUID2"]), inst: SubBass, bus: "bass", not: [Intro]),
+        (play: Chords(comp: "Long"), inst: WarmPoly, sections: [Intro, A, Breakdown],
+            // Ducked hard under every kick and snare (a sixteenth-step sidechain).
+            auto: [(param: "level_db", curve: Steps([-16.0, -9.0, -4.0, -1.0, -16.0, -9.0, -4.0, -1.0, 0.0, 0.0, -16.0, -9.0, -16.0, -9.0, -4.0, -1.0]), bars: 0.0625, not: [Intro])]),
+        // The stabs open up across each eight bars of the hook and B.
+        (play: Chords(comp: "Stabs"), inst: SuperSaw, sections: [Hook, B],
+            auto: [(param: "cut_base", how: Octaves, curve: Ramp(-1.5, 1.0), bars: 8.0)]),
+        // Call and response: the Reese calls on the first two bars of every four,
+        // the warm lead answers on the other two (while the sub holds the floor).
+        (play: Bass(lines: ["LIQUID", "LIQUID2"]), inst: Reese, not: [Intro], register: (38, 55),
+            when: [(before: (4, 2))],
+            // A slow two-bar wobble, a touch of resonance on top.
+            auto: [
+                (param: "cut_base", how: Octaves, curve: Lfo(shape: Triangle, center: 0.0, depth: 1.2), bars: 2.0),
+                (param: "k", how: Times, curve: Lfo(shape: Sine, center: 0.65, depth: 0.15), bars: 4.0),
+            ]),
+        (play: Pad(), inst: WarmPad, auto: [(param: "level_db", curve: Steps([-16.0, -9.0, -4.0, -1.0, -16.0, -9.0, -4.0, -1.0, 0.0, 0.0, -16.0, -9.0, -16.0, -9.0, -4.0, -1.0]), bars: 0.0625, not: [Intro])]),
+        (play: Melody(style: "riff"), inst: WarmLead, not: [Intro], when: [(every: (4, 2))]),
+    ],
+)

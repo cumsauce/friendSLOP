@@ -52,6 +52,16 @@
 //   inst (who plays it), sections / not (where), when (conditions, see library.ron),
 //   intensity: (lo, hi), bus and layer (its mix bus and level rules; default: always on),
 //   register: (lo, hi).
+//   auto: [lanes] moves its sound over time (electronic music's automation). A lane:
+//     (param: "<setting>": any number in its instrument's engine in instruments.ron
+//        (Fm and Sub: "cut_base", "k", "env_oct", "i1_sus", "vibrato", "detune"...),
+//        or "level_db" (dB, any pitched instrument),
+//      how: Add (default) | Times | Octaves (times 2^value) | Set,
+//      curve: Ramp(from, to) | Lfo(shape: Sine|Triangle|Saw|Down|Square, center, depth)
+//        | Steps([v, ..]) (one value per cycle, a gate),
+//      bars: one cycle's length (1 unless written; 0.25 = a beat), sections / not).
+//     Bars count from the section's start; lanes apply in the order written.
+//     e.g. auto: [(param: "cut_base", how: Octaves, curve: Ramp(-2.0, 1.0), bars: 8.0)]
 //   They play in the order written; lanes play inside the kit's bar, the kime stands in for
 //   the band on a section's last bar, and the answer echoes the melody.
 //   e.g. parts: [(play: Drums(groove: "Laid")), (play: Bass(lines: ["LAID"]), inst: Upright),
@@ -183,6 +193,9 @@
         "BOOM2": "R-------..R-.A..",
         // House: the off-beat bass, and octaves.
         "HOUSE": "..R...R...R...R.",
+        // Liquid DnB: long rolling sub notes that follow the kick.
+        "LIQUID": "R---------R--5-A",
+        "LIQUID2": "R-------..R---5-",
         "OCTAVE": "R.P.R.P.R.P.R.PA",
         // Cumbia on one and three: root, then the fifth, a walk into the next chord.
         "CUMBIA13": "R-......5-......",
@@ -333,6 +346,14 @@
             tone: (warmth: -0.3, width: 1.3, wow: 0.0, lay_back_ms: 0.0, loose_ms: 0.0),
             level_db: 2.0,
         ),
+        (
+            // The surf hall (#306): chill liquid drum and bass, wide and washy.
+            name: "Surf",
+            tone: (warmth: 0.25, width: 1.35, wow: 0.15, lay_back_ms: 0.0, loose_ms: 1.0),
+            level_db: 1.0,
+            wet: 1.4,
+            instant: true,
+        ),
     ],
     // What plays when: the first rule that matches.
     rules: [
@@ -355,6 +376,8 @@
         (when: Signal("wendys_attic", Gt, 0.0), mood: "WendysAttic"),
         (when: Signal("wendys", Gt, 0.0), mood: "Wendys"),
         // Miami floats over New York: it goes first. Flat out inside Factory Town.
+        // The surf hall hangs over New York: it goes first.
+        (when: Signal("surf", Gt, 0.0), mood: "Surf"),
         (when: Signal("factory_town", Gt, 0.0), mood: "Miami", intensity: "1.0"),
         (when: Signal("miami", Gt, 0.0), mood: "Miami", intensity: "0.7"),
         (when: Signal("nyc_shop_bodega", Gt, 0.0), mood: "Bodega"),

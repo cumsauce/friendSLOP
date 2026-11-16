@@ -13,7 +13,8 @@
 //   When     a condition, written `(field: value, ...)`; every field given must hold, and
 //            `()` always holds. Fields: sections: [..] (only in these sections), not: [..]
 //            (never in these), above / at_least / below (the intensity, 0..1), every: (n, k)
-//            (the bar in the section, counted from 0, has `bar % n >= k`), from_bar: n,
+//            (the bar in the section, counted from 0, has `bar % n >= k`), before: (n, k)
+//            (`bar % n < k`: the other half, for call and response), from_bar: n,
 //            lead: true/false (the song has a melody), urgent: true/false (the mood cuts in
 //            at once). A list of Whens holds when any one of them does.
 //   Sections Intro, A, Hook, B, Solo, Breakdown, Victory, Still.
@@ -156,6 +157,24 @@
         "Min7Aeo": (voicing: [3, 7, 10, 12], scale: "aeolian", pent: "minor_pent", strong: [0, 3, 7, 10], guide: [3, 10], third: 3, fifth: 7, seventh: 10, minor: true),
     },
     kits: {
+        // Drum and bass: a short, dry snare, hats up front, the ride in hooks and B.
+        "liquid": (
+            kick: (Kick, 36),
+            snare: (TightSnare, 38),
+            ghost: (Ghost, 38),
+            hat: (Hat, 42),
+            open_hat: (OpenHat, 46),
+            ride: (Ride, 51),
+            clap: (Clap, 39),
+            crash: (Crash, 49),
+            swell: (Swell, 57),
+            tom: Tom,
+            rolls: [55, 55, 50, 50, 45, 45, 45, 45],
+            tom_mid: 50,
+            vel: {'x': 1.0, 'o': 0.9, 'O': 1.0, 'g': 0.5},
+            ride_when: [(sections: [Hook, B])],
+            clap_when: [],
+        ),
         "fusion": (
             kick: (Kick, 36),
             snare: (Snare, 38),
@@ -267,6 +286,15 @@
             snare: "....x.......x...",
             hat: "x.o.x.o.x.o.x.oo",
             soft: 0.95, lay: 380, fill: Ghost,
+            ride_when: [], clap_when: [],
+        ),
+        // Liquid drum and bass (the surf hall): the two-step at 170+, kick on one and
+        // the "and" of three, snare on two and four, rolling sixteenth hats with ghosts.
+        "Liquid": (
+            kick: ["x.........x.....", "x.........x..x.."],
+            snare: "....x..g.g..x..g",
+            hat: "xgxgxgxoxgxgxgxO",
+            soft: 0.8, lay: 0, fill: Ghost,
             ride_when: [], clap_when: [],
         ),
         // House: four on the floor, a clap on two and four, open hats on the "and"s.

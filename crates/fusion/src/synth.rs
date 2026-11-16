@@ -447,12 +447,69 @@ impl FmVoice {
     }
 }
 
+crate::automate!(Patch {
+    r1,
+    i1_peak,
+    i1_sus,
+    i1_tau,
+    r2,
+    i2_peak,
+    i2_tau,
+    fb,
+    attack,
+    decay,
+    sustain,
+    release,
+    detune,
+    gain,
+    vibrato,
+    sub,
+    ks,
+    i_lfo,
+    trem,
+    trem_rate,
+});
+
 // --- Subtractive ---------------------------------------------------------
+
+/// Most saws one subtractive voice stacks (seven makes a supersaw).
+const SAWS: usize = 7;
+
+/// The subtractive voice's oscillator shape (every entry in `saws` plays it).
+#[derive(Clone, Copy, Debug, Default, PartialEq, serde::Deserialize)]
+pub enum Wave {
+    /// Band-limited saw: bright and buzzy (stack seven for a supersaw).
+    #[default]
+    Saw,
+    /// Pulse of this width (0.5 is a square; thinner is nasal and reedy).
+    Pulse(f32),
+    /// Triangle: soft and hollow, flute-ish under the filter.
+    Triangle,
+    /// Sine: pure, for subs and soft reeses.
+    Sine,
+}
+
+/// One cycle of `wave` at phase `t` (0..1), `dt` the phase step per sample.
+#[inline]
+pub fn osc(wave: Wave, t: f32, dt: f32) -> f32 {
+    match wave {
+        Wave::Saw => saw(t, dt),
+        Wave::Pulse(w) => {
+            let w = w.clamp(0.02, 0.98);
+            saw(t, dt) - saw((t + 1.0 - w).fract(), dt) + (1.0 - 2.0 * w)
+        }
+        Wave::Triangle => 1.0 - 4.0 * (t - 0.5).abs(),
+        Wave::Sine => sin_cyc(t),
+    }
+}
 
 #[derive(Clone, Copy, Debug, Default, serde::Deserialize)]
 pub struct SubPatch {
-    /// Detune of the saws in cents (one saw per entry, up to three).
-    saws: Fixed<f32, 3>,
+    /// Detune of the saws in cents (one saw per entry, up to seven: a supersaw).
+    saws: Fixed<f32, SAWS>,
+    /// What each of the saws plays (Saw unless written).
+    #[serde(default)]
+    wave: Wave,
     square: f32,
     /// Square one octave down.
     sub_osc: f32,
@@ -481,6 +538,40 @@ pub struct SubPatch {
     f_lfo: f32,
 }
 
+/// Can a lane move `name` on this engine? (`level_db` on every pitched one.)
+pub fn automatable(e: &Engine, name: &str) -> bool {
+    use crate::auto::Automate;
+    match e {
+        Engine::Fm(_) => name == crate::auto::GAIN_DB || Patch::FIELDS.contains(&name),
+        Engine::Sub(_) => name == crate::auto::GAIN_DB || SubPatch::FIELDS.contains(&name),
+        Engine::String(_) | Engine::Blown(_) => name == crate::auto::GAIN_DB,
+        _ => false,
+    }
+}
+
+crate::automate!(SubPatch {
+    square,
+    sub_osc,
+    cut_key,
+    cut_base,
+    env_oct,
+    f_attack,
+    f_decay,
+    f_sustain,
+    k,
+    attack,
+    decay,
+    sustain,
+    release,
+    scoop,
+    scoop_tau,
+    vibrato,
+    vib_rate,
+    vib_delay,
+    gain,
+    f_lfo,
+});
+
 #[derive(Clone, Copy, Debug)]
 struct SubVoice {
     active: bool,
@@ -490,7 +581,7 @@ struct SubVoice {
     freq: f32,
     target: f32,
     glide: f32,
-    ph: [f32; 3],
+    ph: [f32; SAWS],
     ph_sq: f32,
     ph_sub: f32,
     f1: Svf,
@@ -530,7 +621,7 @@ impl SubVoice {
             freq: 0.0,
             target: 0.0,
             glide: 0.0,
-            ph: [0.0; 3],
+            ph: [0.0; SAWS],
             ph_sq: 0.0,
             ph_sub: 0.0,
             f1: Svf::default(),
@@ -577,7 +668,8 @@ impl SubVoice {
             p,
             freq: f,
             target: f,
-            ph: [seed, (seed + 0.33).fract(), (seed + 0.71).fract()],
+            // Free-running starts, spread so a stack of saws never lines up.
+            ph: std::array::from_fn(|k| (seed + k as f32 * 0.618_034).fract()),
             att_step: INV_RATE / p.attack.max(0.001),
             f_att_step: INV_RATE / f_att.max(0.001),
             attacking: true,
@@ -614,11 +706,11 @@ impl SubVoice {
         let n = out.l.len();
         let dg = (g1 - g0) / n.max(1) as f32;
         let mut g = g0;
-        let mut dets = [1.0f32; 3];
+        let mut dets = [1.0f32; SAWS];
         for (d, c) in dets.iter_mut().zip(p.saws.as_slice()) {
             *d = exp2_fast(c / 1200.0);
         }
-        let nsaw = p.saws.as_slice().len().min(3);
+        let nsaw = p.saws.as_slice().len().min(SAWS);
         let saw_g = 1.0 / (nsaw as f32).sqrt();
         let env_oct = p.env_oct * (0.55 + 0.45 * self.vel);
         let vib_delay = (p.vib_delay * RATE as f32) as u32;
@@ -677,7 +769,7 @@ impl SubVoice {
                 if *ph >= 1.0 {
                     *ph -= 1.0;
                 }
-                x += saw(*ph, dtk);
+                x += osc(p.wave, *ph, dtk);
             }
             x *= saw_g;
             if p.square > 0.0 {
@@ -1724,6 +1816,11 @@ pub struct Band {
     /// How bright the band plays (0..1), set per bar by the composer:
     /// FM indices and filter cutoffs open with it at each note-on.
     pub bright: f32,
+    /// Automation lanes for this bar (`crate::auto`), where the band is in
+    /// the section (bars) and how far a sample moves it.
+    pub auto: Vec<crate::auto::Lane>,
+    pub auto_pos: f32,
+    pub auto_step: f32,
     /// Reverb and echo send scales, eased towards their targets.
     wet: f32,
     pub wet_target: f32,
@@ -1840,6 +1937,9 @@ impl Band {
             master: 1.0,
             master_target: 1.0,
             bright: 0.5,
+            auto: Vec::new(),
+            auto_pos: 0.0,
+            auto_step: 0.0,
             wet: 1.0,
             wet_target: 1.0,
             echo_amt: 1.0,
@@ -2188,29 +2288,57 @@ impl Band {
                 }
             };
         }
-        for v in self.fm.iter_mut().filter(|v| v.active) {
-            let b = v.bus;
-            v.render(out!(b), g0[b], g1[b]);
+        // Automation: each voice's level from its lanes, and the Fm and Sub
+        // voices' patches re-laid from the table with the lanes on top (at the
+        // block's middle: 256 samples is ~6 ms).
+        let (p0, p1) = (self.auto_pos, self.auto_pos + n as f32 * self.auto_step);
+        self.auto_pos = p1;
+        let lanes = &self.auto;
+        let table = &self.table;
+        let mid = 0.5 * (p0 + p1);
+        let gain = |inst: Inst| {
+            if lanes.is_empty() {
+                (1.0, 1.0)
+            } else {
+                crate::auto::gain(lanes, inst, p0, p1)
+            }
+        };
+        let on = |inst: Inst| lanes.iter().any(|l| l.inst == inst);
+        for v in self
+            .fm
+            .iter_mut()
+            .filter(|v| v.active)
+            .chain(std::iter::once(&mut self.lead).filter(|v| v.active))
+        {
+            if on(v.inst)
+                && let Some(Engine::Fm(base)) = table.get(v.inst).map(|s| &s.engine)
+            {
+                v.p = *base;
+                crate::auto::apply(lanes, v.inst, mid, &mut v.p);
+            }
+            let (b, a) = (v.bus, gain(v.inst));
+            v.render(out!(b), g0[b] * a.0, g1[b] * a.1);
         }
-        if self.lead.active {
-            let b = self.lead.bus;
-            self.lead.render(out!(b), g0[b], g1[b]);
-        }
-        if self.mini.active {
-            let b = self.mini.bus;
-            self.mini.render(out!(b), g0[b], g1[b]);
-        }
-        for v in self.sub.iter_mut().filter(|v| v.active) {
-            let b = v.bus;
-            v.render(out!(b), g0[b], g1[b]);
+        for v in std::iter::once(&mut self.mini)
+            .filter(|v| v.active)
+            .chain(self.sub.iter_mut().filter(|v| v.active))
+        {
+            if on(v.inst)
+                && let Some(Engine::Sub(base)) = table.get(v.inst).map(|s| &s.engine)
+            {
+                v.p = *base;
+                crate::auto::apply(lanes, v.inst, mid, &mut v.p);
+            }
+            let (b, a) = (v.bus, gain(v.inst));
+            v.render(out!(b), g0[b] * a.0, g1[b] * a.1);
         }
         for v in self.pluck.iter_mut().filter(|v| v.active) {
-            let b = v.bus;
-            v.render(out!(b), g0[b], g1[b]);
+            let (b, a) = (v.bus, gain(v.inst));
+            v.render(out!(b), g0[b] * a.0, g1[b] * a.1);
         }
         for v in self.blow.iter_mut().filter(|v| v.active) {
-            let b = v.bus;
-            v.render(out!(b), g0[b], g1[b]);
+            let (b, a) = (v.bus, gain(v.inst));
+            v.render(out!(b), g0[b] * a.0, g1[b] * a.1);
         }
         for v in self.choir.iter_mut().filter(|v| v.active) {
             let b = v.bus;

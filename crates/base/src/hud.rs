@@ -644,7 +644,13 @@ fn show_fps(diag: Res<DiagnosticsStore>, mut text: Query<(&mut Text, &Visibility
 fn hide_empty(
     mut texts: Query<
         (&Text, &mut Node),
-        (With<InSlot>, Without<Fade>, Without<Calm>, Changed<Text>),
+        (
+            With<InSlot>,
+            Without<Fade>,
+            Without<Calm>,
+            // Adopting a line gives it a chip (a fresh `Node`, shown): look again.
+            Or<(Changed<Text>, Added<ChipLine>, Added<ChildOf>)>,
+        ),
     >,
 ) {
     for (t, mut n) in &mut texts {

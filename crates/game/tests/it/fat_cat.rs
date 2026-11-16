@@ -84,3 +84,25 @@ fn a_cat_let_go_stays_gone_until_adopted_again() {
     exchange(&mut server, &mut client, 5);
     assert_eq!(cats(&mut server).len(), 2, "adopting brings a cat back");
 }
+
+#[test]
+fn petting_a_cat_from_close_by_shrinks_it() {
+    use friendslop::features::fat_cat::PetCat;
+    let (mut server, mut client) = (peer(), peer());
+    server.connect_client(&mut client);
+    // Let the client's cat grow a bit first, so a pet has something to take off.
+    exchange(&mut server, &mut client, 30);
+    let before = cats(&mut server)[1];
+    assert!(before.size > 1.0, "the cat grew: {}", before.size);
+    client.world_mut().client_trigger(PetCat {
+        owner: before.owner,
+    });
+    exchange(&mut server, &mut client, 2);
+    let after = cats(&mut server)[1];
+    assert!(
+        after.size < before.size,
+        "a pet shrinks the cat: {} -> {}",
+        before.size,
+        after.size
+    );
+}

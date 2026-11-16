@@ -478,6 +478,7 @@ pub fn plugin(app: &mut App) {
     crate::kcc::plugin(app);
     app.add_systems(Update, where_am_i.before(crate::place::PlaceSet))
         .init_resource::<FpsView>()
+        .init_resource::<HandsBusy>()
         .init_resource::<HiddenLabels>()
         .add_systems(OnEnter(AppState::InGame), (reset_view, spawn_crosshair))
         .add_systems(OnExit(AppState::InGame), free_cursor)
@@ -546,6 +547,12 @@ fn toggle_view(
 }
 
 #[allow(clippy::too_many_arguments)]
+/// Something in front of you has your hands and eyes (the claw machine,
+/// #459): no walking or looking, and the first-person camera lets go of the
+/// view so that thing can place it.
+#[derive(Resource, Default, Debug, Clone, Copy, PartialEq, Eq)]
+pub struct HandsBusy(pub bool);
+
 fn walk_controls(
     mut commands: Commands,
     keys: Res<ButtonInput<KeyCode>>,
@@ -562,7 +569,7 @@ fn walk_controls(
     mut was_walking: Local<bool>,
     time: Res<Time<Real>>,
     mut last_sent: Local<Option<(WalkControl, f32)>>,
-    overlay: Option<Res<crate::ui::Overlay>>,
+    (overlay, busy): (Option<Res<crate::ui::Overlay>>, Res<HandsBusy>),
 ) {
     let Some(w) = my_walker(me.as_deref(), &walkers, &duelists) else {
         // Duelling (the duel drives the cursor) or not spawned yet.
@@ -616,17 +623,24 @@ fn walk_controls(
         }
         return;
     }
-    if grab {
+    if grab && !busy.0 {
         view.yaw -= motion.delta.x * tuning().look_sensitivity;
         view.pitch = (view.pitch - motion.delta.y * tuning().look_sensitivity).clamp(-1.5, 1.5);
     }
     let virt = virt.map(|v| *v).unwrap_or_default();
     // Touch drag / right stick (#106) look whether or not a cursor is grabbed.
-    view.yaw -= virt.look.x;
-    view.pitch = (view.pitch - virt.look.y).clamp(-1.5, 1.5);
+    if !busy.0 {
+        view.yaw -= virt.look.x;
+        view.pitch = (view.pitch - virt.look.y).clamp(-1.5, 1.5);
+    }
     // The settings notebook owns the keyboard: arrows and Space there must
-    // not walk the player about.
-    let keys_free = !overlay.is_some_and(|o| o.settings);
+    // not walk the player about (nor while your hands are busy).
+    let keys_free = !overlay.is_some_and(|o| o.settings) && !busy.0;
+    let virt = if busy.0 {
+        crate::controls::VirtualInput::default()
+    } else {
+        virt
+    };
     let mut stick = Vec2::ZERO;
     for (a, b, dir) in [
         (KeyCode::KeyW, KeyCode::ArrowUp, Vec2::Y),
@@ -812,6 +826,7 @@ fn sync_walker_bodies(
 }
 
 fn fps_camera(
+    busy: Res<HandsBusy>,
     time: Res<Time>,
     me: Option<Res<LocalPlayer>>,
     walkers: Query<(&Player, &Walker)>,
@@ -820,6 +835,9 @@ fn fps_camera(
     view: Res<FpsView>,
     mut camera: Query<&mut Transform, (With<MainCamera>, Without<Player>)>,
 ) {
+    if busy.0 {
+        return;
+    }
     let Some(w) = my_walker(me.as_deref(), &walkers, &duelists) else {
         return;
     };

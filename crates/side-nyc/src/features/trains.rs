@@ -145,6 +145,8 @@ const HALF_LEN: f32 = 8.0;
 const HALF_WIDE: f32 = 1.42;
 /// The car's floor top above its origin, and its roof.
 const FLOOR: f32 = 0.26;
+/// A station platform's top above the stop's frame (things stand on it there).
+pub const PLATFORM_TOP: f32 = FLOOR;
 const ROOF: f32 = 3.1;
 /// The doors (on the car's +z side): their middles along x and their width.
 const DOORS: [f32; 2] = [-3.5, 3.5];

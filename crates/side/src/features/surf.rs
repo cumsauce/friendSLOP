@@ -240,6 +240,7 @@ fn build(
         ));
     }
     let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
+    dress(&mut commands, &cube, &mut materials, &t, o);
     let pole = materials.add(Color::srgb(0.2, 0.2, 0.3));
     let sign = materials.add(Color::srgb(1.0, 0.3, 0.85));
     for at in posts(&t) {
@@ -267,6 +268,174 @@ fn build(
                 ));
             });
     }
+}
+
+/// The course's dressing: neon, lights, markers. Nothing here collides.
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct Dressing {
+    /// Each stage's neon colour, in order (the last is reused).
+    pub stage_colours: Vec<(f32, f32, f32)>,
+    /// The finish's colour.
+    pub finish_colour: (f32, f32, f32),
+    /// Emissive multiplier for the neon.
+    pub glow: f32,
+    /// Thickness of the neon strip round each pad (m).
+    pub strip: f32,
+    /// The light over each stage pad: intensity and range (m).
+    pub pad_light: f32,
+    pub pad_light_range: f32,
+    /// Height of each pad's stage marker post (m).
+    pub marker_height: f32,
+    /// Lane lights: every this many ridge samples, out past the face's foot,
+    /// below the ridge, and their size (m).
+    pub lane_every: usize,
+    pub lane_out: f32,
+    pub lane_drop: f32,
+    pub lane_size: f32,
+    /// The finish arch's height and width (m).
+    pub arch_height: f32,
+    pub arch_width: f32,
+}
+
+pub static DRESSING: friendslop_data::Data<Dressing> =
+    friendslop_data::Data::ron("data/side/surf_dressing.ron");
+
+/// Stage `i`'s colour (the last one repeats; pink with none).
+pub fn stage_colour(d: &Dressing, i: usize) -> Vec3 {
+    let c = d
+        .stage_colours
+        .get(i)
+        .or(d.stage_colours.last())
+        .copied()
+        .unwrap_or((1.0, 0.3, 0.85));
+    Vec3::from(c)
+}
+
+/// Thin boxes (centre, size) tracing a pad's top edge.
+pub fn edge_strips(pad: (Vec3, Vec3), thick: f32) -> [(Vec3, Vec3); 4] {
+    let (c, s) = pad;
+    let y = c.y + s.y / 2.0 + thick / 2.0;
+    let (hx, hz) = (s.x / 2.0, s.z / 2.0);
+    [
+        (Vec3::new(c.x, y, c.z - hz), Vec3::new(s.x, thick, thick)),
+        (Vec3::new(c.x, y, c.z + hz), Vec3::new(s.x, thick, thick)),
+        (Vec3::new(c.x - hx, y, c.z), Vec3::new(thick, thick, s.z)),
+        (Vec3::new(c.x + hx, y, c.z), Vec3::new(thick, thick, s.z)),
+    ]
+}
+
+/// Where a ramp's lane lights float: beside each face, out past its foot.
+pub fn lane_lights(t: &Tuning, d: &Dressing, ramp: &[(f32, f32, f32)]) -> Vec<Vec3> {
+    let line = ridge(ramp, t.ramp_samples);
+    let every = d.lane_every.max(1);
+    let mut out = Vec::new();
+    for i in (0..line.len()).step_by(every) {
+        let a = line[i.saturating_sub(1)];
+        let b = line[(i + 1).min(line.len() - 1)];
+        let along = Vec3::new(b.x - a.x, 0.0, b.z - a.z).normalize_or_zero();
+        let side = Vec3::new(-along.z, 0.0, along.x);
+        let p = line[i] - Vec3::Y * d.lane_drop;
+        let out_by = t.ramp_half_width * 1.7 + d.lane_out;
+        out.push(p + side * out_by);
+        out.push(p - side * out_by);
+    }
+    out
+}
+
+fn neon(materials: &mut Assets<StandardMaterial>, c: Vec3, glow: f32) -> Handle<StandardMaterial> {
+    materials.add(StandardMaterial {
+        base_color: Color::srgb(c.x, c.y, c.z),
+        emissive: LinearRgba::rgb(c.x * glow, c.y * glow, c.z * glow),
+        unlit: true,
+        ..default()
+    })
+}
+
+fn neon_box(
+    commands: &mut Commands,
+    cube: &Handle<Mesh>,
+    m: &Handle<StandardMaterial>,
+    at: Vec3,
+    size: Vec3,
+) {
+    commands.spawn((
+        Mesh3d(cube.clone()),
+        MeshMaterial3d(m.clone()),
+        Transform::from_translation(at).with_scale(size),
+        DespawnOnExit(AppState::InGame),
+    ));
+}
+
+/// Neon round the pads, a numbered marker and a light on each, lane lights
+/// along the ramps and an arch over the finish. Local looks only.
+fn dress(
+    commands: &mut Commands,
+    cube: &Handle<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+    t: &Tuning,
+    o: Vec3,
+) {
+    let d = DRESSING.get();
+    let post = materials.add(Color::srgb(0.12, 0.12, 0.18));
+    for (i, stage) in t.stages.iter().enumerate() {
+        let col = stage_colour(&d, i);
+        let m = neon(materials, col, d.glow);
+        let p = pad(stage.pad);
+        for (c, s) in edge_strips(p, d.strip) {
+            neon_box(commands, cube, &m, o + c, s);
+        }
+        // The marker on the back corner: a post and one block per stage.
+        let (c, s) = p;
+        let top = c.y + s.y / 2.0;
+        let corner = o + Vec3::new(c.x - s.x / 2.0 + 0.6, top, c.z + s.z / 2.0 - 0.6);
+        let h = d.marker_height;
+        neon_box(
+            commands,
+            cube,
+            &post,
+            corner + Vec3::Y * h / 2.0,
+            Vec3::new(0.2, h, 0.2),
+        );
+        for n in 0..=i {
+            let at = corner + Vec3::Y * (h + 0.35 + n as f32 * 0.55);
+            neon_box(commands, cube, &m, at, Vec3::splat(0.4));
+        }
+        commands.spawn((
+            PointLight {
+                color: Color::srgb(col.x, col.y, col.z),
+                intensity: d.pad_light,
+                range: d.pad_light_range,
+                ..default()
+            },
+            Transform::from_translation(o + c + Vec3::Y * 4.0),
+            DespawnOnExit(AppState::InGame),
+        ));
+        for ramp in &stage.ramps {
+            for at in lane_lights(t, &d, ramp) {
+                neon_box(commands, cube, &m, o + at, Vec3::splat(d.lane_size));
+            }
+        }
+    }
+    // The finish: gold strips and an arch over the pad.
+    let gold = neon(materials, Vec3::from(d.finish_colour), d.glow);
+    let f = pad(t.finish);
+    for (c, s) in edge_strips(f, d.strip * 1.5) {
+        neon_box(commands, cube, &gold, o + c, s);
+    }
+    let (c, s) = f;
+    let top = c.y + s.y / 2.0;
+    let (h, w) = (d.arch_height, d.arch_width);
+    for side in [-1.0, 1.0] {
+        let at = o + Vec3::new(c.x + side * w / 2.0, top + h / 2.0, c.z);
+        neon_box(commands, cube, &gold, at, Vec3::new(0.4, h, 0.4));
+    }
+    neon_box(
+        commands,
+        cube,
+        &gold,
+        o + Vec3::new(c.x, top + h, c.z),
+        Vec3::new(w + 0.4, 0.5, 0.4),
+    );
 }
 
 /// This screen's run: when it left the start pad, and its best time.
@@ -370,6 +539,24 @@ mod tests {
         };
         assert!(TUNING.set_bytes(&bytes), "{path} doesn't parse");
         (*TUNING.get()).clone()
+    }
+
+    #[test]
+    fn the_dressing_file_parses_and_has_everything() {
+        let path = format!(
+            "{}/../game/assets/{}",
+            env!("CARGO_MANIFEST_DIR"),
+            DRESSING.path()
+        );
+        let Ok(bytes) = std::fs::read(&path) else {
+            panic!("no {path}");
+        };
+        assert!(DRESSING.set_bytes(&bytes), "{path} doesn't parse");
+        let d = DRESSING.get();
+        assert!(d.stage_colours.len() >= 5 && d.glow > 0.0 && d.strip > 0.0);
+        assert!(d.pad_light > 0.0 && d.pad_light_range > 0.0 && d.marker_height > 0.0);
+        assert!(d.lane_every > 0 && d.lane_size > 0.0 && d.lane_drop > 0.0);
+        assert!(d.arch_height > 2.0 && d.arch_width > 0.0);
     }
 
     #[test]

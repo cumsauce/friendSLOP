@@ -1488,7 +1488,7 @@ fn build_station(
 
 /// The station's plan (once a game, every peer: replicated state and the
 /// server's systems read it) and its colliders, in New York's colliders layer.
-fn build_sim(mut commands: Commands, station: Option<Res<Station>>) {
+pub fn build_sim(mut commands: Commands, station: Option<Res<Station>>) {
     let t = tuning();
     let levels = match station {
         Some(s) => s.levels.clone(),

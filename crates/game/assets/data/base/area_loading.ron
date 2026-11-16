@@ -1,0 +1,14 @@
+// How an area loads (crates/base/src/areas.rs): its spawners run over
+// several frames instead of all in one, so loading New York doesn't freeze
+// the game for most of a second. Each frame the first spawner always runs,
+// then more while there's budget left. The colliders of an area someone is
+// standing in (they teleported there) all come at once, so nobody falls
+// through. Edit and save: the game picks it up.
+(
+    // Milliseconds a frame may spend loading an area you're walking up to
+    // (or a friend is in): keep it small, you're playing.
+    walk_ms: 4.0,
+    // The same for the area you're standing in while it loads (the loading
+    // curtain is up): bigger, so it's done sooner.
+    covered_ms: 40.0,
+)

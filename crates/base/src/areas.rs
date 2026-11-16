@@ -31,6 +31,15 @@
 //! within `load + unload` m (hysteresis). An id the file doesn't have counts
 //! as loaded, like `sites`, so a broken file leaves the game running.
 //!
+//! Loading is spread over frames (`data/base/area_loading.ron`): each
+//! spawner of a layer that loaded (an [`areas::loaded`](loaded) condition,
+//! [`on_sim`], [`on_show`], [`spawn_into`]) runs once, in schedule order,
+//! on the first frame with budget left, so a big area takes a few frames
+//! instead of one long one. The colliders of an area someone is standing in
+//! (a teleport landed them there) all spawn on the frame it loads, so nobody
+//! lands on missing ground. [`Loaded::pending`] is true until every spawner
+//! has run; the curtain waits for it ([`Loaded::busy_at`]).
+//!
 //! Teleports (helicopter, train, a portal) send [`Cover`] to put the loading
 //! curtain up while the place they land in loads (`crates/game/src/loading.rs`).
 
@@ -96,6 +105,20 @@ impl Area {
 
 pub static AREAS: friendslop_data::Data<Areas> = friendslop_data::Data::ron("data/base/areas.ron");
 
+/// How much of a frame loading an area may take: `data/base/area_loading.ron`.
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Budget {
+    /// Milliseconds a frame may spend spawning an area you're walking up to
+    /// (or a friend is in), past the first spawner of the frame.
+    pub walk_ms: f32,
+    /// The same for the area you're standing in while it loads (a teleport:
+    /// the curtain is up, so frames can be longer and it loads sooner).
+    pub covered_ms: f32,
+}
+
+pub static BUDGET: friendslop_data::Data<Budget> =
+    friendslop_data::Data::ron("data/base/area_loading.ron");
+
 /// The current list of areas.
 pub fn areas() -> std::sync::Arc<Areas> {
     AREAS.get()
@@ -137,9 +160,10 @@ pub fn show(area: &str) -> impl Bundle {
     (DespawnOnExit(AppState::InGame), InArea::show(area))
 }
 
-/// Run `systems` on the frame `area`'s colliders load (in `PreUpdate`,
-/// after [`AreaSet`], so they're there before the frame's physics: a
-/// teleport never lands on missing ground).
+/// Run `systems` once when `area`'s colliders load (in `PreUpdate`, after
+/// [`AreaSet`], so they're there before the frame's physics: a teleport
+/// never lands on missing ground). Budgeted like [`loaded`]: an area nobody
+/// stands in may get them a few frames later.
 pub fn on_sim<M>(
     app: &mut App,
     area: &'static str,
@@ -148,7 +172,7 @@ pub fn on_sim<M>(
     app.add_systems(PreUpdate, at_load(systems, Layer::Sim, area));
 }
 
-/// Run `systems` on the frame `area`'s visuals load (see [`on_sim`]).
+/// Run `systems` once when `area`'s visuals load (see [`on_sim`]).
 pub fn on_show<M>(
     app: &mut App,
     area: &'static str,
@@ -188,13 +212,14 @@ pub fn spawn_into_refreshed<M>(
     let label = SpawnInto(NEXT_SPAWN.fetch_add(1, std::sync::atomic::Ordering::Relaxed));
     app.init_resource::<Refresh>();
     app.add_systems(label, systems);
+    let mut ran = Ran::default();
     app.add_systems(
         PreUpdate,
         (
-            (move |world: &mut World| spawn_and_file(world, label, area, key)).run_if(
+            (move |world: &mut World| spawn_and_file(world, label, area, key, &mut ran)).run_if(
                 move |l: Res<Loaded>, r: Res<Refresh>| {
-                    l.loaded(area, Layer::Sim)
-                        || l.loaded(area, Layer::Show)
+                    l.pending(area, Layer::Sim)
+                        || l.pending(area, Layer::Show)
                         || (!key.is_empty() && r.0.contains(key) && l.is(area, Layer::Sim))
                 },
             ),
@@ -396,16 +421,38 @@ static NEXT_SPAWN: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsi
 #[derive(bevy::ecs::schedule::ScheduleLabel, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct SpawnInto(usize);
 
-fn spawn_and_file(world: &mut World, label: SpawnInto, area: &'static str, key: &'static str) {
+/// The loads a [`spawn_into`] spawner last ran for, per layer.
+#[derive(Default, Clone, Copy)]
+struct Ran {
+    sim: Option<u64>,
+    show: Option<u64>,
+}
+
+fn spawn_and_file(
+    world: &mut World,
+    label: SpawnInto,
+    area: &'static str,
+    key: &'static str,
+    ran: &mut Ran,
+) {
     let again = !key.is_empty() && world.resource::<Refresh>().0.contains(key);
     let (sim, show) = {
         let l = world.resource::<Loaded>();
         if again {
+            // Everything loaded is spawned afresh: nothing left to come.
+            l.claim(area, Layer::Sim, &mut ran.sim, true);
+            l.claim(area, Layer::Show, &mut ran.show, true);
             (l.is(area, Layer::Sim), l.is(area, Layer::Show))
         } else {
-            (l.loaded(area, Layer::Sim), l.loaded(area, Layer::Show))
+            let sim = l.ask(area, Layer::Sim, &mut ran.sim);
+            // Running anyway: its visuals come along for free.
+            let show = l.claim(area, Layer::Show, &mut ran.show, sim);
+            (sim, show)
         }
     };
+    if !sim && !show {
+        return;
+    }
     let before: bevy::ecs::entity::EntityHashSet = world.query::<Entity>().iter(world).collect();
     world.run_schedule(label);
     let mut new: Vec<Entity> = world
@@ -598,11 +645,42 @@ pub struct Force(pub Option<bool>);
 struct State2 {
     now: bool,
     before: bool,
+    /// Counts its loads: a spawner runs once per load.
+    generation: u64,
+    /// Every spawner has run for this load.
+    done: bool,
+    /// Someone it's loading for stands inside it (it was a teleport).
+    inside: bool,
+}
+
+/// This frame's spawning budget (behind a lock: run conditions only read).
+#[derive(Debug, Default)]
+struct Work {
+    /// When the frame's first spawner was let run.
+    start: Option<bevy::platform::time::Instant>,
+    /// Layers a spawner was turned away from this frame (still loading).
+    refused: bevy::platform::collections::HashSet<(String, Layer)>,
 }
 
 /// Which areas' layers are loaded.
 #[derive(Resource, Default, Debug)]
-pub struct Loaded(HashMap<(String, Layer), State2>);
+pub struct Loaded(HashMap<(String, Layer), State2>, std::sync::Mutex<Work>);
+
+/// May a spawner run now? Budgeted spawning: the first one of a frame
+/// always runs (`start` is `None`), later ones while `ms` has not passed
+/// since it. `free` ones (colliders under someone's feet) always run.
+fn within(
+    start: &mut Option<bevy::platform::time::Instant>,
+    now: bevy::platform::time::Instant,
+    ms: f32,
+    free: bool,
+) -> bool {
+    let Some(t) = *start else {
+        *start = Some(now);
+        return true;
+    };
+    free || now.saturating_duration_since(t).as_secs_f32() * 1000.0 < ms
+}
 
 impl Loaded {
     /// Is `area`'s `layer` loaded? (An unknown area counts as loaded.)
@@ -624,6 +702,72 @@ impl Loaded {
             .is_some_and(|s| !s.now && s.before)
     }
 
+    /// Is `area`'s `layer` loaded but still spawning (some spawner hasn't
+    /// run yet)? An unknown area never is.
+    pub fn pending(&self, area: &str, layer: Layer) -> bool {
+        self.0
+            .get(&(area.to_owned(), layer))
+            .is_some_and(|s| s.now && !s.done)
+    }
+
+    /// Is any area that holds `p` still spawning, either layer? (The curtain
+    /// waits for it.)
+    pub fn busy_at(&self, list: &Areas, p: Vec3) -> bool {
+        list.areas.iter().any(|a| {
+            a.holds(p) && (self.pending(&a.id, Layer::Sim) || self.pending(&a.id, Layer::Show))
+        })
+    }
+
+    /// A spawner of `area`'s `layer` asks to run; `ran` is the load it last
+    /// ran for. Yes once per load, on the first frame with budget left
+    /// (see the module docs); a no marks the layer still pending.
+    pub fn ask(&self, area: &str, layer: Layer, ran: &mut Option<u64>) -> bool {
+        self.claim(area, layer, ran, false)
+    }
+
+    /// [`Self::ask`]; `free` skips the budget (the spawner runs anyway).
+    fn claim(&self, area: &str, layer: Layer, ran: &mut Option<u64>, free: bool) -> bool {
+        self.claim_within(area, layer, ran, free, &BUDGET.get())
+    }
+
+    fn claim_within(
+        &self,
+        area: &str,
+        layer: Layer,
+        ran: &mut Option<u64>,
+        free: bool,
+        budget: &Budget,
+    ) -> bool {
+        let key = (area.to_owned(), layer);
+        let Some(s) = self.0.get(&key) else {
+            return false;
+        };
+        if !s.now || *ran == Some(s.generation) {
+            return false;
+        }
+        let Ok(mut work) = self.1.lock() else {
+            *ran = Some(s.generation);
+            return true;
+        };
+        let ms = if s.inside {
+            budget.covered_ms
+        } else {
+            budget.walk_ms
+        };
+        let free = free || (layer == Layer::Sim && s.inside);
+        if !within(
+            &mut work.start,
+            bevy::platform::time::Instant::now(),
+            ms,
+            free,
+        ) {
+            work.refused.insert(key);
+            return false;
+        }
+        *ran = Some(s.generation);
+        true
+    }
+
     /// Work out this frame. `client`: this peer only simulates where you are.
     fn track(
         &mut self,
@@ -635,6 +779,13 @@ impl Loaded {
     ) {
         self.0
             .retain(|(id, _), _| list.areas.iter().any(|a| a.id == *id));
+        let refused = match self.1.get_mut() {
+            Ok(work) => {
+                work.start = None;
+                std::mem::take(&mut work.refused)
+            }
+            Err(_) => Default::default(),
+        };
         for area in &list.areas {
             let get = |l: &HashMap<_, State2>, layer| {
                 l.get(&(area.id.clone(), layer))
@@ -675,14 +826,30 @@ impl Loaded {
                     )
                 }
             });
-            for (layer, was, now) in [(Layer::Show, show, me), (Layer::Sim, sim, anyone)] {
-                self.0.insert(
-                    (area.id.clone(), layer),
-                    State2 {
-                        now,
-                        before: was.now,
-                    },
-                );
+            let inside_me = you.is_some_and(|p| counts(&p) && !elsewhere(&p) && area.holds(p));
+            let inside_anyone = you
+                .into_iter()
+                .chain(players.iter().copied().filter(|_| !client))
+                .any(|p| counts(&p) && area.holds(p));
+            for (layer, was, now, inside) in [
+                (Layer::Show, show, me, inside_me),
+                (Layer::Sim, sim, anyone, inside_anyone),
+            ] {
+                let key = (area.id.clone(), layer);
+                let mut s = State2 {
+                    now,
+                    before: was.now,
+                    inside,
+                    ..was
+                };
+                if now && !was.now {
+                    s.generation += 1;
+                    s.done = false;
+                } else if now && !refused.contains(&key) {
+                    // A whole frame went by with no spawner turned away.
+                    s.done = true;
+                }
+                self.0.insert(key, s);
             }
         }
     }
@@ -699,8 +866,12 @@ pub fn shown(area: &'static str) -> impl FnMut(Res<Loaded>) -> bool + Clone {
 }
 
 /// Run on the frame `area`'s `layer` loads: spawn under [`Roots::get`].
+/// Spread over frames: each system it gates runs once per load, on the
+/// first frame with budget left (in schedule order), so it may be a frame
+/// or two after the layer loads ([`Loaded::ask`]).
 pub fn loaded(layer: Layer, area: &'static str) -> impl FnMut(Res<Loaded>) -> bool + Clone {
-    move |l: Res<Loaded>| l.loaded(area, layer)
+    let mut ran = None;
+    move |l: Res<Loaded>| l.ask(area, layer, &mut ran)
 }
 
 /// Run on the frame `area`'s `layer` unloads (its things are already gone;
@@ -732,7 +903,13 @@ pub fn plugin(app: &mut App) {
 }
 
 fn forget(mut loaded: ResMut<Loaded>, mut roots: ResMut<Roots>) {
-    loaded.0.clear();
+    // Generations carry on (a spawner remembers the load it ran for).
+    for s in loaded.0.values_mut() {
+        *s = State2 {
+            generation: s.generation,
+            ..default()
+        };
+    }
     roots.0.clear();
 }
 
@@ -1012,6 +1189,93 @@ mod tests {
         assert!(l.unloaded("nyc", Layer::Show) && l.unloaded("nyc", Layer::Sim));
         l.track(&list(), Some(true), false, away, &[]);
         assert!(l.loaded("nyc", Layer::Show));
+    }
+
+    #[test]
+    fn the_budget_file_parses_with_every_field() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../game/assets")
+            .join(BUDGET.path());
+        let Ok(bytes) = std::fs::read(&path) else {
+            panic!("missing {path:?}");
+        };
+        assert!(
+            friendslop_data::DataFile::set_bytes(&BUDGET, &bytes),
+            "area_loading.ron doesn't parse (or misses a field)"
+        );
+        let b = BUDGET.get();
+        assert!(b.walk_ms > 0.0 && b.covered_ms >= b.walk_ms);
+    }
+
+    #[test]
+    fn the_first_spawner_of_a_frame_runs_then_only_within_budget() {
+        let t = bevy::platform::time::Instant::now();
+        let mut start = None;
+        assert!(within(&mut start, t, 0.0, false));
+        let later = t + std::time::Duration::from_millis(5);
+        assert!(within(&mut start, later, 10.0, false));
+        assert!(!within(&mut start, later, 4.0, false));
+        assert!(within(&mut start, later, 4.0, true));
+    }
+
+    #[test]
+    fn a_load_is_spread_over_frames_and_pending_until_every_spawner_ran() {
+        let mut l = Loaded::default();
+        // Walking up to it (not inside), with no budget: one spawner a frame.
+        let none = Budget::default();
+        let near = Some(Vec3::new(-5.0, 0.0, 5.0));
+        let mut spawners = [None; 3];
+        let mut frames = 0;
+        loop {
+            l.track(&list(), None, false, near, &[]);
+            if !l.pending("nyc", Layer::Show) {
+                break;
+            }
+            frames += 1;
+            let ran = spawners
+                .iter_mut()
+                .map(|s| l.claim_within("nyc", Layer::Show, s, false, &none))
+                .filter(|yes| *yes)
+                .count();
+            assert_eq!(ran, 1, "frame {frames}");
+            assert!(frames < 10);
+        }
+        assert_eq!(
+            frames, 3,
+            "one spawner a frame; done the frame after the last"
+        );
+        assert!(spawners.iter().all(|s| *s == Some(1)), "each ran once");
+        assert!(!l.busy_at(&list(), Vec3::new(5.0, 0.0, 5.0)));
+        assert!(!l.ask("nyc", Layer::Show, &mut spawners[0]));
+    }
+
+    #[test]
+    fn colliders_under_your_feet_all_come_at_once() {
+        let mut l = Loaded::default();
+        let none = Budget::default();
+        l.track(&list(), None, false, Some(Vec3::new(5.0, 0.0, 5.0)), &[]);
+        let mut sim = [None; 3];
+        let ran = sim
+            .iter_mut()
+            .map(|s| l.claim_within("nyc", Layer::Sim, s, false, &none))
+            .filter(|yes| *yes)
+            .count();
+        assert_eq!(ran, 3);
+        let mut show = [None; 2];
+        let ran = show
+            .iter_mut()
+            .map(|s| l.claim_within("nyc", Layer::Show, s, false, &none))
+            .filter(|yes| *yes)
+            .count();
+        assert_eq!(ran, 0, "the visuals wait for the next frame");
+        assert!(l.pending("nyc", Layer::Show));
+        l.track(&list(), None, false, Some(Vec3::new(5.0, 0.0, 5.0)), &[]);
+        assert!(!l.pending("nyc", Layer::Sim) && l.pending("nyc", Layer::Show));
+        assert!(
+            l.busy_at(&list(), Vec3::new(5.0, 0.0, 5.0)),
+            "the curtain waits"
+        );
+        assert!(!l.busy_at(&list(), Vec3::new(500.0, 0.0, 5.0)));
     }
 
     #[test]

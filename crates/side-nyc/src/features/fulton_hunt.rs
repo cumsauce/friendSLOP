@@ -737,7 +737,7 @@ fn hide(
 // ------------------------------------------------------------------ every peer
 
 pub fn plugin(app: &mut App) {
-    crate::area::on_show(app, place_lockers);
+    crate::area::on_show(app, place_lockers.after(super::fulton::build_sim));
     app.add_observer(on_phone)
         .add_observer(click_locker)
         .init_resource::<Call>()
@@ -931,13 +931,21 @@ fn set_text<F: bevy::ecs::query::QueryFilter>(q: &mut Query<&mut Text, F>, s: &s
 #[derive(Component)]
 struct Locker;
 
-fn place_lockers(mut commands: Commands) {
+fn place_lockers(mut commands: Commands, station: Option<Res<Station>>) {
     let t = tuning();
     let w = WRITING.get();
-    // The station's plan, the same one `fulton` builds.
-    let levels = super::fulton::generate(&t, &TILES.get());
+    // The station's plan: the one `fulton` made (planning it again took most
+    // of a second every time New York loaded).
+    let planned;
+    let levels = match &station {
+        Some(s) => &s.levels,
+        None => {
+            planned = super::fulton::generate(&t, &TILES.get());
+            &planned
+        }
+    };
     let label: &'static str = w.hide_label.clone().leak();
-    for (_, at) in hiding_spots(&t, &TILES.get(), &levels) {
+    for (_, at) in hiding_spots(&t, &TILES.get(), levels) {
         commands.spawn((
             Locker,
             Transform::from_translation(at),

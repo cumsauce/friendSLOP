@@ -1,21 +1,20 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-torso-beast",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 63660,
   "ops": [
     {
       "sdf": {
         "name": "torso_raw",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               0.0,
               0.0
             ],
-            "shape": "ellipsoid",
             "size": [
               0.25,
               0.23,
@@ -27,8 +26,8 @@
     },
     {
       "decimate": {
-        "input": "torso_raw",
         "name": "torso",
+        "input": "torso_raw",
         "tris": 380
       }
     },
@@ -37,12 +36,12 @@
         "name": "blanket_raw",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               0.0,
               0.0
             ],
-            "shape": "ellipsoid",
             "size": [
               0.278,
               0.262,
@@ -50,30 +49,30 @@
             ]
           },
           {
+            "shape": "box",
+            "op": "intersect",
+            "blend": 0.0,
             "at": [
               0.0,
               0.2,
               0.05
             ],
-            "blend": 0.0,
-            "op": "intersect",
-            "round": 0.02,
-            "shape": "box",
             "size": [
               0.7,
               0.3,
               0.36
-            ]
+            ],
+            "round": 0.02
           },
           {
+            "shape": "ellipsoid",
+            "op": "subtract",
+            "blend": 0.0,
             "at": [
               0.0,
               0.0,
               0.0
             ],
-            "blend": 0.0,
-            "op": "subtract",
-            "shape": "ellipsoid",
             "size": [
               0.254,
               0.234,
@@ -85,34 +84,39 @@
     },
     {
       "decimate": {
-        "input": "blanket_raw",
         "name": "blanket",
-        "tris": 140
+        "input": "blanket_raw",
+        "tris": 480
       }
     },
     {
       "visibility": {
-        "input": "torso_raw",
         "name": "torso_raw",
+        "input": "torso_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "blanket_raw",
         "name": "blanket_raw",
+        "input": "blanket_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "torso",
-        "metalness": null,
         "name": "torso",
+        "input": "torso",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pp-felt",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "fz",
@@ -202,25 +206,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.2
-          },
-          "material": "pp-felt",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "blanket",
-        "metalness": null,
         "name": "blanket",
+        "input": "blanket",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pp-knit",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.16,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "g",
@@ -389,17 +393,13 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 0.16
-          },
-          "material": "pp-knit",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     }
   ],
-  "parts": [],
-  "version": 20862
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

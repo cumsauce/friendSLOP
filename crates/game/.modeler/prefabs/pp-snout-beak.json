@@ -1,25 +1,24 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-snout-beak",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 63694,
   "ops": [
     {
       "sdf": {
         "name": "beak_raw",
         "shapes": [
           {
+            "shape": "capsule",
+            "radius": [
+              0.0448,
+              0.0056
+            ],
             "from": [
               0.0,
               -0.042,
               -0.2408
             ],
-            "radius": [
-              0.0448,
-              0.0056
-            ],
-            "shape": "capsule",
             "to": [
               0.0,
               -0.054,
@@ -27,13 +26,13 @@
             ]
           },
           {
+            "shape": "ellipsoid",
+            "blend": 0.02,
             "at": [
               0.0,
               -0.042,
               -0.252
             ],
-            "blend": 0.02,
-            "shape": "ellipsoid",
             "size": [
               0.0476,
               0.0336,
@@ -45,27 +44,32 @@
     },
     {
       "decimate": {
-        "input": "beak_raw",
         "name": "beak",
-        "tris": 90
+        "input": "beak_raw",
+        "tris": 240
       }
     },
     {
       "visibility": {
-        "input": "beak_raw",
         "name": "beak_raw",
+        "input": "beak_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "beak",
-        "metalness": null,
         "name": "beak",
+        "input": "beak",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pp-straw",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.16,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "g",
@@ -155,17 +159,281 @@
                 "type": "output"
               }
             ],
-            "params": {},
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "beak",
+        "input": "beak",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-beak",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.1,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 21,
+                "size": 0.006,
+                "type": "noise"
+              },
+              {
+                "name": "b",
+                "octaves": 2,
+                "seed": 22,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nv",
+                "to": [
+                  0.93,
+                  1.03
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "b",
+                "name": "bv",
+                "to": [
+                  0.92,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "nv",
+                "b": "bv",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#f0a43a",
+                "b": "c1",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "n",
+                "b": 0.0003,
+                "name": "hh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "b",
+                "name": "rg",
+                "to": [
+                  0.35,
+                  0.55
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "rg",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "sdf": {
+        "name": "nostrils_raw",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.012,
+              -0.0135,
+              -0.283
+            ],
+            "rotation": [
+              -0.104528464,
+              0.0,
+              0.0,
+              0.9945219
+            ],
+            "size": [
+              0.0055,
+              0.004,
+              0.009
+            ]
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "nostrils",
+        "input": "nostrils_raw",
+        "tris": 60
+      }
+    },
+    {
+      "material": {
+        "name": "nostrils",
+        "input": "nostrils",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-sole",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.12,
             "resolution": 128,
-            "tile": 0.16
-          },
-          "material": "pp-straw",
-          "scale": 1.0
-        },
-        "roughness": null
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.012,
+                  0.012
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "input": "g.local",
+                "name": "l",
+                "type": "split"
+              },
+              {
+                "a": "l.y",
+                "name": "ay",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0.0045,
+                  0.006
+                ],
+                "input": "ay",
+                "name": "groove",
+                "to": [
+                  1,
+                  0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "groove",
+                "b": 0,
+                "c": 1,
+                "name": "gc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 3,
+                "size": 0.01,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nv",
+                "to": [
+                  0.9,
+                  1.05
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "gc",
+                "name": "gv",
+                "to": [
+                  0.6,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "gv",
+                "b": "nv",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#3a3430",
+                "b": "c1",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "gc",
+                "b": 0.0015,
+                "name": "hh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "nostrils_raw",
+        "input": "nostrils_raw",
+        "visible": false
       }
     }
   ],
-  "parts": [],
-  "version": 20870
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

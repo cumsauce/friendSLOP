@@ -1,16 +1,15 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-ears-bunny",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 63671,
   "ops": [
     {
       "sdf": {
-        "mirror": "x",
         "name": "ears_raw",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.098,
               0.364,
@@ -22,7 +21,6 @@
               -0.07492971,
               0.9971888
             ],
-            "shape": "ellipsoid",
             "size": [
               0.042,
               0.154,
@@ -30,52 +28,58 @@
             ]
           },
           {
+            "shape": "ellipsoid",
+            "op": "subtract",
+            "blend": 0.008,
             "at": [
               0.098,
               0.364,
               -0.0196
             ],
-            "blend": 0.008,
-            "op": "subtract",
             "rotation": [
               0.0,
               0.0,
               -0.07492971,
               0.9971888
             ],
-            "shape": "ellipsoid",
             "size": [
               0.0252,
               0.1176,
               0.014
             ]
           }
-        ]
+        ],
+        "mirror": "x"
       }
     },
     {
       "decimate": {
-        "input": "ears_raw",
         "name": "ears",
-        "tris": 140
+        "input": "ears_raw",
+        "tris": 300
       }
     },
     {
       "visibility": {
-        "input": "ears_raw",
         "name": "ears_raw",
+        "input": "ears_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "ears",
-        "metalness": null,
         "name": "ears",
+        "input": "ears",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pp-felt",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "fz",
@@ -165,17 +169,158 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.2
-          },
-          "material": "pp-felt",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "sdf": {
+        "name": "inner_raw",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.098,
+              0.362,
+              -0.006
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              -0.07492971,
+              0.9971888
+            ],
+            "size": [
+              0.023,
+              0.108,
+              0.007
+            ]
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "inner",
+        "input": "inner_raw",
+        "tris": 160
+      }
+    },
+    {
+      "material": {
+        "name": "inner",
+        "input": "inner",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-blush",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "fz",
+                "octaves": 3,
+                "seed": 11,
+                "size": 0.0025,
+                "type": "noise"
+              },
+              {
+                "name": "bl",
+                "octaves": 3,
+                "seed": 13,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fz",
+                "name": "fv",
+                "to": [
+                  0.88,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "bl",
+                "name": "bv",
+                "to": [
+                  0.94,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "fv",
+                "b": "bv",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#ff8c99",
+                "b": "c1",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fz",
+                "b": 0.0005,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "bl",
+                "b": 0.0012,
+                "name": "h2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h1",
+                "b": "h2",
+                "name": "hh",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.92,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "inner_raw",
+        "input": "inner_raw",
+        "visible": false
       }
     }
   ],
-  "parts": [],
-  "version": 20874
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

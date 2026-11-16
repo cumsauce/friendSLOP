@@ -1,21 +1,20 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-foot",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 63593,
   "ops": [
     {
       "sdf": {
         "name": "foot_raw",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               0.0,
               0.0
             ],
-            "shape": "ellipsoid",
             "size": [
               0.1,
               0.065,
@@ -23,13 +22,13 @@
             ]
           },
           {
+            "shape": "ellipsoid",
+            "blend": 0.03,
             "at": [
               0.0,
               0.01,
               -0.06
             ],
-            "blend": 0.03,
-            "shape": "ellipsoid",
             "size": [
               0.085,
               0.06,
@@ -37,47 +36,52 @@
             ]
           },
           {
+            "shape": "box",
+            "op": "subtract",
+            "blend": 0.01,
             "at": [
               0.0,
               -0.55,
               0.0
             ],
-            "blend": 0.01,
-            "op": "subtract",
-            "round": 0.0,
-            "shape": "box",
             "size": [
               1.0,
               1.0,
               1.0
-            ]
+            ],
+            "round": 0.0
           }
         ]
       }
     },
     {
       "decimate": {
-        "input": "foot_raw",
         "name": "foot",
+        "input": "foot_raw",
         "tris": 90
       }
     },
     {
       "visibility": {
-        "input": "foot_raw",
         "name": "foot_raw",
+        "input": "foot_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "foot",
-        "metalness": null,
         "name": "foot",
+        "input": "foot",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pp-knit",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.16,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "g",
@@ -246,17 +250,200 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 0.16
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "sdf": {
+        "name": "sole_raw",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "size": [
+              0.108,
+              0.075,
+              0.154
+            ]
           },
-          "material": "pp-knit",
-          "scale": 1.0
-        },
-        "roughness": null
+          {
+            "shape": "ellipsoid",
+            "blend": 0.03,
+            "at": [
+              0.0,
+              0.01,
+              -0.06
+            ],
+            "size": [
+              0.093,
+              0.07,
+              0.093
+            ]
+          },
+          {
+            "shape": "box",
+            "op": "intersect",
+            "blend": 0.006,
+            "at": [
+              0.0,
+              -0.039,
+              0.0
+            ],
+            "size": [
+              0.4,
+              0.032,
+              0.4
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "sole",
+        "input": "sole_raw",
+        "tris": 160
+      }
+    },
+    {
+      "material": {
+        "name": "sole",
+        "input": "sole",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-sole",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.012,
+                  0.012
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "input": "g.local",
+                "name": "l",
+                "type": "split"
+              },
+              {
+                "a": "l.y",
+                "name": "ay",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0.0045,
+                  0.006
+                ],
+                "input": "ay",
+                "name": "groove",
+                "to": [
+                  1,
+                  0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "groove",
+                "b": 0,
+                "c": 1,
+                "name": "gc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 3,
+                "size": 0.01,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nv",
+                "to": [
+                  0.9,
+                  1.05
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "gc",
+                "name": "gv",
+                "to": [
+                  0.6,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "gv",
+                "b": "nv",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#3a3430",
+                "b": "c1",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "gc",
+                "b": 0.0015,
+                "name": "hh",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "sole_raw",
+        "input": "sole_raw",
+        "visible": false
       }
     }
   ],
-  "parts": [],
-  "version": 20883
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

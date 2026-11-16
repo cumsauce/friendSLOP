@@ -66,9 +66,15 @@ impl HiddenBy {
 }
 
 /// Hides what places hide and gives it back its own visibility when no place does.
+/// A feature that sets its own visibility meanwhile (a cab out of range, a
+/// kitten dressed again) is remembered as what to give back, and stays hidden.
+#[allow(clippy::type_complexity)]
 fn apply_hidden(
     mut commands: Commands,
-    mut hidden: Query<(Entity, &mut HiddenBy, &mut Visibility), Changed<HiddenBy>>,
+    mut hidden: Query<
+        (Entity, &mut HiddenBy, &mut Visibility),
+        Or<(Changed<HiddenBy>, Changed<Visibility>)>,
+    >,
 ) {
     for (e, mut h, mut v) in &mut hidden {
         if h.by.is_empty() {
@@ -77,7 +83,7 @@ fn apply_hidden(
             }
             commands.entity(e).remove::<HiddenBy>();
         } else {
-            if h.was.is_none() {
+            if h.was.is_none() || *v != Visibility::Hidden {
                 h.was = Some(*v);
             }
             v.set_if_neq(Visibility::Hidden);
@@ -280,6 +286,28 @@ mod tests {
         app.update();
         assert_eq!(vis(&app), Visibility::Inherited);
         assert!(app.world().get::<HiddenBy>(e).is_none());
+    }
+
+    #[test]
+    fn a_feature_showing_it_meanwhile_is_what_comes_back() {
+        let mut app = App::new();
+        app.add_systems(Update, apply_hidden);
+        let e = app
+            .world_mut()
+            .spawn((Visibility::Hidden, HiddenBy::new("station")))
+            .id();
+        app.update();
+        // The feature shows it (dressed again): still hidden, remembered.
+        *app.world_mut().get_mut::<Visibility>(e).expect("vis") = Visibility::Visible;
+        app.update();
+        let vis = |app: &App| *app.world().get::<Visibility>(e).expect("vis");
+        assert_eq!(vis(&app), Visibility::Hidden);
+        app.world_mut()
+            .get_mut::<HiddenBy>(e)
+            .expect("hidden")
+            .remove("station");
+        app.update();
+        assert_eq!(vis(&app), Visibility::Visible);
     }
 
     #[test]

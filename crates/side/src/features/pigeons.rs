@@ -428,6 +428,7 @@ fn fly_all(
         &mut Transform,
         &mut Visibility,
         &mut crate::rigged::RigClip,
+        Has<crate::place::HiddenBy>,
     )>,
 ) {
     let t = tuning();
@@ -442,7 +443,12 @@ fn fly_all(
         t.poop_chance
     };
     let secs = time.elapsed_secs();
-    for (mut p, mut tf, mut vis, mut clip) in &mut birds {
+    for (mut p, mut tf, mut vis, mut clip, hidden) in &mut birds {
+        // A place hiding it (Fulton St) owns its visibility, and nobody sees
+        // it fly: leave it be until it's let go.
+        if hidden {
+            continue;
+        }
         let on = awake.get(p.flock).copied().unwrap_or(false);
         vis.set_if_neq(if on {
             Visibility::Inherited

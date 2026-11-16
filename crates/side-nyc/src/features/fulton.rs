@@ -1741,6 +1741,7 @@ fn hide_surface(
         Or<(
             With<friendslop_base::areas::AreaRoot>,
             With<friendslop_base::areas::InArea>,
+            With<Replicated>,
         )>,
     >,
     time: Res<Time>,
@@ -1782,11 +1783,12 @@ fn hide_surface(
     }
     *left = 0.5;
     for (e, g, h) in &mut roots {
-        if !surface(g.translation().y) {
+        if !out_of_sight(g.translation().y) {
             continue;
         }
-        // Only what belongs to an area: globals (the sky, the camera's
-        // helpers) stay, or nothing at all is drawn down here.
+        // Only what belongs to an area or is replicated (cabs, cats, other
+        // players): globals (the sky, the camera's helpers) stay, or nothing
+        // at all is drawn down here.
         if !owned.contains(e) {
             continue;
         }
@@ -1809,6 +1811,12 @@ fn hide_surface(
 /// the station).
 pub fn surface(y: f32) -> bool {
     y > STATION_TOP_Y + STATION_LEVEL_H
+}
+
+/// Pure: a top-level thing at this height can't be seen from the station: on
+/// the surface, or under its bottom (the trains' ride cars hang there).
+pub fn out_of_sight(y: f32) -> bool {
+    surface(y) || y < crate::rules::nyc::STATION_BOTTOM_Y
 }
 
 /// Local: draw only the levels around the camera (forty levels of tiles is a lot).
@@ -2085,6 +2093,8 @@ mod tests {
     fn the_station_hides_the_surface_but_not_itself() {
         assert!(surface(CITY_Y) && surface(0.0));
         assert!(!surface(STATION_TOP_Y) && !surface(level_floor(10)));
+        assert!(out_of_sight(CITY_Y) && out_of_sight(-300.0));
+        assert!(!out_of_sight(level_floor(10)));
     }
 
     fn load<T: Send + Sync + 'static>(d: &friendslop_data::Data<T>) {

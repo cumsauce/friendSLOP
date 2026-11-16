@@ -477,10 +477,14 @@ fn step_out(
             if !bot.cleared {
                 // Out through the door and a couple of metres on.
                 let out = front + (front - inside).normalize_or_zero() * 2.0;
-                let (yaw, stick) = steer(pos, out.xz());
+                // By the navmesh: a gate's walls stand between a start and
+                // its door.
+                let o = go(bot, pos, out.xz(), true, t);
                 return Out {
-                    yaw: Some(yaw),
-                    stick,
+                    yaw: o.yaw,
+                    stick: o.stick,
+                    run: true,
+                    jump: o.jump,
                     skip,
                     ..default()
                 };
@@ -490,6 +494,17 @@ fn step_out(
                 bot.point = 1;
             }
             let to = if in_front { inside } else { front };
+            if !in_front {
+                let o = go(bot, pos, front.xz(), true, t);
+                return Out {
+                    yaw: o.yaw,
+                    stick: o.stick,
+                    run: true,
+                    jump: o.jump,
+                    skip,
+                    ..default()
+                };
+            }
             let (yaw, stick) = steer(pos, to.xz());
 
             Out {

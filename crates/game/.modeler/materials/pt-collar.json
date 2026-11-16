@@ -1,0 +1,170 @@
+{
+  "name": "pt-collar",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.2,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 4,
+      "size": 0.004,
+      "type": "noise"
+    },
+    {
+      "name": "b",
+      "octaves": 2,
+      "seed": 5,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "nv",
+      "to": [
+        0.9,
+        1.04
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "b",
+      "name": "bv",
+      "to": [
+        0.92,
+        1.04
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "nv",
+      "b": "bv",
+      "name": "c1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "#b8282e",
+      "b": "c1",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "n",
+      "b": 0.0004,
+      "name": "hh",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "hh",
+      "metallic": 0,
+      "name": "out",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pt-collar",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.2,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 4,
+              "size": 0.004,
+              "type": "noise"
+            },
+            {
+              "name": "b",
+              "octaves": 2,
+              "seed": 5,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "nv",
+              "to": [
+                0.9,
+                1.04
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "b",
+              "name": "bv",
+              "to": [
+                0.92,
+                1.04
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "nv",
+              "b": "bv",
+              "name": "c1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "#b8282e",
+              "b": "c1",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "n",
+              "b": 0.0004,
+              "name": "hh",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "hh",
+              "metallic": 0,
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +b +nv +bv +c1 +col +hh +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -233,6 +233,16 @@ pub fn in_car(origin: Vec3, yaw_deg: f32, p: Vec3) -> bool {
     l.x.abs() < HALF_LEN - 0.2 && l.z.abs() < HALF_WIDE - 0.1 && (-0.5..2.5).contains(&l.y)
 }
 
+/// The way into the train standing at stop `s` (world): a point on the
+/// platform in front of its first door, and one just inside it.
+pub fn door_way(s: &Stop) -> (Vec3, Vec3) {
+    let f = stop_frame(s);
+    (
+        f.transform_point(Vec3::new(DOORS[0], FLOOR, HALF_WIDE + 1.2)),
+        f.transform_point(Vec3::new(DOORS[0], FLOOR, 0.0)),
+    )
+}
+
 /// Which car someone at `p` is in.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Car {

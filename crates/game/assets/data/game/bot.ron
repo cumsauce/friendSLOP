@@ -26,7 +26,20 @@
     give_up: 6.0,
     // A frame over this many ms is a hitch (25 ms: a visible stutter at 60 fps).
     hitch_ms: 25.0,
+    // How fast Spin turns (degrees a second), and whether every walk sprints.
+    spin_degs: 360.0,
+    always_run: true,
     routes: {
+        // The commune on foot (checks the bot finds its way round the village).
+        "commune": [
+            Start("bonfire"),
+            Wait(5.0),
+            WalkTo("village"),
+            WalkTo("lake"),
+            WalkTo("warehouse"),
+            WalkTo("windmill"),
+            WalkTo("bonfire"),
+        ],
         // Everywhere once: the commune on foot, then each place by its way in.
         "tour": [
             Start("bonfire"),

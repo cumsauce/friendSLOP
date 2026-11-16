@@ -107,6 +107,8 @@ impl Plugin for GamePlugin {
                 ambience::plugin,
                 loading::plugin,
             ))
+            // A navmesh for every area as it loads (host; the villagers' commune).
+            .add_plugins(friendslop_base::nav::plugin)
             .add_plugins((probes::plugin, lan::plugin, bot::plugin))
             .add_plugins((
                 landmarks::plugin,

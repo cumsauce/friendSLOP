@@ -1,0 +1,21 @@
+// Every area's navmesh (crates/base/src/nav.rs): built by the host from the
+// area's own colliders once they've loaded, dropped when it unloads. The
+// commune's is the villagers' own (data/village/villagers.ron).
+(
+    // The walker the meshes are for: radius and height (m), the same body as
+    // the villagers and players.
+    agent_radius: 0.35,
+    agent_height: 1.7,
+    // Steps it can climb (m) and the steepest ground it walks (degrees).
+    max_climb: 0.5,
+    max_slope_degs: 40.0,
+    // Seconds an area's colliders get to land after it loads.
+    settle_secs: 1.0,
+    // rerecast's region sizes (voxels): bigger regions and eager merging give
+    // it fewer, simpler contours (one bad contour aborts a whole build).
+    min_region_size: 32,
+    merge_region_size: 80,
+    // Areas a feature builds the mesh for itself: the villagers build the
+    // commune's (leaving its scattered props out of it).
+    provided: ["commune"],
+)

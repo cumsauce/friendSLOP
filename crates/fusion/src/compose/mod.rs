@@ -114,6 +114,8 @@ pub struct Bar {
     /// Reverb and echo send scales for the bar.
     pub wet: f32,
     pub echo: f32,
+    /// The song's own echo settings, if it has them.
+    pub echo_mix: Option<crate::fx::echo::EchoMix>,
     /// The mood's colour and feel.
     pub tone: Tone,
 }
@@ -128,6 +130,7 @@ impl Bar {
             bright: 0.5,
             wet: 1.0,
             echo: 1.0,
+            echo_mix: None,
             tone: Tone::NEUTRAL,
         }
     }
@@ -544,6 +547,7 @@ impl Composer {
         bar.bright = (base + 0.18 * through + 0.25 * (self.intensity - 0.5)).clamp(0.05, 1.0);
         bar.wet = 1.3 * wet * (1.0 + 0.3 * calm);
         bar.echo = 1.2 * echo;
+        bar.echo_mix = self.style().echo;
         // Higher up the air is clearer and the room bigger.
         let up = self.lift as f32;
         bar.bright = (bar.bright + 0.05 * up).min(1.0);

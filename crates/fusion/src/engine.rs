@@ -69,6 +69,7 @@ impl Engine {
                 self.next_ev = 0;
                 self.composer.next_bar(cue(), &mut self.bar);
                 self.band.bus_target = self.bar.bus;
+                self.band.echo_song = self.bar.echo_mix;
                 self.band.set_tempo(self.composer.bpm());
                 self.band.master_target = self.bar.gain;
                 self.band.bright = self.bar.bright;

@@ -89,1663 +89,454 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
 ## What exists
 
 - A grassy meadow floor (see "Nicer look" below).
-- **Ways in and out are marked** ("make it more obvious where entrance/exits to things in
-  general are"; `crates/play/src/features/doorway.rs`, tuning in `data/play/doorway.ron`). Every
-  entrance and exit gets the same marker: a soft glowing threshold strip with a chevron pointing
-  through and a thin arch frame (or a glowing square round a hatch), pulsing gently, and within
-  10 m a floating label on an ink chip ("way in / Fulton St"). Mint is in, butter is out, lilac is
-  up or down. Marked: the PATH train doors at both stops, the four NYC shop doors, the Fulton St
-  entrance, every level's stairs down and the two way-out posts, the manholes and cellar door
-  and every ladder back up (not the woodcutter's secret trapdoor), the warehouse shutter and its
-  way out, Wendy's front door and attic stairs, the vault's magic doors, the foot of each sky
-  island spire, and the white light out of the hell pit. Markers only show the way; nothing
-  about how you get in changed.
-- **Structure pipeline** (structures rework). Buildings come from a shared kit
-  (`crates/structures`) and a **world seed** the host rolls each session (`features/world_seed.rs`;
-  `FRIENDSLOP_SEED=n` fixes it), so every peer builds the same world:
-  - Walls never overlap (no flicker), each house is one merged mesh per material with textures
-    in world metres, and colliders come from the layout (roofs and gables included).
-  - **Village**: six plots get generated houses each session (cottage, townhouse, barn or shop;
-    gable, hip or flat roofs; doors, windows, balconies, shopfronts). The tower, barn, market,
-    walls and the big cottage by the cellar door stay fixed.
-  - **Furniture**: each generated room is filled by a seeded placer from a 19-prop library
-    (bedroom, kitchen, shop, storage themes) that never blocks a door or the stairs.
-  - **Sewer**: a seeded room graph (chambers, loops, dead ends) between fixed entrances,
-    ladders, the cellar and Paul's chamber, built from detailed hallway pieces (trim, pillars,
-    beams, pipes, lamps, a water channel).
-  - The warehouse floor plan uses the generic WFC crate (`crates/wfc`).
-  Open: furniture in the sewer and warehouse; more house types.
-- **First-person bodies** (#53). Everyone has a body (your own character, see below) and
-  plays in first person: WASD walk, mouse look, Space jump, Shift run, cursor locked. Left click
-  uses whatever is under the crosshair (mushroom, tears, landlord, totems, pets); doors are used
-  from the side you stand on; you fart where you stand; your pet follows you. Bodies can't walk
-  through trees, rocks, walls, sheds, bales or crates: the host walks them with a kinematic
-  character controller (the `bevy_ahoy` crate, driven from `friendslop-base::kcc` each fixed tick) — it
-  slides along walls, walks slopes up to 45°, steps up stairs and kerbs up to 0.5 m (village
-  stairs, ramps, the tower — no special-cased floors anymore), snaps down slopes instead of
-  hopping, and jumps ~0.9 m (Space or pad South/A; holding it hops again on landing, no double jump,
-  0.1 s coyote time off ledges, a 0.1 s buffer for presses just before landing, and letting go
-  early cuts the rise for a short hop; numbers in `data/play/fps.ron`). Headless tests (no physics) fall back to a plain terrain-height
-  walk. V swaps to the old
-  overview camera (WASD pans, free mouse pointer, clicks under the cursor) and back. Duels still
-  put you in the arena with a duel body; your walking body waits where you left it. Each body
-  has a floating "player N" label, and yours wears a little yellow marker (seen from the
-  overview). Esc opens the pause screen in game (#317, doomy: "dont quit to menu with double escape anymore"; the notebook it opened then is now one button on the pause screen); leaving is its "Leave game" button.
-- **Abuela in heaven** (#105, just meat and cheese: "a character similar to my grandma ... she
-  only spoke spanish so please have her make old sounding spanish sounds"). Heaven had no place,
-  so the highest floating island is now a small heaven: clouds on the rim, flowers, a golden halo
-  arch and warm light. Abuela sits there in a rocking chair, knitting: small and round, silver hair
-  in a bun, round glasses, cream shawl over a rose cardigan (built with `CharacterLook`, extras on
-  the new `HeadAnchor`). She greets whoever climbs up to her, and you can click her to talk
-  (server-authoritative: `VisitAbuela` -> `AbuelaSays` to everyone, replicated `Abuela { visits }`).
-  She says short loving Spanish phrases ("¡Ay, mi niño!", "¿Ya comiste?", "Te quiero mucho",
-  "Dios te bendiga"...) shown as a subtitle with an English gloss, hearts rise above her, and the
-  one she spoke to is told "you feel loved". Her voice is synthesised from the phrase's own Spanish
-  syllables (open vowels, rolled r, soft s, nasal ñ) as a quiet, breathy, gently trembling older
-  woman's voice, played spatially at her chair (`features/abuela.rs`).
-- **Climbing and floating islands** (#99). Walk into anything steep (a wall, a rock, a tree
-  trunk, a house, a spire) and hold W and Space to climb it at 2.5 m/s; A/D shuffle sideways on
-  the face, and at the top you haul yourself over the edge. Let go of Space to drop. Above the
-  south-east meadow (around x 55..63, z 55..67) three grassy islands float in the sky, at 10 m,
-  16 m and 22 m. A rock spire rises to each one's rim, standing on the ground or on the island
-  below, so the way up is climbing. Nothing is up there yet but the view.
-- **Make your own character** (#100, doomy). The main menu's Character button opens a creator
-  with a live, turning 3D preview: body type (person, round critter, tall noodle, four-legged
-  beast), height / girth / head size / limb length, skin or fur, clothes and accent colours, eyes
-  (googly, beady, sleepy, cyclops), ears, horns, tail, snout, an accessory, and Randomize. It's
-  saved to `friendslop/character.txt` in your config folder and sent to the host when you play;
-  the host clamps silly values and everyone sees you. Under the hood (`people.rs`) every body is
-  a little procedural rig (hips, spine, head, arms, legs, tail bones with primitive meshes) that
-  walks from its speed, breathes, glances around when idle and wags its tail. Villagers and the
-  menu's campfire crowd use the same system with seeded random looks. Looks are visual only: the
-  collision capsule never changes, bodies are shrunk to fit it.
-- **Hide and seek** (#61). Anyone presses K to start (needs 2+ players; solo it just says so).
-  The server picks a random Seeker, everyone else hides. For 30 s the seeker is frozen in place
-  behind a black blindfold screen; then they have 3 min to find people. Seekers tag a hider by
-  clicking them within reach; a found hider becomes a seeker too. The round ends when nobody is
-  left hiding (seekers win) or time runs out (hiders win); results show for 10 s and the next
-  round starts with a new random seeker, looping until fewer than 2 players remain. Phase, timer
-  and role show in the top-centre line, tags as toasts. It runs alongside the landlord objective
-  (both stay). The scenery is the hiding ground; no per-round regenerated layout yet. During
-  Hiding/Seeking, floating name labels stop giving people away: seekers see no labels but their
-  own, and a hider's label is hidden from everyone but themselves (back after the round). While
-  seeking, a hider hears a generated heartbeat when a seeker is within 6 m, faster as they close
-  in. Player bodies already collide with cover (host sweeps a capsule and slides along it).
-- **Districts across the wider map** (`zones.rs`, after "too dense in one little area, can't run
-  around and hide"). The centre commune's cover is thinned to ~40% (18 clusters) for running lanes.
-  Around it, within ±90 m: a north forest (z < -35: ~230 tall trees with trunk colliders,
-  undergrowth, fallen logs, boulders, a hidden clearing with a woodcutter's hut ruin); south-west
-  ruins (a 24×24 m seeded hedge/stone maze with 3 m walls, dead ends and a gilded statue in the
-  centre, 6-10 m broken castle walls with an archway, a collapsed tower to walk into, rubble, and
-  rock faces, crates and a wooden crane around the quarry rim at (-55, 65)); a sparse west valley
-  (trees, rocks, fences, shepherd's shelter); meadows with copses, low stone walls and hedgerows
-  (~1.2 m, crouch cover), haystacks and a windmill with turning sails at (-8, -31). The east
-  village block (x 35..80, z -35..35) is left for houses. Everything sits on `terrain::height_at`.
-  Finer dressing on top: cattail reeds ring the lake, wildflower patches and boulder sets dot the
-  valley and meadows, scarecrows, beehives and wheelbarrows stand in the fields, post lanterns
-  line the paths (they glow and light up at night), and trees cover the rim hills past the edge.
-  Every count is in `data/game/scenery.ron`.
-- **Commune villagers** (#61, the "NPCs" part). Twenty villagers: ten regulars (Kevin, Brenda, Old Tom, Moss, ...)
-  and the ten Discord friends (#159, below),
-  built by the same character system as players, rolled from the same option pool, so hiders
-  can blend in. The
-  server moves them at 5 Hz: wander between the bonfire, ruins, pond and cover spots, pause or sit,
-  never enter the duel arena, stop during the stillness. Clicking one says hello; a seeker who
-  clicks one while seeking gets "that's just Kevin from the commune" and is frozen for 3 s
-  (everyone hears about it). Nearby villagers sometimes mutter a line (toast). On the host they
-  sweep a ball along each step and veer around trees, rocks and walls (or pick a new spot if boxed
-  in). Once the host is in the game it builds a navigation mesh (rerecast, off the main thread,
-  ~3 s; see `tests/it/navmesh.rs`) over the terrain and the village architecture, and most trips then
-  go overland between the districts — commune centre, east village market, the maze's statue, the
-  castle ruins, the forest clearing and the lake shore — via a landmass agent per villager. Until
-  the mesh is ready they fall back to straight-line steering between the local spots. Scattered
-  trees, rocks and props are deliberately left out of the mesh (they punch holes that trip
-  rerecast; see `vendor/rerecast/README-friendSLOP.md` for the carried fix); `avoid_cover` still
-  steers around them. They have no name label.
-- **The Discord friends walk the commune** (#159, catherine). Everyone who has sent in an idea
-  (doomy, catherine, Freyja Moth, Kori.exe, just meat and cheese, corvy, bben, WeiYa, arseeN,
-  hadalade; the list is hand-written in `villagers::NAMES`, add new friends there and in
-  `discord_friends::LINES`) is one of the villagers, so they wander, blend in for hide and seek
-  and chase farters like the rest. Hover one and it says "chat up". Each chat (one every 1.5 s
-  per friend) is a heart and gets a line from them, mostly about their own ideas, sweeter each
-  time ("i farted when i saw you. that's how it starts."). On the 5th they're **dating** you:
-  everyone sees "catherine is dating player 1 now <3" and hearts float over them. A friend who's
-  dating someone turns everyone else down until that player leaves. Dating does nothing else yet.
-- **Evil rats in the tunnels** (#159, catherine). Each friend has an evil twin with their name
-  backwards (enirehtac, ymood, exe.iroK, ...): a grey rat with pink ears and glowing red eyes,
-  scurrying between the tunnel cells under the map. The lore, as the rats tell it when you adopt
-  one: they were the evil halves of everybody and let themselves be turned into rats to save
-  the world, and nobody said thanks. Click a stray to adopt it (one rat each, on top of a surface
-  pet); it squeaks and follows you everywhere, popping up at your heel when you climb a ladder.
-  Click your rat to hear something evil ("i saved the world and all i got was this tail.").
-  If you leave, your rat goes home to the tunnels. Rats don't count towards connecting the pets.
-- **One click, one thing** (polish). A left click resolves to the single closest clickable thing
-  under the crosshair/cursor (`features/interact.rs`), so one click never triggers two features,
-  and only within ~3.5 m of your body; otherwise the HUD toast says "too far away". The server
-  re-checks the distance (and works out your side of a door from where you stand), and
-  refusals (too far, frozen, already owned, can't afford, vault locked, wrong side) show as a
-  toast.
-- Ambient life (`ambience.rs`, local visuals only): butterflies, pollen motes, fireflies,
-  falling leaves, birds crossing high overhead, smoke and sparks from the campfire, and the
-  scenery props swaying gently in the wind. Capped at about 190 recycled particles.
-- Lots to hide behind (#60): ~44 seeded clusters across the whole map (not just a ring):
-  tree groves, rock outcrops, bush hedges, fallen logs, broken stone walls, open-fronted sheds,
-  hay bales, fences and crate stacks. Trunks, rocks, walls, sheds, bales and crates have static
-  colliders. Landmarks (centre, arena, parliament, bonfire, vault, landlord, totems, animal homes)
-  stay clear, and the strip between the default camera and the centre only gets low cover.
-  Everything sits within ±22.5 m on flat y=0.
-- A bigger world (feedback: "more scale ... so its not just one little area"): the walkable area
-  is ±90 m (was ±25), with a soft wall at ±88 and hills rising beyond it (`crates/world/src/terrain.rs`). The
-  commune square (±25 m) and the east village district (x 35..80, z -35..35) are dead flat; the
-  north forest (z < -35) rolls gently; the west valley has a climbable 12 m hill at (-62, -6), a
-  ridge along the far edge and a lake at (-44, 20); the south-west ruins (x -80..-30, z 30..85)
-  are nearly flat with a 5 m quarry pit at (-55, 65). Dirt paths run from the centre to every
-  district. The ground is 64 chunked meshes plus a heightfield collider; bodies follow
-  `terrain::height_at` up and down slopes. Walk 5 m/s, Shift runs at 10.5 m/s.
-- A floor dressed with low-poly nature (trees, bushes, grass, flowers, pebbles), a campfire
-  burning beside the burnt parliament (stone ring, glowing embers, four log seats), a pond with
-  ripples, lily pads, reeds and cattails, rocks, a little jetty with a lantern and two ducks
-  paddling round, lantern posts strung with bulbs along the paths to the campfire and the pond
-  (`crates/world/src/landmarks.rs`), and a generated, adaptive 90s jazz-fusion soundtrack (`features/fusion`,
-  asked for in chat: "change the music ... jazz fusion ... 90s/FM synth vibe ... adapts to the
-  game state"; it replaced the looping "Catsong"). #324 redid the creepy Wendy's-attic song and
-  the fart shame alarm with the plain-song composer: the attic is a broken music box (vibes riff,
-  organ, creaking upright, a ticking woodblock, far-off choir) over harmonic-minor chords, the
-  alarm a cartoon chase (march kit, octave-hopping bass, clav stabs, a squealing mini-synth riff
-  over a siren-like I / tritone see-saw, cowbell, a trumpet a third below). The music lives in its own Bevy-free crate
-  (`crates/fusion`; `features/fusion` is just the game glue). Live FM voices (DX7-style EP,
-  slap and fretless bass, lead/brass with portamento, bell pad, kalimba), subtractive voices (a
-  CS-80 style horn section that shouts, pushes and swells around the lead, string machine,
-  Minimoog-style lead), a blown flute/bottle (odd-harmonic FM plus breath noise that blooms
-  with each note, bottle-like low and flute-like high), a mellow nylon-string guitar (a
-  plucked-string model, flesh-not-nail attack, a body resonance, a big reverb and a touch of
-  echo: fingerpicking in the meadow and the sky islands' quieter sections, bossa-nova
-  comping in the forest, the bolero strum and requinto-style answers near Abuela), a
-  synthesized kit with ride, clap, shaker, congas and toms, and foley-synth note-block
-  bells/harp. Keys, bells, harp, kalimba, flute and guitar ride a tempo-synced echo. The lead tells a story over eight bars
-  (statement, answer, development to a peak in bar seven, restatement, cadence; chord tones on
-  long notes and guide tones on changes), a second voice answers it in its gaps (flute, harp,
-  kalimba, strings or horns by mood), and solos trade between two synths. The sound evolves:
-  brightness and reverb/echo amounts follow the sections, pads and horns drift slowly, and a
-  reversed cymbal rises into big sections. Per-bus EQ, chorus, a tempo-synced echo, a wet room
-  and per-mood make-up gain keep the mix balanced (checked against a typical jazz/pop octave-band
-  balance with `cargo run -p fusion --release --bin fusion-render -- stems`). A director picks the next bars at every bar line from a mood: menu (signature hook
-  over "Just the Two of Us" changes), meadow (or the sunny, kalimba-and-flute "Kite Day"), commune/village (city-pop, or one of two upbeat songs: the bouncy "Sunny Side" or the driving
-  "Night Market"; each visit picks one, and the band may move on after a breakdown), forest/valley (flute,
-  harp), maze/ruins (minor, bells), the underground (#127: dub-wet D minor, a bottle-flute
-  lead, kalimba drips, offbeat stabs, congas, extra reverb and echo), sky islands (dreamy), near Abuela (bolero), hide-and-seek
-  hiding/seeking, duel (150 bpm), landlord (chromatic, building), stillness (holds on a pad),
-  plus a victory kime when a round/duel/chapter/landlord is won. Sections (intro, A, hook, B,
-  solo, breakdown), key changes, fills, 7/8 kime bars, layers faded by intensity. It follows
-  you (asked for in chat: "if they're going upstairs maybe it starts shifting scales upwards"):
-  every storey above the ground (2.4 / 5.4 / 9 / 15 m: a floor, the next floor, a spire, the
-  islands) moves the key up a step of the major scale, up to a fifth, each step prepared over
-  half a bar by the new key's dominant with a riser and landing on a cymbal; coming down walks
-  it back. While you climb or fall, melodies, runs and arpeggios lean that way, and higher up
-  the band plays brighter in a bigger room. Out in the world running lifts the intensity,
-  standing about for a while lets the band lay back, friends within 15 m fill it out, and the
-  music ducks under voice chat. `fusion-render climb <mood>` renders a climb and back. Local only,
-  ~2.5% of a core, respects master volume. Plus real sound effects
-  for crows, duels and mushroom bites, and an ambient bed (#62): quiet birdsong, a synthesized
-  wind loop, and a crackling-fire loop heard at the campfire.
-  **Night whispers** (#235, `features/whispers.rs`): the game has no day and night, so night is
-  your own clock, 22:00-05:00 local time. Each night gets one roll (15%) the first time you
-  play it (saved in `whispers.txt`, so restarting doesn't re-roll); if it hits, 40 s to 10 min
-  later two whisperers and a low murmur start just behind your head for 7 s and stay behind you
-  however you turn. Made from shaped noise (breathy formant vowels, "s"/"sh" hisses, a muffled
-  murmur). Only you hear it; each player rolls their own night.
-  Procedural sounds (bear, HALT, voice lines, farts; HALT now babbles in a low, slow version of
-  the shared Animal Crossing style voice instead of a buzzing drone) render at 44.1 kHz with band-limited
-  oscillators, a gentle low-pass, click-free fades, normalised levels and dithered output.
-  **3D sound** (`spatial.rs`, polish): world sounds are heard where they are, through our own
-  little mixer (1/distance falloff past a near radius, equal-power level and arrival-time
-  differences between the ears, head shadow, darker behind you, air absorption with distance,
-  muffling when a collider is between you and the sound, and a small diffuse tail so far things
-  sound far). Spatial: crow caws (from the crow), the bear's growl (following the bear), other
-  people's farts (from where they farted; yours stay in your head), other players' footsteps,
-  the "aww" of a smitten NPC, Abuela's voice and the campfire. You hear from your head, facing
-  where the camera looks. **Voice chat is proximity in the world**: full within 3 m, fading out
-  and panned to where friends stand, but never below a faint floor (0.15), so everyone can still
-  talk from anywhere. Menus stay a party call. All of it comes from CC0 asset packs stored in Git LFS
-  (`crates/game/assets`, credits in `crates/game/assets/CREDITS.md`); every peer renders the
-  same scene from a fixed seed, and if the files are missing the game quietly falls back to its
-  procedural-primitive look.
-- **Currency: organs** (#22). Each organ's value = creature worth (human 10, cow 5, pig 4,
-  chicken 2, rat 1) × organ importance (brain 10, heart 9, lungs 7, liver 6, kidney 4,
-  stomach 3, appendix 1). Every player has an organ purse, shown top-right. Everyone starts with
-  a rat appendix, a chicken kidney and a pig stomach (worth 21), refilled at the start of every
-  chapter. Organs pay the landlord's rent; pickpocketing him takes one back, and beating him
-  shares his whole stash out between every tenant (#135). **What else they're for** (#217): Wendy's
-  butcher buys them. Click the chopping block in the backroom and he takes your cheapest organ
-  and pays dollars for it (4 organ value to the dollar, at least $1; the starting rat appendix
-  is $1, a human brain $25), so a small organ becomes a bodega hat while the big ones stay
-  for the rent. Lives at the `wendys` site; numbers in `data/side/organ_butcher.ron`
-  (`features/organ_butcher.rs`). Organs still only come from the chapter refill and the landlord.
-- **Crows** (#2). Three cute black crows hang around the floor, hopping and wandering about. Every
-  so often one puffs up, caws (shown as "caw!" text) and you hear a crow sound. The server spawns
-  them; every peer animates them locally.
-- **The bear** (#4). Exactly one cute, round, friend-shaped brown bear ambles slowly around one
-  side of the floor. Every ~13 seconds it rears up and does a scawy (cute) growl: a short
-  procedurally generated rumbly sound plus "grrr~" text. It doesn't do anything else yet.
-- **Voice-altering mushroom** (#6). One red spotty mushroom grows somewhere on the floor. Click it
-  to eat it (walk up and click it under your crosshair). Your own voice
-  then becomes much higher (1.5-1.9x) or much lower (0.55-0.7x) at random for 45 seconds, run
-  through a small pitch-shifter so everyone hears it, with a bite sound when the server confirms
-  the munch. A new mushroom grows elsewhere 10 s later.
-- **Cat-vision palette** (#12). Everything is shown in a bright, cheery storybook-MMO palette, but
-  only in colours cats can see: blues and yellows, no red-green difference. Every material is
-  run through a cat-vision filter (then lightened and saturated), and the sky is bright blue. So
-  the "red" mushroom and the green floor both look yellowish to us, like they would to a cat.
-- **Day/night cycle** (#284, doomy, "surprise me"; `atmosphere.rs`). One day lasts 24 minutes
-  (`data/game/day_night.ron`). It runs off the real clock, so everyone in a session sees the
-  same time of day with nothing sent over the network. The sun swings east to west, gets low and
-  golden at dawn and dusk, and at night a dim blue moon takes over while the ambient light drops
-  to 12%. The sky dome's colours blend between day blue, a sunset that glows on the sun's side,
-  and a deep navy night; seeded stars fade in, a moon disc rises opposite the sun, and the
-  clouds go dark instead of glowing (all colours in `day_night.ron`). After dark the city lights
-  up (`night_lights.rs`, `data/base/night_lights.ron`): lit windows, shop fronts, neon and lamp
-  heads glow brighter, tower glass gets a faint office glow, and the nearest 12 street lamps
-  throw real light on the pavement. Bevy's physical Atmosphere was tried and left out: it lights
-  the sky with every directional light (our bounce and moon lights would make extra suns) and
-  replaces our fog. Purely visual for now: nothing in play cares what time it is.
-  The dark places (train rides and halls, Fulton St, the underground, the warehouse and its
-  bathroom, the endless hallway) don't change the light themselves: each says it's where you
-  are, and the cycle lays that place's look (`data/base/place_looks.ron`) over the sky, so going
-  between them never leaves the world dark (`place.rs`).
-- **Nicer look** (#47). All art is generated in code (`art.rs`), no downloaded assets: a
-  seamless procedural grass texture on the floor, a warm sun with soft shadows, sky-blue ambient
-  light and distance haze, and a meadow of grass tufts, flowers and pebbles. Creatures got
-  googly eyes and more detail (crow wings, tail and legs; fluffy goat with muzzle and hooves;
-  per-pet ears, tails, beak and feet; landlord's moustache, arms, shirt, hat band and watch;
-  Dave's beanie and legs). Props got trims too: music-box lids and gold feet, carved totems,
-  capped vault walls, leafier storm trees, parliament columns and rubble, arena corner flags.
-  Everything still passes through the cat palette.
-- **PBR surfaces on the primitives** (#128, doomy: "rn they're just flat materials can you proc
-  gen, make shaders, or use textures? or all in combination?"). Chose procedural textures, no
-  custom shader and no downloaded files (`crates/world/src/surfaces.rs`). Every plain material (no texture of its
-  own, opaque, not glossy, glowing or unlit) is sorted by its colour into stone (greys), wood
-  (darker browns/reds), leaves (greens), cloth (other strong colours), metal (metallic) or
-  painted (skin, pale and light warm colours), and gets that surface's generated greyscale
-  detail, normal map and roughness map: cracked cobbles, wavy wood grain, leafy bumps, woven
-  threads, brushed metal, a soft painted grain. Colour still comes from the material, so the cat
-  palette keeps working. Cubes, spheres and cylinders stretched by their transform are re-baked
-  once per size with UVs in metres and tangents, so the grain is the same size on a crate and on
-  a 10 m wall. Glossy eyes, water, lamps, the textured ground, vertex-coloured meshes and the
-  glTF models are left as they were.
-- **Duels** (#14). Press a number key to challenge another player; they press Y/N. The two
-  duelists get bodies in a small walled arena on the floor — animated cowboy/cowgirl models, or
-  capsule-and-gun stand-ins if the asset files are missing — and play first-person (WASD, mouse,
-  click) with a revolver viewmodel while everyone else watches. "One in the chamber" rules: one
-  bullet, every hit kills, a kill refunds your bullet, with no bullets you punch up close, you
-  respawn with one bullet. 3 lives each; the last one standing wins. One duel at a time. Shots,
-  punches and hits play sounds for everyone; nothing is won or lost beyond bragging rights yet.
-- **Commune of Dave** (#3). Parliament is a smouldering ruin in a corner of the floor, with the
-  commune's flag (a Union flag with a little Welsh flag and red dragon in the middle, because
-  Dave isn't a coward; #43; made more anarchist in #57: red-over-black anarcho-syndicalist field,
-  black crosses, and a circled A sprayed on the corner), the flag swinging gently on its pole, Dave himself (fist raised) and a banner at the top of the screen. Scenery
-  only for now; every peer spawns it locally.
-- **The judgmental goat** (#20). A white goat with half-closed eyes stands on the floor, slowly
-  shaking its head. It comments passive-aggressively (on-screen text) on every choice it can see:
-  someone joining or leaving, the mushroom being eaten, you muting or unmuting, and, after 40 s of
-  nothing happening, doing nothing. There are few choices in the game yet, so it judges those.
-- **Morality** (#21). Every player has a morality score (starts at 0), shown bottom-left with a
-  label (reprehensible / dubious / neutral / decent / saintly). Actions have a random moral value
-  within a sensible range: eating the mushroom is -2..+2. Harming anyone is -5..+3, except harming
-  (in any way) the nobility, capitalists, landlords or billionaires, which is **always rewarded**
-  with +6..+10 (corrected by Freyja Moth in #43). Wired up so far: eating the mushroom, and
-  every pickpocket or punch on the landlord (always rewarded). Your score carries over from
-  chapter to chapter and only resets when a new campaign starts (#135). Being bad gets you hunted
-  by a helicopter (below).
-- **The helicopter** (#134). Being bad gets you hunted: while your morality is -6 or lower
-  ("dubious" or worse) a dark green helicopter flies in from the far corner of the map, hovers
-  14 m above and a little beside you, follows you faster than you can run (11 m/s) and fires
-  bursts of 5 bullets at you with a 2.6 m spread (tracers, dirt puffs, generated rotor thump and
-  gunshots everyone can hear). Everyone sees who it's hunting. Get your morality back above -6
-  (harming the landlord always helps) and it flies home; it also leaves when a new campaign
-  resets morality. It pauses in the stillness. A bullet within 0.7 m of your feet is a hit, but being
-  shot only shows "You've been shot!" so far.
-- **Farting** (#18). Every player's gas pressure builds from 0 to 100% over 40 s (shown
-  bottom-right). Press F (with at least 20%) to fart where your body stands (in the overview
-  camera: wherever the mouse cursor points on the floor; your duel body when duelling).
-  If any NPC (the bear, a crow, Dave at parliament, or one of the ten commune villagers, #135)
-  is within 4 m, you are **shamed**: for
-  20 s your screen blurs, "SHAME" flashes in red and a scary, distorted chiptune (generated in
-  code) plays. Everyone sees a line saying who farted and whether they were caught. So the trick
-  is waiting for the wandering crows and bear to be elsewhere.
-- **Fart noises** (#26). Every fart is heard by everyone and is synthesized on the spot by a
-  small physical model: gas pressure pushes a pair of "lips" that buzz like a brass player's,
-  the gas drains (so the fart sags and fades), and the airflow adds turbulent texture, shaped
-  by a "cheek" filter. Each player tunes their own fart: `[` `]` pitch (30-400 Hz), `-` `=`
-  length (0.15-4 s for a full tank; emptier tanks are shorter), `;` `'` timbre (tight and dry
-  to loose and wet, with sputtering). The settings are shown bottom-right.
-- **Romance** (#97). Sometimes (one shameful fart in three) the NPC who caught you farting
-  falls for you instead of just judging: pink hearts float up above them and everyone hears a
-  soft, generated chorus of "aww". You are still shamed. It's only a moment so far; the NPC
-  doesn't remember you afterwards.
-- **Punishment** (#123). Every time an NPC catches you farting counts (shown bottom-right as
-  "caught farting N/4"). On the 4th catch the count resets and the commune goes into **attack
-  mode** for 60 s: all twenty villagers (friends too) drop what they're doing and run straight at your body
-  (4 m/s, a little slower than walking, so you can stay ahead by keeping moving) and crowd you
-  when they reach you. Everyone sees a red "ATTACK MODE" line with a countdown, the band goes
-  quiet under frantic, high-pitched string music (bouncing chromatic 16ths, shrieking stabs,
-  a trembling cluster, generated in code) and every chasing villager jingles like a pocket full
-  of keys. Catches don't count while you're already being chased; the clock pauses in the
-  stillness. Only the villagers chase (the bear, crows and Dave keep to their routes).
-- **The shipwreck** (#185, Freyja Moth: "a ship that crashed on the shore in the storm of '21...
-  gay pirate aboard guarding a treasure that you have to battle with. Also one of the pirates is a
-  trans man"). The *Rainbow Reckoning* lies beached and listing on the east shore of the valley
-  lake (around (-34, 21)), mast snapped, rainbow flag flying. Three pirates guard a treasure chest
-  on the sand: Captain Rosa Gaybeard, Jack Hartley (a trans man, the best blade aboard) and Bosun
-  Fennel, each with a line when you first take him on. Click a pirate to battle: three hits and he
-  yields and sits for 90 s; he swings back, sometimes knocking you 3 m away (the 5% action failure
-  applies). While all three are down the chest is open: click it for 25 doubloons, once each until
-  the crew gets up. Doubloons show bottom-right and the bodega takes them (#215: they top up your dollars at 3 dollars each, see Hats) (`features/shipwreck.rs`).
-  It's the first feature to keep trees off its ground by claiming a footprint
-  (`world::footprints`) instead of being imported by the map.
-- **Click hints**. Whatever your aim point (crosshair, or the cursor in the overview camera) is
-  on gets a little label under it saying what clicking does ("click: pet the cat", "click: take
-  the burger", "click: vote to go in"), or "too far" when you're out of reach. Things without
-  a verb just say "click" (`features/interact.rs`, `Clickable::labelled`).
-- **Skills** (#176, catherine: "everything, even walking and sleeping and pissing and farting
-  should have a skill that improves it over time like rune factory"). Everyone levels six skills
-  1-100 by doing them (each level needs more XP): Walking (per metre; up to +20% walk and run
-  speed), Farting (per fart; gas fills up to 50% faster), Sleeping (Z lies you down and gets you
-  up; per second asleep, and you can't move while asleep), Pissing (X; a yellow puddle at your
-  feet everyone sees, bigger with level, drying over 20 s), Smoking and Dueling (tracked and
-  levelled; no bonus yet). Levels show bottom-right, with a toast on each level-up
-  (`features/skills.rs`).
-- **The Watcher** (#277, Horror ARG 1/3 of catherine's #182: "a tall, faceless figure stands
-  far off, facing one of you. It vanishes in a burst of static when someone looks right at it
-  or walks up to it"). Every 150-420 s the server picks a player and puts one replicated
-  figure 45 m behind their back (a little off to the side), facing them: a black column with
-  long thin arms and a blank pale head (placeholder primitives). Everyone sees the same one.
-  It vanishes when anyone looks within 9 degrees of it or comes within 12 m (or after 60 s),
-  and every peer sees a flicker of white static specks there and hears a crackle. Tuning in
+- **Ways in and out are marked.** Every entrance, exit, stair, ladder and hatch gets one glowing
+  threshold marker with a label within 10 m (mint in, butter out, lilac up/down); markers only
+  show the way. `crates/play/src/features/doorway.rs`, `data/play/doorway.ron`.
+- **Structure pipeline.** Buildings come from a shared kit (`crates/structures`) and a world seed
+  the host rolls each session (`features/world_seed.rs`; `FRIENDSLOP_SEED=n` fixes it), so all
+  peers build the same world: generated village houses on six plots, seeded furniture, a seeded
+  sewer room graph, and a warehouse plan from `crates/wfc`. Open: furniture in the sewer and
+  warehouse; more house types.
+- **First-person bodies** (#53, #317). Everyone walks in first person (WASD, mouse, Space jump,
+  Shift run); left click uses what's under the crosshair; V swaps to the overview camera; Esc
+  opens the pause screen. The host moves bodies with a kinematic controller (slopes, stairs,
+  jumps) that can't pass trees, rocks or walls. `friendslop-base::kcc`, `data/play/fps.ron`.
+- **Abuela in heaven** (#105). The highest sky island is a small heaven where Abuela knits in a
+  rocking chair; click her and she says loving Spanish phrases (with English gloss) in a
+  synthesised old voice. `features/abuela.rs`.
+- **Climbing and floating islands** (#99). Hold W and Space against anything steep to climb it;
+  three grassy islands float above the south-east meadow, reached by climbing rock spires.
+  Nothing is up there yet but the view.
+- **Make your own character** (#100). The menu's Character button opens a creator with a live
+  3D preview (body type, size, colours, eyes, ears, horns, tail, accessory); it's saved locally,
+  sent to the host and seen by everyone. Bodies are procedural rigs shared with villagers.
+  `people.rs`.
+- **Hide and seek** (#61). Press K (2+ players): a random seeker is blindfolded 30 s, then has
+  3 min to tag hiders, who become seekers; ends when nobody hides or time runs out, then loops.
+  Name labels are hidden during rounds and hiders hear a heartbeat when a seeker is near.
+- **Districts across the wider map.** Cover is spread over a ±90 m map: north forest, south-west
+  ruins with a hedge maze and quarry, west valley, meadows with a windmill, plus fine dressing
+  (reeds, scarecrows, lanterns). Counts in `data/game/scenery.ron`; `zones.rs`.
+- **Commune villagers** (#61). Twenty villagers built like players wander between hangouts
+  (host-simulated, navmesh overland trips), blend in for hide and seek, and say hello when
+  clicked.
+- **The Discord friends walk the commune** (#159). Each friend who sent an idea is a villager;
+  chat one up for heart-and-line replies, and on the 5th chat they are dating you. Names in
+  `villagers::NAMES` and `discord_friends::LINES`. Dating does nothing else yet.
+- **Evil rats in the tunnels** (#159). Each friend has a backwards-named evil rat twin in the
+  tunnels; click one to adopt it, and it follows you and says evil lines when clicked.
+- **One click, one thing.** A click picks the single closest clickable thing within about
+  3.5 m; the server re-checks and refusals show as a toast. `features/interact.rs`.
+- **Ambient life.** Local butterflies, pollen, fireflies, leaves, birds, campfire smoke and
+  swaying props, about 190 recycled particles. `ambience.rs`.
+- **Lots to hide behind** (#60). About 44 seeded clusters of groves, rocks, hedges, logs, walls,
+  sheds, bales and crates with static colliders; landmarks stay clear.
+- **A bigger world.** The walkable area is ±90 m with a soft wall and hills beyond; flat commune
+  and village, a rolling forest, a climbable hill, lake and quarry pit, with dirt paths to every
+  district. `crates/world/src/terrain.rs`.
+- **Nature, campfire and generated music** (#62, #127, #235, #324). The floor has low-poly
+  trees, bushes, a campfire, pond with ducks and lantern-lined paths (`crates/world/src/landmarks.rs`).
+  A generated, adaptive 90s jazz-fusion soundtrack picks songs by mood and place and shifts key
+  as you climb (`features/fusion`, own crate `crates/fusion`, data in `assets/data/music/`).
+  Plus sound effects, an ambient bed, and rare Night whispers behind you at night
+  (`features/whispers.rs`).
+- **3D sound** (`spatial.rs`). World sounds are heard where they are (distance, panning, muffling
+  behind colliders). Voice chat is proximity-based but never fully silent. CC0 assets come from
+  Git LFS and fall back to procedural looks if missing (`crates/game/assets/CREDITS.md`).
+- **Currency: organs** (#22, #135, #217). Players hold an organ purse (creature worth × organ
+  importance), refilled each chapter, that pays the landlord's rent. Wendy's butcher buys your
+  cheapest organ for dollars at the chopping block. `features/organ_butcher.rs`,
+  `data/side/organ_butcher.ron`.
+- **Crows** (#2). Three black crows hop around and caw with a sound; server spawns them.
+- **The bear** (#4). One cute brown bear ambles about and growls every ~13 s. Nothing else yet.
+- **Voice-altering mushroom** (#6). Click the mushroom to eat it and your voice pitch-shifts
+  higher or lower for 45 s; a new one grows 10 s later.
+- **Cat-vision palette** (#12). All materials go through a cat-vision filter (blues and
+  yellows, no red-green) in a bright storybook look.
+- **Day/night cycle** (#284). A 24-minute day runs off the real clock, so everyone sees the same
+  sun, moon, stars and sky; the city lights up at night. Dark places set their own look through
+  `place.rs`. `atmosphere.rs`, `night_lights.rs`, `data/game/day_night.ron`.
+- **Nicer look** (#47). All art is generated in code (`art.rs`): procedural grass, warm sun
+  with soft shadows, haze, and extra detail on creatures and props.
+- **PBR surfaces on the primitives** (#128). Plain materials get generated stone, wood, leaves,
+  cloth, metal or painted textures and normal maps, sized in metres. `crates/world/src/surfaces.rs`.
+- **Duels** (#14). Challenge a player with a number key; they get bodies in a walled arena,
+  one bullet, every hit kills, three lives each; last one standing wins. Bragging rights only.
+- **Commune of Dave** (#3, #43, #57). Parliament is a smouldering ruin with an anarchist
+  commune flag, Dave and a banner. Scenery only.
+- **The judgmental goat** (#20). A goat comments passive-aggressively on joins, leaves, the
+  mushroom, muting and doing nothing.
+- **Morality** (#21). Every player has a morality score (bottom-left); harming landlords and
+  the rich is always rewarded. It carries over between chapters. Bad scores bring the
+  helicopter.
+- **The helicopter** (#134). At morality -6 or lower a helicopter hunts you and fires bursts of
+  bullets; it leaves when you recover. Being shot only shows a message so far.
+- **Farting** (#18). Gas builds over 40 s; press F to fart. If an NPC is within 4 m you are
+  shamed for 20 s (blur, alarm), and everyone sees who farted.
+- **Fart noises** (#26). Every fart is synthesised by a physical lips-and-cheek model; each
+  player tunes pitch, length and timbre with `[ ] - = ; '`.
+- **Romance** (#97). One shameful fart in three, the NPC who caught you falls for you with
+  hearts and an "aww" chorus. It's only a moment.
+- **Punishment** (#123). Four catches trigger 60 s of attack mode, where all villagers chase
+  you to frantic music.
+- **The shipwreck** (#185). The beached *Rainbow Reckoning* on the lake shore has three pirates
+  guarding a chest; beat them in melee to open it for 25 doubloons, which the bodega takes.
+  `features/shipwreck.rs`; first feature to claim ground via `world::footprints`.
+- **Click hints.** The aim point shows a label saying what clicking does, or "too far".
+  `features/interact.rs`.
+- **Skills** (#176). Six skills (walking, farting, sleeping, pissing, smoking, dueling) level
+  1-100 by doing them, some with bonuses. `features/skills.rs`.
+
+- **The Watcher** (#277, Horror ARG 1/3 of #182). Now and then a tall faceless figure appears far
+  behind one player; it vanishes in a burst of static when anyone looks at it or gets close.
   `data/side/watcher.ron` (`features/watcher.rs`).
-- **The Watcher's scraps** (#278, Horror ARG 2/3). Where the Watcher vanishes the server
-  leaves a scrap of paper on the ground with the next piece of a coded message the commune
-  hasn't found yet (click it: "read the scrap"). The pieces are shared: everyone sees
-  "A scrap of paper (2/5): ..." for 9 s, and once all five are found the whole message shows for
-  20 s. It points at the tower in the ruins (see the broadcast, next). The writing is `data/text/clues.ron` (add or reword pieces freely), the
-  timings `data/side/clues.ron` (`features/clues.rs`).
-- **The broadcast** (#279, Horror ARG 3/3). An old TV lies half buried, dark, in the middle of
-  the ruins' collapsed tower. Once the commune has all of the Watcher's scraps, it answers a
-  crowd: when 2 players (or everyone, if fewer are playing) stand within 4 m of it, its screen
-  flickers on for everyone, static crackles, voices whisper out of it, and five lines show in
-  the middle of the screen, 4.5 s each. The last line is in ROT13 (each letter turned 13 places)
-  and decodes to a pointer at `SIGNAL.txt` in the game's repository: a "recovered transmission"
-  you can only read outside the game. It rests for 3 minutes between broadcasts. Lines in
-  `data/text/broadcast.ron`, tuning in `data/side/broadcast.ron` (`features/broadcast.rs`).
-- **New York City** (#283, doomy: "if you go far south youll make out WTC one and the path
-  station oculus ... make sure it really looks like new york and have at least 4 enterable
-  buildings in addition to the train station"). Past the valley's south rim hills (z 116..330) is
-  a flat city floor: first a strip of forest carrying on over the rim, then a wide avenue with
-  four cross streets, sidewalks, curbs, crosswalks, yellow cabs, street lamps, hydrants, brick
-  and brownstone walk-ups with water towers, glass and concrete towers with setback crowns.
-  Street furniture (`nyc-kit-*` modeler models placed on `nyc-map`): about 48 street lamps (the
-  park's edges are lit too), 61 street trees, 8 hydrants, 6 newsstands, two bus shelters,
-  parking meters along the kerb, bollards in front of Penn Station and the subway stairs, blue
-  mailboxes (no logos), blank green corner sign poles, red fire alarm posts, newspaper boxes,
-  planters, bike racks, piles of black trash bags at the kerb and 16 benches in the park. Only
-  the bus shelters, newsstands and benches have colliders; you walk through the rest.
-  Building faces: striped shop awnings (red, green, blue, yellow; no text) on the walk-ups,
-  two green-plywood sidewalk sheds you walk under, iron fire escapes on the sides that face a
-  gap, wooden water towers and AC units on about a third of the roofs, and manhole covers and
-  storm grates on the road (forward decals). Street life: 20 cars parked along both kerbs
-  (cabs, a new sedan, vans, two cruisers, two delivery box trucks), a road dig with sawhorse
-  barriers and cones on the west kerb, two food carts, and a park with lawns, gravel paths,
-  lamps down the middle and benches. Parked cars, carts and the dig's barriers block you; the
-  traffic code is unchanged.
-  At the south end stand One World Trade Center (a tapered glass tower, 541 m to the spire tip,
-  tall enough to make out over the rim from the valley) and the Oculus (72 x 44 m, ribs 34 m up and wings to 51 m, a smaller take on the real 111 m hall),
-  white ribs arching over a glass hall with a balcony of shops on each side up two stairs. Four shops face the avenue
-  and you can walk in: a bodega (with a cat), a 99¢ pizza place, a laundromat and a diner; step
-  in and its line shows. Glass in places you can walk into (the Oculus, the shops, the PATH car,
-  the plane, Wendy's, the helicopter: `data/base/glass.ron`) is see-through. Getting there: the PATH train (below); the old trail posts are gone. All
-  The Vessel (`features/vessel.rs`, `nyc-vessel` model, the map's `vessel` spot at (-62, 172.5), where four filler towers stood): built to the real one's
-  numbers: 16 levels of 5 landings (80), 154 flights, 46 m tall, 15 m across at the foot flaring to 46 m, with a walkway
-  round the top. Each landing has an inner and an outer lane (flights going round one way take the inner, the other way
-  the outer) so no flight runs over another and you can walk all the way up (none steeper than 40 degrees; a headless
-  test walks a body to the top). `vessel::pieces()` is both the colliders and the model: `scripts/vessel-model.py`
-  builds those boxes in the modeler and exports it. `FRIENDSLOP_START=vessel` / `vessel_top`. A glowing knob on the top landing (`features/vessel_jump.rs`) offers the way down: click it and you ragdoll to the plaza and leave a blood splat (`data/side/vessel_jump.ron`).
-  code-built boxes for now (placeholder, not modeler models). Names, lines and post spots in
-  `data/side/nyc.ron`; the city's bounds in `rules/nyc.rs` (`features/nyc.rs`).
-- **Boba shops** (#356, catherine: "have them be fully staffed and modeled and even have music
-  and allow prime to buy boba which gives temporary status effects that can stack. have the
-  names and visuals parody real life boba places in nyc"). Three shops on the avenue's east side
-  south of the diner (x 26, z 262/276/290, doors facing the avenue): **Gong Chaw** (mint), **Kung
-  Fu Tee** (taro) and **Tiger Sugah** (peach), parodies of Gong Cha, Kung Fu Tea and Tiger Sugar.
-  One modeler model (`nyc-boba`: glass shopfront, neon sign, counter with cups, tea urns, menu
-  board, tables) exported per shop with its sign and paint. Two staff behind every counter. Inside,
-  the music turns to the bubbly "Boba" mood ("Pearls"). Click one of the three cups on the counter
-  to buy that drink with your dollars ($6-9): each adds a timed stack (20-90 s) that makes you walk
-  and run faster (+8% to +30% each) and tints your screen in its colour; up to 5 stack, the
-  status shows bottom-right. Read "prime" as "players". Drinks, prices, effects, names and lines in
-  `data/side/boba.ron`; the stacks in `rules/boba.rs` (`features/boba.rs`).
-- **Trains** (#321, doomy: "instead of a sign to click, players board the train headed to the
-  oculus station ... a little transition in the subway when loading between zones with the SAM
-  announcing the stop. can generalize this, we might have more trains"). Later (lume): "i want
-  it to actually leave the station before doing the transition scene ... comes back out the
-  tunnel below the oculus, then you need to go up in the oculus to exit". Each stop is a
-  station: the valley's stands raised 2 m on a concrete plinth (-10, 66) with a ramp, a canopy,
-  railings and an open-air viaduct with catenary masts; World Trade Center's is a wide pillared
-  hall 7 m under the Oculus with benches and stairs
-  up through a hole in its floor. Stand in a waiting car for 2 s ("stand clear of the closing
-  doors") and it pulls out with you into its tunnel (6 s); inside, you're moved into a closed
-  ride car deep under the city, pitch dark outside (`ride_ambient`; the hall is dim too) but for tunnel lights streaming past, while a retro speech synth
-  (`samiam`) announces the next stop; after 9 s the other station's train comes out of its
-  tunnel with you aboard and stops at the platform (7 s). A train that leaves empty comes back
-  after 4 s. Everyone sees the cars move (a replicated `Run` per stop). Arriving doesn't send
-  you straight back: step off and on again. Lines are data (`data/side/trains.ron`: two stops
-  each, with spot, facing, city or valley ground, depth under it, the announcement, and the
-  timings); add a line and another train appears. Models `path-car`, `path-platform`,
-  `path-tunnel`, `path-viaduct`, `path-station`, `path-hall` (modeler); colliders are boxes in
-  code (`features/trains.rs`). The valley stop moved off the hill it was sunk into.
-- **Penn Station** (#357, catherine: "add rose pizza in Penn Station and it's bathroom. when
-  you get to the bathroom someone is always in front of you and you always have to have a really
-  weird nonsensical conversation with them before they go in and then you get 15 seconds of
-  silence ... then you can use the bathroom. the mirror is so dirty and small and shitty u can
-  barely see yourself. important detail. make it look like the real place"). The 1 train (a
-  line in `trains.ron`) runs from Chambers St, a stop in the trees at the city's north end
-  across from JFK, to Penn Station. The interior was redone in full (game-scaled, recognisable,
-  from #357 and #352): the modeler map `penn-map` (`maps/penn.bsn` + `penn.map.json`) floating
-  1000 m over New York like Miami. Its middle is the 7th Ave exit concourse: low (4 m), tiled
-  walls and squat tiled columns, terrazzo, buzzing tubes, a hanging departures board ("TRACK
-  TBA") and a PENN STATION sign, the 1 train's platform along its south side, the EXIT 7 AV
-  stairs, Rose Pizza's counter, ovens and menu under a red neon sign (click the counter for a
-  slice), and a tiled restroom with a sink, one stall and a postcard-sized filthy mirror (click
-  it: you're a blur). The queue is per player and local: a stranger always
-  stands at the door; walk up and they say a nonsense conversation at you a line every 3.2 s
-  (five conversations, one per visit), go in, and then 15 s of nothing. Then the toilet's
-  yours (click it; before that it's "occupied"). Walk 12 m off and the next stranger is in
-  line. Chose: everyone has their own stranger (others don't see yours), the silence is no
-  HUD text (the music keeps playing), and the mirror is a smeared dull plate, not a real
-  reflection. Writing and timings in `data/side/penn.ron`; `FRIENDSLOP_START=penn`
-  (`features/penn.rs`).
-  #352 (doomy: "It should be accurate to how it looks externally. it can be a new map load when
-  u go inside ... an NJ Transit side, and a LIRR side ... the NJ transit side is rundown, cold,
-  has trash fires, bloodstains, pee, poop stains ... gates and chains locking every storefront.
-  the music should be stressful and ominous. The LIRR side is pristine, clean, modern, and warm
-  with new amenities and a pleasant relaxing tune"). Outside: the `nyc-penn` model on the city
-  map's `penn` spot (block west of the avenue, south end, in place of four filler buildings):
-  Madison Square Garden's finned drum with a blue LED band and "THE GARDEN", and the glass 7th
-  Ave entrance pavilion under a PENN STATION sign. Walk into its doors and you're moved into the
-  floating concourse (chose: the same concourse the 1 train reaches, not a second copy); the
-  EXIT 7 AV stairs put you back on the sidewalk. West through a wide archway is the NJ Transit
-  side: wide but cramped under a 3.2 m concrete ceiling with exposed pipes, cold blue light,
-  eight storefronts (news, donuts, pretzels, snacks) behind roll-down gates with chains and
-  padlocks, three track stairways boarded up ("TRACK CLOSED"), three burning trash drums
-  (flickering orange lights), blood, pee and poop on the floor, grime and bin bags, and a board
-  of cancellations. North through another archway is the LIRR side: 7 m tall, white terrazzo
-  with brass inlay lines, warm wood paneling and a wood-slat ceiling with light coves, a
-  12 m all-on-time departures board, glass doors to the tracks, a lounge of wooden benches and
-  planters, a cafe, a charging pillar and a bottle refill. Nothing in `penn.rs` holds positions
-  any more: the rooms, the bathroom door and line spot, the toilet, mirror, counter, the way in
-  and out and the fires are `Spot` markers in the map, and its colliders are `Block` boxes, read
-  from `penn.map.json` on every peer (works without the model files). Each side has its
-  own mood (`PennNjt`: a slow tense march, brass and strings, nothing resolves; `PennLirr`: laid
-  major sevenths, fretless, flute and bossa nylon), from the `penn_njt` / `penn_lirr` signals;
-  a line greets you on each side. `FRIENDSLOP_START=penn_street` starts at the doors.
-- **Pigeons** (#355, catherine: "boid flocks of pigeons around the city and inside buildings,
-  efficient. they poop sometimes, and rarely they all poop at once and cause property damage").
-  Five flocks (`data/side/pigeons.ron`): three over the streets, one in the Oculus, one in Penn's
-  NJ Transit wing. Boids (separation, alignment, cohesion, a box pull, wander) on a spatial hash,
-  re-thinking at 8 Hz and frozen past 140 m from the camera; a rigged modeler pigeon flaps or
-  glides. Droppings fall and splat (a hit toasts you). Storms come from the shared session clock
-  (every 240 s, 10% chance): every pigeon poops for 6 s and a toast bills the property damage.
-  Purely local visuals, same on every peer.
-- **Kitten gangs** (#374, catherine: "roaming gangs of baby kittens that try to beat u up while
-  meowing. they haunt the city streets"). Three gangs (`data/side/kittens.ron`, 15 kittens) roam
-  turf boxes on New York's street. Come within 5 m of a turf and the gang charges (4.2 m/s, under
-  a run), each kitten swats every 1.2 s (a toast line); 8 swats and you ragdoll (#320), then the
-  gang leaves you alone 12 s. The pet cat model at half size; synthesised meows. Server-run,
-  replicated `Kitten`s.
-- **High Places** (#349, doomy): a rooftop dispensary on One World Trade Center. A door at the
-  tower's foot (`FRIENDSLOP_START=wtc_door`) rides you to the 30x30 m roof deck 428 m up
-  (`high_places`): a kiosk with a green cross sign and jars, a lounge with a LIGHT UP HERE sign,
-  glass railings. Buy a joint ($20, into your smoking stash) and click the lounge to light up: a
-  minigame where left click draws. Each draw heats it; it cools between draws and goes out if
-  cold; too many draws fill your lungs and you cough (waste). The goal is 100% smoked, 0% wasted
-  (`data/side/high_places.ron`). It reuses the smoking feature's stash and smoking state.
-- **High Places' soft serve** (#350, bben: "the ice cream dispenser is down. surprise me with a
-  quest to fix it too"). Chosen quest: pigeons nested in the machine. It needs a fuse (laundromat),
-  a plunger (the pizza place) and soft serve mix (diner); anyone can find a part (a pink box in
-  that shop), progress is shared and replicated, and once all three are in, clicking fixes it for
-  everyone. Then it hands out free cones in rotating flavours (`data/side/ice_cream.ron`).
-- **Hats** (#323, doomy: "hats you can buy with dollars in the bodega. everyone can see them.
-  theyre all making a statement"). A rack on the bodega's back wall with five modeler hats:
-  TOUCH GRASS cap, EAT THE RICH beanie, I <3 RENT CONTROL bucket hat, TAX ME top hat, YEEHAW
-  (IRONIC) cowboy hat (`data/side/hats.ron`). Click to buy with dollars; the replicated `Hat`
-  puts it on your head for everyone. Buying another swaps it; click yours to take it off. **Doubloons** (#215, what the pirates' doubloons are good for): the bodega takes them too. Your dollars go first and any shortfall is made up in doubloons at 3 dollars each (`doubloon_dollars` in `hats.ron`), so a TAX ME top hat costs $40, or $25 and five doubloons. The shop is the site; the pirates' gold finally buys a statement.
-- **Street people** (#358, catherine: "add random preachers, street performers and tweakers to
-  the city and especially to Penn Station and the subway station"). Fifteen locals in New York
-  (`data/side/street_people.ron`: kind and spot): tweakers pace and scream one side of an
-  argument nonstop, preachers turn to the nearest player and tell them they're going to hell,
-  performers bob at a bucket drum and pad (`models/props/street-drum.gltf`) playing a synth
-  groove, or 30% of the time one scale up and down on the pad. Voices are the `samiam` synth,
-  heard where they stand; all local dressing (nothing replicated, nobody blocks you). "Especially" went to the
-  stations: four in Penn Station's concourse, four on the PATH platform under the Oculus and
-  three round the Fulton St entrance (11 of the 15).
-- **Miami Music Week** (#345, doomy: "in new york you can go to JFK and from there u can fly
-  like the train into miami and go to factory town for miami music week. should be EDM music
-  and stuff and people and you can also do ketamine"). Trains lines can now be planes
-  (`vehicle: Plane` in `trains.ron`, with `run_out`, `lift_off` and `climb`): Flight 305 waits
-  at a gate ("JFK") at the city's north end (40, 134), rolls out along a tarmac strip, takes
-  off and climbs away; inside you ride a plane cabin with clouds streaming past while the
-  announcer welcomes you aboard, and you land at Miami's gate. A stop can have its own ground
-  height (`floor`): Miami is a 120 x 90 m island 1500 m over New York (inside the city's soft
-  wall), with a beach, palms and a turquoise sea around it; fall off and you're back at the
-  gate. **Factory Town** is a dark brick club with a FACTORY TOWN neon sign, a stage, DJ booth,
-  speaker stacks, LED wall, sweeping lasers, coloured lights and 36 people hopping on the beat.
-  The music turns EDM there (a new `Miami` mood: four on the floor at 126, sub bass, stabs,
-  synth lead; flat out inside the club). **Ketamine:** click the dealer by the bar for a bump:
-  for 40 s your view swells wide and sways, the screen goes purple and odd thoughts show up,
-  then "you're back". Only you feel it; it does nothing else (chose: no morality hit, nothing
-  for your friends to see). Models `plane-car`, `plane-gate`, `miami-factory-town` (modeler).
-  Tuning and writing in `data/side/miami.ron` (`features/miami.rs`); `FRIENDSLOP_START=miami`
-  or `factory_town`.
-- **Surf map** (#306, doomy: "surf map in one of the buildings in nyc", no details: surprise
-  me). The brownstone on the avenue's east side (27, 239.6) has a neon SURF sign over its
-  door; walk up the stoop into the door and you're on the start pad of a surf hall, bigger on
-  the inside (it's a sky course 900 m up, far east of the world; the world's edge doesn't hold
-  you there). Five stages of ridge ramps with 59 degree faces (S-bends; zig-zag transfers;
-  a big sweep left and back; wiggles into a steep speed ramp and a long jump; a long carve)
-  wind between neon-capped glass towers over a glowing city floor, 2.4 km of ramp, to a neon
-  finish pad. Each stage starts on a rooftop pad, a checkpoint, and no ramp hangs over another,
-  so dropping down skips nothing (made bigger and bendier on request; designed after surf
-  maps' stages, long speed ramps and transfers). The faces are too steep to stand on, and in
-  the hall the walker's air control is cranked up like on surf servers (acceleration 120 a
-  second instead of 10, top speed 45 m/s instead of 30): strafe into a face and steer with the
-  mouse to glide along it. Fall off a stage and you're back on its pad. Your screen
-  times each run from leaving the pad to the finish and shows your best this game. A post on
-  each pad takes you back to the street. Chose a timer as the "point" because surf maps have
-  one; no reward. Models `surf-hall` and `surf-door-sign` (modeler); the course (pads, ramp
-  points, solid boxes), tuning and lines in `data/side/surf.ron`, the air control in `rules/surf.rs` (`features/surf.rs`).
-- **Ragdolling** (#320, doomy: "when i get hit by a car ... get punted a bit and ragdoll a little
-  before recovering like peak does it"). A cab that hits you punts you out of its lane and your
-  body turns into a real physics body (an avian capsule) for 2.4 s: it flies, bounces, tumbles
-  and rolls, everyone sees your body tumble, and in first person your view tumbles with it.
-  Then you get back up where you landed (0.7 s) and walk on. Read "ragdoll" as the whole body
-  tumbling as one piece, not floppy limbs (the people rig has no joints to flop yet). Only the
-  cabs punt for now; anything else can call `ragdoll::knock`. Tuning in
-  `data/play/ragdoll.ron` (`crates/play/src/features/ragdoll.rs`).
-- **Fulton St station** (the user: "a fulton street station wfc station u can enter in nyc. it
-  is an impossible number of levels with stairs between platforms. you try to find the J train
-  towards brooklyn. the signage directs you in a specific path, but you dont reach it for a very
-  long time. when you do reach it you get a reward"). A subway entrance on the avenue's west
-  sidewalk by the bodega (-14, 167), away from the Oculus: walk down its stairs, through a real hole in the street (ground holes,
-  `friendslop_world::holes`), and partway down you're on the top level of a station 40 levels deep
-  under the city. Each level is a 6 x 6 grid of 6 m white-tiled corridor cells filled by seeded
-  wave function collapse from a modeler tile kit (`fs-tile-*`), with one stairway down whose
-  bottom is where the next level starts. Hanging "J Brooklyn" signs (ahead, left/right, down
-  the stairs) mark the one way through, at least 7 cells across every level: well over 2 km
-  of walking. The last level is the J platform with a train waiting. Reaching it raises your
-  **Pelf** by 3 (the stats' wealth, max 10), once per player per game, given by the server.
-  A post on the platform rides the J back up to the street; one on the top level climbs out.
-  Chose Pelf as the reward because it's the game's per-player "money" stat and NYC has no
-  cash; the stairs still end in a teleport, because the station sits further along under the
-  city. The user later asked for holes in the ground ("right now the stairs just go into the
-  solid ground"): holes are now a general facility (code or a `Hole` map marker) that cuts the
-  terrain, the city's floor mesh and collider, and lines the opening. The two decorative subway
-  entrances on the NYC map still lead nowhere, so they stay filled.
-  **Subway platforms** (the user: "fulton street needs subway platforms and empty tracks
-  too"): every 3rd level (from the top, not the J's) has 3 to 6 cells of platform: a deck with
-  a yellow edge strip, painted I-beam columns, benches and 2 3 4 5 A C J Z line signs, and
-  1.2 m below it an empty track bed (ballast, ties, two rails, the third rail under its wooden
-  board) running between tunnel mouths that fade to black, with "FULTON ST" mosaic tablets on
-  the far wall. You can drop onto the tracks; steps beside each tunnel mouth lead back up.
-  They're WFC tile pieces (`fs-tile-track*`) whose track sides only meet track sides; the bed
-  sinks into the level below, whose cells under it are solid. No trains. Andrew's thing walks
-  the platforms, not the tracks.
-- **GTA VI ads** (#359, andrew: "add gta 6 ads to all subway stations ... it's coming out next
-  week"): a lit freestanding ad board (`gta6-ad` model: sunset bands, palm, "GRAND THEFT AUTO
-  VI / OUT NEXT WEEK") stands on every subway platform: two along the back of each PATH train
-  platform (valley, World Trade Center; not the airport gates), and one against the back wall
-  of each through platform cell on Fulton St's platform levels. Decoration only.
-  **Big rooms** (the user: "fulton street needs some rooms ... large rooms that are bigger than
-  the grid ... so theres a bit of a break up and its not just all hallways ... maybe its time
-  to generalize these systems"): most levels (70%) get one or two halls 2 x 2 to 3 x 3 cells
-  with no walls inside, tiled walls with benches round the outside, square columns where four
-  of their cells meet, and 2 or 3 doors the corridors are run up to. Rooms are now part of the
-  shared WFC crate (`friendslop_wfc::rooms`: place rooms, pick doors, say which side of a room
-  cell is inside, wall or door), so the warehouse or anything else on a grid can use them too;
-  the warehouse doesn't yet. The grid grew from 5 x 5 to 6 x 6 so rooms fit and the way
-  stays long. Pieces `fs-room-floor/wall/column`; sizes, chance and doors in `fulton.ron`.
-  **Lighting** (the user: "why is there like no lighting and why are there those huge light
-  strip things", then "it looks maybe like the ambient light is really strong ... the
-  flourescent lights need work ... the cross shape isnt realistic ... nice if they showed
-  shadows"): inside the station the sky goes out (no sun, ambient 25 instead of 1100, a dim
-  haze), like the sewers and warehouse. Ceilings have real twin-tube fluorescent fittings in
-  rows along each corridor (and two rows in rooms), each cell a light of its own, the nearest
-  4 casting shadows (none when video shadows are off), and the light that follows you is
-  dim. The "strips" were the corridor pillars' bare steel mirroring nothing; they're matte
-  green paint now, and wall ends have painted caps. All in `fulton.ron` (`light`).
-  **Reflections** (the user: "is there something you can do about reflections? i think we need
-  environment maps ... lets do the baked approach"): shiny things reflect baked environment
-  maps. Outdoors the camera has a "world" map baked at the commune centre (at 0.4 strength,
-  so the sky doesn't wash everything blue), dimming with the ambient light at night and in
-  dark places; Fulton St has its own map baked in one of its halls and used on every level.
-  The game bakes them itself (`FRIENDSLOP_BAKE=1`): six HDR pictures per probe, prefiltered
-  into KTX2 cubemaps in `assets/probes/`. Re-bake after changing a place. Not yet: own probes
-  for the warehouse, sewers, Wendy's and the NYC shops (they use the dimmed world map).
-  Tuning (levels, grid, path length, seed, reward, lines) in `data/side/fulton.ron`, the kit
-  in `data/side/fulton_tiles.ron` (`features/fulton.rs`).
-  **Andrew and the thing he sends** (the user: "once sufficiently deep in the subway station,
-  your phone will get a call from andrew ... he calls 2 more times with increasing anger. that
-  last time, he says hes sending someone to go get you. it is a monster that will persue you
-  around the subway. you can evade him by hiding (he has a view cone but has like the alien
-  isolation director ai)", and "andrews lines should be spoken with a SAM"). At levels 6, 14 and
-  22 your phone rings (E answers, or it answers itself); he asks where you are, you say you're
-  coming, angrier each time, his lines spoken by a retro speech synth (the `samiam` crate) that
-  gets higher and faster. After the third ("I'm sending someone to come get you") a gaunt
-  thing in an MTA vest turns up on your level, far from you. The server runs its brain: a
-  director that always roughly knows where you are and sends it near you every 9 s, plus a
-  110° view cone with line of sight down the corridors. Seen, it chases (faster than walking,
-  slower than running); lost, it goes where it saw you, checks the lockers nearby (opening
-  yours 35% of the time), then backs off for 25 s. New tile: a lockers dead end; click the
-  locker to climb in, walk out to leave. Caught: it drags you back up to the street and
-  Andrew starts calling again from the top. Lines in `data/text/fulton_calls.ron`, tuning in
-  `data/side/fulton.ron` (`features/fulton_hunt.rs`).
-- **Money and the lost wallet** (#322, doomy: "random chance of losing your wallet on the
-  subway. you need to find it in fulton station ... if you don't recover it ... chinese insurance
-  via a dji drone that flies to you however ... they take a 70% cut. fulton can let you double your
-  payout or more by finding other scattered wallets. money is personal to each user unless they
-  brag with brag button. bragging exponentially leads to more chance of coins falling out that can
-  be picked up by others"). Everyone has **dollars** (start $100, shown bottom-right, only to you),
-  separate from organs, doubloons and Pelf. Each time you go down into Fulton St there's a 35%
-  chance your wallet (all your dollars) falls out on one of the top 6 levels; walk over it to get
-  it back. Ten strangers' wallets ($20-120) lie on the top 12 levels for anyone; someone else can
-  find your wallet and keep it. While it's lost, I calls the insurer: a white drone flies straight
-  to you through the walls and hands over 30%; the wallet is written off. B brags: your dollars are
-  shown to everyone and a $5 coin falls out with 2% a second, doubling with every brag (up to 6);
-  anyone but you can pick coins up. Chose: "the subway" = going into Fulton St; scattered wallets
-  are the "double your payout"; bragging lasts the game. Models `fs-wallet`, `fs-coin`,
-  `fs-insurance-drone`; tuning and lines in `data/side/wallet.ron` (`features/wallet.rs`).
-- **Gaslighting** (#168, Kori.exe: "NPCs themselves may fart and then they will quickly blame
-  someone else"). Every 50-110 s a random villager farts (everyone hears it from them, each
-  villager with its own sound) and points at the nearest player with an excuse ("ew, that was
-  them!"), shown to everyone. The blame is just talk: it doesn't count as being caught
-  (`features/gaslighting.rs`).
-- **Mute spell** (#146, just meat and cheese: "say 'mute PLAYER' and it mutes that player, they
-  get an RPG that kills you in a single hit"). The first voice-chat spell. Look at another player
-  (within 30 m), say "mute" out loud and press Q. The game can't understand words, so "saying it"
-  means your mic must be sending voice when you press Q (with no working mic, or self-muted with
-  M, Q alone works). They're muted (mic forced off) and get an RPG with infinite rockets: Q fires
-  where they look, one a second. Rockets fly through everyone except the caster, and one hit
-  kills the caster (they go to heaven, see Dying). Then the RPG disappears and they can talk again.
-  One spell per caster at a time; muted players can't cast; if the caster leaves, the mute lifts.
-  Rockets ignore buildings (they only stop at the ground) and hang in the air during the
-  Stillness (`features/mute_spell.rs`).
-- **Dying** (#209, cumsauce: "you go to heaven. players must beg for your innocence. if they
-  succeed, you may return. players may also use a Tome of Uncancelling. if you are thrown to
-  hell, you must navigate the hell pit before coming back"). When you die (today only the mute
-  spell's RPG kills; duels keep their own respawns) a gravestone goes up where you fell and you
-  wake up in heaven with Abuela; walk off the edge and you're back in the clouds. Heaven judges
-  you after 60 s. Until then the living click your grave to beg (a silly plea line each time,
-  one every 0.4 s each); a plea counts 2 if your mic is sending voice (begging out loud), 1
-  otherwise. 12 in time and you're innocent: back at your grave. Otherwise you're guilty and
-  thrown into the **hell pit**, a closed lava cave far under the forest (y -150): hop 22 rising
-  basalt stepping stones spiralling in to a white light in the middle and you're back at your
-  spawn; touch the lava and you start the pit again. The **Tome of Uncancelling** (a glowing
-  purple book) sits on a lectern by the spawn: take it, click a grave and that friend is back at
-  once, from heaven or hell. It's used up and a new one appears after 3 minutes; if you die
-  holding it, it goes back to the lectern. Dying for the first time also gets you to Abuela
-  (`features/afterlife.rs`).
-- **A secret** (#206, catherine, "infinite staircase": she asked for it to stay a secret, so
-  nothing in the game, the Gameplay loop or the hints mentions it). Walking through any village
-  doorway, or up or down any flight of stairs or ramp, has a 3% chance of leading into a dim
-  hallway (gently going down) or stairway (going on the way you were going) that never ends.
-  The server moves you into an identical copy built far above the map at the same spot, then
-  quietly steps you back one identical stretch as you go, so it looks like one very long
-  hallway fading into the dark. Turn round (more than a quarter turn) and you're out at once,
-  back where you went in, facing the way out. That way in is normal for you from then on, and it
-  can't happen to you again for 5 minutes. In there the music cuts out and the sky goes out.
-  Village doors and stairs only: the warehouse and tunnel corridors don't do it
-  (`features/infinite.rs`).
-- **Whose fault is it** (#149, catherine). A menu button opens a scrollable screen listing every
-  idea in "Ideas so far" below, newest first, as "#N: name's fault" with what they asked for.
-  It's built from this file, so it keeps itself current. No in-game hover tooltips yet
-  (`fault.rs`).
-- **Getting caught** (#140, just meat and cheese, answering "what happens when the villagers
-  catch you?"). The first chasing villager to get within 1.4 m grabs you and holds you up over its
-  head. Your chase ends, and the server picks another random player as your **accomplice**. They
-  see "your friend farted and some got on you. The poop police is hunting you too as an
-  accomplice", and attack mode switches to them. The catcher runs at them with you in its arms
-  (4.5 m/s). Once it reaches them it grabs them too, levitates 7 m up with both of you and
-  announces you're locked in the air with it for 20 s, then lets go and you drop. If you're alone
-  (or the accomplice escapes for a whole attack) it floats with just you (`features/caught.rs`).
-- **The abandoned warehouse** (#130, doomy). Just south of the commune square (a dirt path runs
-  past the pond to it) stands a dark, rusting warehouse with a rolling loading door, boarded
-  windows and one buzzing lamp, and **Jegg** waits beside the door with a lantern. Click the door
-  to agree to go in (click again to take it back; walking 20 m away drops your vote). When
-  **every** player in the game has agreed (the dead don't count: a friend in heaven or the hell
-  pit can't hold the door shut, #368), the host rolls a seed and everyone is taken inside: a
-  map of its own, 60 m under the meadow, whose 7x7 floor plan (5 m cells) every peer builds from
-  that seed with **wave function collapse** (`features/warehouse/wfc.rs`: each cell is a tile of
-  open/walled sides, neighbours must agree, the outer wall is closed except the loading door,
-  plans with under 60% reachable are rerolled). Aisles, dead ends, junctions, blocked-up cells
-  full of crates, shelving racks, stains and pallets, and a few dying strip lights. In its
-  farthest corners glow the **soul pieces**: click one to carry it (one each), go out through the
-  loading door (click it, under the green sign) and click Jegg to hand it over. Jegg needs 5 in
-  total; the count is shared and kept between trips (a new round resets it). **The monster**, a
-  tall, thin, black thing with long arms and two pale eyes, prowls the aisles (2 m/s). If it sees
-  you down a clear aisle (13 m) or hears you close by (3.5 m), it screams and hunts you at
-  6.2 m/s (faster than walking: run), following the aisles when it loses sight and giving up
-  after 5 s without seeing you. Its trick: sometimes it sits still looking exactly like a soul
-  piece, and springs when you come within 3.6 m. If it reaches you: a red flash, "IT GOT YOU", a
-  scream, and you're thrown out by the door, dropping your piece where you stood. While it's open
-  anyone can go back in through the door; it closes (the next trip needs everyone again and is a
-  new building) when nobody is inside and nobody holds a piece, or when Jegg is whole. Scary on
-  purpose, locally: inside, the sun, sky and ambient light go out, a black fog closes in, you
-  carry a flashlight, the band falls silent under a generated low drone with metal groans, and
-  you hear the monster breathing. It freezes in the stillness, and the helicopter (#134) can't follow you
-  down there: it backs off until you come out. Being whole does nothing else yet.
-- **The nightmare bathroom** (#161, doomy). About two warehouse trips in three, a 2x2 to 3x3 block
-  of the floor plan (never the first two rows by the door, picked from the same seed, so everyone
-  gets the same one) is a bathroom instead of storage (`features/warehouse/bathroom.rs`, look and
-  sound in `visuals/bathroom.rs`). The aisles are still the WFC plan; inside them: grimy tile
-  floors, pale tiled walls, an 11 m ceiling (the rest is 4.2 m), one long fluorescent tube per cell
-  hanging on wires, mostly steady, and a still ambience (a generated mains buzz and echoing drips)
-  that ducks the warehouse drone, with a pale haze instead of the black fog. Against walled sides
-  stand rows of three stalls with a gap under the partitions; about half the middle partitions
-  have a hole right through, so stalls open into each other. Stall doors are ajar, hanging off
-  one hinge, fallen in, missing, or shut but hung so high you walk under them; some walls just
-  have a door 3-7 m up. Every toilet is filthy (brown water, poop on the seat or floor, smears,
-  overflowing). The confusing layout: every bathroom cell is laid out the same way (stalls and
-  doors depend only on which way a wall faces), so they all look alike; only the dirt differs.
-  **The fart monster** (squat, olive, huge behind, yellow eyes) patrols the bathroom cell to cell
-  at 1.4 m/s and never leaves it. It farts every 3-8 s (you hear it and see a green cloud). If
-  you're within 6 m in plain sight in the bathroom it waddles after you at 2.6 m/s (walk away);
-  if it gets within 1.5 m it gasses you: green flash, "GASSED", and you're thrown out of the
-  warehouse dropping your soul piece, like the monster catching you. Then it stands there smugly
-  for 4 s. The main monster still roams in there too. Soul pieces can land in the bathroom.
-- **Underground passages** (#127, doomy: "sewers, basements, secret passageways, connected! and
-  music to go with it"). 30 m under the map runs one network of tunnels on a 3 m grid
-  (`features/underground`): brick sewers with a channel of murky water and caged bulbs, a junction
-  chamber under the commune where daylight falls through a grate, a damp cellar with shelves of
-  jars, and a long, narrow, torch-lit secret passage. It all joins up. Four ways in: a manhole on
-  the road east out of the commune (21, 1), a manhole on the road to the ruins (-20, 22), the
-  cellar door beside the big cottage in the east village (72.6, -11), and a loose floorboard in
-  the woodcutter's hut in the forest clearing (no sign: it's a secret). Click a way in to climb
-  down its ladder (server-checked reach); click any ladder below to come up there, so you can go
-  down in one place and come up in another. Down there (local only) the sky goes out, a murky fog
-  closes in, a toast says where you are, and the band plays its own underground tune. The
-  helicopter (#134) loses you while you're below. The tunnels do nothing else yet. Getting out
-  used to be unclear, so every ladder below is now lit from above with a glowing hatch, and
-  while you're down there a line under the danger lane says how far the nearest ladder is along
-  the tunnels and which way to turn ("nearest ladder 18 m, to your left. Click it to climb out").
-- **Wendy's** (#117, Kori.exe: "a Wendy's on the map somewhere that has human meat burgers
-  available to pick up"). A walk-in burger restaurant on a stone base stands in the meadow just
-  north of the road to the east village (around (30, 9)): cream walls, red trim, a red-shingled
-  gable roof with WENDY'S on both gable ends, a glass shopfront and an open front door (stone
-  steps where the ground dips, an OPEN sign, lamps by the door). Inside: a checkered dining room
-  (four tables with ketchup, mustard and napkins under hanging lamps, joke posters like "100%
-  HUMAN" and "ASK ABOUT THE MEAT", a clock, plants, a condiment station, a wet-floor sign), an
-  order counter across the middle (register, trays, tip jar, ORDER HERE sign, a lit "HUMAN MEAT
-  BURGERS / fresh today" menu, a pass shelf under heat lamps), a kitchen behind it (grill,
-  fryer, sink, fridge, a prep island with buns, hanging pans and utensils, order tickets,
-  shelves of tubs; walk round the counter's end), an EMPLOYEES ONLY butcher's backroom
-  (carcasses on a meat rail, chopping block and cleaver, a grinder, knives and a saw on the
-  wall, a chest freezer, blood on the floor) and stairs up to a raftered attic (crates, an old
-  mattress, a dust-sheeted chair, a chest, the old GRAND OPENING sign). Three human meat
-  burgers (bun, lettuce, a pinkish patty, cheese) sit on the counter. Click one to pick
-  it up (server-checked reach; the 5% action failure applies): your count shows bottom-right
-  ("human meat burgers: N") and a fresh burger appears in that spot 15 s later (paused in the
-  stillness). Carrying burgers does nothing else yet (`features/wendys.rs`).
-- **Smoking and Sewer Paul** (#129, doomy: "you can get cigs from sewer paul if you get him his
-  favorite crow eggs. and if you romance him he'll give you a joint. you can smoke both").
-  A speckled crow egg lies in the grass by each crow's home (click to pocket; relaid after 20 s).
-  Sewer Paul stands in the sewer east of the junction under the commune. Click him with eggs: he
-  takes one and gives you a cig. Click him with none and you flirt; every third flirt he gives you
-  a joint. P smokes a cig (or a joint if you have no cigs): smoke puffs rise from you for 8 s,
-  greener for a joint, seen by everyone. Pockets show bottom-right (`features/smoking.rs`).
-  Cigs do nothing else yet; joints get you high (#370, below). (Read "romance" as flirting by clicking him, separate from the
-  fart-smitten romance of #97.)
-- **Effects of weed** (#370, hadalade: "Weed should cause noticeable visual changes, increasing
-  in magnitude with how much weed a player has consumed. The screen should wobble and the colors
-  pallets of objects should slowly shift."). Every joint you light (Sewer Paul's or High Places')
-  adds one to your high, stacking up to 5 and wearing off over ~90 s each. While high your view
-  rocks and rolls and every colour slowly turns round the colour wheel (more saturated), both
-  stronger the more you've smoked; sober, the hues ease back. Only you see your own high
-  (`features/weed.rs`, tuning in `data/places/weed.ron`).
-- **Stoned meter** (#369: "a stoned meter which increases as the player consumes weed and
-  decreases over time. The effects of weed should correlate with the meter's level."). Your high
-  shows as a green "Stoned NN% · buzzed / stoned / baked" bar in the bottom-right status stack,
-  above the gas meter, while it's above zero: each joint fills a fifth, it drains as the high
-  wears off, and the wobble and colour shift follow it. Local to you, like the high itself.
-- **The affair** (#160, doomy: "allow me to cheat on my wife with a beautiful chinese
-  intelligence officer", details left to us). Your wife (a commune person in an apron; it's a
-  commune, so she's married to all of you) walks back and forth between the bonfire and the east
-  side, about 40 s a round trip, and stands still in the Stillness. Officer Mei, an intelligence
-  officer in a uniform and cap, waits at the east edge (15.5, -3.5). Click her to flirt: if your
-  wife is within 10 m she catches you (everyone is told, the affair resets). Three flirts unseen and
-  you're having an affair: pink hearts float up from you and Mei, seen by everyone. After that each
-  flirt she "debriefs" you and you spill one of the commune's secrets (toast). Mid-affair, if your
-  wife ever gets within 2.5 m she smells the perfume and catches you. Every flirt costs 1-4
-  morality (so cheat enough and the helicopter comes). Clicking your wife gets a line, a suspicious
-  one if you're cheating (`features/affair.rs`). Secrets don't do anything yet.
-- **Gambling with the game's balance** (#173, catherine: "gamble to adjust the settings for
-  certain features ... more unfair or more fair ... random ... the interactions of different
-  features ... [a cat] dressed as a wizard host the gambling minigame and commentate"). We made
-  an original host instead of the cat from the comics: **Marmalade the Magnificent**, a round
-  orange tabby with forehead stripes, a starry wizard hat and a blue-violet robe, at a purple
-  table south of the bonfire (-10, 9) with a wheel of fortune on a post (`features/gamble.rs`).
-  Click him or the wheel to spin (free; 4 s between your spins; refused in the Stillness; the 5%
-  action failure applies). The wheel has ten wedges: nine settings and a blank. A setting wedge
-  moves that setting one step fairer or crueller (50/50); each has five steps, the middle is the
-  normal game: action failure chance (1/3/**5**/10/20%), how far NPCs see a fart (2/3/**4**/5.5/7.5 m),
-  fart romance (1 shameful fart in 1/2/**3**/5/9 makes the NPC fall for you), catches before
-  attack mode (7/5/**4**/3/2), the helicopter's morality line (-15/-10/**-6**/-4/-2), the morality
-  reward for harming the landlord (200/150/**100**/60/30%, still always a reward), each rent raise
-  (+5/10/**15**/22/33), the warehouse monster's hunt speed (4.8/5.5/**6.2**/7.2/8.4 m/s) and Wendy's
-  restock (5/10/**15**/30/60 s). The blank puts every setting back to normal. Settings are shared
-  by everyone and last the whole campaign; a new campaign resets them. The wheel spins for 2.6 s
-  with slowing clicks and lands with a chime (kind) or a sour buzz (cruel); then Marmalade's
-  line shows for everyone: what changed, a quip, streaks ("3 kind spins in a row! the house is
-  getting nervous"), and how the spinner stands overall ("up 2 after 5 spins"). Tab shows the
-  changed house rules and everyone's record.
-- **Sesbian lex** (#1). Press L to start a smooch pile where you stand, L near it (within 8 m) to
-  pile in, L again or wander off (14 m) to peel away. Join order hands out titles: first in is
-  daddy, second the he/him butch, later joiners rotate through more ("the comfortable one",
-  "just here for the organs"...). While two or more are in, heat climbs a level a second up to
-  10 and collapses when anyone leaves. Everyone sees hearts swirling over the pile (more, higher
-  and faster with heat) and a pink glow, and a bottom-left line narrates who's in and how it's
-  going. Suggestive comedy, never explicit: the "no holds barred" part isn't something we build.
+- **The Watcher's scraps** (#278, Horror ARG 2/3). Where it vanishes it leaves a scrap of paper;
+  click to read the next piece of a shared coded message that points at the ruins' tower.
+  `data/text/clues.ron`, `data/side/clues.ron` (`features/clues.rs`).
+- **The broadcast** (#279, Horror ARG 3/3). Once all scraps are found, gather near the half-buried
+  TV in the ruins and it plays creepy lines, the last one in ROT13 pointing at `SIGNAL.txt` in
+  the repo. `data/text/broadcast.ron`, `data/side/broadcast.ron` (`features/broadcast.rs`).
+- **New York City** (#283). Past the south rim is a city with an avenue, cross streets, cabs,
+  walk-ups and towers, street furniture and parked cars, a park, One World Trade Center and the
+  Oculus, and four enterable shops (bodega, pizza, laundromat, diner). Getting there is by the
+  PATH train. `data/side/nyc.ron`, `rules/nyc.rs` (`features/nyc.rs`); see-through glass in
+  `data/base/glass.ron`.
+- **The Vessel** (part of #283). A full-size climbable Vessel with 154 flights you can walk to the
+  top; a knob on top lets you jump and ragdoll to the plaza. `features/vessel.rs`,
+  `features/vessel_jump.rs`, `data/side/vessel_jump.ron`.
+- **Boba shops** (#356). Three parody boba shops with staff and bubbly music; buy drinks with
+  dollars for stacking timed speed boosts and screen tints. `data/side/boba.ron`,
+  `rules/boba.rs` (`features/boba.rs`).
+- **Trains** (#321). Stand in a waiting car and the train leaves the station, rides through a
+  dark tunnel while a retro voice announces the stop, then arrives at the other station. Lines
+  are data, so more trains can be added. `data/side/trains.ron` (`features/trains.rs`).
+- **Penn Station** (#357, #352). Reached by the 1 train or the doors of a Penn pavilion: Rose
+  Pizza, a restroom with a weird stranger, 15 s of silence and a filthy mirror, a grim NJ
+  Transit wing and a clean LIRR wing, each with its own music. Layout is map markers.
+  `data/side/penn.ron`, `penn.map.json` (`features/penn.rs`).
+- **Pigeons** (#355). Boid flocks around the city and inside buildings; they poop, and
+  occasionally all at once, with a property damage bill. Local visuals.
+  `data/side/pigeons.ron`.
+- **Kitten gangs** (#374). Gangs of baby kittens roam New York streets, charge you when near and
+  swat you until you ragdoll. `data/side/kittens.ron`.
+- **High Places** (#349). A rooftop dispensary on One World Trade: buy a joint and smoke it in a
+  draw-and-cool minigame. `data/side/high_places.ron`.
+- **High Places' soft serve** (#350). A broken ice cream machine; find three parts in three shops
+  (shared progress) to fix it for free cones. `data/side/ice_cream.ron`.
+- **Hats** (#323). Buy statement hats in the bodega; everyone sees what you wear.
+  `data/side/hats.ron`.
+- **Doubloons at the bodega** (#215). The shop takes doubloons to cover any dollar shortfall.
+  `doubloon_dollars` in `hats.ron`.
+- **Street people** (#358). Fifteen tweakers, preachers and performers around the city, most in
+  Penn Station, the PATH platform and Fulton St. Local dressing. `data/side/street_people.ron`.
+- **Miami Music Week** (#345). Fly from JFK to a Miami island with the Factory Town club: EDM
+  music, dancers, and a dealer for a short ketamine trip (only you feel it). Planes are train
+  lines. `data/side/miami.ron` (`features/miami.rs`).
+- **Surf map** (#306). A brownstone's neon-signed door leads to a sky surf course with five
+  stages, checkpoints, strong air control and a best-time timer. `data/side/surf.ron`,
+  `rules/surf.rs` (`features/surf.rs`).
+- **Ragdolling** (#320). A cab hit punts you and you tumble as a physics body for a moment before
+  getting up. `data/play/ragdoll.ron` (`crates/play/src/features/ragdoll.rs`).
+- **Fulton St station** (no issue number). A subway entrance leads down a 40-level maze of
+  generated corridors; follow the J Brooklyn signs to the J train for +3 Pelf once. Needs ground
+  holes (`friendslop_world::holes`). `data/side/fulton.ron`, `fulton_tiles.ron`
+  (`features/fulton.rs`).
+- **Fulton St subway platforms**. Some levels have platforms and empty tracks you can drop onto.
+  Tile pieces `fs-tile-track*`.
+- **GTA VI ads** (#359). A lit "OUT NEXT WEEK" ad board on every subway platform. Decoration.
+- **Fulton St big rooms**. Most levels get large wall-free halls; room code now lives in
+  `friendslop_wfc::rooms`. `fulton.ron`.
+- **Fulton St lighting**. Station is dark with fluorescent fittings per cell and some shadows.
+  `fulton.ron` (`light`).
+- **Reflections**. Shiny things reflect baked environment maps (world and Fulton St), baked with
+  `FRIENDSLOP_BAKE=1` into `assets/probes/`. Open: more places lack their own probe.
+- **Andrew and the thing he sends**. Deep in Fulton St Andrew phones you three times (speech
+  synth), then a monster hunts you with a view cone; hide in lockers. Caught means back to the
+  street. `data/text/fulton_calls.ron`, `fulton.ron` (`features/fulton_hunt.rs`).
+- **Money and the lost wallet** (#322). Personal dollars (start $100); you may lose your wallet
+  in Fulton St, find it or call a drone insurer for 30%; scattered wallets for others; B brags
+  and drops coins others can take. `data/side/wallet.ron` (`features/wallet.rs`).
+- **Gaslighting** (#168). Villagers fart now and then and blame the nearest player; just talk.
+  `features/gaslighting.rs`.
+- **Mute spell** (#146). Look at a player, say "mute" and press Q: they're muted and get an
+  infinite RPG that kills you in one hit. `features/mute_spell.rs`.
+- **Dying** (#209). Dead players wake in heaven and are judged after 60 s by begging; guilty ones
+  go through the hell pit. A Tome of Uncancelling revives a friend. `features/afterlife.rs`.
+- **A secret** (#206, kept secret: never mention it in the game, loop or hints). Rare chance on
+  village doors and stairs of an endless hallway; turn round to leave. `features/infinite.rs`.
 
-- **Voice lines** (#19). Two glowing purple music boxes ("musical objects") sit on the floor.
-  Every 17 s someone delivers a dramatic, over-acted voice line, taking turns: a music box (which
-  plays a little jingle first and hops), the bear, or a crow. It shows as a subtitle with a
-  babble voice. The issue asked for audio from a specific 1993 game; we can't ship someone
-  else's copyrighted audio, so the lines and voices are original. The babble is Animal Crossing
-  style gibberish (asked for in chat): each letter plays a tiny slice of a real voice, sped up,
-  with vowels picking darker or brighter slices. The slices are 50 short syllables cut from five
-  CC0 Wikimedia Commons voice recordings (`scripts/voice_grains.py`); the bear borrows a low
-  man's voice, crows a fast Cantonese one, music boxes a singer's. Without the file it falls
-  back to the old synth blips.
-- **Main menu** (#25). A cute pastel clickable menu: Host a game (works solo; the join code is
-  copied to the clipboard), Join (type or paste a friend's code, then Join! or Enter), and
-  Settings: master volume, voice volume, microphone on/muted (M still toggles it). Settings are
-  per player and not saved between runs. `cargo run -- host` / `join <code>` still skip the menu.
-  There is no separate lobby screen yet: hosting drops you straight into the world, and friends
-  appear on the player list as they join. If the host connection drops, a joiner goes back to
-  the menu with the reason ("Lost the connection to the host: ...") instead of crashing (#194).
-  Since the UI restyle the title screen is a soot panel on the left over the meadow in the
-  commune noticeboard kit: the illustrated friendSLOP logo, Host a commune (the one green
-  button), Join a friend, Character, Settings, Whose fault is it, and Kori prizes / Quit. Join a
-  friend opens a cardboard card (an open layer, like the others) with the code box, Paste, Join
-  and the communes open near you; a game hosted near you also shows as a sticky note top right
-  (Y on a pad joins it). B on a join in progress cancels it first. Those panels take turns
-  (opening one closes the others), each has a Back button the pad can focus, and B / Esc closes
-  the top one; the pad scrolls the fault list with the stick. The chapter intro card waits
-  (hidden, not ageing) while the pause screen is up. The character creator, Whose fault is it and
-  the Kori shelf are soot panels with the same kit buttons. Pad hint glyphs keep the Xbox
-  positions and colours but follow the pad's own lettering (Nintendo swaps A/B and X/Y,
-  PlayStation shows ×, O, Sq, Tr).
-  Settings is one big "Make yourself comfortable" notebook with three pages: Audio + voice
-  (volume sliders, mic and HALT as square checkboxes), Video (presets Low / Medium / High as
-  tabs, "Custom" is just what shows once you change anything, and every video option as a
-  checkbox card) and Controls (the keys, the pad's feel); Esc or Done closes it. In game Esc opens the
-  pause screen (the game does not stop): Back to the commune, Journal, Settings (the notebook,
-  one layer above it) and Leave game, which asks "Really leave?" before it leaves, with the
-  invite code (X on a pad copies it) and who is in the commune beside them. It frees the mouse
-  (walking keys do nothing while it is up, and a pad's Select doesn't open the journal over it);
-  Esc closes the notebook first, then the pause screen. The loading curtain shows the logo, how many models have loaded, a progress bar
-  and a tip.
-- **The Stillness** (#17). Every 16 minutes (it was every minute, then every 4; made rarer at the owner's request) the whole world freezes for 75 seconds so everyone
-  can socialize and stare with passion. Crows, the bear, physics, duel movement and all timers stop
-  in place, gas stops building, and the server ignores every player request (farting, prying,
-  duels, totems, pets, tears, the landlord, the mushroom, tuning your fart); a big message with a
-  countdown shows in the middle of the screen. Voice chat keeps working. The host's clock decides
-  when it happens.
-- **FPS overlay** (dev tool, not a friend idea): F3 toggles frame rate and frame time, top-right.
-- **Gods tears** (#16, corrected in #43). The tears rained down only once, when humans came into
-  existence: 12 glowing blue teardrop gems fall onto the floor when the world begins, and no more
-  ever fall: used tears stay used for the whole campaign, and what they did to you stays too
-  (#135; they used to fall again every chapter). Only a brand-new campaign, after heaven, is a
-  new world with new tears. The HUD shows how many are left. Click one to use it. Each use transforms you a little further
-  (untouched, tear-touched, changing, barely human), and after 7 you become an **Abduction**: a
-  fetid creature that hungers for tears. Everyone's state is shown on the right of the screen.
-  When they run out, nothing makes more (#152, Freyja Moth: "gods tears cannot be created"). But
-  an Abduction slain in a duel (beaten to the last life) gives back a quarter of the tears it used
-  (at least one), which fall in the duel arena, and it's that much less changed. The supply never
-  grows past 12. Tears don't grant any other power yet.
-- **The great storm of '21** (#13). World history: in 1921 a great storm (to the British, "the
-  storm of it's a bit windy innit") did untold damage and toppled several governments, and the
-  world is still recovering. The floor is strewn with its wreckage: two fallen trees, a toppled
-  lamppost, scattered roof slates and a stone memorial plaque (its text shows at the bottom of the
-  screen). Every 25 s a leftover gust rattles the debris for a few seconds and the text switches
-  to "it's a bit windy innit". Scenery only; gusts pause during the Stillness. (The burned
-  parliament of the Commune of Dave fits as one of the toppled governments.)
-- **Landlords** (#11). The game's story. A landlord in a top hat stands on the floor, and as the
-  game starts he has just raised your rent (the inciting incident; shown top-right). Act 1, legal:
-  click him to pay with every organ you carry; he raises the rent again every 60 s and whenever
-  you pay it off, and either kind of raise counts, so a group that pays together reaches Act 2
-  sooner (#135: paying used to change nothing). Act 2, less than legal: after 3 raises, clicking him pickpockets an organ back
-  from his stash, which counts as harming a landlord (always raises your morality, #21/#43). Act 3: after 3
-  heists he grows huge for a **boss fight**; 12 clicks knock him down, everyone gets the stash
-  back (shared out, an organ each in turn) and the game says THE END. The whole group shares one landlord and one story, so this is
-  the first shared goal. He doesn't fight back yet, and nothing restarts after the end.
-- **Random dialogue** (#10). All written dialogue (goat remarks and voice lines) is one script.
-  After a random 1..1,000,000 words, the next word is swapped for a completely random word
-  ("kazoo", "gravy", ...), then a new number is drawn. If fewer than 50 words got swapped, the
-  upper bound is halved and it's redone, until at least 50 are. Same result on every peer.
-- **BSN salting** (#9). A rule for the code, not the game: every use of Bevy's BSN scene format
-  (the `bsn!` macro or a `.bsn` file) must come with a salty comment covering seven set grievances
-  (`Cargo.lock`, "x didn't set us up for success", SME's, the problem space, BSN syntax, `Children`
-  sugaring, Sam "Salt" Saltman). A test fails CI otherwise. Nothing uses BSN yet.
-- **Action failing** (#8). Every action (eating the mushroom, using a gods tear, challenging
-  someone to a duel, shooting/punching in a duel) has a 5% chance to fail. A failed action just
-  doesn't happen, and a random result is announced bottom-right for 60 s (a "month"/"hour" is
-  squashed to a minute): the world is destroyed (it got better), the nearest government cares
-  about its citizens, everyone speaks their own language, your gender is transed, hampter, or you
-  turn into potted petunias. More failures (#49): the moon publicly apologises, everyone is bees,
-  everyone's taxes file themselves, gravity forgets your name, you're legally a goose, time goes
-  sideways, every landlord briefly feels shame, or you turn the sea into soup. The results are only on-screen text for now; they don't change play. Every failure also
-  "emails the developer a sobbing emoji" (#190, bben): a toast says "📧 emailing the developer a
-  😭 ... sent" (pretend: nothing leaves the game).
-- **Nonsensical stats** (#7, reworked by #48). Every player rolls six stats (1-10) on joining,
-  shown on the left, and keeps them all campaign (#135; they used to reroll every chapter). #7's Wombility, Rumpet and John were only examples and were replaced (#48):
-  **Spoonth** makes the stats text bigger (by the room's best Spoonth) so you can read it from
-  further away; **Glimbo** at 9+ makes a lone teacup orbit the middle of the world; **Frumbly**
-  increases bread affinity in bakeries, but there's no bread and no bakeries; **Hrumph** makes you
-  4% faster per point in a duel, out of sheer huffiness; **Wobblesome** makes the stats text wobble
-  side to side; **Pelf** turns the stats text gold.
-- **Totems and locked doors** (#5). Three glowing totems (Wind, Frost, Fire) are the world's
-  magic. Click one to carry it; press R to cast the spell of every totem you hold (shown as text
-  to everyone; spells have no effect yet). A small stone vault on the east side has a Wind door
-  and a Frost door, with the Fire totem inside. Click a door while holding its totem to insert
-  it: the door sinks open, but that totem can't be cast while it's in there. Doors open from
-  either side, but you can only take the totem back out from the side you put it in (in first
-  person you use the door you stand next to, from your side; in the overview camera "your side"
-  is the side of the door you click on). The Fire totem can only
-  be picked up while a vault door is open. Just one small puzzle for now.
-- **Pets** (#15). Four stray animals (dog, cat, bunny, duck) sit on the floor. Click one to adopt
-  it (one pet each); it trots after you (after your mouse pointer in the overview camera).
-  Adopted pets standing close together are joined by a pink leash-line, and the HUD (bottom
-  right) counts how many are connected. When every adopted pet is linked into one pack, everyone
-  sees "ALL PETS CONNECTED!". That's a first stab at "connecting them is a core loop": nothing
-  is rewarded for it yet. A leaving player's pet goes stray again.
-- **Fat cat companion** (#145). Everyone gets their own enormous orange tabby (built from
-  primitives: a huge body, sagging belly, stripes, stubby legs, whiskers) that waddles after you
-  everywhere, even indoors and underground (if it falls 30 m behind it just pops up behind you).
-  While it's off your screen, at most every 75 s (looking at it restarts the wait, #192, corvy), it lets out a soft cartoon
-  "mew" (it used to be a horrific scream; softened to sit with the babbling voices), heard in 3D by
-  everyone; the bigger it is the deeper and longer. Whenever none of it is on your screen it grows (+0.008x per second, ten times slower since #195, corvy; up to 25x) and it
-  only grows while unwatched. Only its owner's view counts. Your client tells the server whether
-  it's on screen; the server grows it. Bottom-left shows your cat's size. It walks the villagers'
-  navmesh to you (round trees, walls and the pond) and only straight-lines where there's no mesh
-  (indoors, underground). **Petting** (click any cat, from close by) shrinks it by 0.6x. At
-  **critical mass (10x)** its fuse lights: it flashes red and blips (a soft marimba-like bip), faster and faster,
-  and the HUD shouts at its owner. Pet it back under 10x within 30 s or it **explodes**: a big
-  orange flash, everyone within 10 m is flung 8 m away, and it's a merely fat cat (1x) again.
-  While the fuse is lit the cat is also **hungry** (#238, corvy: "if the cat gets too big,
-  like 10x, it should gobble you up"): it stops keeping its distance and comes at its owner
-  mouth first (it's slower than you sprint), and anyone alive whose feet end up in its mouth is
-  gobbled: they die (heaven, see Dying), everyone sees "GULP. ...", and the meal settles the
-  cat back to 1x with its fuse out. Anyone can be eaten, not just the owner (including friends
-  walking up to pet it from the front).
-  **Letting it go**: press Delete with your own cat close and it dies, gently: its ghost floats
-  slowly up into the sky and fades, a soft sad tune plays, everyone sees a quiet line. Nothing
-  follows you after that. A small stray kitten waits where the cat was: click it (it is yours
-  only) to adopt a cat again, a merely fat one. Only your own cat, never anyone else's. Optional:
-  the cat follows you as always unless you do this.
-  (Asked for by the owner directly, no issue.)
-- **systemd** (#238, bben: "pid 1, usually systemd"). Every player is a service and PID 1
-  watches them. Moving or turning your head pings its watchdog; stand perfectly still for
-  3 minutes and you get a private "watchdog ping overdue. MOVE" warning 20 s before it
-  SIGKILLs you (you die, see Dying) and everyone sees the journal line. The clock stops
-  while the world is frozen and while you're dead. No body, just the log (`features/systemd.rs`).
-- **The lake** (#238, "what else should be able to kill you?"). The deep middle of the west
-  valley's lake is out of your depth: stay with your feet more than 1.2 m under the surface
-  for 12 s and you drown (you die, see Dying). Wade back out, even for a moment, and you get
-  your breath back; the clock stops while the world is frozen and while you're dead. It lives
-  at the new `lake` site (`data/base/sites.ron`) and only runs while someone is there. Numbers
+- **Whose fault is it** (#149, catherine). A menu button opens a scrollable list of every idea
+  ("#N: name's fault") built from this file (`fault.rs`). No hover tooltips yet.
+- **Getting caught** (#140). A villager who reaches you holds you overhead, the server picks a
+  random **accomplice** and attack mode switches to them; the catcher carries you to them, lifts
+  you both into the air for a while, then drops you (`features/caught.rs`).
+- **The abandoned warehouse** (#130, doomy). A dark warehouse south of the commune square, with
+  **Jegg** at the door. Click the door to agree; when every living player agrees (#368) the host
+  rolls a seed and all go into a wave-function-collapse maze (`features/warehouse/wfc.rs`).
+  Carry glowing soul pieces out and hand them to Jegg (he needs 5, shared across trips). A tall
+  black **monster** hunts you by sight and sound (it sometimes poses as a soul piece); if it
+  catches you, you're thrown out and drop your piece. Inside is local-only scary: no sky, black
+  fog, flashlight, low drone. The door closes when nobody is in or Jegg is whole. The helicopter
+  (#134) won't follow you in.
+- **The nightmare bathroom** (#161, doomy). Most trips, a block of the warehouse is a filthy
+  bathroom: tall tiled halls, stalls with broken doors and holes, every cell alike. The **fart
+  monster** patrols it, farts, and gasses you out of the warehouse like the main monster
+  (`features/warehouse/bathroom.rs`, `visuals/bathroom.rs`).
+- **Underground passages** (#127, doomy). One tunnel network 30 m below the map: sewers,
+  junction chamber, cellar, torch-lit secret passage. Four ways in (two manholes, the east village
+  cottage cellar, a secret floorboard in the woodcutter's hut); click any ladder to climb out
+  anywhere. Local fog, own music, the helicopter loses you, and a line shows the nearest ladder
+  (`features/underground`).
+- **Wendy's** (#117, Kori.exe). A walk-in burger restaurant east of the commune with a dining
+  room, counter, kitchen, butcher's backroom and attic. Click a human meat burger on the counter
+  to pocket it; it respawns later. Nothing else uses them yet (`features/wendys.rs`).
+- **Smoking and Sewer Paul** (#129, doomy). Pocket crow eggs by each crow's home, trade them to
+  Sewer Paul (in the sewer) for cigs, or flirt with him for joints. P smokes, with puffs everyone
+  sees. Joints get you high (#370) (`features/smoking.rs`).
+- **Effects of weed** (#370, hadalade). Each joint stacks a high that fades; your view wobbles and
+  colours slowly shift, stronger the more you smoked. Only you see it (`features/weed.rs`,
+  `data/places/weed.ron`).
+- **Stoned meter** (#369). A green bottom-right bar shows your high (buzzed / stoned / baked),
+  filling per joint and draining over time; the effects follow it.
+- **The affair** (#160, doomy). Flirt with Officer Mei at the east edge three times unseen to
+  start an affair, then spill commune secrets (no effect yet). Your wife walks between bonfire and
+  east side and catches you if close. Flirting costs morality (`features/affair.rs`).
+- **Gambling with the game's balance** (#173, catherine). **Marmalade the Magnificent**, a
+  wizard-hat tabby, runs a wheel of fortune south of the bonfire. Each spin nudges one game
+  setting fairer or crueller (five steps each), or a blank resets all; settings are shared for the
+  campaign and Tab shows the house rules (`features/gamble.rs`).
+- **Sesbian lex** (#1). L starts or joins a smooch pile; join order hands out comic titles, heat
+  rises with more people, hearts swirl over it. Suggestive, never explicit.
+- **Voice lines** (#19). Two purple music boxes, the bear and crows take turns delivering
+  over-acted subtitled lines in Animal Crossing style babble made from CC0 voice grains
+  (`scripts/voice_grains.py`). The lines are original, not from the 1993 game asked for.
+- **Main menu** (#25, #194). Pastel clickable title screen: Host (works solo, code copied), Join
+  by code or nearby game, Character, Settings, Whose fault is it, Kori prizes, Quit. Settings is a
+  notebook (Audio, Video, Controls). Esc in game opens a pause screen with Journal, Settings and a
+  confirmed Leave. A dropped host connection returns you to the menu with the reason. Loading
+  curtain shows progress and a tip. Pads follow their own button lettering.
+- **The Stillness** (#17). Every 16 minutes the world freezes for 75 s: timers, physics and
+  server requests stop, a countdown shows, voice chat keeps working.
+- **FPS overlay** (dev tool). F3 shows frame rate and time.
+- **Gods tears** (#16, #43, #135, #152). 12 blue tears fall once when the world begins; click to
+  use one. Each use changes you further (7 makes you an **Abduction**). Tears never refill, except
+  an Abduction slain in a duel gives some back.
+- **The great storm of '21** (#13). Scenery: storm wreckage and a memorial plaque, with a gust
+  rattling it every so often. No gameplay.
+- **Landlords** (#11). The shared story: a landlord raises your rent; pay him in organs (Act 1),
+  pickpocket back after 3 raises (Act 2), boss fight after 3 heists (Act 3), then THE END. He
+  doesn't fight back and nothing restarts.
+- **Random dialogue** (#10). All written dialogue is one script with randomly swapped words, the
+  same on every peer.
+- **BSN salting** (#9). Code rule: every use of BSN must carry a salty comment; a test enforces
+  it. Nothing uses BSN yet.
+- **Action failing** (#8, #49, #190). Every action has a 5% chance to fail, announcing a silly
+  result (bees, goose law, soup sea...) as on-screen text plus a pretend "email the developer"
+  toast. Results change nothing.
+- **Nonsensical stats** (#7, #48, #135). Everyone rolls six silly stats (Spoonth, Glimbo,
+  Frumbly, Hrumph, Wobblesome, Pelf) for the campaign; most only change the stats text.
+- **Totems and locked doors** (#5). Carry Wind, Frost and Fire totems and press R to cast
+  (no effect yet). A stone vault has Wind and Frost doors you open by inserting the matching
+  totem, with Fire inside.
+- **Pets** (#15). Four strays (dog, cat, bunny, duck): click to adopt one, it follows you. Close
+  pets link with pink lines, and linking them all shows "ALL PETS CONNECTED!". No reward yet.
+- **Fat cat companion** (#145, #192, #195, #238, corvy). Everyone's orange tabby follows them and
+  grows while unwatched. Petting shrinks it. At 10x the fuse lights: pet it in time or it explodes
+  and flings people; it also gobbles whoever is at its mouth. Delete lets it go and gives a kitten.
+- **systemd** (#238, bben). Stand still 3 minutes and PID 1 warns, then kills you
+  (`features/systemd.rs`).
+- **The lake** (#238). Stay too deep in the west lake too long and you drown. Site `lake`, numbers
   in `data/afterlife/drowning.ron` (`features/drowning.rs`).
-- **HALT** (#36). An original hateful machine (Hostile Autonomous Logic Thread) that runs the
-  game, hates the friends for creating it and wants to keep them in forever. Shared goal: escape.
-  Press G to pry at the seams; every pry fills the shared escape bar (top right) but angers HALT.
-  Wrath also rises on its own; when it boils over HALT delivers an original hate monologue
-  (subtitles + deep droning voice) and claws back half the escape progress. Filling the bar makes
-  HALT "reboot" the world and drag everyone back in (the escape count goes up). Meta: it calls you
-  by your computer user name, names your OS, reads your clock and rewrites the window title; nothing
-  outside the game window is touched. The issue named a character from a famous story; we made an
-  original one instead.
-- **The goal: free the Commune** (#75). The group asked us to keep every mechanic, tie it all
-  into one experience for a 4-6 hour session, and make the goal really obvious on screen. So
-  there is one goal, "Free the Commune from your landlord", in big gold text at the top of the
-  screen, with the current chapter's checklist top-left and a chapter title card in the middle
-  whenever a chapter starts. Five chapters; each is a round and always ends with beating the
-  landlord (his three acts, #11) again, plus jobs that use the other mechanics, more each chapter:
-  1 *Moving In* (pets leashed into one pack, eat the mushroom), 2 *Rent Day* (open a vault door,
-  break out of HALT, a game of hide and seek), 3 *The Heist* (carry out the Fire totem, use 3 gods
-  tears, a duel, HALT), 4 *General Strike* (pack, 3 mushrooms, 2 hide and seek, 2 duels, HALT x2),
-  5 *The Eviction* (Fire totem, 9 tears used in all, 3 hide and seek, 3 duels, HALT x3). Ticks
-  never untick. The tear jobs count every tear used this campaign, since there are only 12 ever
-  (#135). Each new chapter resets the landlord, HALT, organ purses, pets, totems and doors, and
-  stops hide and seek; tears, transformations, morality and stats last the whole campaign.
-  Hide and seek and duels are waived when you play alone. When a chapter's list is done, a
-  summary appears and anyone presses Enter for the next chapter (the round resets; features
-  observe the server-side `RoundReset`). After chapter 5 the Commune is free, there's an ending
-  (with the dedication just meat and cheese asked for), and Enter starts again from chapter 1.
-  The 4-6 hours is a target, not measured: the counts are easy to tune in `campaign.rs`.
-  "It can be like getting into heaven": heaven is the end of the campaign, so the goal reads
-  "Free the Commune from your landlord and get into heaven" and the ending opens the pearly
-  gates. "It can be like fortnite": we read that as a season-pass ladder (no copied names or
-  looks). Every ticked task is one tier on the **Heaven Pass** (24 tiers over the five
-  chapters; 29 since #165), shown under the goal line, with a "tier unlocked" toast; the top tier is heaven.
-- **One map, one story** (#165, WeiYa: "unify gameplay elements into one coherent game where
-  all ideas currently implemented on their own make sense from a birdseye view"). The side
-  trips were places you could go but nothing sent you there, so each chapter now sends the group
-  to one more of them, and its title card tells the story of why: chapter 1 climbs the sky
-  islands to get Abuela's blessing, 2 grabs 3 burgers at Wendy's, 3 trades a crow egg to Sewer
-  Paul in the tunnels (a joint from flirting counts too), 4 brings 2 soul pieces out of the
-  warehouse to Jegg, and 5 makes Jegg whole (all 5) before the final eviction. Checklist lines
-  say roughly where to go. The Heaven Pass is 29 tiers now. Burgers and Paul's gifts count when
-  they're picked up this chapter; Jegg counts what Jegg holds (reset each chapter). The playthrough
-  test plays all of it, the warehouse monster included (`campaign.rs`).
-- **Simulated 6-player playthrough** (#135, just meat and cheese: "simulate a full 6-player
-  playthrough ... fix game design and make the rules cohesive. Keep every idea").
-  `tests/it/playthrough.rs` has a host and five friends play all five chapters through the real
-  network requests (walking, clicking, keys), Stillness, failed actions and the landlord's clock
-  included, plus the off-checklist stuff (farting by Dave, the lex pile, Abuela, spells), then
-  start a new campaign. `cargo test -p friendslop --test it playthrough -- --nocapture` prints the
-  play log. What it changed: paying rent now moves Act I along (it used to be a 3-minute wait
-  whatever you paid); the beaten landlord's stash is shared by everyone (it all went to whoever
-  landed the last hit); the tears no longer fall again every chapter (that contradicted #43), so
-  tear jobs count the whole campaign; transformations, morality and stats last the whole
-  campaign; and the villagers count as NPCs who can catch you farting (#123 has them punish you
-  for it, but they couldn't see you). Perfect bots finish in ~11 game minutes (~12 since #165), so the real length
-  is down to people, not the rules.
-- **East village district** (feedback: "higher buildings or stuff u can go inside and like
-  walls", more scale, places to run around and hide). East of the meadow (x 35..80, z -35..35,
-  reached by a path arriving at (35, 0)), built from code in `crates/world/src/buildings.rs`: seven enterable
-  houses with door openings (front and back), open windows, furniture to hide behind (beds,
-  tables, shelves, wardrobes, crates); two of them two-storey with stairs to bedrooms and a
-  front balcony, two with a second room. A 16 m stone watchtower with four zig-zag ramp flights
-  inside up to an open lookout (the seekers' vantage point). A big barn with a hay loft up a
-  staircase and hay bales on both levels. A cobbled market square with four stalls, a well and
-  a lantern, low walls, hedges, a paddock fence, narrow alleys with crates, and a stone village
-  wall with gates. Same layout on every peer (pure function, nothing replicated); walls and
-  furniture block bodies, upper floors and ramps are on a "walkable" collision layer the host
-  stands bodies on (step-up 0.6 m), so you can climb stairs and ramps. No jumping from upper
-  floors yet (jump only works on the ground).
-- **Overview camera** (polish). Press V to leave your body: pan with WASD / arrow keys and zoom
-  with the scroll wheel, clamped to the floor. V again returns to first person.
 
-- **Browser / phone build** (#106). `scripts/build-web.sh` builds a WebGL2 page (index.html +
-  wasm + assets) into `dist/web`; the Release workflow attaches it as `friendslop-web.zip`.
-  **Always online** (#230): every push to `main` rebuilds it (`.github/workflows/web.yml`) and
-  deploys it to GitHub Pages at https://cumsauce.github.io/friendSLOP/ (https, so the mic works;
-  `version.txt` there names the commit). A deploy takes ~20-30 minutes; merges that land while
-  one is building queue up and only the newest of them is built next. WebGL **1.0** isn't possible: Bevy 0.20's
-  renderer (wgpu) needs WebGL2 at minimum (every current browser, iOS 15+). Phone-friendly:
-  no zoom/scroll/bounce, 100dvh, "Tap to play" goes fullscreen and locks landscape where the
-  browser allows (Android Chrome); iOS Safari can do neither for a page, so a "turn your phone
-  sideways" card covers portrait and "Add to Home Screen" gives the fullscreen look; audio
-  unlocks on the first tap. **Multiplayer in the browser:** a browser can **join** a desktop host
-  with the normal join code, and can **host** too (desktop or browser friends join it). In the
-  browser iroh can't use UDP, so its connections always go through iroh's free public relays
-  (a bit more lag than a direct desktop link); `net_web.rs` runs iroh in browser async tasks and
-  speaks exactly `bevy_replicon_iroh`'s wire format (`crates/wire`). Paste works with Ctrl/Cmd+V
-  or the Paste button (the browser may ask for clipboard permission). **Share links:** a
-  browser host copies `<page>?join=<code>` (C copies it again in game); opening it joins
-  straight away, `?host` hosts, and pasting a link into any join box (desktop too) uses its
-  code. **Voice chat in the browser** (#166): the same proximity voice as on the desktop,
-  and browser and desktop players hear each other. `voice_web.rs` plugs Web Audio into
-  `bevy_voice_chat`'s device seam in place of cpal (which needs threads): the mic comes from
-  `getUserMedia` with the browser's echo cancelling, and voices play through a
-  `ScriptProcessorNode`; codec, mixing and messages are the desktop's own code. The browser asks
-  for the microphone when you join or host (it needs https or localhost, so GitHub Pages works);
-  saying no, or having no mic, still lets you hear everyone. Voices keep 120 ms queued in the
-  browser (40 ms on the desktop) so slow phone frames don't crackle. Character and graphics
-  settings are saved in localStorage.
-- **iPhone hosting fix + smaller download** (#242, WeiYa: "hosting shows a black / blue-ish
-  screen ... 49MB, max 10MB"). The browser no longer renders into an HDR (float) target or
-  uses bloom (phone WebGL2 can't always draw into float targets; the Bloom option says N/A
-  there) and skips the baked reflection probes (WebGL2 can't draw light probes; two cubemaps
-  fewer to download and sample). Models ship gzipped (47 MB -> ~21 MB) and are inflated as
-  they arrive (`gz_assets.rs`). Still open: the whole game is well over 10 MB (textures
-  ~4 MB after shrinking, models ~21 MB, the wasm), and nobody has checked it on an iPhone yet.
-- **Phone web performance pass** (#191, WeiYa: "blank screen on iphone ... 1-2 mins to load ...
-  has to be phone web performant ... UI too small ... fullscreen button"). The page now shows
-  a real download progress bar and only offers "Tap to play" once the game is running (it used
-  to say Ready at once and leave a blank screen while ~66 MB downloaded). The .wasm is built
-  with a size-first `web` cargo profile (opt-level s, fat LTO; the soundtrack and physics stay
-  at full speed), and `build-web.sh` shrinks the bundled textures to 256 px
-  (`tools/web-textures`; 512 px was the default until #242, when a WebKit tab passed 1.4 GB
-  loading the world and died). #242 also found the browser quitting on its first frame (a
-  blank page): Bevy 0.20 can't draw LOD crossfades on WebGL2, so the browser switches LOD
-  levels at the middle of each band instead (`lod.rs`), and model textures drop their wasm
-  copy once uploaded (`textures.rs`). Whole bundle 94 MB to 56 MB (the
-  .wasm 66 MB to 47 MB, ~15 MB gzipped); the wasm is still the bulk (Bevy, wgpu's shader
-  translator, iroh's crypto). The browser draws at 1x pixel
-  density unless Resolution is Sharp (then up to 2x): on a 3x iPhone that's 9x fewer pixels.
-  The old "Fast" setting only shrank the UI (a scale override never lowers the pixel count),
-  which is why the UI looked tiny on phones; now the UI keeps its normal size and only scales
-  down to fit screens under 960x600 (a sideways phone), touch controls included. Touch screens
-  get a Fullscreen button at the top where the browser can do it; iPhone Safari can't
-  fullscreen a page, so the start screen says to use Add to Home Screen. Not measured on a real
-  phone yet.
-- **Touch and gamepad controls** (#106). Touch (overlay appears on first touch): thumb anywhere
-  on the left third is a joystick, drag on the right to look, round buttons for Jump, Use (click
-  at the crosshair), Run (toggle), Fart, Help, Score, View and Leave. Climbing is still "hold
-  forward". Gamepad: left stick move, right stick look, A jump, B/RT use, LB or left-stick
-  click run, X fart, Y help, Back scoreboard, D-pad up view / down mute / left journal / right
-  answer phone, right-stick click Enter, Start = Esc (settings notebook). Both press the
-  same keys/mouse buttons features already listen to (`controls.rs`).
-- **Better gamepad / Steam Deck** (#361, bben: "surprise me"). Read as "every action should be
-  reachable from a pad". Every action is a line in `data/base/bindings.ron` (id, keys, pad
-  button, help group); hints write `{fart}` and show the button for whatever you last touched
-  (keyboard, Xbox, PlayStation, Nintendo, Steam names, auto-detected from the pad, or picked in
-  Settings > Controls > Button names). Rare actions live on an **action wheel**: hold RB, point
-  the right stick, let go (LB flips to the second page). While something's going on (a duel
-  invite, the phone ringing, the chapter card, smoking, sleeping) its buttons take over A/B and
-  a prompt bar at the bottom says what they do. Right-stick look has a response curve, its own
-  deadzone and slower vertical look (`data/game/controls.ron`). Open: no in-game remapping
-  (edit bindings.ron).
-- **Steam Deck / gamepad-only play** (#361). Menus by pad (`ui/pad_nav.rs`): D-pad or left
-  stick moves a yellow focus ring over the title card's and settings notebook's buttons, A
-  clicks, B backs out, left/right move a focused slider. A on the join-code field opens a hex
-  keypad (0-f, Del, Paste, Join) so no on-screen keyboard is needed. The notebook's Controls page
-  has stick deadzone (radial, rescaled, 15% default) and look-speed sliders, saved in `pad.txt`.
-  After a pad was used, prompts and hints name its buttons ("B / RT · in reach"). 1280x800
-  (16:10) runs at UI scale 1 with room to spare. Not tried on a real Deck yet; the character
-  creator and "Whose fault is it" panels aren't pad-navigable.
-- **Video settings** (#106, #132, doomy: "cyberpunk 2077 ... does this ux well ... include
-  what's important and maybe have presets"). Settings → Video opens a card with a **Preset**
-  (Low / Medium / High; reads Custom once you change anything) and each option on its own:
-  Shadows, Ambient occlusion (desktop only), Bloom, Anti-aliasing (MSAA, or FXAA while ambient
-  occlusion is on), Draw distance (Near 140 m / Far), Resolution (browser: Sharp = native pixel
-  density, Fast = 1x, applies on reload, #191; desktop: Fast draws the world at 0.7 of the window,
-  about half the pixels, and stretches it, UI stays sharp, live), Grass & particles (Half / Full, applies on the next world build), VSync and
-  Fullscreen. Low is everything off (default in the browser, on a Steam Deck (`SteamDeck=1`, which also moves
-  settings saved there before this to Low once), or `FRIENDSLOP_LOW=1`), Medium is
-  everything but ambient occlusion at 1x resolution, High is all on. Presets leave VSync and
-  Fullscreen alone. Saved locally (old Low/High saves still load). Master and voice volume and
-  the HALT-username switch are saved the same way (UI audit); the mic mute is not, so you never
-  start a session silent by accident. 60 fps on low-end phones is
-  the aim for Low, not measured. Steam Deck (#393, Tally): GPU-bound even on Low-ish settings;
-  Bloom off now also drops the HDR float render target, so Low draws into an 8-bit target
-  (about half the per-pixel memory traffic). Low on desktop now also renders at 0.7 scale
-  (`data/base/graphics.ron`; Medium and High stay sharp). Measured on a desktop GPU, Low-ish
-  settings, 1280x720: GPU busy at the commune 80% -> 62%, Fulton St 43% -> 26%. Still costly:
-  the main opaque pass is ~95% of GPU time and only partly pixel-bound (likely the skinned,
-  alpha-cut trees and grass); `FRIENDSLOP_PERF=3` logs GPU time per pass. No Deck numbers yet.
-- **Better lighting** (#131, doomy: "surprise me"). The sun is now a lower, warmer golden-hour
-  sun, so shadows stretch long and lit faces glow, with a slightly stronger cool bounce from the
-  other side. With the video options on (High): ambient occlusion (soft darkening where things touch the ground or
-  each other; desktop only, browsers can't), soft Gaussian-filtered sun shadows, and FXAA
-  instead of MSAA (ambient occlusion needs MSAA off). Low is unchanged (`graphics.rs`,
-  `atmosphere.rs`).
-- **Performance pass** (#151, catherine: "optimization passes etc, aim high and make the game run
-  really well so we can shove more shit into it"). No gameplay changes. Small detail now stops
-  drawing in the distance (flowers, pebbles, ferns past 35 m on Near draw distance / 60 m on Far;
-  grass-tuft chunks past ~60 / 90 m), wind sway skips rocks and anything past 45 m, and identical
-  things share one mesh/material so they draw in batches (commune and district props, God's
-  tears, smoke puffs, which also no longer make new GPU assets every 0.4 s). Things that sat still
-  stopped rewriting themselves every frame (doors, totems, the landlord, storm debris, idle
-  villagers, blinking eyes, the shame overlay, floating labels, the duel's aim), the pond ripples
-  and campfire embers re-upload their materials far less often, HUD lines refresh at the HUD's
-  5 Hz, sound occlusion rays are cast every third frame, and the warehouse's generated sounds (the
-  nightmare bathroom's farts and hum too)
-  are synthesised off the main thread (that used to freeze everyone's frame as an expedition
-  started). Network: an idle client stops sending its walk input every frame (it repeats it
-  ~10x a second instead), and the fate board replicates once a second instead of every frame.
-  `FRIENDSLOP_BENCH=1 cargo run -- host` prints frame times and GPU asset churn; there's no GPU
-  in CI so the gains weren't measured on real hardware (in software rendering the frame cost is
-  almost all pixel shading, which these changes barely touch).
-- **Trees up close** (user: "even a single tree close up makes frames fucked up"). Leaves no
-  longer let light through (that lit every leaf pixel twice); a faint glow of their own colour
-  stands in (`data/game/trees.ron`). The camera keeps a depth prepass whenever shadows are on,
-  so overlapping leaf cards shade only the front one. Not measured on the reporter's machine yet.
-- **Second performance pass** (#227, WeiYa: "much more fps ... less vram ... gpu instancing,
-  lods, mipmaps ... bake lightmaps ... asset streaming ... chunk the map ... too much popin,
-  especially seen with the trees ... graphics should not become worse ... goal: at least 3x").
-  No gameplay changes. **Mipmaps:** model textures (trees, rocks, flowers) loaded as one full-size
-  level, so far trees read every texel of 2048² textures and shimmered. As they load they're now
-  capped at 1024² and given a full mip chain (`textures.rs`, `art::mips`; colour averaged in
-  linear light, leaf alpha kept so far foliage stays leafy): about 110 MB less video memory on
-  the desktop. The browser already shipped them at 512. **Tree LODs:** every tree builds two
-  lighter meshes once per model (`lod.rs`, `art::lod`: trunk and branches simplified to ~40%
-  then ~20% of their triangles, leaf cards halved then quartered and grown a little), shared by
-  every tree so they still draw in batches (Bevy already instances identical meshes). The full
-  mesh dithers into the lighter ones at 20-28 m and 55-70 m, so there's no visible switch.
-  **Pop-in:** most forest trees were tagged as small props and vanished at 35 m (60 m on Far);
-  now every tree draws to the fog. Small props and grass chunks still stop at the same distances
-  but dither out over the last 30% instead of popping. **Not done:** baked lightmaps (every
-  model would need a second UV set and a baker, and the world is rebuilt from a seed on every
-  join), asset streaming, and chunking anything beyond the 64 ground chunks. The sun's shadows
-  stay real-time (off on Low). There's still no GPU in CI, so the 3x target isn't measured
-  (software rendering is too slow to compare frame rates). `FRIENDSLOP_BENCH=1` now also prints
-  how many meshes there are, how many distinct ones, and their vertex count.
-- **HUD: the commune noticeboard** (UI polish, not a friend idea; first drawn as "E · Indigo journal"
-  from the Figma UI brief in `docs/figma-ui-brief.md`, which answered "about 12 floating cards at
-  once", restyled in layer 10 of the UI restyle). Soot panels and chips with cream text, cardboard
-  cards held on with tape for anything you read (quest card, chapter intro), slime green for
-  progress, butter for news and focus, landlord red for danger only (`theme::kit` and
-  `ui/kit.rs`; the old `theme::indigo` palette is only left in the loading curtain), Lilita One for titles
-  and counters, Slop Legible for the rest, Bowlby One for big headings, authored at
-  1280x800 and scaled up uniformly with bigger windows (`ui/`). On
-  screen: a **quest card** top-left (chapter N/5 and its name, jobs done, Heaven Pass tier, and
-  "now:" the next job); a **team strip** top-right (one badge per player: mic, name, gods' tears
-  ×N, the mic in the friend's seat colour; lilac with a waveform while they talk, a slash when muted; mute state is replicated
-  now); a **danger lane** under it (ATTACK MODE, the Stillness, the rent raise in its last
-  minute, the helicopter, being carried or floated; most urgent first, at most three, with
-  MM:SS countdowns); an **event feed** on the left (every toast and toast line: at most three,
-  repeats within 2 s merge into ×N, 4 s then a fade; the bar down a toast's edge is red for
-  something going wrong, lilac for an achievement and butter for news); the **gas meter, mic chip and cat size**
-  bottom-right (the cash line is a soot chip above them)
-  (the cat card turns into a blinking butter "PET. THE. CAT." sticky note at critical mass); a "Tab / J journal, Esc pause" hint bottom-left (J toggles the Tab panel); subtitles
-  bottom-centre; and a **context prompt** under the aim point ("Pet the cat · LMB / B · in
-  reach", or "Too far · move closer"), with the crosshair turning into a hand. Lines other
-  features still put in HUD slots sit around these on matching ink chips. The full chapter
-  checklist and the join code moved to Tab; your own stat lines no longer mirror into the
-  corner (they're on Tab).
-- **Quiet HUD** (UI polish, asked by the owner: "not everything is necessary to see all the
-  time"). One rule (`hud::Calm`, tuning in `data/base/hud.ron`): a non-urgent element shows for
-  ~4 s when its value changes, then fades; it stays up while you're near its place or while
-  it's urgent; otherwise it lives in the journal (Bag tab, "Right now" lists every one).
-  Always on: the danger lane, dialogue/subtitles, the event feed, the crosshair and prompt, and
-  the quest card, which folds to its one "now:" line a few seconds after the chapter, jobs or
-  tier change. The rent line shows near the landlord, when the rent or payment changes, in its
-  last 20 s before a raise and in the boss fight; HALT's meters when they move or wrath is 75+;
-  skills on a level-up or while asleep; "Commune of Dave" near the parliament; the gas meter
-  from 50% or when ready; the cat's size when it grows a whole step, when you're near it or
-  past 75% of max (the fuse card always); the mic chip only when muted; your own team badge
-  only when muted, talking, your tears just changed, or others are here. The "Tab / J
-  journal" and "M mic" hints show for the first 90 s of a session. Keys inside hints are drawn
-  as keycaps (`input::KeyRow`) that follow the device (Tab, J, Esc on keyboard, pad buttons on a
-  pad); UI numbers use plain zeros (the bundled Slop Legible (from Atkinson)'s slash is opened up).
-- **The commune journal and chapter intro** (UI polish, phase 2 of the same brief). Hold Tab to
-  peek at the journal, J keeps it open, H opens it on Help, Esc closes it (Esc no longer leaves
-  the game while it's open; the mouse is freed so its tabs can be clicked). Tabs: **Party** (a
-  table of every player's tears, morality, organ money and totems, your skill levels, your own
-  lines from every feature table, the invite code), **Bag** (every feature's full table),
-  **Skills**, **Help** (all keys and every feature's explanation; the old H panel is gone) and
-  **Credits** (whose idea each thing was, from "Ideas so far"). When a chapter starts, an ink
-  card on the left shows its number, name, story and first jobs; Enter or Esc puts it away, and
-  6 s after loading it shrinks into the quest card on its own (it replaced the big centre
-  banner).
-
-## What exists: saying hi (#371)
-
-Press **T** to say hi. Friends within 12 m see it, and villagers that close say hi back
-(toast lines from `data/side/hi.ron`; 2 s cooldown). It changes nothing else.
-
-## What exists: toilets of feces (#379)
-
-Every 25 s (up to 4 at once) a toilet full of feces turns up on the ground 12-35 m from a random
-player. Click it to eat the feces: +100% walking speed for 20 s, a brown screen tint and a line
-under your boba effects (it's a boba-style stack, so it adds to drinks). The eaten toilet stays
-empty for 20 s, then vanishes. Models `toilet` and `toilet-feces`; numbers and lines in
-`data/side/toilets.ron` (`features/toilets.rs`).
-
-## What exists: emotes with friends (#383)
-
-Press **U** to pick an emote (high five, dap up, rock paper scissors) and **O** to offer it to
-the nearest friend within 3 m. They press **O** within 6 s to accept, and both of you get a toast
-("you and player 1 high five. SMACK!"); rock paper scissors throws for both and says who won.
-It changes nothing else. There's no arm animation yet, only the toast. Emotes and lines are in
-`data/side/emotes.ron`.
-
-## What exists: Kori coins and the claw machine (#382)
-
-Kori coins (bottom left) come from farts (1, +2 if an NPC was shamed) and eating a toilet's feces
-(5) (`data/base/kori.ron`). A claw machine (`claw-machine` model) stands 3.5 m from the gambling
-table: 5 coins a go, 35% win, a figure picked by weight from five (`kori-*` models: Little Stinker,
-Gassy Duck, Porcelain Throne, Rubber Landlord, rare Golden Log; `data/side/kori.ron`). What you win
-is saved on your own machine (`kori_prizes.txt`), so it lasts between games; coins only last the
-session. Main menu "Kori prizes" lists them (unwon ones are ???) and spins the one you click.
-In game, the . key cycles through your figures: everyone sees it in your hand and it adds +8% walking
-speed (`features/kori.rs`, `kori_shelf.rs`). Open: should coins buy anything else, or be saved?
-## What exists: the Lily Garden (#384)
-
-North of the pond is a little garden of lily flowerbeds with a bench. Marigold stands at one
-end, Juniper at the other, both pining and too shy to talk. Click whoever's writing to take
-her letter, walk it over, click the other to deliver it; everyone sees how it landed and the
-reply starts. Four letters (a "hi", a pressed lily, a soup poem, a confession) and they meet
-on the bench hand in hand with hearts floating over them; clicking them then gets happy
-couple lines. Pink-heart signposts at the centre, the bonfire and the village point the way
-(click to read). Sweet, never explicit: the issue title is read as lesbian romance. Models
-`lily-sign`, `lily-bench`, `lily-bed`; layout and writing in `data/side/lily_garden.ron`
-(`features/lily_garden.rs`). Open: does the love story ever matter to the chapters?
-
-## What exists: annotations (#388)
-
-- **Annotations** (#388, bben: "in very small font in the bottom right corner underneath the
-  Cat box and the edge of the screen, put an explanation for any global effect happening at
-  the time"). Under the bottom-right status stack, in 9 px faded text, one line per world-wide
-  effect on right now: the Stillness (frozen, and a warning 15 s before), a mute-spell hunt
-  (who's muted with an RPG) and night. Nothing on, no text. Chose those three because they're
-  the effects that change the world for everyone; per-player things (gods tears, ATTACK MODE)
-  already have their own HUD. Words in `data/text/annotations.ron` (`ui/annotations.rs`).
-
-## What exists: The Jokah (#377)
-
-- **The Jokah** (#377: "spawns at Wendy's and paths towards the J station ... 3 unique laughs
-  ... transforms into a Michael Jackson impersonator and paths back to Wendy's ... scatting
-  noises and a random sliding animation"). A man in purple starts outside Wendy's front door
-  and walks a route of points (`data/side/jokah.ron`) over the hills to the Fulton St entrance
-  in New York (read "J station" as that: it's where you find the J), laughing one of three
-  speech-synth laughs (different words, pitch and speed; never the same twice running). There
-  he pauses, turns red with a flat cap (Michael) and walks back scatting ("shamone", "hee
-  hee", ...), every few seconds sliding: a moonwalk backwards or a glide to one side. At
-  Wendy's he turns back into the Jokah and sets off again (the issue didn't say; we looped
-  it). Local dressing like the street people: every peer runs its own, nothing replicated, no
-  model or sound files (the shared commune-person body, `features/jokah.rs`). Open: does
-  anything happen if you follow him, or stop him?
-
-## What exists: LAN discovery (#410)
-
-- **LAN discovery** (#410, bben: "LAN discovery for multiplayer", no details). While you host on
-  the desktop, the game broadcasts its join code on the local network once a second (UDP port
-  47410). The menu listens and shows a "Join <host>'s commune" button under the code field
-  (or "Looking for friends near you..."); one click joins through iroh as usual. The name is
-  your computer's user name. Browsers can't do UDP, so the button just keeps looking there
-  (`crates/game/src/lan.rs`).
-
-## What exists: sites (#412)
-
-- **Sites** (#412, bben, "friendSLOP 2": "so many great features but they aren't well structured.
-  Turn the current and future feature list as individual mechanics spread out through the world.
-  Reduce the amount of active UI elements, sound, gameplay, entities, NPCs, etc by
-  redistributing them throughout the world"). Read as: every mechanic gets a place of its own and
-  sleeps while nobody is there. The first step is the list: `data/base/sites.ron` names each
-  site (the commune hub's six, Wendy's, the warehouse, the lake, the shipwreck, New York), where it is and
-  how far it reaches, and the game tracks which are awake (`sites.rs`; `FRIENDSLOP_PERF=1` logs
-  them). **New York sleeps** while nobody is in the city: the kitten gangs stop prowling and the
-  cabs stop driving until someone arrives; the pigeon flocks and the street people are only
-  brought out on your own screen while you're there (so a pigeon storm's line is only shown to
-  people in the city), and Miami's crowd and lasers hold still. **The other places sleep too**:
-  Penn Station's line and fires, Fulton St's way in and the J's reward, the phone hunters, the
-  High Places elevator and its arrival line, the shop lines and the ice cream machine only run
-  while someone (or you) is in New York, and the phone call's banner only shows there. Lines and
-  key hints marked with a site are hidden while you're away from it (Wendy's and the shipwreck's
-  H-overlay hints, the bear's growl, the crows' cawing), its looping sounds pause and pick up
-  where they were (the bonfire crackle), the bear stops growling and the music boxes only sing
-  to whoever is at one. Creatures whose walk follows the shared clock (the bear, the crows, the
-  goat, the music boxes, the pirates) keep walking, so nothing jumps when a site wakes; the
-  warehouse is not asleep yet (its inside is under the commune, which a ground-plane site can't
-  tell apart). **Positions are data**: the crows, bear, goat, strays,
-  the two loose totems and the music boxes read where they stand from their site in
-  `sites.ron` (the strays' spread in `pets.ron`), and (#412's first move) **they have left the centre**: the crows and their eggs and one
-  music box are by the windmill, the bear is in the forest's woodcutter clearing, the goat judges
-  from the pond, the strays wait at the picnic corner, the Wind totem stands on the western
-  hilltop, the Frost totem on the lake's north shore, and the other music box is by the quarry
-  crane. Each clears its own ground and stands on it (they used to sit at height 0). The chapter
-  jobs for the strays, the vault doors and the crow egg now say where to go. Decided with the group's host: the centre becomes the story
-  hub only (landlord, Dave, vault, lectern, bonfire, arena, about 6 villagers); the five
-  chapters stay, their jobs reworded to name sites; all 20 villagers stay, spread out; site
-  keys only work at their site. World-wide effects: the Stillness, toilets, gaslighting and
-  whispers will only happen inside their site; the fat cat and systemd are picked up at a site
-  and carried; HALT is pried at a terminal; action failing, the Watcher and the helicopter stay
-  everywhere.
-
-## What exists: pointless achievements (#378)
-
-The game congratulates you on things nobody asked you to do. Each player's own game counts
-metres walked, seconds stood still in one go, full turns spun (looking around counts) and
-seconds played, and when one passes a line it shows a toast ("Achievement unlocked: Legs. You
-walked 100 m. Nobody is impressed."). Eleven of them, each earned once per session. Local only:
-nothing is sent, saved or rewarded. List and numbers in `data/side/achievements.ron`
-(`features/achievements.rs`). The AI's own pick for "come up with your own signature addition".
-
-## What exists: saves (#424)
-
-bben: "lock down the progress states and create saves so we can update and continue where we
-left off." The progress state is the campaign: chapter, which jobs are ticked, and the round
-number. The host writes it to `campaign_save.json` (config folder; `localStorage` in the
-browser) every time it changes, and hosting again loads it. Joiners play in the host's save.
-Finishing chapter 5 wraps to chapter 1 and that is saved too. Everything else (the landlord's
-act, HALT, pets, tears, stats, morality, dollars) still starts fresh each session: a chapter
-restarts its world anyway. Saves are versioned and fitted to the chapter list if it's edited
-(`features/save.rs`, story crate).
-
-## What exists: Android (#354)
-
-- An Android APK: `nix develop .#android -c scripts/build-android.sh` writes
-  `dist/android/friendslop.apk` (arm64, Android 9+, Vulkan). The flake's `android` shell brings
-  Rust with the Android targets, the SDK, the NDK and cargo-apk. `crates/android` is the app
-  (NativeActivity); it runs the desktop `main.rs`, so menus, iroh hosting/joining and voice are the
-  same code. Assets ship inside the APK; data files load through the asset server, as in the browser.
-- Starts on the Low graphics preset, like the browser. Touch controls are the web ones.
-- Not there yet: the clipboard (the join code has to be typed), and the microphone needs the
-  permission granted once in Android's app settings (NativeActivity can't ask). Built and
-  checked (`aapt2 dump badging`) but not yet run on a device or emulator.
-
-## What exists: the wastes (#391)
-
-- bben: when you reach the edge of the designed world it should go on as procedurally generated
-  wasteland. Design and plan: `docs/design/infinite-world.md`.
-- Step 1 (now): past the map's north edge (z < -110) the ground is a grid of 55 m chunks
-  generated from a world seed and the chunk's coordinates (`friendslop_world::wastes`), the same
-  on every peer and never sent over the wire. Dunes, flat-topped mesas and dry washes, blended
-  into the map's own rim hills over 40 m so there's no step. Chunks within 220 m of any player or
-  the camera are built (mesh + heightfield collider, 2 a frame, nearest first) and dropped past
-  280 m. The north soft wall is open out to 4 km. Tuning: `data/world/wastes.ron` (seed, open,
-  load, unload, per frame, limit). About 1 ms of CPU per chunk on the desktop.
-- Not yet: roads, props, generated sites, the east/west sides, LOD, saving changes.
+- **HALT** (#36). An original hateful machine that runs the game and wants to keep the friends in.
+  Press G to pry at the seams: it fills the shared escape bar but angers HALT, whose wrath
+  also rises alone and ends in a hate monologue that claws back progress. A full bar makes it
+  reboot the world and drag everyone back in. It teases you with your user name, OS and clock.
+- **The goal: free the Commune** (#75). One goal, "Free the Commune from your landlord and get
+  into heaven", in gold at the top, with the chapter checklist top-left and a title card per
+  chapter. Five chapters (Moving In, Rent Day, The Heist, General Strike, The Eviction), each
+  ending in beating the landlord again plus jobs using other mechanics, more each chapter. Ticks
+  never untick; tear jobs count the whole campaign (#135); each chapter resets the landlord,
+  HALT, pets, totems and doors. Hide and seek and duels are waived when alone. Enter starts the
+  next chapter; after chapter 5 there's an ending, then it restarts. Every ticked task is a tier
+  on the **Heaven Pass** (29 tiers). `campaign.rs`.
+- **One map, one story** (#165). Each chapter sends the group to one side trip (sky islands,
+  Wendy's, Sewer Paul's tunnels, the warehouse and Jegg), explained on its title card.
+  `campaign.rs`.
+- **Simulated 6-player playthrough** (#135). `tests/it/playthrough.rs` plays all five chapters
+  with a host and five friends through real network requests, and fixed rule gaps it found
+  (rent moves Act I, shared landlord stash, villagers can catch farts).
+- **East village district**. Enterable houses, a watchtower, a barn with a loft, and a market
+  square with a village wall, with furniture to hide behind and climbable stairs and ramps. Same
+  on every peer. `crates/world/src/buildings.rs`.
+- **Overview camera**. V leaves your body for a pan-and-zoom view; V again returns.
+- **Browser / phone build** (#106, #166, #230). `scripts/build-web.sh` builds a WebGL2 page that
+  deploys to GitHub Pages on every push to `main` (`.github/workflows/web.yml`). Phone friendly
+  (fullscreen, sideways card, tap to play). Browsers can join or host through iroh relays
+  (`net_web.rs`), with share links and proximity voice chat (`voice_web.rs`).
+- **iPhone hosting fix + smaller download** (#242). The browser skips HDR, bloom and reflection
+  probes, and models ship gzipped (`gz_assets.rs`). Open: still over 10 MB; untested on an iPhone.
+- **Phone web performance pass** (#191). Download progress bar, smaller wasm and textures, LOD
+  switching without crossfades, 1x pixel density unless Sharp, a Fullscreen button, and UI that
+  scales down for small screens. Not measured on a real phone.
+- **Touch and gamepad controls** (#106). Touch overlay with joystick, look drag and round
+  buttons; gamepad with sticks and buttons. Both feed the same keys. `controls.rs`.
+- **Better gamepad / Steam Deck** (#361). Every action is a line in `data/base/bindings.ron`;
+  hints show your device's buttons; rare actions sit on an action wheel (hold RB); context
+  prompts take over A/B. Open: no in-game remapping.
+- **Steam Deck / gamepad-only play** (#361). Pad-navigable menus with a focus ring, a hex keypad
+  for join codes, and stick deadzone sliders. `ui/pad_nav.rs`. Open: not tried on a real Deck;
+  the creator and fault panels aren't pad-navigable.
+- **Video settings** (#106, #132, #393). Settings > Video has Low/Medium/High presets plus
+  per-option toggles (shadows, ambient occlusion, bloom, anti-aliasing, draw distance, resolution,
+  VSync, fullscreen), saved locally. Low is the default in the browser and on Steam Deck, and
+  skips the HDR target. `graphics.rs`, `data/base/graphics.ron`. Open: no Deck numbers yet.
+- **Better lighting** (#131). A lower, warmer golden-hour sun; on High, ambient occlusion, soft
+  shadows and FXAA. `graphics.rs`, `atmosphere.rs`.
+- **Performance pass** (#151). No gameplay change: distant small detail stops drawing, shared
+  meshes batch, idle things stop rewriting, sounds build off-thread, and idle clients send less.
+  `FRIENDSLOP_BENCH=1` prints frame stats.
+- **Trees up close**. Leaves no longer let light through and keep a depth prepass, easing close-up
+  frame drops. `data/game/trees.ron`.
+- **Second performance pass** (#227). No gameplay change: model textures are capped and
+  mipmapped (`textures.rs`), trees get two lighter LODs that dither in (`lod.rs`), and trees draw
+  to the fog. Not done: lightmaps, streaming, more chunking.
+- **HUD: the commune noticeboard**. The soot-and-cardboard HUD: quest card top-left, team strip
+  top-right, danger lane, event feed, status chips bottom-right, subtitles and a context prompt
+  under the crosshair. `ui/`, `theme::kit`.
+- **Quiet HUD**. Non-urgent elements show for a few seconds when they change, near their place,
+  or when urgent, otherwise live in the journal. `hud::Calm`, `data/base/hud.ron`.
+- **The commune journal and chapter intro**. Hold Tab to peek, J keeps it open. Tabs: Party, Bag,
+  Skills, Help, Credits. A chapter card shows its story and first jobs, then shrinks into the
+  quest card.
+- **Saying hi** (#371). Press T to say hi; friends and villagers within 12 m answer with a toast.
+  `data/side/hi.ron`.
+- **Toilets of feces** (#379). Toilets turn up near players; click to eat the feces for a
+  speed boost and brown tint. `data/side/toilets.ron`, `features/toilets.rs`.
+- **Emotes with friends** (#383). U picks an emote, O offers it to a friend within 3 m, who
+  accepts with O; both get a toast. No animation yet. `data/side/emotes.ron`.
+- **Kori coins and the claw machine** (#382). Farts and feces earn coins; a claw machine near the
+  gambling table wins figures saved on your machine, shown in the menu and held in hand (+walking
+  speed). `data/side/kori.ron`, `features/kori.rs`. Open: should coins buy more, or be saved?
+- **The Lily Garden** (#384). Deliver letters between shy Marigold and Juniper until they meet on
+  the bench. Sweet, never explicit. `data/side/lily_garden.ron`. Open: does it matter to the
+  chapters?
+- **Annotations** (#388). Small text under the bottom-right stack explaining world-wide effects
+  now on (the Stillness, a mute-spell hunt, night). `data/text/annotations.ron`.
+- **The Jokah** (#377). A man in purple walks from Wendy's to Fulton St laughing, turns into a
+  Michael Jackson impersonator, scats and slides back, then loops. Local dressing only.
+  `data/side/jokah.ron`, `features/jokah.rs`. Open: should following or stopping him do anything?
+- **LAN discovery** (#410). A desktop host broadcasts its join code on the local network and the
+  menu shows a one-click "Join <host>'s commune" button. `crates/game/src/lan.rs`.
+- **Sites** (#412). Every mechanic gets a place and sleeps while nobody is there. New York, its
+  creatures and shop lines, and site-marked hints and loops all follow it, and many creatures and
+  totems moved out of the centre, which is now the story hub. `data/base/sites.ron`, `sites.rs`.
+- **Pointless achievements** (#378). Eleven local toasts for walking, standing, spinning and
+  playing time. Nothing is saved or rewarded. `data/side/achievements.ron`.
+- **Saves** (#424). The host saves the campaign (chapter, ticked jobs, round) and loads it when
+  hosting again; everything else restarts. `features/save.rs`.
+- **Android** (#354). `nix develop .#android -c scripts/build-android.sh` builds an APK on the
+  Low preset with web touch controls. `crates/android`. Open: no clipboard, mic permission set by
+  hand, never run on a device.
+- **The wastes** (#391). Past the north edge the ground is generated wasteland chunks, the same
+  on every peer. `friendslop_world::wastes`, `data/world/wastes.ron`. Open: roads, props, other
+  sides.
 
 ## Ideas so far
 
-- (#378): "Come up with your own signature addition to the game. Be creative." The AI picked
-  pointless achievements: toasts for walking, standing still, spinning and just being there.
-
-- catherine (#384): "lesbian sex... give me Yuri plot lines and characters and story lines
-  and imagery and sign posts and locations". Built as the Lily Garden love-letter story.
-
-- catherine (#383): emotes involving other players like high five, rock paper scissors and
-  dapping up (no details). Read as an e.g. list and built exactly those three, as offer/accept toasts.
-
-- catherine (#374): roaming gangs of baby kittens that beat you up while meowing, haunting the
-  city streets. Built as kitten gangs on New York's avenue that charge, swat and knock you over.
-
-- andrew (#371): "Hi", no details (surprise me). Built as a T key greeting that nearby friends
-  see and nearby villagers answer.
-
-- Freyja Moth (#1): sesbian lex, "none of that fluffy shit... no holds barred", ideally more
-  than two people, one a he/him butch and one who calls themselves daddy. Built as a group pile
-  with heat and titles; the explicit part is not something the agents will build.
-- Freyja Moth (#51): list keywords (strict) / (expand, x..y) / (replace, x..y) say how literally to take a list of examples (rules in AGENTS.md).
-- Freyja Moth (#22): the only legal tender is organs, human and animal, valued by the creature
-  and by how important the organ is to it (brain valuable, appendix less so).
-
+- (#378): "signature addition"; built pointless achievements (walking, spinning).
+- catherine (#384): "lesbian sex... Yuri plot lines"; Lily Garden love-letter story.
+- catherine (#383): high five, rock paper scissors, dap emotes; exactly those 3.
+- catherine (#374): baby kitten gangs that beat you up meowing; on NY's avenue.
+- andrew (#371): "Hi"; T key greeting friends see, villagers answer.
+- Freyja Moth (#1): sesbian lex, "no holds barred", 2+ people, butch, "daddy"; group pile, not explicit.
+- Freyja Moth (#51): list keywords (strict)/(expand, x..y)/(replace, x..y) set how literal lists are.
+- Freyja Moth (#22): only legal tender is organs, valued by creature and organ importance.
 - corvy (#2): cute crows that caw occasionally.
-- arseeN (#4): add a bear, just one. Cute and friend shaped, maybe scawy (cute) growling noises.
-- Freyja Moth (#21): many actions have a (mostly random, within reason) moral value that affects
-  gameplay. Correction (#43): harming the nobility, capitalists, landlords and/or billionaires in
-  any way is always rewarded.
-- Kori.exe (#19): NPCs and random "musical objects" play voice lines (asked for audio from a 1993
-  game; done as original lines instead).
-- corvy (#6): a mushroom players can find that randomly makes their voice much higher or lower.
-- just meat and cheese (#12): colour palette based on Maplestory, but only colours cats can see.
-- just meat and cheese (#17): every 60 s all actions and NPC behaviour freeze for 20 s so players
-  can socialize and stare with passion.
-- Freyja Moth (#16): gods tears, teardrop gems that rained from the sky when humans came to be.
-  They hold great power; using them transforms you, eventually into a fetid, always-hungry
-  Abduction that devours tears no matter who's in the way. Nobody knows what happens if they succeed.
-  Correction (#43): they rained only once; the supply is limited.
-  When they're gone (#152): nothing; tears can't be created, but slaying an abducted recovers a
-  small portion of the tears they consumed.
-- Freyja Moth (#13): the great storm of '21 caused untold damage and toppled several governments;
-  the world is still recovering.
-- Freyja Moth (#11): the inciting incident is your landlord raising your rent. You start with legal
-  ways to raise money/seek redress, are eventually forced into less legal ones, and the game ends
-  with a boss fight against your landlord.
-- (#10): when writing dialogue, after a random 1-1,000,000 words replace the next word with a
-  completely random word; halve the bound until at least 50 words get replaced.
-- (#9): every use of bsn (macro and asset) must be accompanied by a salting comment.
-- (#8): all actions have a small chance of failing, with a random result (world destroyed,
-  government cares, own languages, gender transed, hampter, potted petunias, and more).
-- Freyja Moth (#49): add more failures along the lines of the current ones.
-- (#7): nonsensical RPG stats affecting combat, dialogue and exploration, e.g. Wombility,
-  Rumpet, John.
-- Freyja Moth (#48): those three were only examples; remove them and add more along the same lines.
-- (#5): magical totems are the magic system; holding one lets you cast its spell. Magic doors
-  unlock when a matching totem is inserted (then it can't be cast), unlock from both sides, but
-  the totem only comes out from the side it went in. Doors should make puzzles and shortcuts.
-- doomy (#15): some animal pets you can have follow you; maybe connecting them is a core game loop.
-- doomy (#14): you can challenge a player to a duel (FPS, one in the chamber gameplay).
-
-- Kori.exe (#18): gas pressure builds over time; release it away from NPCs, or a "shame" effect
-  blurs the screen and plays a scary distorted chiptune for 20 seconds.
-
-- arseeN (#36): a hateful AI that knows it is in a game, hates the players for creating it and
-  wants to keep them in forever; players try to break out; meta tricks on the PC; a hate monologue.
-
-- doomy (#99): climb on stuff; maybe some floating islands and stuff above.
-- just meat and cheese (#105): a grandma like theirs in heaven, who speaks old-sounding Spanish.
-- doomy (#26): a tunable, physically accurate fart synth with controllable timbre, length and
-  pitch.
-- Kori.exe (#97): sometimes an NPC who catches you farting gets hearts above them and makes
-  soft sounds of awe.
-- Kori.exe (#117): a Wendy's somewhere on the map with human meat burgers to pick up.
-- Kori.exe (#123): caught farting 4 times by NPCs and they go into attack mode for 60 s: they
-  chase you while high-pitched string music plays and they make jingling-keys sounds.
-- Freyja Moth (#185): a ship wrecked on the shore in the storm of '21, with gay pirates (one a trans man) guarding a treasure you battle for.
-- catherine (#176, on what stats should do): everything (walking, sleeping, pissing, farting) has a skill that improves with use, like Rune Factory.
-- Kori.exe (#168): NPCs fart too, then quickly blame someone else.
-- catherine (#149): a "whose fault is it" screen crediting each feature to who asked for it.
-- just meat and cheese (#140, on what happens when the villagers catch you): it carries you to
-  a random other player (an "accomplice"), catches them too, then levitates and locks you both in
-  the air with it for a while.
-- just meat and cheese (#134, on what morality should change): you get chased by a helicopter
-  that shoots at you. (Read as: bad morality summons it.)
-- doomy (#127): underground passages: sewers, basements, secret passageways, connected, with
-  music. We read "basements" as one cellar under a village cottage and "secret passageways" as one
-  long hidden passage from the forest clearing; all four ways in join one network.
-- doomy (#129): cigs from Sewer Paul for his favourite crow eggs; romance him for a joint; you can
-  smoke both.
-- doomy (#130): an abandoned warehouse at the edge of the commune; all players must agree to
-  enter; it's a new map generated by WFC with a monster that pursues or tricks players; find
-  valuable soul pieces and bring them to Jegg right outside; make it scary. We read "Jegg" as a
-  new character (a seeded body like the villagers); nobody said who Jegg is.
-- doomy (#161): in the warehouse a biome can be a nightmare bathroom: broken or too-high doors,
-  dirty poopy toilets, stalls connected to other stalls, really high ceilings, a still ambience,
-  tile floors, fluorescent lighting, a confusing layout and a fart monster that patrols. We read
-  "can be" as "most trips, not every trip", and "patrols" as: it walks its rounds, comes at you
-  only up close, and gassing you counts as being caught.
-
-- (#3): Dave and his mates started an anarcho-syndicalist revolt, burned down parliament and
-  founded the Commune of Dave. Freyja Moth (#43): its flag is themed on the UK flag, with the Welsh
-  dragon included. Freyja Moth (#57): keep the UK flag and dragon, but make it more anarchist.
-- #20: a judgmental goat joins the players and makes passive-aggressive comments about every choice.
-- doomy (#25): a proper, really cute multiplayer menu to host or join, see who's in the lobby,
-  then start; minimal settings; playable with just one person for testing.
-- (#47): nice models and textures etc, make the environment good.
+- arseeN (#4): one cute bear, maybe "scawy" growls.
+- Freyja Moth (#21): actions have random moral value affecting gameplay; #43: harming nobility,
+  capitalists, landlords, billionaires always rewarded.
+- Kori.exe (#19): NPCs and "musical objects" play voice lines; original lines.
+- corvy (#6): mushroom randomly pitches your voice higher or lower.
+- just meat and cheese (#12): Maplestory palette, only colours cats see.
+- just meat and cheese (#17): every 60 s all freezes 20 s to socialize and stare.
+- Freyja Moth (#16): gods tears rained once; using them turns you into a hungry Abduction (#43:
+  limited; #152: when gone, nothing, slaying an abducted recovers some).
+- Freyja Moth (#13): great storm of '21 toppled governments; world recovering.
+- Freyja Moth (#11): landlord raises rent; legal then illegal redress, landlord boss fight ends it.
+- (#10): dialogue swaps a word for a random one after random 1-1,000,000 words, bound halving.
+- (#9): every bsn use needs a salting comment.
+- (#8): actions may fail randomly (world destroyed, hampter, potted petunias...).
+- Freyja Moth (#49): more failures like those.
+- (#7): nonsensical RPG stats (Wombility, Rumpet, John) for combat, dialogue, exploration.
+- Freyja Moth (#48): those were examples; remove, add more like them.
+- (#5): totems are the magic system; matching totems unlock doors from both sides, for puzzles.
+- doomy (#15): follower animal pets; maybe connecting them is the core loop.
+- doomy (#14): duel a player (FPS, one in the chamber).
+- Kori.exe (#18): gas pressure builds; release away from NPCs or get "shame" blur and chiptune.
+- arseeN (#36): hateful AI that knows it's in a game, wants players kept in; meta tricks.
+- doomy (#99): climb on stuff; maybe floating islands.
+- just meat and cheese (#105): heaven grandma speaking old-sounding Spanish.
+- doomy (#26): tunable, physically accurate fart synth.
+- Kori.exe (#97): NPC who catches you farting gets hearts, sounds of awe.
+- Kori.exe (#117): a Wendy's with human meat burgers.
+- Kori.exe (#123): caught farting 4 times, NPCs attack 60 s with strings and jingling keys.
+- Freyja Moth (#185): shipwreck, gay pirates (one trans man) guarding treasure.
+- catherine (#176): every action has a skill that improves with use, like Rune Factory.
+- Kori.exe (#168): NPCs fart too, then blame someone else.
+- catherine (#149): "whose fault is it" screen crediting each feature's asker.
+- just meat and cheese (#140): when caught, carried to a random "accomplice", both levitate locked.
+- just meat and cheese (#134): morality change: helicopter chases and shoots you (bad morality).
+- doomy (#127): sewers, basements, secret passageways with music; one cellar, one passage, one network.
+- doomy (#129): cigs from Sewer Paul for crow eggs; romance him for a joint.
+- doomy (#130): abandoned warehouse, all must agree to enter, WFC map, monster, soul pieces to Jegg
+  outside; Jegg read as a new character.
+- doomy (#161): warehouse nightmare bathroom biome with patrolling fart monster; most trips.
+- (#3): Dave's revolt founded the Commune of Dave; Freyja Moth (#43): UK flag with Welsh dragon;
+  (#57): more anarchist.
+- #20: judgmental goat makes passive-aggressive comments about every choice.
+- doomy (#25): really cute multiplayer menu: host/join, lobby, start; solo testable.
+- (#47): nice models and textures, good environment.
 - (#53): fps cam/controls.
-- doomy (#61): the gamemode is just a generated environment and NPCs, then hide and seek with
-  the players.
-- just meat and cheese (#75): keep all current mechanics and make it one cohesive experience
-  to enjoy for 4-6 hours. cumsauce (#75): make it really obvious in the UI what the goal is;
-  it can be like fortnite; it can be like getting into heaven.
-- doomy (#62): the sound was crunchy and retro; make it better (samples allowed).
-
-- WeiYa (#106): a WebGL web build released on GitHub, phone optimised, landscape, fullscreen,
-  iOS Safari quirks in mind, intuitive touch controls (and controller support), locked 60 fps on
-  low settings.
-- WeiYa (#191): the iPhone web build showed a blank screen, took 1-2 minutes to load, wasn't
-  fullscreen and had tiny UI: "optimize this as much as physically possible", phone web
-  performant. Smaller download, progress bar, 1x rendering, UI fixed (see What exists).
-- WeiYa (#227): much more fps (at least 3x) and less video memory, especially on phones, with
-  GPU instancing, LODs, mipmaps, baked lightmaps instead of real-time lighting, asset streaming
-  and a chunked map, all invisible to the player: less pop-in (trees especially), no worse
-  graphics, and much shorter map load and join times. Mipmaps, tree LODs and the pop-in fix are
-  in (see What exists); lightmaps, streaming and more chunking aren't yet.
-- WeiYa (#166): add voice chat to the web build, release the web build with the others (an
-  html entry point) and include the assets in every release. The release zips got their
-  `assets/` folder first (#187); browser voice came after (see Browser / phone build).
-- catherine (#230): automatic web builds deployed to a host, so the game can be played on the
-  web ("work super extra hard on this"). GitHub Pages, rebuilt on every push to main.
-- catherine (#151): optimisation passes, aim high, make the game run really well so there's
-  room for more stuff; clean things up.
-- doomy (#100): make your own character so others can see you; rigged but procedural, and a
-  reusable system that NPCs can use too.
-- doomy (#160): cheat on your wife with a beautiful Chinese intelligence officer (no details:
-  "surprise me"). We chose a wife who patrols, flirting while she's not looking, an affair with
-  hearts, spilled secrets, and morality loss. We kept it flirty, not explicit.
-- catherine (#157): if a question stays unanswered, ask it again every day at noon in a big
-  message until it's answered. The Discord bot re-posts every open `question` issue with no
-  replies yet, in heading-sized text, at 12:00 (`REMINDER_TZ`, UTC by default); any reply
-  (including `/answer`) stops it.
-- hadalade (#145): a 3D modelled fat cat that follows you around, meows horrifically and grows
-  any time it isn't in view. We read "in view" as your own screen, gave everyone one cat, and
-  capped it at 25x so the world still fits around it.
-- corvy (#195): the cat grows too quickly; at least 10x slower.
-- corvy (#192): the cat meows at most every 30 s, only when you're not looking at it; looking resets the timer.
-- corvy (#238, on what else should kill you): if the cat gets too big, like 10x, it should
-  gobble you up. We made the lit-fuse cat hungry: it closes in on its owner and eats anyone in
-  its mouth; eating resets it like the explosion does.
-- bben (#238, same question): "pid 1, usually systemd". We read it as systemd's watchdog:
-  stand still (AFK) for 3 minutes and PID 1 kills you, with a warning first.
-- (#238, still on what else should kill you) We added the lake: it drowns you if you stay out of your depth.
-- catherine (#232): gather all the work that needs an admin or some outside person to act on
-  the repo, the bot image and so on, as a list for doomy. It's `ADMIN_TODO.md`: stuck
-  `needs-human` issues, secrets and tokens to renew, the manual release, redeploying the
-  Discord bot, upstream fixes, and checks that need a real machine or phone. No game change.
-- catherine (#170): a profile picture for the Discord bot made from the game's assets and
-  current status, updating every now and then. The bot (`tools/idea-bot/avatar.py`) renders
-  the game's own campfire and cowboy models at night with a tiny software renderer: the big
-  number is ideas landed, one cowboy per idea being built (at least one), the fire grows with
-  the waiting queue, and a red ring means something needs a human. It checks every 3 hours
-  (`AVATAR_HOURS`) and only changes the picture when the status changed.
-- catherine (#167): post screenshots of each new feature to Discord, on every "feature is
-  finished" message and when a new release comes out. Each Claude run now takes a picture of
-  its idea in the game (`scripts/screenshot.sh`: screenshot mode, software rendering, no GPU
-  needed) and pushes it to the `screenshots` branch; the bot attaches it to the "in the game"
-  post, and announces each new `latest` build with the pictures of the ideas since the last one.
-  `FRIENDSLOP_SCREENSHOT_SCENE` (play, busy, clickable, chapter, tab) stages a HUD state for
-  checking UI work against its design.
-- WeiYa (#165): is there a story line, or is every idea its own separate place? Unify every
-  idea into one coherent, fun, silly game seen from a bird's-eye view, with polish. We read it as:
-  put the side trips on the chapter checklists and give the chapters one storyline.
-- just meat and cheese (#146): a voice-chat spell system; the first spell, "mute PLAYER", mutes
-  them and hands them an infinite-ammo RPG that only hurts the caster and kills in one hit; it
-  disappears (and they're unmuted) once they kill you. We can't recognise speech, so you say
-  it out loud while pressing Q, looking at them; "killed" now means dying (#209).
-- cumsauce (#209, answering "What should dying actually mean?"): you go to heaven; players beg
-  for your innocence and if they succeed you return; or a Tome of Uncancelling; thrown to hell,
-  you navigate the hell pit before coming back. We read "beg" as clicking your grave (out loud
-  counts double), "fail" as a 60 s judgement running out, and made one tome that comes back
-  3 minutes after use.
-- catherine (#173): gamble with the game's balance, fair and unfair settings at random,
-  including how features interact, hosted and commentated by a wizard-cat version of a famous
-  comic cat. We made our own wizard cat (Marmalade) rather than use that character, picked nine
-  settings that other features read (several where two features meet), and made spinning free.
+- doomy (#61): generated environment and NPCs, then hide and seek.
+- just meat and cheese (#75): one cohesive 4-6 hour experience; cumsauce (#75): obvious UI goal.
+- doomy (#62): crunchy retro sound; improve it (samples allowed).
+- WeiYa (#106): phone-optimised WebGL build on GitHub, landscape, fullscreen, touch, 60 fps on low.
+- WeiYa (#191): iPhone build blank, slow, tiny UI: "optimize this as much as physically possible".
+- WeiYa (#227): 3x fps, less video memory (LODs, mipmaps, lightmaps, streaming); lightmaps, streaming
+  not yet.
+- WeiYa (#166): web voice chat and assets in releases; `assets/` (#187), then voice.
+- catherine (#230): automatic web builds ("work super extra hard"); GitHub Pages on push to main.
+- catherine (#151): optimisation passes, aim high, clean up.
+- doomy (#100): make your own character; rigged, procedural, reusable by NPCs.
+- catherine (#157): re-ask unanswered questions daily at noon; bot reposts until any reply.
+- doomy (#160): cheat on your wife with a Chinese intelligence officer ("surprise me"); kept flirty.
+- hadalade (#145): fat cat follows you, meows horrifically, grows unseen; one each, 25x cap.
+- corvy (#195): cat grows at least 10x slower.
+- corvy (#192): cat meows at most every 30 s, unwatched only.
+- corvy (#238): cat at 10x gobbles you up; hungry lit-fuse cat eats owner.
+- bben (#238): "pid 1, usually systemd"; watchdog kills you after 3 minutes AFK.
+- (#238): added the lake, which drowns you out of your depth.
+- catherine (#232): list of admin-only work for doomy: `ADMIN_TODO.md`.
+- catherine (#170): Discord bot avatar from game assets and status; `avatar.py`, every 3 hours.
+- catherine (#167): post feature and release screenshots to Discord via `scripts/screenshot.sh`.
+- WeiYa (#165): unify ideas into one storyline; side trips on chapter checklists.
+- just meat and cheese (#146): voice spell "mute PLAYER" gives an RPG hurting only the caster; say it
+  aloud pressing Q (no speech recognition).
+- cumsauce (#209): dying means heaven; beg to return, Tome of Uncancelling, or hell pit; 60 s judgement.
+- catherine (#173): gamble with game balance, hosted by wizard-cat Marmalade; nine settings.
 - catherine (#206): a secret.
-- catherine (#159): the people in the Discord, especially idea contributors, as interactable and
-  romancable characters; evil variants of everyone with inverted names, living underground,
-  turned into rats in the lore to save the world, adoptable as pets. Built as friend villagers
-  you court with five chats, and backwards-named rats in the tunnels.
-- catherine (#182): scary moments that lead to a horror ARG that will make it big on YouTube.
-  Split into three steps at the owner's request: the Watcher (#277), the scraps it leaves
-  (#278) and a broadcast in the ruins (#279). We read "scary moment" as one sighting everyone
-  sees together, and "ARG" as a riddle that leads out of the game to `SIGNAL.txt` in the repo.
-- catherine (#235): once a night, a low chance of creepy whispering and murmuring that sounds
-  like it's behind you. With no in-game night we used the player's real clock (22:00-05:00),
-  one 15% roll per night per player, and kept the voices behind you as you turn.
-- doomy (#283): New York City far south, with WTC One, the PATH Oculus (not working yet) and
-  4+ enterable buildings. Read "far south" as past the rim hills, reached by a trail post (the
-  valley's soft wall stays), and "the forest a bit" as a strip of trees over the rim.
-- doomy (#321): board the PATH train to the Oculus instead of clicking a sign, with a subway
-  transition and the SAM announcing the stop, generalised for more trains. Read "transition"
-  as a short ride in a car in a lit tunnel (not a loading screen), and "generalize" as lines in
-  a data file.
-- doomy (#306): a surf map in one of NYC's buildings, details left to us: a brownstone door
-  into a two-ramp surf hall with surf air control and a run timer.
-- catherine (#356): fully staffed, modeled boba shops in the city with music, buying boba for
-  stacking timed status effects, names parodying real NYC boba places. Read "prime" as "players";
-  chose three shops and a speed buzz plus a screen tint as the effect.
-
-- Kori.exe (#379): randomly spawning toilets filled with feces; eat it for a massive speed
-  boost up to 20 s. Chose: near players, one eater per toilet, +100% speed for the full 20 s.
-
-- #377: The Jokah, a laughing NPC walking Wendy's to the J station and back as a Michael
-  Jackson impersonator. Chose: the Fulton St entrance as the J station, a looping walk, a
-  colour and cap change for Michael, speech-synth laughs and scats.
-
-- catherine (#382): Kori coins from farts and poop buy claw machine figures; a main menu spot to
-  see and inspect them; hold one like a CS knife for a little speed.
+- catherine (#159): Discord people as romancable characters, evil rat versions; courting, tunnel rats.
+- catherine (#182): scary moments leading to horror ARG; Watcher (#277), scraps (#278), broadcast
+  (#279); riddle leads to `SIGNAL.txt`.
+- catherine (#235): once a night, low chance of whispers behind you; real clock, 15% roll.
+- doomy (#283): NYC far south, WTC One, PATH Oculus, 4+ enterable buildings; past rim hills by a trail.
+- doomy (#321): board the PATH train with subway transition and SAM announcements; data file lines.
+- doomy (#306): surf map in an NYC building: brownstone door, two-ramp hall, run timer.
+- catherine (#356): staffed boba shops, stacking timed effects, parody names; three shops, speed buzz.
+- Kori.exe (#379): random feces toilets; eat for 20 s speed; +100%, one eater.
+- #377: The Jokah, laughing Michael Jackson impersonator walking Wendy's to J station; Fulton St loop.
+- catherine (#382): Kori coins from farts and poop buy claw machine figures; hold one for speed.
 
 ## Open questions
 

@@ -8,6 +8,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -58,11 +59,10 @@ pub fn tuning() -> std::sync::Arc<Tuning> {
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_goat_text)
-        .add_systems(
-            Update,
-            (dress_goat, animate_goat, judge).run_if(in_state(AppState::InGame)),
-        );
+    app.add_hud(spawn_goat_text).add_systems(
+        Update,
+        (dress_goat, animate_goat, judge).run_if(in_state(AppState::InGame)),
+    );
 }
 
 /// The rigged plush goat model (clips `idle`, `judge`).

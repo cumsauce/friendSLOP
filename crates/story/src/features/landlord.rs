@@ -21,6 +21,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -262,7 +263,7 @@ pub fn share_stash<'a>(stash: &mut Vec<Organ>, purses: impl Iterator<Item = &'a 
 pub fn plugin(app: &mut App) {
     app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.add_observer(click_landlord)
-        .add_systems(OnEnter(AppState::InGame), spawn_landlord)
+        .spawn_into("commune", spawn_landlord)
         .add_systems(Update, show_tenancy.run_if(in_state(AppState::InGame)));
 }
 

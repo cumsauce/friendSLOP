@@ -13,6 +13,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -234,7 +235,8 @@ fn take_burger(
 pub fn plugin(app: &mut App) {
     app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.add_observer(click_burger)
-        .add_systems(OnEnter(AppState::InGame), (build_restaurant, spawn_ui))
+        .spawn_into("commune", build_restaurant)
+        .add_hud(spawn_ui)
         .add_systems(
             Update,
             (dress_burgers, show_bag).run_if(in_state(AppState::InGame)),

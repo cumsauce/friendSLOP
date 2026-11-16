@@ -20,6 +20,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -314,7 +315,8 @@ fn smell_perfume(
 pub fn plugin(app: &mut App) {
     app.add_observer(click)
         .add_observer(show_news)
-        .add_systems(OnEnter(AppState::InGame), (spawn_officer, spawn_help))
+        .spawn_into("commune", spawn_officer)
+        .add_hud(spawn_help)
         .add_systems(
             Update,
             (dress_wife, move_wife, hearts, rise).run_if(in_state(AppState::InGame)),

@@ -4,6 +4,7 @@ use crate::voice_chat::VoiceListener;
 use bevy::prelude::*;
 
 use crate::AppState;
+use crate::areas::AreaApp as _;
 use crate::art;
 use crate::net::NetStatus;
 use crate::player::Player;
@@ -13,17 +14,63 @@ pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(AppState::InGame), (spawn_world, spawn_hud))
+        app.add_systems(OnEnter(AppState::InGame), (spawn_camera, spawn_hud))
+            .spawn_into(COMMUNE, spawn_commune)
+            // The ground and the landmarks (friendslop-world doesn't know areas).
+            .spawn_into(
+                COMMUNE,
+                (
+                    crate::terrain::spawn_terrain,
+                    crate::landmarks::dress_pond,
+                    crate::landmarks::dress_campfire,
+                    crate::landmarks::string_lights,
+                    friendslop_world::holes::spawn_linings(|at| {
+                        crate::areas::area_at(at.extend(0.0).xzy()).as_deref() == Some(COMMUNE)
+                    }),
+                ),
+            )
+            // The village's houses, built again on a new world seed.
+            .add_systems(
+                PreUpdate,
+                (|mut commands: Commands,
+                  old: Query<Entity, With<crate::buildings::VillagePart>>,
+                  mut r: ResMut<crate::areas::Refresh>| {
+                    for e in &old {
+                        commands.entity(e).despawn();
+                    }
+                    r.0.insert(VILLAGE);
+                })
+                .before(crate::areas::AreaSet)
+                .run_if(resource_exists_and_changed::<friendslop_core::WorldSeed>),
+            )
+            .spawn_into(
+                "nyc",
+                friendslop_world::holes::spawn_linings(|at| {
+                    crate::areas::area_at(at.extend(0.0).xzy()).as_deref() == Some("nyc")
+                }),
+            )
             .add_systems(
                 Update,
                 update_hud
                     .run_if(in_state(AppState::InGame))
                     .run_if(hud_tick()),
             );
+        crate::areas::spawn_into_refreshed(
+            app,
+            COMMUNE,
+            VILLAGE,
+            crate::buildings::spawn_village.run_if(resource_exists::<friendslop_core::WorldSeed>),
+        );
     }
 }
 
-fn spawn_world(mut commands: Commands, assets: Res<AssetServer>) {
+/// [`crate::areas::Refresh`]'s key for the village's houses.
+const VILLAGE: &str = "village";
+
+/// The commune's area id (`data/base/areas.ron`).
+pub const COMMUNE: &str = "commune";
+
+fn spawn_camera(mut commands: Commands) {
     // Sky, sun, fog and post-processing live in `atmosphere.rs`.
     commands.spawn((
         Camera3d::default(),
@@ -32,6 +79,10 @@ fn spawn_world(mut commands: Commands, assets: Res<AssetServer>) {
         crate::camera::CameraRig::default().transform(),
         DespawnOnExit(AppState::InGame),
     ));
+}
+
+/// The commune's map and meadow, when its area loads.
+fn spawn_commune(mut commands: Commands, assets: Res<AssetServer>) {
     // The ground itself lives in `terrain.rs`.
     scatter_ground_detail(&mut commands, &assets);
     // The commune's props and spots, laid out in the modeler (document

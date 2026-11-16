@@ -11,6 +11,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -119,7 +120,7 @@ fn sell(
 pub fn plugin(app: &mut App) {
     app.add_observer(show_news)
         .add_observer(click)
-        .add_systems(OnEnter(AppState::InGame), build);
+        .spawn_into("commune", build);
 }
 
 #[derive(Component)]

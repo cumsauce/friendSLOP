@@ -9,6 +9,7 @@
 use crate::voice_chat::*;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -193,7 +194,7 @@ pub fn plugin(app: &mut App) {
         .add_observer(click_mushroom)
         .add_observer(feel_mushroom)
         .add_systems(Startup, install_pitch_shifter)
-        .add_systems(OnEnter(AppState::InGame), spawn_mushroom_text)
+        .add_hud(spawn_mushroom_text)
         .add_systems(OnExit(AppState::InGame), sober_up)
         .add_systems(
             Update,

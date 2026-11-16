@@ -12,6 +12,7 @@
 use avian3d::prelude::{Collider, RigidBody};
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -338,7 +339,8 @@ pub fn plugin(app: &mut App) {
     app.init_resource::<SpellLog>()
         .add_observer(hear_spell)
         .add_observer(click_totem_or_door)
-        .add_systems(OnEnter(AppState::InGame), (build_vault, spawn_totem_hud))
+        .spawn_into("commune", build_vault)
+        .add_hud(spawn_totem_hud)
         .add_systems(
             Update,
             (

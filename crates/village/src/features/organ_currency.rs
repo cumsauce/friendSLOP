@@ -8,6 +8,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -158,13 +159,12 @@ fn give_starting_purse(
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_purse_hud)
-        .add_systems(
-            Update,
-            update_purse_hud
-                .run_if(crate::world::hud_tick())
-                .run_if(in_state(AppState::InGame)),
-        );
+    app.add_hud(spawn_purse_hud).add_systems(
+        Update,
+        update_purse_hud
+            .run_if(crate::world::hud_tick())
+            .run_if(in_state(AppState::InGame)),
+    );
 }
 
 #[derive(Component)]

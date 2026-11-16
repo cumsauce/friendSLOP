@@ -5,6 +5,7 @@
 //! from the clock (no per-frame network traffic). A growl is a little rear-up,
 //! a "grrr~" line of text and a tiny procedurally generated growl sound.
 
+use crate::areas::AreaApp as _;
 use std::sync::Arc;
 
 use bevy::audio::AudioSource;
@@ -38,21 +39,19 @@ fn spawn_bear(mut commands: Commands) {
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(
-        OnEnter(AppState::InGame),
-        (spawn_growl_text, load_growl_sound),
-    )
-    .add_systems(
-        Update,
-        (
-            dress_bear,
-            animate_bear,
-            // Its walk follows the shared clock, so it never jumps on
-            // waking; only its growl sleeps with the clearing (#412).
-            growl.run_if(crate::sites::here("bear")),
-        )
-            .run_if(in_state(AppState::InGame)),
-    );
+    app.add_hud(spawn_growl_text)
+        .add_systems(Startup, load_growl_sound)
+        .add_systems(
+            Update,
+            (
+                dress_bear,
+                animate_bear,
+                // Its walk follows the shared clock, so it never jumps on
+                // waking; only its growl sleeps with the clearing (#412).
+                growl.run_if(crate::sites::here("bear")),
+            )
+                .run_if(in_state(AppState::InGame)),
+        );
 }
 
 /// Tuning numbers: `assets/data/base/bear.ron` (read at run time, edit without a rebuild).

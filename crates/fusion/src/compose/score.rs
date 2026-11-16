@@ -168,6 +168,9 @@ pub struct PartFile {
     /// Where it plays (the feel's register for it if not given).
     #[serde(default)]
     pub register: Option<(u8, u8)>,
+    /// Automation lanes on its instrument (see `crate::auto`).
+    #[serde(default)]
+    pub auto: Vec<crate::auto::AutoFile>,
 }
 
 // --- Parts, resolved --------------------------------------------------------
@@ -233,6 +236,7 @@ pub(super) struct Part {
     pub(super) when: Vec<When>,
     pub(super) intensity: (f32, f32),
     pub(super) register: (u8, u8),
+    pub(super) auto: Vec<crate::auto::AutoFile>,
 }
 
 impl Part {
@@ -692,6 +696,7 @@ fn resolve(
         when: p.when.clone(),
         intensity: p.intensity.unwrap_or((0.0, 1.0)),
         register,
+        auto: p.auto.clone(),
     })
 }
 
@@ -707,6 +712,7 @@ fn part(play: Gen) -> PartFile {
         bus: None,
         layer: Some(Vec::new()),
         register: None,
+        auto: Vec::new(),
     }
 }
 
@@ -1183,6 +1189,19 @@ mod score_file {
                     .chain(s.perc.iter().copied())
                 {
                     inst(m, i);
+                }
+                for part in s.parts.iter().flatten() {
+                    for l in &part.auto {
+                        let Some(i) = part.inst else {
+                            panic!("{m:?}: an auto lane on a part with no inst");
+                        };
+                        let Some(spec) = table.get(i) else { continue };
+                        assert!(
+                            crate::synth::automatable(&spec.engine, &l.param),
+                            "{m:?}: {i:?} has no setting {:?} to automate",
+                            l.param
+                        );
+                    }
                 }
                 for p in [&s.a, &s.b, &s.hook] {
                     assert!(

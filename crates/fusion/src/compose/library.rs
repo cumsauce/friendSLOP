@@ -52,6 +52,8 @@ pub struct When {
     pub at_least: Option<f32>,
     pub below: Option<f32>,
     pub every: Option<(u16, u16)>,
+    /// The bar in the section has `bar % n < k` (the other half of `every`).
+    pub before: Option<(u16, u16)>,
     pub from_bar: Option<u16>,
     pub lead: Option<bool>,
     pub urgent: Option<bool>,
@@ -75,6 +77,7 @@ impl When {
             && self.at_least.is_none_or(|a| c.intensity >= a)
             && self.below.is_none_or(|b| c.intensity < b)
             && self.every.is_none_or(|(n, k)| c.bar % n.max(1) >= k)
+            && self.before.is_none_or(|(n, k)| c.bar % n.max(1) < k)
             && self.from_bar.is_none_or(|b| c.bar >= b)
             && self.lead.is_none_or(|l| l == c.lead)
             && self.urgent.is_none_or(|u| u == c.urgent)

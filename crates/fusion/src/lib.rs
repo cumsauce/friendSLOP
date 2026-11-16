@@ -16,6 +16,7 @@
 //! The game (`friendslop::features::fusion`) only wraps [`engine::Engine`]
 //! in a Bevy audio source and feeds it a mood.
 
+pub mod auto;
 pub mod compose;
 pub mod direct;
 pub mod drums;

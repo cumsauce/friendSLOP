@@ -55,6 +55,11 @@ pub struct Tuning {
     pub fast_scale: f32,
     /// How many samples ambient occlusion takes per pixel.
     pub ssao_quality: SsaoQuality,
+    /// How far (meters, in view space) ambient occlusion looks for occluders.
+    pub ssao_radius: f32,
+    /// How thick an occluder is assumed to be (meters): rays further behind
+    /// it than this pass, closer ones are blocked.
+    pub ssao_thickness: f32,
     /// Desktop: the most pixels (millions) the world is ever rendered at.
     /// A bigger window is rendered at this many and stretched. 0 = no cap.
     pub max_megapixels: f32,
@@ -638,9 +643,14 @@ fn apply_camera(
     mut commands: Commands,
     q: Res<GraphicsQuality>,
     mut cameras: Query<(Entity, &mut Projection, Ref<MainCamera>), With<MainCamera>>,
+    mut last: Local<Option<std::sync::Arc<Tuning>>>,
 ) {
+    // The tuning file applies live, like the settings.
+    let t = TUNING.get();
+    let tuned = !last.as_ref().is_some_and(|l| std::sync::Arc::ptr_eq(l, &t));
+    *last = Some(t.clone());
     for (e, mut projection, cam) in &mut cameras {
-        if !q.is_changed() && !cam.is_added() {
+        if !q.is_changed() && !cam.is_added() && !tuned {
             continue;
         }
         let mut c = commands.entity(e);
@@ -665,8 +675,9 @@ fn apply_camera(
             // 2560x1440 in the forest; Low takes 1.4 and its blur hides the
             // difference.
             c.insert(ScreenSpaceAmbientOcclusion {
-                quality_level: TUNING.get().ssao_quality.level(),
-                ..default()
+                quality_level: t.ssao_quality.level(),
+                radius: t.ssao_radius.max(0.01),
+                constant_object_thickness: t.ssao_thickness.max(0.01),
             });
         } else {
             c.remove::<ScreenSpaceAmbientOcclusion>();

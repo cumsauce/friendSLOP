@@ -173,6 +173,18 @@
     // way round; where there isn't it becomes a squeeze instead), the chance
     // it's a squeeze (rubble heaps either side), and a squeeze's gap (m).
     collapse: (blocked: 0.07, squeeze: 0.02, gap: 1.4),
+    // Cars left standing on the platforms' tracks (10 ft B Division cars,
+    // their floors level with the platform): the chance of one on each
+    // straight run of three platform cells, and which, by weight. `open`
+    // ones have their platform-side doors open and you can walk through.
+    trains: (
+        chance: 0.6,
+        cars: [
+            (model: "features/fs_train_stopped.gltf", weight: 2.0),
+            (model: "features/fs_train_dead.gltf", weight: 1.5),
+            (model: "features/fs_train_open.gltf", weight: 1.5, open: true),
+        ],
+    ),
     // The reward for reaching the J: this much Pelf (the stats' wealth, max 10).
     reward_pelf: 3,
     // Toasts.

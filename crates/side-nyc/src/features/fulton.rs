@@ -109,6 +109,9 @@ pub struct Tuning {
     /// Caved-in corridors: rubble you can't pass, or a squeeze.
     #[serde(default)]
     pub collapse: Collapse,
+    /// Cars left standing on the platforms' tracks.
+    #[serde(default)]
+    pub trains: Trains,
     /// Pelf for reaching the J.
     pub reward_pelf: u8,
     /// Toast on entering.
@@ -214,6 +217,28 @@ pub struct Collapse {
     pub squeeze: f32,
     /// A squeeze's gap (m).
     pub gap: f32,
+}
+
+/// Cars left standing on the tracks (models 18 m long along x, 3.05 m
+/// wide, wheels on the rails at y = 0, their +z side the platform side).
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct Trains {
+    /// The chance of a car on each straight run of three platform cells.
+    pub chance: f32,
+    /// Which car, by weight.
+    pub cars: Vec<TrainCar>,
+}
+
+/// One kind of standing car.
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct TrainCar {
+    /// Under `assets/models/`.
+    pub model: String,
+    pub weight: f32,
+    /// Its doors on the platform side are open and you can walk through it
+    /// (floor 1.1 m up, level with the platform); otherwise it's solid.
+    #[serde(default)]
+    pub open: bool,
 }
 
 /// What a big room is for, and what's in it.
@@ -357,18 +382,25 @@ pub struct Piece {
     pub track: Vec<Side>,
 }
 
-/// How far the track bed lies below the platform (m).
-pub const TRACK_DROP: f32 = 1.2;
+/// How far the track bed lies below the platform (m): the rails' tops are
+/// 1.1 m down, so a car's floor is level with the platform, as in New York.
+pub const TRACK_DROP: f32 = 1.38;
 /// The platform's edge (its own frame, +z): the deck is N of it, the bed S.
-pub const PLATFORM_EDGE_Z: f32 = 0.45;
+/// The bed (3.4 m) takes a 10 ft (3.05 m) B Division car like the J's, with
+/// a 10 cm gap at the platform and room by the far wall.
+pub const PLATFORM_EDGE_Z: f32 = -0.6;
+/// Where a car on the track stands (own frame): its middle, across, and
+/// the rails' tops (the car models' y = 0).
+pub const CAR_Z: f32 = 1.025;
+pub const RAIL_TOP: f32 = -1.1;
 /// The steps down to the track at a platform's tunnel end (its own frame):
 /// across x, and from the deck (-z, high) down to the bed at the edge.
 pub const TRACK_STEPS_X: (f32, f32) = (0.6, 2.4);
-pub const TRACK_STEPS_Z: f32 = -1.2;
+pub const TRACK_STEPS_Z: f32 = -2.25;
 /// Where a tunnel end's platform stops (own frame, x): the tunnel is W of it.
 pub const TUNNEL_PORTAL_X: f32 = -1.2;
 /// The columns on a platform (own frame, x, z).
-pub const COLUMNS: [(f32, f32); 2] = [(-1.5, -0.4), (1.5, -0.4)];
+pub const COLUMNS: [(f32, f32); 2] = [(-1.5, -1.5), (1.5, -1.5)];
 
 /// Where a hiding piece's hiding spot is, in its own frame (inside the middle locker).
 pub const HIDE_AT: Vec3 = Vec3::new(0.0, 0.0, 2.48);
@@ -1451,8 +1483,13 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
                 Kind::Platform => {
                     // The track and the waiting train: keep off.
                     out.push(Block {
-                        centre: at + r * Vec3::new(0.0, ROOM_H / 2.0 - 1.2, 1.775),
-                        size: Vec3::new(CELL, ROOM_H + 2.4, 2.45),
+                        centre: at
+                            + r * Vec3::new(
+                                0.0,
+                                ROOM_H / 2.0 - 1.2,
+                                (PLATFORM_EDGE_Z + CELL / 2.0) / 2.0,
+                            ),
+                        size: Vec3::new(CELL, ROOM_H + 2.4, CELL / 2.0 - PLATFORM_EDGE_Z),
                         rotation: r,
                     });
                 }
@@ -1466,6 +1503,7 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
             .chain(corridor_dressing(t, &TILES.get(), li, level))
             .filter_map(|d| d.block),
     );
+    out.extend(parked_cars(t, li, level).into_iter().flat_map(|c| c.blocks));
     out.extend(shapes(t, li, level).into_iter().filter_map(|s| s.block));
     for at in room_columns(t, li, level) {
         out.push(Block {
@@ -1705,6 +1743,177 @@ fn dress_cell(
             }
         }
     }
+}
+
+/// A car standing on a platform's track, and its colliders.
+#[derive(Clone, Debug, PartialEq)]
+pub struct ParkedCar {
+    /// Under `assets/models/`.
+    pub model: String,
+    pub transform: Transform,
+    pub blocks: Vec<Block>,
+}
+
+/// A car's length (m, along its x) and half its width.
+const CAR_LEN: f32 = 18.9;
+const CAR_HALF_W: f32 = 1.525;
+/// An open car: its floor's top and its roof's underside (above the rails),
+/// its doors' middles along x and their width, and its seats (middle along
+/// x, length).
+const CAR_FLOOR: f32 = 1.1;
+const CAR_ROOF: f32 = 3.3;
+const CAR_DOORS: [f32; 4] = [-6.3, -2.1, 2.1, 6.3];
+const CAR_DOOR_W: f32 = 1.3;
+const CAR_SEATS: [(f32, f32); 5] = [(-7.9, 1.8), (-4.2, 2.8), (0.0, 2.8), (4.2, 2.8), (7.9, 1.8)];
+
+/// The colliders of a car, in its own frame (wheels on the rails at y = 0,
+/// +z the platform side): one solid box, or an open car's floor, roof,
+/// walls (gaps at the doors on +z) and seats.
+pub fn car_blocks(open: bool) -> Vec<Block> {
+    let b = |centre: Vec3, size: Vec3| Block {
+        centre,
+        size,
+        rotation: Quat::IDENTITY,
+    };
+    let (l, w) = (CAR_LEN / 2.0, CAR_HALF_W);
+    if !open {
+        return vec![b(
+            Vec3::new(0.0, 1.875, 0.0),
+            Vec3::new(CAR_LEN, 3.75, 2.0 * w),
+        )];
+    }
+    let wall_h = CAR_ROOF - CAR_FLOOR;
+    let wall_y = (CAR_ROOF + CAR_FLOOR) / 2.0;
+    let mut out = vec![
+        // Floor and underframe, roof.
+        b(
+            Vec3::new(0.0, (0.2 + CAR_FLOOR) / 2.0, 0.0),
+            Vec3::new(CAR_LEN, CAR_FLOOR - 0.2, 2.0 * w),
+        ),
+        b(
+            Vec3::new(0.0, CAR_ROOF + 0.2, 0.0),
+            Vec3::new(CAR_LEN, 0.4, 2.0 * w),
+        ),
+        // The far side (doors shut) and the ends.
+        b(
+            Vec3::new(0.0, wall_y, -w + 0.04),
+            Vec3::new(CAR_LEN, wall_h, 0.08),
+        ),
+        b(
+            Vec3::new(-l + 0.04, wall_y, 0.0),
+            Vec3::new(0.08, wall_h, 2.0 * w),
+        ),
+        b(
+            Vec3::new(l - 0.04, wall_y, 0.0),
+            Vec3::new(0.08, wall_h, 2.0 * w),
+        ),
+    ];
+    // The platform side, between the open doors.
+    let mut from = -l;
+    for d in CAR_DOORS.iter().copied().chain([l + CAR_DOOR_W / 2.0]) {
+        let to = (d - CAR_DOOR_W / 2.0).min(l);
+        if to > from {
+            out.push(b(
+                Vec3::new((from + to) / 2.0, wall_y, w - 0.04),
+                Vec3::new(to - from, wall_h, 0.08),
+            ));
+        }
+        from = d + CAR_DOOR_W / 2.0;
+    }
+    for (x, len) in CAR_SEATS {
+        for z in [-1.25, 1.25] {
+            out.push(b(
+                Vec3::new(x, CAR_FLOOR + 0.24, z),
+                Vec3::new(len, 0.48, 0.45),
+            ));
+        }
+    }
+    out
+}
+
+/// The cars standing on level `li`'s tracks: on each platform (a straight
+/// run of at least three track cells, tunnel ends included) with
+/// `trains.chance`, as many as fit end to end, centred on it, on the rails,
+/// their open sides to the platform. A car's ends reach into the tunnels.
+pub fn parked_cars(t: &Tuning, li: usize, level: &Level) -> Vec<ParkedCar> {
+    let mut out = Vec::new();
+    let total: f32 = t.trains.cars.iter().map(|c| c.weight.max(0.0)).sum();
+    if total <= 0.0 || t.trains.chance <= 0.0 {
+        return out;
+    }
+    for axis_x in [true, false] {
+        let along = if axis_x {
+            bit(wfc::Side::East) | bit(wfc::Side::West)
+        } else {
+            bit(wfc::Side::North) | bit(wfc::Side::South)
+        };
+        let (outer, inner) = if axis_x {
+            (level.depth, level.width)
+        } else {
+            (level.width, level.depth)
+        };
+        let cell = |o: usize, i: usize| if axis_x { (i, o) } else { (o, i) };
+        for o in 0..outer {
+            let mut i = 0;
+            while i < inner {
+                let f = level.fill(cell(o, i));
+                if f.track == 0 || f.track & !along != 0 {
+                    i += 1;
+                    continue;
+                }
+                // The run of track cells along this axis, turned the same way.
+                let start = i;
+                while i < inner && {
+                    let g = level.fill(cell(o, i));
+                    g.track != 0 && g.track & !along == 0 && g.turns == f.turns
+                } {
+                    i += 1;
+                }
+                let len = i - start;
+                if len < 3 {
+                    continue;
+                }
+                let key = 2 << 20 | (o * inner + start);
+                if dress_roll(t, [li, key, 0, 0]) >= t.trains.chance {
+                    continue;
+                }
+                let r = f.rotation();
+                // The deck is the piece's -z side: a car turns its +z to it.
+                let turn = r * Quat::from_rotation_y(std::f32::consts::PI);
+                let first = cell_world(t, li, cell(o, start));
+                let last = cell_world(t, li, cell(o, i - 1));
+                let n = (len / 3).max(1);
+                for k in 0..n {
+                    let mut pick = dress_roll(t, [li, key, 1, k]) * total;
+                    let Some(car) = t.trains.cars.iter().find(|c| {
+                        pick -= c.weight.max(0.0);
+                        pick < 0.0
+                    }) else {
+                        continue;
+                    };
+                    let mid = first.lerp(
+                        last,
+                        (k as f32 + 0.5) / n as f32 * (len as f32) / (len as f32 - 1.0)
+                            - 0.5 / (len as f32 - 1.0),
+                    );
+                    let at = mid + r * Vec3::new(0.0, RAIL_TOP, CAR_Z);
+                    out.push(ParkedCar {
+                        model: car.model.clone(),
+                        transform: Transform::from_translation(at).with_rotation(turn),
+                        blocks: car_blocks(car.open)
+                            .into_iter()
+                            .map(|bl| Block {
+                                centre: at + turn * bl.centre,
+                                size: bl.size,
+                                rotation: turn * bl.rotation,
+                            })
+                            .collect(),
+                    });
+                }
+            }
+        }
+    }
+    out
 }
 
 /// What a [`Shape`] is drawn with (the room kit's tall-room and rubble pieces).
@@ -2854,6 +3063,16 @@ fn stream_levels(
                 ChildOf(root),
             ));
         }
+        for car in parked_cars(&t, li, level) {
+            commands.spawn((
+                WorldAssetRoot(
+                    assets
+                        .load(GltfAssetLabel::Scene(0).from_asset(format!("models/{}", car.model))),
+                ),
+                car.transform,
+                ChildOf(root),
+            ));
+        }
         if !set.room.column.is_empty() {
             for at in room_columns(&t, li, level) {
                 commands.spawn((
@@ -3485,6 +3704,45 @@ mod tests {
         for k in &t.rooms.kinds {
             assert!(seen.contains_key(&k.name), "no {} in {seen:?}", k.name);
         }
+    }
+
+    #[test]
+    fn parked_cars_stand_on_the_track_clear_of_the_platform() {
+        let (t, set) = data();
+        let levels = generate(&t, &set);
+        let mut n = 0;
+        for (li, l) in levels.iter().enumerate() {
+            let cars = parked_cars(&t, li, l);
+            assert_eq!(cars, parked_cars(&t, li, l));
+            for c in &cars {
+                n += 1;
+                // Back in the middle cell's own frame: on the rails, and every
+                // collider beyond the platform's edge (the gap included).
+                let o = cell_world(&t, li, (0, 0));
+                let p = c.transform.translation;
+                let cell = (
+                    ((p.x - o.x) / CELL).round() as usize,
+                    ((p.z - o.z) / CELL).round() as usize,
+                );
+                let f = l.fill(cell);
+                let inv = f.rotation().inverse();
+                let local = inv * (p - cell_world(&t, li, cell));
+                assert!(
+                    (local.y - RAIL_TOP).abs() < 1e-3 && (local.z - CAR_Z).abs() < 1e-3,
+                    "{local}"
+                );
+                for b in &c.blocks {
+                    let lb = inv * (b.centre - cell_world(&t, li, cell));
+                    let half = (inv * b.rotation * b.size).abs() / 2.0;
+                    assert!(lb.z - half.z >= PLATFORM_EDGE_Z + 0.05, "{lb} {half}");
+                    assert!(
+                        lb.z + half.z <= CELL / 2.0 - 0.2,
+                        "into the far wall: {lb} {half}"
+                    );
+                }
+            }
+        }
+        assert!(n > 0, "no cars anywhere");
     }
 
     #[test]

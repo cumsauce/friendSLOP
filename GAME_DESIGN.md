@@ -445,6 +445,7 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   now on (the Stillness, a mute-spell hunt, night). `data/text/annotations.ron`.
 - **The Jokah** (#377). A man in purple walks from Wendy's to Fulton St laughing, turns into a
   Michael Jackson impersonator, scats and slides back, then loops. Local dressing only.
+  His own rigged models (purple tailcoat and orange hair; black suit and fedora as Michael).
   `data/side/jokah.ron`, `features/jokah.rs`. Open: should following or stopping him do anything?
 - **LAN discovery** (#410). A desktop host broadcasts its join code on the local network and the
   menu shows a one-click "Join <host>'s commune" button. `crates/game/src/lan.rs`.

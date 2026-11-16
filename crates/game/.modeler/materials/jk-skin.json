@@ -1,0 +1,88 @@
+{
+  "name": "jk-skin",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.25,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 379,
+      "size": 0.08,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#e3d2c6"
+        ],
+        [
+          1,
+          "#f1e6dc"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.65,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "jk-skin",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 379,
+              "size": 0.08,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#e3d2c6"
+                ],
+                [
+                  1,
+                  "#f1e6dc"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.65,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

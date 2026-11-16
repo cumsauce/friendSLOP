@@ -1,0 +1,644 @@
+{
+  "name": "jk-face",
+  "format_version": 1,
+  "domain": "object",
+  "tile": 1.0,
+  "resolution": 2048,
+  "nodes": [
+    {
+      "name": "pos",
+      "of": "position",
+      "type": "input"
+    },
+    {
+      "input": "pos",
+      "name": "p",
+      "type": "split"
+    },
+    {
+      "name": "flat",
+      "type": "combine",
+      "x": "p.x",
+      "y": "p.y"
+    },
+    {
+      "a": "p.z",
+      "b": 0.03,
+      "c": 0.05,
+      "name": "front",
+      "op": "smoothstep",
+      "type": "math"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 379,
+      "size": 0.08,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "skin",
+      "stops": [
+        [
+          0,
+          "#e3d2c6"
+        ],
+        [
+          1,
+          "#f1e6dc"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "center": [
+        0.037,
+        1.703
+      ],
+      "coords": "flat",
+      "name": "eye_l",
+      "radius": 0.021,
+      "type": "circle"
+    },
+    {
+      "center": [
+        -0.037,
+        1.703
+      ],
+      "coords": "flat",
+      "name": "eye_r",
+      "radius": 0.021,
+      "type": "circle"
+    },
+    {
+      "a": "eye_l",
+      "b": "eye_r",
+      "name": "eyes",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "mode": "fill",
+      "name": "eye_m",
+      "sdf": "eyes",
+      "type": "mask"
+    },
+    {
+      "mode": "stroke",
+      "name": "eye_line",
+      "sdf": "eyes",
+      "type": "mask",
+      "width": 0.005
+    },
+    {
+      "center": [
+        0.033,
+        1.701
+      ],
+      "coords": "flat",
+      "name": "pup_l",
+      "radius": 0.0085,
+      "type": "circle"
+    },
+    {
+      "center": [
+        -0.033,
+        1.701
+      ],
+      "coords": "flat",
+      "name": "pup_r",
+      "radius": 0.0085,
+      "type": "circle"
+    },
+    {
+      "a": "pup_l",
+      "b": "pup_r",
+      "name": "pups",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "mode": "fill",
+      "name": "pup_m",
+      "sdf": "pups",
+      "type": "mask"
+    },
+    {
+      "a": [
+        0.012,
+        1.728
+      ],
+      "b": [
+        0.042,
+        1.745
+      ],
+      "coords": "flat",
+      "name": "brow_l1",
+      "type": "segment",
+      "width": 0.012
+    },
+    {
+      "a": [
+        0.042,
+        1.745
+      ],
+      "b": [
+        0.07,
+        1.737
+      ],
+      "coords": "flat",
+      "name": "brow_l2",
+      "type": "segment",
+      "width": 0.008
+    },
+    {
+      "a": [
+        -0.012,
+        1.728
+      ],
+      "b": [
+        -0.042,
+        1.745
+      ],
+      "coords": "flat",
+      "name": "brow_r1",
+      "type": "segment",
+      "width": 0.012
+    },
+    {
+      "a": [
+        -0.042,
+        1.745
+      ],
+      "b": [
+        -0.07,
+        1.737
+      ],
+      "coords": "flat",
+      "name": "brow_r2",
+      "type": "segment",
+      "width": 0.008
+    },
+    {
+      "a": "brow_l1",
+      "b": "brow_l2",
+      "name": "brow_a",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "brow_r1",
+      "b": "brow_r2",
+      "name": "brow_b",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "brow_a",
+      "b": "brow_b",
+      "name": "brows",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "mode": "fill",
+      "name": "brow_m",
+      "sdf": "brows",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0,
+        1.7
+      ],
+      "coords": "flat",
+      "from": 232,
+      "name": "lips",
+      "radius": 0.1,
+      "to": 308,
+      "type": "arc",
+      "width": 0.034
+    },
+    {
+      "mode": "fill",
+      "name": "lip_m",
+      "sdf": "lips",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0,
+        1.7
+      ],
+      "coords": "flat",
+      "from": 236,
+      "name": "teeth",
+      "radius": 0.099,
+      "to": 304,
+      "type": "arc",
+      "width": 0.013
+    },
+    {
+      "mode": "fill",
+      "name": "teeth_m",
+      "sdf": "teeth",
+      "type": "mask"
+    },
+    {
+      "name": "brow_col",
+      "type": "combine",
+      "x": "$brow_r",
+      "y": "$brow_g",
+      "z": "$brow_b"
+    },
+    {
+      "a": "skin",
+      "b": "#b3121f",
+      "name": "c1",
+      "opacity": "lip_m",
+      "type": "blend"
+    },
+    {
+      "a": "c1",
+      "b": "#f3f0e6",
+      "name": "c2",
+      "opacity": "teeth_m",
+      "type": "blend"
+    },
+    {
+      "a": "c2",
+      "b": "#17171c",
+      "name": "c3",
+      "opacity": "eye_line",
+      "type": "blend"
+    },
+    {
+      "a": "c3",
+      "b": "#f6f4ec",
+      "name": "c4",
+      "opacity": "eye_m",
+      "type": "blend"
+    },
+    {
+      "a": "c4",
+      "b": "#121216",
+      "name": "c5",
+      "opacity": "pup_m",
+      "type": "blend"
+    },
+    {
+      "a": "c5",
+      "b": "brow_col",
+      "name": "c6",
+      "opacity": "brow_m",
+      "type": "blend"
+    },
+    {
+      "a": "skin",
+      "b": "c6",
+      "name": "col",
+      "opacity": "front",
+      "type": "blend"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {
+    "brow_b": 0.07,
+    "brow_g": 0.3,
+    "brow_r": 0.8
+  },
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "jk-face",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 2048,
+          "nodes": [
+            {
+              "name": "pos",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "input": "pos",
+              "name": "p",
+              "type": "split"
+            },
+            {
+              "name": "flat",
+              "type": "combine",
+              "x": "p.x",
+              "y": "p.y"
+            },
+            {
+              "a": "p.z",
+              "b": 0.03,
+              "c": 0.05,
+              "name": "front",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 379,
+              "size": 0.08,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "skin",
+              "stops": [
+                [
+                  0,
+                  "#e3d2c6"
+                ],
+                [
+                  1,
+                  "#f1e6dc"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "center": [
+                0.037,
+                1.703
+              ],
+              "coords": "flat",
+              "name": "eye_l",
+              "radius": 0.021,
+              "type": "circle"
+            },
+            {
+              "center": [
+                -0.037,
+                1.703
+              ],
+              "coords": "flat",
+              "name": "eye_r",
+              "radius": 0.021,
+              "type": "circle"
+            },
+            {
+              "a": "eye_l",
+              "b": "eye_r",
+              "name": "eyes",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "mode": "fill",
+              "name": "eye_m",
+              "sdf": "eyes",
+              "type": "mask"
+            },
+            {
+              "mode": "stroke",
+              "name": "eye_line",
+              "sdf": "eyes",
+              "type": "mask",
+              "width": 0.005
+            },
+            {
+              "center": [
+                0.033,
+                1.701
+              ],
+              "coords": "flat",
+              "name": "pup_l",
+              "radius": 0.0085,
+              "type": "circle"
+            },
+            {
+              "center": [
+                -0.033,
+                1.701
+              ],
+              "coords": "flat",
+              "name": "pup_r",
+              "radius": 0.0085,
+              "type": "circle"
+            },
+            {
+              "a": "pup_l",
+              "b": "pup_r",
+              "name": "pups",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "mode": "fill",
+              "name": "pup_m",
+              "sdf": "pups",
+              "type": "mask"
+            },
+            {
+              "a": [
+                0.012,
+                1.728
+              ],
+              "b": [
+                0.042,
+                1.745
+              ],
+              "coords": "flat",
+              "name": "brow_l1",
+              "type": "segment",
+              "width": 0.012
+            },
+            {
+              "a": [
+                0.042,
+                1.745
+              ],
+              "b": [
+                0.07,
+                1.737
+              ],
+              "coords": "flat",
+              "name": "brow_l2",
+              "type": "segment",
+              "width": 0.008
+            },
+            {
+              "a": [
+                -0.012,
+                1.728
+              ],
+              "b": [
+                -0.042,
+                1.745
+              ],
+              "coords": "flat",
+              "name": "brow_r1",
+              "type": "segment",
+              "width": 0.012
+            },
+            {
+              "a": [
+                -0.042,
+                1.745
+              ],
+              "b": [
+                -0.07,
+                1.737
+              ],
+              "coords": "flat",
+              "name": "brow_r2",
+              "type": "segment",
+              "width": 0.008
+            },
+            {
+              "a": "brow_l1",
+              "b": "brow_l2",
+              "name": "brow_a",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "brow_r1",
+              "b": "brow_r2",
+              "name": "brow_b",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "brow_a",
+              "b": "brow_b",
+              "name": "brows",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "mode": "fill",
+              "name": "brow_m",
+              "sdf": "brows",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0,
+                1.7
+              ],
+              "coords": "flat",
+              "from": 232,
+              "name": "lips",
+              "radius": 0.1,
+              "to": 308,
+              "type": "arc",
+              "width": 0.034
+            },
+            {
+              "mode": "fill",
+              "name": "lip_m",
+              "sdf": "lips",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0,
+                1.7
+              ],
+              "coords": "flat",
+              "from": 236,
+              "name": "teeth",
+              "radius": 0.099,
+              "to": 304,
+              "type": "arc",
+              "width": 0.013
+            },
+            {
+              "mode": "fill",
+              "name": "teeth_m",
+              "sdf": "teeth",
+              "type": "mask"
+            },
+            {
+              "name": "brow_col",
+              "type": "combine",
+              "x": "$brow_r",
+              "y": "$brow_g",
+              "z": "$brow_b"
+            },
+            {
+              "a": "skin",
+              "b": "#b3121f",
+              "name": "c1",
+              "opacity": "lip_m",
+              "type": "blend"
+            },
+            {
+              "a": "c1",
+              "b": "#f3f0e6",
+              "name": "c2",
+              "opacity": "teeth_m",
+              "type": "blend"
+            },
+            {
+              "a": "c2",
+              "b": "#17171c",
+              "name": "c3",
+              "opacity": "eye_line",
+              "type": "blend"
+            },
+            {
+              "a": "c3",
+              "b": "#f6f4ec",
+              "name": "c4",
+              "opacity": "eye_m",
+              "type": "blend"
+            },
+            {
+              "a": "c4",
+              "b": "#121216",
+              "name": "c5",
+              "opacity": "pup_m",
+              "type": "blend"
+            },
+            {
+              "a": "c5",
+              "b": "brow_col",
+              "name": "c6",
+              "opacity": "brow_m",
+              "type": "blend"
+            },
+            {
+              "a": "skin",
+              "b": "c6",
+              "name": "col",
+              "opacity": "front",
+              "type": "blend"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {
+            "brow_b": 0.07,
+            "brow_g": 0.3,
+            "brow_r": 0.8
+          },
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+pos +p +flat +front +fn +skin +eye_l +eye_r +eyes +eye_m +eye_line +pup_l +pup_r +pups +pup_m +brow_l1 +brow_l2 +brow_r1 +brow_r2 +brow_a +brow_b +brows +brow_m +lips +lip_m +teeth +teeth_m +brow_col +c1 +c2 +c3 +c4 +c5 +c6 +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

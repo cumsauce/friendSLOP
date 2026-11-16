@@ -15,7 +15,11 @@
 //! keeps him around).
 //!
 //! It's local dressing like the street people: every peer runs its own Jokah
-//! from the data file, nothing is replicated, nothing depends on a file.
+//! from the data file, nothing is replicated. He's drawn by two rigged modeler
+//! models (sources `.modeler/prefabs/np-jokah.json` and `np-jokah-mj.json`):
+//! the Jokah in his purple tailcoat and the same man in Michael's black suit
+//! and fedora, each with `idle`, `walk` and `slide` clips. A missing file only
+//! makes him invisible; his walk and his sounds go on.
 
 use bevy::prelude::*;
 use serde::Deserialize;
@@ -65,13 +69,6 @@ pub struct Tuning {
     pub slide_every: (f32, f32),
     pub slide_secs: f32,
     pub slide_speed: f32,
-    /// His clothes, accent and accessory as the Jokah and as Michael.
-    pub jokah_clothes: u8,
-    pub jokah_accent: u8,
-    pub jokah_accessory: u8,
-    pub mj_clothes: u8,
-    pub mj_accent: u8,
-    pub mj_accessory: u8,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -208,18 +205,33 @@ pub fn slide_dir(h: u32, heading: Vec2) -> Vec2 {
     }
 }
 
-/// His look in a mode.
-pub fn look(t: &Tuning, mode: Mode) -> crate::people::CharacterLook {
-    let mut l = crate::people::CharacterLook::random(0x0377_0001);
-    l.body = 0;
-    let (clothes, accent, accessory) = match mode {
-        Mode::Jokah => (t.jokah_clothes, t.jokah_accent, t.jokah_accessory),
-        Mode::Michael => (t.mj_clothes, t.mj_accent, t.mj_accessory),
-    };
-    l.clothes = clothes;
-    l.accent = accent;
-    l.accessory = accessory;
-    l
+/// His model as the Jokah: purple tailcoat, orange hair, a wide grin.
+pub const JOKAH_MODEL: &str = "models/creatures/jokah.gltf";
+/// The same man as Michael: black suit, fedora, one white glove.
+pub const MICHAEL_MODEL: &str = "models/creatures/jokah_michael.gltf";
+/// The ground the models' `walk` clip covers at speed 1 (m/s): the clip is
+/// played faster or slower so his feet keep up with how fast he's walking.
+const WALK_CLIP_SPEED: f32 = 1.37;
+
+/// The model he wears in a mode.
+pub fn model(mode: Mode) -> &'static str {
+    match mode {
+        Mode::Jokah => JOKAH_MODEL,
+        Mode::Michael => MICHAEL_MODEL,
+    }
+}
+
+/// The clip he plays: `slide` while sliding, `idle` (laughing where he
+/// stands) while waiting at an end, else `walk` paced to `speed` (m/s).
+pub fn clip(waiting: bool, sliding: bool, speed: f32) -> crate::rigged::RigClip {
+    use crate::rigged::RigClip;
+    if sliding {
+        RigClip::looping("slide")
+    } else if waiting {
+        RigClip::looping("idle")
+    } else {
+        RigClip::looping("walk").speed(speed / WALK_CLIP_SPEED)
+    }
 }
 
 /// The Jokah himself (local): where he is on his walk. He walks between
@@ -293,42 +305,41 @@ fn start(mut commands: Commands) {
     });
 }
 
-/// His body, in the area he's in (and the look it wears).
+/// His body, in the area he's in (and the mode whose model it wears).
 #[derive(Component)]
 struct Body {
     area: String,
     mode: Mode,
 }
 
-/// Local: draw him where he is, while the area he's in shows.
+/// Local: draw him where he is, while the area he's in shows. Changing mode
+/// (or area) drops the body and the next frame makes one with the new model.
 fn body(
     mut commands: Commands,
     j: Res<Jokah>,
     loaded: Res<friendslop_base::areas::Loaded>,
-    mut bodies: Query<(
-        Entity,
-        &mut Body,
-        &mut Transform,
-        &mut crate::people::CharacterLook,
-    )>,
+    mut bodies: Query<(Entity, &Body, &mut Transform, &mut crate::rigged::RigClip)>,
 ) {
     let Some(area) = friendslop_base::areas::nearest_area(ground(j.pos)) else {
         return;
     };
+    let t = tuning();
     let at = Transform::from_translation(ground(j.pos))
         .with_rotation(Quat::from_rotation_y(j.heading.x.atan2(j.heading.y)));
+    let speed = match j.walk.mode {
+        Mode::Jokah => t.walk_speed,
+        Mode::Michael => t.mj_speed,
+    };
+    let playing = clip(j.walk.wait > 0.0, j.sliding > 0.0, speed);
     let mut have = false;
-    for (e, mut b, mut tf, mut l) in &mut bodies {
-        if b.area != area {
+    for (e, b, mut tf, mut c) in &mut bodies {
+        if b.area != area || b.mode != j.walk.mode {
             commands.entity(e).despawn();
             continue;
         }
         have = true;
         *tf = at;
-        if b.mode != j.walk.mode {
-            b.mode = j.walk.mode;
-            *l = look(&tuning(), b.mode);
-        }
+        c.set_if_neq(playing.clone());
     }
     if !have && loaded.is(&area, friendslop_base::areas::Layer::Show) {
         commands.spawn((
@@ -336,10 +347,12 @@ fn body(
                 area: area.clone(),
                 mode: j.walk.mode,
             },
-            crate::people::Gait::default(),
             at,
             Visibility::default(),
-            look(&tuning(), j.walk.mode),
+            crate::rigged::Rigged {
+                path: model(j.walk.mode),
+            },
+            playing,
             crate::area::show_in(&area),
         ));
     }
@@ -476,11 +489,30 @@ mod tests {
         assert!(t.scat_every.0 > 0.0 && t.scat_every.1 >= t.scat_every.0);
         assert!(t.slide_every.0 > 0.0 && t.slide_every.1 >= t.slide_every.0);
         assert!(t.slide_secs > 0.0 && t.slide_speed > 0.0);
-        assert!(t.jokah_clothes < 12 && t.mj_clothes < 12);
-        assert!(t.jokah_accent < 6 && t.mj_accent < 6);
-        let n = crate::people::ACCESSORIES.len() as u8;
-        assert!(t.jokah_accessory < n && t.mj_accessory < n);
-        assert_ne!(look(&t, Mode::Jokah), look(&t, Mode::Michael));
+    }
+
+    #[test]
+    fn each_mode_has_its_own_model_and_the_files_are_there() {
+        assert_ne!(model(Mode::Jokah), model(Mode::Michael));
+        for mode in [Mode::Jokah, Mode::Michael] {
+            let path = format!(
+                "{}/../game/assets/{}",
+                env!("CARGO_MANIFEST_DIR"),
+                model(mode)
+            );
+            assert!(std::path::Path::new(&path).exists(), "no {path}");
+        }
+    }
+
+    #[test]
+    fn he_slides_idles_or_walks_in_step_with_his_speed() {
+        assert_eq!(clip(false, true, 1.6).name, "slide");
+        assert_eq!(clip(true, true, 1.6).name, "slide");
+        assert_eq!(clip(true, false, 1.3).name, "idle");
+        let slow = clip(false, false, 1.3);
+        let fast = clip(false, false, 1.6);
+        assert_eq!(slow.name, "walk");
+        assert!(fast.speed > slow.speed && slow.speed > 0.5 && fast.speed < 1.5);
     }
 
     fn run(w: &mut Walk, mut pos: Vec2, pts: &[Vec2], secs: f32) -> (Vec2, Vec<Arrived>) {

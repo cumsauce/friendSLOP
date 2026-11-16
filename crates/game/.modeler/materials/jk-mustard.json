@@ -1,0 +1,88 @@
+{
+  "name": "jk-mustard",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.25,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 384,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#c2931a"
+        ],
+        [
+          1,
+          "#e3b730"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.75,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "jk-mustard",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.25,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 384,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#c2931a"
+                ],
+                [
+                  1,
+                  "#e3b730"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.75,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

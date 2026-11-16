@@ -12,6 +12,15 @@
 //            the presence boosts small.
 //   autopan  a suitcase-piano tremolo: (rate Hz, depth).
 //   chorus   (rate Hz, centre ms, depth ms, mix).
+// Every field is optional: one left out is its default (trim 1, no pump, no EQ, effect off).
+//
+// A song can change this mix for itself only: `mix:` in its song file overrides any field
+// of any bus, partially (`mix: { "bass": (pump: 0.6), "pad": (chorus: None) }`); every other
+// field and every other song keeps what's here. Changing songs crossfades the two mixes.
+// A song's `mix_auto:` lanes move these settings over time by name (see moods.ron): trim,
+// pump, eq.<band>.hz / .q / .db (bands count from 0), autopan.rate / .depth, chorus.rate /
+// .centre / .depth / .mix, and on the "master" bus wet / echo (reverb and echo sends, 1 as
+// mixed) and feedback (the echo's repeats, 0.42). A lane on an effect that's off does nothing.
 (
     buses: {
         "drums": (

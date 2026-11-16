@@ -1034,8 +1034,16 @@ fn stop_show(
 
 /// A ride car's tunnel (centre, size), around the car and its passing
 /// lights: two walls, a roof and a bed, long enough to fill every window.
-pub fn tunnel_boxes() -> [(Vec3, Vec3); 4] {
+pub fn tunnel_boxes() -> [(Vec3, Vec3); 6] {
     let (len, half, h) = (120.0, 3.8, 5.0);
+    // Both ends closed: looking down the tunnel shows dark wall, not the
+    // empty clear colour (the passing lights hide that it's a box).
+    let cap = |x: f32| {
+        (
+            Vec3::new(x, h / 2.0 - 0.6, 0.0),
+            Vec3::new(0.3, h + 0.3, half * 2.0 + 0.3),
+        )
+    };
     [
         (Vec3::new(0.0, h / 2.0 - 0.6, half), Vec3::new(len, h, 0.3)),
         (Vec3::new(0.0, h / 2.0 - 0.6, -half), Vec3::new(len, h, 0.3)),
@@ -1044,6 +1052,8 @@ pub fn tunnel_boxes() -> [(Vec3, Vec3); 4] {
             Vec3::new(len, 0.3, half * 2.0),
         ),
         (Vec3::new(0.0, -0.75, 0.0), Vec3::new(len, 0.3, half * 2.0)),
+        cap(len / 2.0),
+        cap(-len / 2.0),
     ]
 }
 

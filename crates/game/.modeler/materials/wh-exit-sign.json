@@ -1,0 +1,142 @@
+{
+  "name": "wh-exit-sign",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        0.8,
+        0.22
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.4,
+        0.11
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "word",
+      "size": 0.13,
+      "text": "EXIT",
+      "type": "text"
+    },
+    {
+      "mode": "fill",
+      "name": "m",
+      "sdf": "word",
+      "type": "mask"
+    },
+    {
+      "a": "#2ee85a",
+      "b": "#f4fff6",
+      "c": "m",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "#1fa83f",
+      "b": "#e8ffe8",
+      "c": "m",
+      "name": "glow",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "glow",
+      "name": "out",
+      "roughness": 0.4,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "wh-exit-sign",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                0.8,
+                0.22
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.4,
+                0.11
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "word",
+              "size": 0.13,
+              "text": "EXIT",
+              "type": "text"
+            },
+            {
+              "mode": "fill",
+              "name": "m",
+              "sdf": "word",
+              "type": "mask"
+            },
+            {
+              "a": "#2ee85a",
+              "b": "#f4fff6",
+              "c": "m",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#1fa83f",
+              "b": "#e8ffe8",
+              "c": "m",
+              "name": "glow",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "glow",
+              "name": "out",
+              "roughness": 0.4,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +word +m +col +glow +out"
+      }
+    ],
+    "current": 0
+  }
+}

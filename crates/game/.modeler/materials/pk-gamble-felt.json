@@ -1,0 +1,552 @@
+{
+  "name": "pk-gamble-felt",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        1.06,
+        1.06
+      ],
+      "type": "transform"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 9,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "felt",
+      "stops": [
+        [
+          0,
+          "#5a3a86"
+        ],
+        [
+          1,
+          "#6a46a0"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "center": [
+        0.53,
+        0.53
+      ],
+      "coords": "c",
+      "name": "r1",
+      "radius": 0.44,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.53,
+        0.53
+      ],
+      "coords": "c",
+      "name": "r1i",
+      "radius": 0.425,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.53,
+        0.53
+      ],
+      "coords": "c",
+      "name": "r2",
+      "radius": 0.2,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.53,
+        0.53
+      ],
+      "coords": "c",
+      "name": "r2i",
+      "radius": 0.19,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.53,
+        0.2
+      ],
+      "coords": "c",
+      "name": "spot_n",
+      "radius": 0.06,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.53,
+        0.86
+      ],
+      "coords": "c",
+      "name": "spot_s",
+      "radius": 0.06,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.86,
+        0.53
+      ],
+      "coords": "c",
+      "name": "spot_e",
+      "radius": 0.06,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.2,
+        0.53
+      ],
+      "coords": "c",
+      "name": "spot_w",
+      "radius": 0.06,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.53,
+        0.53
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "words",
+      "size": 0.045,
+      "text": "PLACE YOUR BETS",
+      "type": "text"
+    },
+    {
+      "name": "m1",
+      "sdf": "r1",
+      "type": "mask"
+    },
+    {
+      "name": "m1i",
+      "sdf": "r1i",
+      "type": "mask"
+    },
+    {
+      "name": "m2",
+      "sdf": "r2",
+      "type": "mask"
+    },
+    {
+      "name": "m2i",
+      "sdf": "r2i",
+      "type": "mask"
+    },
+    {
+      "name": "mn",
+      "sdf": "spot_n",
+      "type": "mask"
+    },
+    {
+      "name": "ms",
+      "sdf": "spot_s",
+      "type": "mask"
+    },
+    {
+      "name": "me",
+      "sdf": "spot_e",
+      "type": "mask"
+    },
+    {
+      "name": "mw",
+      "sdf": "spot_w",
+      "type": "mask"
+    },
+    {
+      "name": "mt",
+      "sdf": "words",
+      "type": "mask"
+    },
+    {
+      "a": "m1",
+      "b": "m1i",
+      "name": "ring1",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "a": "m2",
+      "b": "m2i",
+      "name": "ring2",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "a": "ring1",
+      "b": "ring2",
+      "name": "rings",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "mn",
+      "b": "ms",
+      "name": "sp1",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "me",
+      "b": "mw",
+      "name": "sp2",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "sp1",
+      "b": "sp2",
+      "name": "spots",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "rings",
+      "b": "mt",
+      "name": "gold",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "felt",
+      "b": "#2e1d48",
+      "c": "spots",
+      "name": "c0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c0",
+      "b": "#d4a94a",
+      "c": "gold",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.95,
+      "b": 0.35,
+      "c": "gold",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "gold",
+      "b": 0.8,
+      "name": "met",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "metallic": "met",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pk-gamble-felt",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1.06,
+                1.06
+              ],
+              "type": "transform"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 9,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "felt",
+              "stops": [
+                [
+                  0,
+                  "#5a3a86"
+                ],
+                [
+                  1,
+                  "#6a46a0"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "center": [
+                0.53,
+                0.53
+              ],
+              "coords": "c",
+              "name": "r1",
+              "radius": 0.44,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.53,
+                0.53
+              ],
+              "coords": "c",
+              "name": "r1i",
+              "radius": 0.425,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.53,
+                0.53
+              ],
+              "coords": "c",
+              "name": "r2",
+              "radius": 0.2,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.53,
+                0.53
+              ],
+              "coords": "c",
+              "name": "r2i",
+              "radius": 0.19,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.53,
+                0.2
+              ],
+              "coords": "c",
+              "name": "spot_n",
+              "radius": 0.06,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.53,
+                0.86
+              ],
+              "coords": "c",
+              "name": "spot_s",
+              "radius": 0.06,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.86,
+                0.53
+              ],
+              "coords": "c",
+              "name": "spot_e",
+              "radius": 0.06,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.2,
+                0.53
+              ],
+              "coords": "c",
+              "name": "spot_w",
+              "radius": 0.06,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.53,
+                0.53
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "words",
+              "size": 0.045,
+              "text": "PLACE YOUR BETS",
+              "type": "text"
+            },
+            {
+              "name": "m1",
+              "sdf": "r1",
+              "type": "mask"
+            },
+            {
+              "name": "m1i",
+              "sdf": "r1i",
+              "type": "mask"
+            },
+            {
+              "name": "m2",
+              "sdf": "r2",
+              "type": "mask"
+            },
+            {
+              "name": "m2i",
+              "sdf": "r2i",
+              "type": "mask"
+            },
+            {
+              "name": "mn",
+              "sdf": "spot_n",
+              "type": "mask"
+            },
+            {
+              "name": "ms",
+              "sdf": "spot_s",
+              "type": "mask"
+            },
+            {
+              "name": "me",
+              "sdf": "spot_e",
+              "type": "mask"
+            },
+            {
+              "name": "mw",
+              "sdf": "spot_w",
+              "type": "mask"
+            },
+            {
+              "name": "mt",
+              "sdf": "words",
+              "type": "mask"
+            },
+            {
+              "a": "m1",
+              "b": "m1i",
+              "name": "ring1",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": "m2",
+              "b": "m2i",
+              "name": "ring2",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": "ring1",
+              "b": "ring2",
+              "name": "rings",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "mn",
+              "b": "ms",
+              "name": "sp1",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "me",
+              "b": "mw",
+              "name": "sp2",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "sp1",
+              "b": "sp2",
+              "name": "spots",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "rings",
+              "b": "mt",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "felt",
+              "b": "#2e1d48",
+              "c": "spots",
+              "name": "c0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "#d4a94a",
+              "c": "gold",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.95,
+              "b": 0.35,
+              "c": "gold",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "gold",
+              "b": 0.8,
+              "name": "met",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "metallic": "met",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +fn +felt +r1 +r1i +r2 +r2i +spot_n +spot_s +spot_e +spot_w +words +m1 +m1i +m2 +m2i +mn +ms +me +mw +mt +ring1 +ring2 +rings +sp1 +sp2 +spots +gold +c0 +col +rough +met +out"
+      }
+    ],
+    "current": 0
+  }
+}

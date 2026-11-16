@@ -1,0 +1,224 @@
+{
+  "name": "hs-shop-sign",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        2.1,
+        0.26
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        1.05,
+        0.13
+      ],
+      "coords": "c",
+      "name": "border",
+      "size": [
+        2.02,
+        0.2
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        1.05,
+        0.13
+      ],
+      "coords": "c",
+      "name": "inner",
+      "size": [
+        1.98,
+        0.17
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        1.05,
+        0.13
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t",
+      "size": 0.13,
+      "text": "PROVISIONS",
+      "type": "text"
+    },
+    {
+      "name": "mb",
+      "sdf": "border",
+      "type": "mask"
+    },
+    {
+      "name": "mi",
+      "sdf": "inner",
+      "type": "mask"
+    },
+    {
+      "name": "mt",
+      "sdf": "t",
+      "type": "mask"
+    },
+    {
+      "a": "mb",
+      "b": "mi",
+      "name": "line",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "a": "#e2b84f",
+      "b": "#3a2a1a",
+      "c": "line",
+      "name": "c0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c0",
+      "b": "#3a2a1a",
+      "c": "mt",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.55,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "hs-shop-sign",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                2.1,
+                0.26
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                1.05,
+                0.13
+              ],
+              "coords": "c",
+              "name": "border",
+              "size": [
+                2.02,
+                0.2
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                1.05,
+                0.13
+              ],
+              "coords": "c",
+              "name": "inner",
+              "size": [
+                1.98,
+                0.17
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                1.05,
+                0.13
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t",
+              "size": 0.13,
+              "text": "PROVISIONS",
+              "type": "text"
+            },
+            {
+              "name": "mb",
+              "sdf": "border",
+              "type": "mask"
+            },
+            {
+              "name": "mi",
+              "sdf": "inner",
+              "type": "mask"
+            },
+            {
+              "name": "mt",
+              "sdf": "t",
+              "type": "mask"
+            },
+            {
+              "a": "mb",
+              "b": "mi",
+              "name": "line",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": "#e2b84f",
+              "b": "#3a2a1a",
+              "c": "line",
+              "name": "c0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "#3a2a1a",
+              "c": "mt",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.55,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +border +inner +t +mb +mi +mt +line +c0 +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -200,10 +200,10 @@ fn spawn_bonfire(
         ..default()
     });
     let put = |commands: &mut Commands,
-                   rng: &mut Rng,
-                   kind,
-                   life,
-                   look: (Mesh3d, MeshMaterial3d<StandardMaterial>)| {
+               rng: &mut Rng,
+               kind,
+               life,
+               look: (Mesh3d, MeshMaterial3d<StandardMaterial>)| {
         let e = spawn_particle(commands, rng, kind, bonfire_at(), life);
         commands
             .entity(e)

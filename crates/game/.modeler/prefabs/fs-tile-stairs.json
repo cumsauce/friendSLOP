@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "fs-tile-stairs",
   "parts": [],
-  "version": 64177,
+  "version": 66604,
   "ops": [
     {
       "primitive": {
@@ -247,103 +247,109 @@
     {
       "primitive": {
         "name": "floor_low",
-        "kind": "box",
+        "kind": "plane",
         "size": [
           6.0,
-          0.19,
-          6.0
+          6.0,
+          0.0
         ],
         "translation": [
           0.0,
-          -4.095,
+          -4.0,
           0.0
         ],
-        "rotation": null
+        "rotation": null,
+        "facing": "up"
       }
     },
     {
       "primitive": {
         "name": "ceiling",
-        "kind": "box",
+        "kind": "plane",
         "size": [
           6.0,
-          0.19,
-          6.0
+          6.0,
+          0.0
         ],
         "translation": [
           0.0,
-          3.895,
+          3.8,
           0.0
         ],
-        "rotation": null
+        "rotation": null,
+        "facing": "down"
       }
     },
     {
       "primitive": {
         "name": "wall_E",
-        "kind": "box",
+        "kind": "plane",
         "size": [
-          0.197,
+          5.94,
           7.99,
-          5.94
+          0.0
         ],
         "translation": [
-          2.8985,
+          2.8,
           -0.005,
           0.0
         ],
-        "rotation": null
+        "rotation": null,
+        "facing": "-x"
       }
     },
     {
       "primitive": {
         "name": "wall_W",
-        "kind": "box",
+        "kind": "plane",
         "size": [
-          0.197,
+          5.94,
           7.99,
-          5.94
+          0.0
         ],
         "translation": [
-          -2.8985,
+          -2.8,
           -0.005,
           0.0
         ],
-        "rotation": null
+        "rotation": null,
+        "facing": "+x"
       }
     },
     {
       "primitive": {
         "name": "wall_S",
-        "kind": "box",
+        "kind": "plane",
         "size": [
           5.94,
           3.99,
-          0.197
+          0.0
         ],
         "translation": [
           0.0,
           1.995,
-          2.8985
+          2.8
         ],
-        "rotation": null
+        "rotation": null,
+        "facing": "-z"
       }
     },
     {
       "primitive": {
         "name": "wall_N",
-        "kind": "box",
+        "kind": "plane",
         "size": [
           5.94,
           4.0,
-          0.197
+          0.0
         ],
         "translation": [
           0.0,
           -2.0,
-          -2.8985
+          -2.8
         ],
-        "rotation": null
+        "rotation": null,
+        "facing": "+z"
       }
     },
     {

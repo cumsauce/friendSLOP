@@ -1,0 +1,386 @@
+{
+  "name": "pp-leather",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.2,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "fz",
+      "octaves": 3,
+      "seed": 11,
+      "size": 0.0025,
+      "type": "noise"
+    },
+    {
+      "name": "bl",
+      "octaves": 3,
+      "seed": 13,
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "name": "pb",
+      "size": [
+        0.004,
+        0.004
+      ],
+      "stagger": 0.5,
+      "type": "tile_grid"
+    },
+    {
+      "input": "pb.id",
+      "name": "pr",
+      "type": "random"
+    },
+    {
+      "input": "pb.local",
+      "name": "pl",
+      "type": "split"
+    },
+    {
+      "a": "pl.x",
+      "b": "pl.x",
+      "name": "px2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "pl.y",
+      "b": "pl.y",
+      "name": "py2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "px2",
+      "b": "py2",
+      "name": "pd",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        4e-6
+      ],
+      "input": "pd",
+      "name": "peb",
+      "to": [
+        1,
+        0
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "peb",
+      "b": 0,
+      "c": 1,
+      "name": "pc",
+      "op": "clamp",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "fz",
+      "name": "fv",
+      "to": [
+        0.9,
+        1.02
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "bl",
+      "name": "bv",
+      "to": [
+        0.9,
+        1.04
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "pc",
+      "name": "pv",
+      "to": [
+        0.9,
+        1
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "fv",
+      "b": "bv",
+      "name": "c0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "c0",
+      "b": "pv",
+      "name": "c1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "#8f6f55",
+      "b": "c1",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "pc",
+      "b": 0.0004,
+      "name": "h1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "bl",
+      "b": 0.0012,
+      "name": "h2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "h1",
+      "b": "h2",
+      "name": "hh",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "bl",
+      "name": "rg",
+      "to": [
+        0.6,
+        0.85
+      ],
+      "type": "remap"
+    },
+    {
+      "base_color": "col",
+      "height": "hh",
+      "metallic": 0,
+      "name": "out",
+      "roughness": "rg",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pp-leather",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.2,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "fz",
+              "octaves": 3,
+              "seed": 11,
+              "size": 0.0025,
+              "type": "noise"
+            },
+            {
+              "name": "bl",
+              "octaves": 3,
+              "seed": 13,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "name": "pb",
+              "size": [
+                0.004,
+                0.004
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "input": "pb.id",
+              "name": "pr",
+              "type": "random"
+            },
+            {
+              "input": "pb.local",
+              "name": "pl",
+              "type": "split"
+            },
+            {
+              "a": "pl.x",
+              "b": "pl.x",
+              "name": "px2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "pl.y",
+              "b": "pl.y",
+              "name": "py2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "px2",
+              "b": "py2",
+              "name": "pd",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                4e-6
+              ],
+              "input": "pd",
+              "name": "peb",
+              "to": [
+                1,
+                0
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "peb",
+              "b": 0,
+              "c": 1,
+              "name": "pc",
+              "op": "clamp",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fz",
+              "name": "fv",
+              "to": [
+                0.9,
+                1.02
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "bl",
+              "name": "bv",
+              "to": [
+                0.9,
+                1.04
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "pc",
+              "name": "pv",
+              "to": [
+                0.9,
+                1
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "fv",
+              "b": "bv",
+              "name": "c0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "pv",
+              "name": "c1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "#8f6f55",
+              "b": "c1",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "pc",
+              "b": 0.0004,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "bl",
+              "b": 0.0012,
+              "name": "h2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h1",
+              "b": "h2",
+              "name": "hh",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "bl",
+              "name": "rg",
+              "to": [
+                0.6,
+                0.85
+              ],
+              "type": "remap"
+            },
+            {
+              "base_color": "col",
+              "height": "hh",
+              "metallic": 0,
+              "name": "out",
+              "roughness": "rg",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fz +bl +pb +pr +pl +px2 +py2 +pd +peb +pc +fv +bv +pv +c0 +c1 +col +h1 +h2 +hh +rg +out"
+      }
+    ],
+    "current": 0
+  }
+}

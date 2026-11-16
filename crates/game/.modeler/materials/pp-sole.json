@@ -1,0 +1,238 @@
+{
+  "name": "pp-sole",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.12,
+  "resolution": 128,
+  "nodes": [
+    {
+      "name": "g",
+      "size": [
+        0.012,
+        0.012
+      ],
+      "stagger": 0.5,
+      "type": "tile_grid"
+    },
+    {
+      "input": "g.local",
+      "name": "l",
+      "type": "split"
+    },
+    {
+      "a": "l.y",
+      "name": "ay",
+      "op": "abs",
+      "type": "math"
+    },
+    {
+      "from": [
+        0.0045,
+        0.006
+      ],
+      "input": "ay",
+      "name": "groove",
+      "to": [
+        1,
+        0
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "groove",
+      "b": 0,
+      "c": 1,
+      "name": "gc",
+      "op": "clamp",
+      "type": "math"
+    },
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 3,
+      "size": 0.01,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "nv",
+      "to": [
+        0.9,
+        1.05
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "gc",
+      "name": "gv",
+      "to": [
+        0.6,
+        1
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "gv",
+      "b": "nv",
+      "name": "c1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "#3a3430",
+      "b": "c1",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "gc",
+      "b": 0.0015,
+      "name": "hh",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "hh",
+      "metallic": 0,
+      "name": "out",
+      "roughness": 0.8,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pp-sole",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.12,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.012,
+                0.012
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "input": "g.local",
+              "name": "l",
+              "type": "split"
+            },
+            {
+              "a": "l.y",
+              "name": "ay",
+              "op": "abs",
+              "type": "math"
+            },
+            {
+              "from": [
+                0.0045,
+                0.006
+              ],
+              "input": "ay",
+              "name": "groove",
+              "to": [
+                1,
+                0
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "groove",
+              "b": 0,
+              "c": 1,
+              "name": "gc",
+              "op": "clamp",
+              "type": "math"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 3,
+              "size": 0.01,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "nv",
+              "to": [
+                0.9,
+                1.05
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "gc",
+              "name": "gv",
+              "to": [
+                0.6,
+                1
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "gv",
+              "b": "nv",
+              "name": "c1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "#3a3430",
+              "b": "c1",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "gc",
+              "b": 0.0015,
+              "name": "hh",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "hh",
+              "metallic": 0,
+              "name": "out",
+              "roughness": 0.8,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+g +l +ay +groove +gc +n +nv +gv +c1 +col +hh +out"
+      }
+    ],
+    "current": 0
+  }
+}

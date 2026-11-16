@@ -1,22 +1,20 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "fa-dave",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 64018,
   "ops": [
     {
       "sdf": {
-        "blend": 0.07,
         "name": "jumper_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               0.8,
               0.0
             ],
-            "shape": "ellipsoid",
             "size": [
               0.3,
               0.33,
@@ -24,12 +22,12 @@
             ]
           },
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               1.0,
               0.0
             ],
-            "shape": "ellipsoid",
             "size": [
               0.285,
               0.28,
@@ -37,16 +35,16 @@
             ]
           },
           {
+            "shape": "capsule",
+            "radius": [
+              0.095,
+              0.08
+            ],
             "from": [
               -0.33,
               1.09,
               0.0
             ],
-            "radius": [
-              0.095,
-              0.08
-            ],
-            "shape": "capsule",
             "to": [
               -0.4663837,
               0.68336767,
@@ -54,29 +52,30 @@
             ]
           },
           {
+            "shape": "capsule",
+            "radius": [
+              0.095,
+              0.08
+            ],
             "from": [
               0.33,
               1.09,
               0.0
             ],
-            "radius": [
-              0.095,
-              0.08
-            ],
-            "shape": "capsule",
             "to": [
               0.4676622,
               1.5369312,
               0.0
             ]
           }
-        ]
+        ],
+        "blend": 0.07
       }
     },
     {
       "decimate": {
-        "input": "jumper_hi",
         "name": "jumper",
+        "input": "jumper_hi",
         "tris": 620
       }
     },
@@ -88,12 +87,12 @@
             "shape": "group",
             "shapes": [
               {
+                "shape": "ellipsoid",
                 "at": [
                   0.0,
                   0.8,
                   0.0
                 ],
-                "shape": "ellipsoid",
                 "size": [
                   0.314,
                   0.344,
@@ -101,12 +100,12 @@
                 ]
               },
               {
+                "shape": "ellipsoid",
                 "at": [
                   0.0,
                   1.0,
                   0.0
                 ],
-                "shape": "ellipsoid",
                 "size": [
                   0.299,
                   0.294,
@@ -116,14 +115,14 @@
             ]
           },
           {
+            "shape": "box",
+            "op": "intersect",
+            "blend": 0.0,
             "at": [
               0.0,
               0.97,
               0.0
             ],
-            "blend": 0.0,
-            "op": "intersect",
-            "shape": "box",
             "size": [
               1.0,
               0.05,
@@ -131,12 +130,12 @@
             ]
           },
           {
+            "shape": "torus",
             "at": [
               0.0,
               1.605,
               0.03
             ],
-            "shape": "torus",
             "size": [
               0.3,
               0.03
@@ -147,28 +146,26 @@
     },
     {
       "decimate": {
-        "input": "stripe_hi",
         "name": "stripe",
-        "tris": 200
+        "input": "stripe_parts",
+        "tris": 700
       }
     },
     {
       "sdf": {
-        "blend": 0.05,
-        "mirror": "x",
         "name": "trousers_hi",
         "shapes": [
           {
+            "shape": "capsule",
+            "radius": [
+              0.095,
+              0.11
+            ],
             "from": [
               0.14,
               0.12,
               0.0
             ],
-            "radius": [
-              0.095,
-              0.11
-            ],
-            "shape": "capsule",
             "to": [
               0.13,
               0.55,
@@ -176,12 +173,12 @@
             ]
           },
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               0.56,
               0.0
             ],
-            "shape": "ellipsoid",
             "size": [
               0.27,
               0.1,
@@ -189,62 +186,63 @@
             ]
           },
           {
+            "shape": "torus",
             "at": [
               0.0,
               0.57,
               0.0
             ],
-            "shape": "torus",
             "size": [
               0.28,
               0.035
             ]
           }
-        ]
+        ],
+        "blend": 0.05,
+        "mirror": "x"
       }
     },
     {
       "decimate": {
-        "input": "trousers_hi",
         "name": "trousers",
-        "tris": 260
+        "input": "trousers_hi",
+        "tris": 500
       }
     },
     {
       "sdf": {
-        "mirror": "x",
         "name": "shoes_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.14,
               0.078,
               -0.05
             ],
-            "shape": "ellipsoid",
             "size": [
               0.117,
               0.078,
               0.182
             ]
           }
-        ]
+        ],
+        "mirror": "x"
       }
     },
     {
       "decimate": {
-        "input": "shoes_hi",
         "name": "shoes",
-        "tris": 120
+        "input": "shoes_hi",
+        "tris": 300
       }
     },
     {
       "sdf": {
-        "blend": 0.03,
-        "mirror": "x",
         "name": "head_hi",
         "shapes": [
           {
+            "shape": "sphere",
             "at": [
               0.0,
               1.5,
@@ -252,43 +250,44 @@
             ],
             "radius": [
               0.3
-            ],
-            "shape": "sphere"
+            ]
           },
           {
+            "shape": "sphere",
+            "blend": 0.015,
             "at": [
               0.0,
               1.44,
               -0.295
             ],
-            "blend": 0.015,
             "radius": [
               0.045
-            ],
-            "shape": "sphere"
+            ]
           },
           {
+            "shape": "ellipsoid",
+            "blend": 0.02,
             "at": [
               0.29,
               1.48,
               0.0
             ],
-            "blend": 0.02,
-            "shape": "ellipsoid",
             "size": [
               0.04,
               0.07,
               0.056
             ]
           }
-        ]
+        ],
+        "blend": 0.03,
+        "mirror": "x"
       }
     },
     {
       "decimate": {
-        "input": "head_hi",
         "name": "head",
-        "tris": 420
+        "input": "head_hi",
+        "tris": 900
       }
     },
     {
@@ -296,6 +295,7 @@
         "name": "hand_l_hi",
         "shapes": [
           {
+            "shape": "sphere",
             "at": [
               -0.48370197,
               0.6155438,
@@ -303,17 +303,16 @@
             ],
             "radius": [
               0.09
-            ],
-            "shape": "sphere"
+            ]
           }
         ]
       }
     },
     {
       "decimate": {
-        "input": "hand_l_hi",
         "name": "hand_l",
-        "tris": 50
+        "input": "hand_l_hi",
+        "tris": 200
       }
     },
     {
@@ -321,12 +320,12 @@
         "name": "hand_r_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.48440966,
               1.6048982,
               0.0
             ],
-            "shape": "ellipsoid",
             "size": [
               0.105,
               0.1,
@@ -338,68 +337,68 @@
     },
     {
       "decimate": {
-        "input": "hand_r_hi",
         "name": "hand_r",
-        "tris": 60
+        "input": "hand_r_hi",
+        "tris": 200
       }
     },
     {
       "sdf": {
-        "blend": 0.03,
         "name": "hair_hi",
         "shapes": [
           {
+            "shape": "sphere",
             "at": [
               -0.15,
-              1.65,
-              -0.22
+              1.66,
+              -0.24
             ],
             "radius": [
-              0.07
-            ],
-            "shape": "sphere"
+              0.072
+            ]
           },
           {
+            "shape": "sphere",
             "at": [
               -0.05,
-              1.65,
-              -0.22
+              1.665,
+              -0.255
             ],
             "radius": [
-              0.07
-            ],
-            "shape": "sphere"
+              0.072
+            ]
           },
           {
+            "shape": "sphere",
             "at": [
               0.06,
-              1.65,
-              -0.22
+              1.665,
+              -0.255
             ],
             "radius": [
-              0.07
-            ],
-            "shape": "sphere"
+              0.072
+            ]
           },
           {
+            "shape": "sphere",
             "at": [
               0.16,
-              1.65,
-              -0.22
+              1.66,
+              -0.24
             ],
             "radius": [
-              0.07
-            ],
-            "shape": "sphere"
+              0.072
+            ]
           }
-        ]
+        ],
+        "blend": 0.03
       }
     },
     {
       "decimate": {
-        "input": "hair_hi",
         "name": "hair",
-        "tris": 130
+        "input": "hair_hi",
+        "tris": 400
       }
     },
     {
@@ -407,12 +406,12 @@
         "name": "beanie_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               1.61,
               0.025
             ],
-            "shape": "ellipsoid",
             "size": [
               0.322,
               0.23,
@@ -424,9 +423,9 @@
     },
     {
       "decimate": {
-        "input": "beanie_hi",
         "name": "beanie",
-        "tris": 240
+        "input": "beanie_hi",
+        "tris": 600
       }
     },
     {
@@ -434,6 +433,7 @@
         "name": "bobble_hi",
         "shapes": [
           {
+            "shape": "sphere",
             "at": [
               0.0,
               1.86,
@@ -441,17 +441,16 @@
             ],
             "radius": [
               0.09
-            ],
-            "shape": "sphere"
+            ]
           }
         ]
       }
     },
     {
       "decimate": {
-        "input": "bobble_hi",
         "name": "bobble",
-        "tris": 60
+        "input": "bobble_hi",
+        "tris": 300
       }
     },
     {
@@ -459,6 +458,7 @@
         "name": "eye_l_hi",
         "shapes": [
           {
+            "shape": "sphere",
             "at": [
               0.1,
               1.52,
@@ -466,29 +466,28 @@
             ],
             "radius": [
               0.055
-            ],
-            "shape": "sphere"
+            ]
           },
           {
+            "shape": "sphere",
+            "blend": 0.0,
             "at": [
               0.115,
               1.537,
               -0.312
             ],
-            "blend": 0.0,
             "radius": [
               0.012
-            ],
-            "shape": "sphere"
+            ]
           }
         ]
       }
     },
     {
       "decimate": {
-        "input": "eye_l_hi",
         "name": "eye_l",
-        "tris": 56
+        "input": "eye_l_hi",
+        "tris": 200
       }
     },
     {
@@ -496,6 +495,7 @@
         "name": "eye_r_hi",
         "shapes": [
           {
+            "shape": "sphere",
             "at": [
               -0.1,
               1.52,
@@ -503,29 +503,28 @@
             ],
             "radius": [
               0.055
-            ],
-            "shape": "sphere"
+            ]
           },
           {
+            "shape": "sphere",
+            "blend": 0.0,
             "at": [
               -0.085,
               1.537,
               -0.312
             ],
-            "blend": 0.0,
             "radius": [
               0.012
-            ],
-            "shape": "sphere"
+            ]
           }
         ]
       }
     },
     {
       "decimate": {
-        "input": "eye_r_hi",
         "name": "eye_r",
-        "tris": 56
+        "input": "eye_r_hi",
+        "tris": 200
       }
     },
     {
@@ -533,6 +532,7 @@
         "name": "pupil_l_hi",
         "shapes": [
           {
+            "shape": "sphere",
             "at": [
               0.1,
               1.517,
@@ -540,17 +540,16 @@
             ],
             "radius": [
               0.034
-            ],
-            "shape": "sphere"
+            ]
           }
         ]
       }
     },
     {
       "decimate": {
-        "input": "pupil_l_hi",
         "name": "pupil_l",
-        "tris": 36
+        "input": "pupil_l_hi",
+        "tris": 150
       }
     },
     {
@@ -558,6 +557,7 @@
         "name": "pupil_r_hi",
         "shapes": [
           {
+            "shape": "sphere",
             "at": [
               -0.1,
               1.517,
@@ -565,17 +565,16 @@
             ],
             "radius": [
               0.034
-            ],
-            "shape": "sphere"
+            ]
           }
         ]
       }
     },
     {
       "decimate": {
-        "input": "pupil_r_hi",
         "name": "pupil_r",
-        "tris": 36
+        "input": "pupil_r_hi",
+        "tris": 150
       }
     },
     {
@@ -583,15 +582,15 @@
         "name": "mouth_hi",
         "shapes": [
           {
+            "shape": "capsule",
+            "radius": [
+              0.018
+            ],
             "from": [
               -0.04,
               1.35,
               -0.272
             ],
-            "radius": [
-              0.018
-            ],
-            "shape": "capsule",
             "to": [
               0.04,
               1.35,
@@ -603,17 +602,17 @@
     },
     {
       "decimate": {
-        "input": "mouth_hi",
         "name": "mouth",
-        "tris": 40
+        "input": "mouth_hi",
+        "tris": 120
       }
     },
     {
       "sdf": {
-        "mirror": "x",
         "name": "blush_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.18,
               1.41,
@@ -625,149 +624,154 @@
               0.0,
               0.95371693
             ],
-            "shape": "ellipsoid",
             "size": [
               0.05,
               0.035,
               0.012
             ]
           }
-        ]
+        ],
+        "mirror": "x"
       }
     },
     {
       "decimate": {
-        "input": "blush_hi",
         "name": "blush",
-        "tris": 40
-      }
-    },
-    {
-      "visibility": {
-        "input": "jumper_hi",
-        "name": "jumper_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "stripe_hi",
-        "name": "stripe_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "trousers_hi",
-        "name": "trousers_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "shoes_hi",
-        "name": "shoes_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "head_hi",
-        "name": "head_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "hand_l_hi",
-        "name": "hand_l_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "hand_r_hi",
-        "name": "hand_r_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "hair_hi",
-        "name": "hair_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "beanie_hi",
-        "name": "beanie_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "bobble_hi",
-        "name": "bobble_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "eye_l_hi",
-        "name": "eye_l_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "eye_r_hi",
-        "name": "eye_r_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "pupil_l_hi",
-        "name": "pupil_l_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "pupil_r_hi",
-        "name": "pupil_r_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "mouth_hi",
-        "name": "mouth_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
         "input": "blush_hi",
+        "tris": 120
+      }
+    },
+    {
+      "visibility": {
+        "name": "jumper_hi",
+        "input": "jumper_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stripe_hi",
+        "input": "stripe_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "trousers_hi",
+        "input": "trousers_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "shoes_hi",
+        "input": "shoes_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "head_hi",
+        "input": "head_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "hand_l_hi",
+        "input": "hand_l_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "hand_r_hi",
+        "input": "hand_r_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "hair_hi",
+        "input": "hair_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "beanie_hi",
+        "input": "beanie_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bobble_hi",
+        "input": "bobble_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "eye_l_hi",
+        "input": "eye_l_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "eye_r_hi",
+        "input": "eye_r_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "pupil_l_hi",
+        "input": "pupil_l_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "pupil_r_hi",
+        "input": "pupil_r_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "mouth_hi",
+        "input": "mouth_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
         "name": "blush_hi",
+        "input": "blush_hi",
         "visible": false
       }
     },
     {
       "material": {
+        "name": "jumper",
+        "input": "jumper",
         "base_color": [
           0.2,
           0.3,
           0.6,
           1.0
         ],
-        "input": "jumper",
+        "roughness": null,
         "metalness": null,
-        "name": "jumper",
         "pbr": {
+          "material": "fa-knit",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -971,30 +975,30 @@
                 "type": "remap"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "fa-knit",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
+        "name": "stripe",
+        "input": "stripe",
         "base_color": [
           0.95,
           0.92,
           0.85,
           1.0
         ],
-        "input": "stripe",
+        "roughness": null,
         "metalness": null,
-        "name": "stripe",
         "pbr": {
+          "material": "fa-knit",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1198,30 +1202,30 @@
                 "type": "remap"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "fa-knit",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
+        "name": "trousers",
+        "input": "trousers",
         "base_color": [
           0.25,
           0.22,
           0.2,
           1.0
         ],
-        "input": "trousers",
+        "roughness": null,
         "metalness": null,
-        "name": "trousers",
         "pbr": {
+          "material": "fa-knit",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1425,30 +1429,30 @@
                 "type": "remap"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "fa-knit",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
+        "name": "shoes",
+        "input": "shoes",
         "base_color": [
           0.15,
           0.1,
           0.08,
           1.0
         ],
-        "input": "shoes",
+        "roughness": null,
         "metalness": null,
-        "name": "shoes",
         "pbr": {
+          "material": "fa-knit",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1652,30 +1656,30 @@
                 "type": "remap"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "fa-knit",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": [
-          0.9,
-          0.7,
-          0.55,
-          1.0
-        ],
-        "input": "head",
-        "metalness": null,
         "name": "head",
+        "input": "head",
+        "base_color": [
+          0.9,
+          0.7,
+          0.55,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "fa-felt",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -1747,125 +1751,30 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "fa-felt",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": [
-          0.9,
-          0.7,
-          0.55,
-          1.0
-        ],
-        "input": "hand_l",
-        "metalness": null,
         "name": "hand_l",
-        "pbr": {
-          "graph": {
-            "domain": "tile",
-            "nodes": [
-              {
-                "name": "n",
-                "octaves": 5,
-                "seed": 11,
-                "size": 0.02,
-                "type": "noise"
-              },
-              {
-                "name": "m",
-                "octaves": 3,
-                "seed": 12,
-                "size": 0.1,
-                "type": "noise"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "n",
-                "name": "a",
-                "to": [
-                  0.88,
-                  1.02
-                ],
-                "type": "remap"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "m",
-                "name": "b",
-                "to": [
-                  0.94,
-                  1.02
-                ],
-                "type": "remap"
-              },
-              {
-                "a": "a",
-                "b": "b",
-                "name": "v",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "#f6f4f0",
-                "b": "v",
-                "name": "col",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "n",
-                "b": 0.0006,
-                "name": "h",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "base_color": "col",
-                "double_sided": true,
-                "height": "h",
-                "name": "out",
-                "roughness": 0.9,
-                "type": "output"
-              }
-            ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "fa-felt",
-          "scale": 1.0
-        },
-        "roughness": null
-      }
-    },
-    {
-      "material": {
+        "input": "hand_l",
         "base_color": [
           0.9,
           0.7,
           0.55,
           1.0
         ],
-        "input": "hand_r",
+        "roughness": null,
         "metalness": null,
-        "name": "hand_r",
         "pbr": {
+          "material": "fa-felt",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -1937,30 +1846,125 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "fa-felt",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
+        "name": "hand_r",
+        "input": "hand_r",
+        "base_color": [
+          0.9,
+          0.7,
+          0.55,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fa-felt",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 5,
+                "seed": 11,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "name": "m",
+                "octaves": 3,
+                "seed": 12,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "a",
+                "to": [
+                  0.88,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "m",
+                "name": "b",
+                "to": [
+                  0.94,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "a",
+                "b": "b",
+                "name": "v",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#f6f4f0",
+                "b": "v",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "double_sided": true,
+                "height": "h",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "hair",
+        "input": "hair",
         "base_color": [
           0.35,
           0.2,
           0.1,
           1.0
         ],
-        "input": "hair",
+        "roughness": null,
         "metalness": null,
-        "name": "hair",
         "pbr": {
+          "material": "fa-knit",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -2164,30 +2168,30 @@
                 "type": "remap"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "fa-knit",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
+        "name": "beanie",
+        "input": "beanie",
         "base_color": [
           0.75,
           0.1,
           0.1,
           1.0
         ],
-        "input": "beanie",
+        "roughness": null,
         "metalness": null,
-        "name": "beanie",
         "pbr": {
+          "material": "fa-knit",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -2391,30 +2395,30 @@
                 "type": "remap"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "fa-knit",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
+        "name": "bobble",
+        "input": "bobble",
         "base_color": [
           0.95,
           0.92,
           0.85,
           1.0
         ],
-        "input": "bobble",
+        "roughness": null,
         "metalness": null,
-        "name": "bobble",
         "pbr": {
+          "material": "fa-knit",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -2618,103 +2622,103 @@
                 "type": "remap"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "fa-knit",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": [
-          0.98,
-          0.98,
-          0.96,
-          1.0
-        ],
-        "input": "eye_l",
-        "metalness": null,
         "name": "eye_l",
-        "pbr": {
-          "graph": {
-            "domain": "tile",
-            "nodes": [
-              {
-                "name": "n",
-                "octaves": 3,
-                "seed": 21,
-                "size": 0.08,
-                "type": "noise"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "n",
-                "name": "v",
-                "to": [
-                  0.96,
-                  1.0
-                ],
-                "type": "remap"
-              },
-              {
-                "a": "#f8f8f8",
-                "b": "v",
-                "name": "col",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "n",
-                "name": "r",
-                "to": [
-                  0.18,
-                  0.3
-                ],
-                "type": "remap"
-              },
-              {
-                "base_color": "col",
-                "clearcoat": 0.4,
-                "name": "out",
-                "roughness": "r",
-                "type": "output"
-              }
-            ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "fa-glossy",
-          "scale": 1.0
-        },
-        "roughness": null
-      }
-    },
-    {
-      "material": {
+        "input": "eye_l",
         "base_color": [
           0.98,
           0.98,
           0.96,
           1.0
         ],
-        "input": "eye_r",
+        "roughness": null,
         "metalness": null,
+        "pbr": {
+          "material": "fa-glossy",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 21,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "v",
+                "to": [
+                  0.96,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#f8f8f8",
+                "b": "v",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "r",
+                "to": [
+                  0.18,
+                  0.3
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "clearcoat": 0.4,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
         "name": "eye_r",
+        "input": "eye_r",
+        "base_color": [
+          0.98,
+          0.98,
+          0.96,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "fa-glossy",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -2764,103 +2768,30 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "fa-glossy",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": [
-          0.04,
-          0.04,
-          0.06,
-          1.0
-        ],
-        "input": "pupil_l",
-        "metalness": null,
         "name": "pupil_l",
-        "pbr": {
-          "graph": {
-            "domain": "tile",
-            "nodes": [
-              {
-                "name": "n",
-                "octaves": 3,
-                "seed": 21,
-                "size": 0.08,
-                "type": "noise"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "n",
-                "name": "v",
-                "to": [
-                  0.96,
-                  1.0
-                ],
-                "type": "remap"
-              },
-              {
-                "a": "#f8f8f8",
-                "b": "v",
-                "name": "col",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "n",
-                "name": "r",
-                "to": [
-                  0.18,
-                  0.3
-                ],
-                "type": "remap"
-              },
-              {
-                "base_color": "col",
-                "clearcoat": 0.4,
-                "name": "out",
-                "roughness": "r",
-                "type": "output"
-              }
-            ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "fa-glossy",
-          "scale": 1.0
-        },
-        "roughness": null
-      }
-    },
-    {
-      "material": {
+        "input": "pupil_l",
         "base_color": [
           0.04,
           0.04,
           0.06,
           1.0
         ],
-        "input": "pupil_r",
+        "roughness": null,
         "metalness": null,
-        "name": "pupil_r",
         "pbr": {
+          "material": "fa-glossy",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -2910,30 +2841,103 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "fa-glossy",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
+        "name": "pupil_r",
+        "input": "pupil_r",
+        "base_color": [
+          0.04,
+          0.04,
+          0.06,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fa-glossy",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 21,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "v",
+                "to": [
+                  0.96,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#f8f8f8",
+                "b": "v",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "r",
+                "to": [
+                  0.18,
+                  0.3
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "clearcoat": 0.4,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "mouth",
+        "input": "mouth",
         "base_color": [
           0.08,
           0.05,
           0.05,
           1.0
         ],
-        "input": "mouth",
+        "roughness": null,
         "metalness": null,
-        "name": "mouth",
         "pbr": {
+          "material": "fa-glossy",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -2983,30 +2987,30 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "fa-glossy",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
+        "name": "blush",
+        "input": "blush",
         "base_color": [
           0.95,
           0.5,
           0.55,
           1.0
         ],
-        "input": "blush",
+        "roughness": null,
         "metalness": null,
-        "name": "blush",
         "pbr": {
+          "material": "fa-felt",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -3078,222 +3082,216 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "fa-felt",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "skeleton": {
+        "name": "rig",
         "bones": [
           {
+            "name": "arm_l",
+            "parent": "spine",
             "head": [
               -0.36,
               1.1,
               0.0
             ],
-            "name": "arm_l",
-            "parent": "spine",
-            "radius": 0.1,
             "tail": [
               -0.48370197,
               0.6155438,
               0.0
-            ]
+            ],
+            "radius": 0.1
           },
           {
+            "name": "arm_r",
+            "parent": "spine",
             "head": [
               0.36,
               1.1,
               0.0
             ],
-            "name": "arm_r",
-            "parent": "spine",
-            "radius": 0.1,
             "tail": [
               0.48440966,
               1.6048982,
               0.0
-            ]
+            ],
+            "radius": 0.1
           },
           {
+            "name": "bobble",
+            "parent": "head",
             "head": [
               0.0,
               1.79,
               0.03
             ],
-            "name": "bobble",
-            "parent": "head",
-            "radius": 0.08,
             "tail": [
               0.0,
               1.95,
               0.03
-            ]
+            ],
+            "radius": 0.08
           },
           {
-            "head": [
-              0.1,
-              1.52,
-              -0.26
-            ],
             "name": "eye_l",
             "parent": "head",
-            "radius": 0.05,
+            "head": [
+              0.1,
+              1.52,
+              -0.26
+            ],
             "tail": [
               0.1,
               1.58,
               -0.26
-            ]
+            ],
+            "radius": 0.05
           },
           {
+            "name": "eye_r",
+            "parent": "head",
             "head": [
               -0.1,
               1.52,
               -0.26
             ],
-            "name": "eye_r",
-            "parent": "head",
-            "radius": 0.05,
             "tail": [
               -0.1,
               1.58,
               -0.26
-            ]
+            ],
+            "radius": 0.05
           },
           {
+            "name": "head",
+            "parent": "spine",
             "head": [
               0.0,
               1.22,
               0.0
             ],
-            "name": "head",
-            "parent": "spine",
-            "radius": 0.3,
             "tail": [
               0.0,
               1.8,
               0.0
-            ]
+            ],
+            "radius": 0.3
           },
           {
+            "name": "root",
             "head": [
               0.0,
               0.0,
               0.0
             ],
-            "name": "root",
-            "radius": 0.15,
             "tail": [
               0.0,
               0.5,
               0.0
-            ]
+            ],
+            "radius": 0.15
           },
           {
+            "name": "spine",
+            "parent": "root",
             "head": [
               0.0,
               0.55,
               0.0
             ],
-            "name": "spine",
-            "parent": "root",
-            "radius": 0.3,
             "tail": [
               0.0,
               1.2,
               0.0
-            ]
+            ],
+            "radius": 0.3
           }
-        ],
-        "name": "rig"
+        ]
       }
     },
     {
       "bind": {
-        "blend": 0.08,
-        "mode": "smooth",
         "name": "bind_jumper",
+        "skeleton": "rig",
+        "parts": [
+          "jumper"
+        ],
+        "mode": "smooth",
+        "blend": 0.08,
         "paint": [
           {
             "bone": "spine",
-            "max": [
-              0.31,
-              1.25,
-              0.4
-            ],
             "min": [
               -0.31,
               0.4,
               -0.4
+            ],
+            "max": [
+              0.31,
+              1.25,
+              0.4
             ]
           },
           {
             "bone": "arm_l",
-            "max": [
-              -0.37,
-              1.3,
-              0.4
-            ],
             "min": [
               -1.0,
               0.4,
               -0.4
+            ],
+            "max": [
+              -0.37,
+              1.3,
+              0.4
             ]
           },
           {
             "bone": "arm_r",
-            "max": [
-              1.0,
-              2.0,
-              0.4
-            ],
             "min": [
               0.37,
               1.0,
               -0.4
+            ],
+            "max": [
+              1.0,
+              2.0,
+              0.4
             ]
           }
-        ],
-        "parts": [
-          "jumper"
-        ],
-        "skeleton": "rig"
+        ]
       }
     },
     {
       "bind": {
-        "bone": "spine",
-        "mode": "rigid",
         "name": "bind_spine_stripe",
+        "skeleton": "rig",
         "parts": [
           "stripe"
         ],
-        "skeleton": "rig"
+        "bone": "spine",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "root",
-        "mode": "rigid",
         "name": "bind_root_trousers",
+        "skeleton": "rig",
         "parts": [
           "trousers",
           "shoes"
         ],
-        "skeleton": "rig"
+        "bone": "root",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "head",
-        "mode": "rigid",
         "name": "bind_head_head",
+        "skeleton": "rig",
         "parts": [
           "head",
           "hair",
@@ -3301,82 +3299,83 @@
           "mouth",
           "blush"
         ],
-        "skeleton": "rig"
+        "bone": "head",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "arm_l",
-        "mode": "rigid",
         "name": "bind_arm_l_hand_l",
+        "skeleton": "rig",
         "parts": [
           "hand_l"
         ],
-        "skeleton": "rig"
+        "bone": "arm_l",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "arm_r",
-        "mode": "rigid",
         "name": "bind_arm_r_hand_r",
+        "skeleton": "rig",
         "parts": [
           "hand_r"
         ],
-        "skeleton": "rig"
+        "bone": "arm_r",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "eye_l",
-        "mode": "rigid",
         "name": "bind_eye_l_eye_l",
+        "skeleton": "rig",
         "parts": [
           "eye_l",
           "pupil_l"
         ],
-        "skeleton": "rig"
+        "bone": "eye_l",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "eye_r",
-        "mode": "rigid",
         "name": "bind_eye_r_eye_r",
+        "skeleton": "rig",
         "parts": [
           "eye_r",
           "pupil_r"
         ],
-        "skeleton": "rig"
+        "bone": "eye_r",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "bobble",
-        "mode": "rigid",
         "name": "bind_bobble_bobble",
+        "skeleton": "rig",
         "parts": [
           "bobble"
         ],
-        "skeleton": "rig"
+        "bone": "bobble",
+        "mode": "rigid"
       }
     },
     {
       "clip": {
-        "duration": 8.0,
-        "loop": true,
         "name": "idle",
         "skeleton": "rig",
+        "duration": 8.0,
+        "loop": true,
         "tracks": {
           "arm_l": {
             "rotate": {
               "wave": {
-                "amount": 5.7,
                 "axis": [
                   1.0,
                   0.0,
                   0.0
                 ],
+                "amount": 5.7,
                 "period": 4.0,
                 "phase": 0.0
               }
@@ -3385,12 +3384,12 @@
           "arm_r": {
             "rotate": {
               "wave": {
-                "amount": 7.0,
                 "axis": [
                   0.0,
                   0.0,
                   1.0
                 ],
+                "amount": 7.0,
                 "period": 2.6666667,
                 "phase": 0.0
               }
@@ -3399,12 +3398,12 @@
           "bobble": {
             "rotate": {
               "wave": {
-                "amount": 17.0,
                 "axis": [
                   0.0,
                   0.0,
                   1.0
                 ],
+                "amount": 17.0,
                 "period": 2.6666667,
                 "phase": 0.3
               }
@@ -3413,7 +3412,6 @@
           "eye_l": {
             "scale": {
               "keys": {
-                "interp": "linear",
                 "keys": [
                   [
                     0.0,
@@ -3487,14 +3485,14 @@
                       0.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "linear"
               }
             }
           },
           "eye_r": {
             "scale": {
               "keys": {
-                "interp": "linear",
                 "keys": [
                   [
                     0.0,
@@ -3568,19 +3566,20 @@
                       0.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "linear"
               }
             }
           },
           "head": {
             "rotate": {
               "wave": {
-                "amount": 3.4,
                 "axis": [
                   0.0,
                   0.0,
                   1.0
                 ],
+                "amount": 3.4,
                 "period": 8.0,
                 "phase": 0.0
               }
@@ -3589,7 +3588,6 @@
           "spine": {
             "scale": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3672,14 +3670,152 @@
                       0.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           }
         }
       }
+    },
+    {
+      "sdf": {
+        "name": "stripe_band_hi",
+        "shapes": [
+          {
+            "shape": "part",
+            "part": "jumper_hi"
+          },
+          {
+            "shape": "box",
+            "op": "intersect",
+            "blend": 0.005,
+            "at": [
+              0.0,
+              0.97,
+              0.0
+            ],
+            "size": [
+              0.5,
+              0.05,
+              0.6
+            ],
+            "round": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "transform": {
+        "name": "stripe_band_s",
+        "input": "stripe_band_hi",
+        "translation": null,
+        "rotation": null,
+        "scale": [
+          1.04,
+          1.0,
+          1.05
+        ],
+        "relative": true,
+        "pivot": [
+          0.0,
+          0.97,
+          0.0
+        ]
+      }
+    },
+    {
+      "sdf": {
+        "name": "cuff_hi",
+        "shapes": [
+          {
+            "shape": "part",
+            "part": "beanie_hi"
+          },
+          {
+            "shape": "box",
+            "op": "intersect",
+            "blend": 0.006,
+            "at": [
+              0.0,
+              1.6,
+              0.025
+            ],
+            "size": [
+              0.8,
+              0.06,
+              0.8
+            ],
+            "round": 0.012
+          }
+        ]
+      }
+    },
+    {
+      "transform": {
+        "name": "cuff_s",
+        "input": "cuff_hi",
+        "translation": null,
+        "rotation": null,
+        "scale": [
+          1.06,
+          1.0,
+          1.06
+        ],
+        "relative": true,
+        "pivot": [
+          0.0,
+          1.6,
+          0.025
+        ]
+      }
+    },
+    {
+      "group": {
+        "name": "stripe_parts",
+        "inputs": [
+          "stripe_band_s",
+          "cuff_s"
+        ]
+      }
+    },
+    {
+      "visibility": {
+        "name": "stripe_band_hi",
+        "input": "stripe_band_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stripe_band_s",
+        "input": "stripe_band_s",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "cuff_hi",
+        "input": "cuff_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "cuff_s",
+        "input": "cuff_s",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "stripe_parts",
+        "input": "stripe_parts",
+        "visible": false
+      }
     }
   ],
-  "parts": [],
-  "version": 20981
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

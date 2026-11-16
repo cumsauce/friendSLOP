@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "bt-fart-monster",
   "parts": [],
-  "version": 116,
+  "version": 63902,
   "ops": [
     {
       "sdf": {
@@ -72,12 +72,12 @@
         "kind": "capsule",
         "size": [
           0.13,
-          0.55,
+          0.42,
           0.0
         ],
         "translation": [
           0.3,
-          0.3,
+          0.36,
           0.0
         ],
         "rotation": null
@@ -89,12 +89,12 @@
         "kind": "capsule",
         "size": [
           0.13,
-          0.55,
+          0.42,
           0.0
         ],
         "translation": [
           -0.3,
-          0.3,
+          0.36,
           0.0
         ],
         "rotation": null
@@ -111,7 +111,7 @@
         ],
         "translation": [
           0.3,
-          0.06,
+          0.12,
           -0.06
         ],
         "rotation": null
@@ -128,7 +128,7 @@
         ],
         "translation": [
           -0.3,
-          0.06,
+          0.12,
           -0.06
         ],
         "rotation": null
@@ -1168,8 +1168,8 @@
         "name": "bind_body",
         "skeleton": "rig",
         "parts": [
-          "body",
-          "cheeks"
+          "body_lo",
+          "cheeks_lo"
         ],
         "bone": "body",
         "mode": "rigid"
@@ -1182,7 +1182,9 @@
         "parts": [
           "head",
           "eye_*",
-          "mouth"
+          "mouth",
+          "pupils_lo",
+          "brows_lo"
         ],
         "bone": "head",
         "mode": "rigid"
@@ -1425,6 +1427,214 @@
       "visibility": {
         "name": "eyes",
         "input": "eyes",
+        "visible": false
+      }
+    },
+    {
+      "sdf": {
+        "name": "pupils",
+        "shapes": [
+          {
+            "shape": "sphere",
+            "at": [
+              0.107,
+              1.905,
+              -0.397
+            ],
+            "radius": [
+              0.022
+            ]
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "sdf": {
+        "name": "brows",
+        "shapes": [
+          {
+            "shape": "capsule",
+            "radius": [
+              0.014,
+              0.01
+            ],
+            "from": [
+              0.045,
+              1.955,
+              -0.366
+            ],
+            "to": [
+              0.155,
+              2.008,
+              -0.327
+            ]
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "material": {
+        "name": "pupils",
+        "input": "pupils",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pt-eye-pupil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.94,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#0a0a0f",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.1,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "brows",
+        "input": "brows",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pt-eye-pupil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.94,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#0a0a0f",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.1,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "decimate": {
+        "name": "body_lo",
+        "input": "body",
+        "tris": 2400
+      }
+    },
+    {
+      "decimate": {
+        "name": "cheeks_lo",
+        "input": "cheeks",
+        "tris": 1600
+      }
+    },
+    {
+      "decimate": {
+        "name": "pupils_lo",
+        "input": "pupils",
+        "tris": 200
+      }
+    },
+    {
+      "decimate": {
+        "name": "brows_lo",
+        "input": "brows",
+        "tris": 160
+      }
+    },
+    {
+      "visibility": {
+        "name": "body",
+        "input": "body",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "cheeks",
+        "input": "cheeks",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "pupils",
+        "input": "pupils",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "brows",
+        "input": "brows",
         "visible": false
       }
     }

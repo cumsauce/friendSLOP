@@ -26,6 +26,7 @@ use std::f32::consts::TAU;
 use std::sync::Arc;
 
 use super::dsp::{AutoPan, Chorus, Echo, Eq, Reverb, StereoEq, Svf, saw, square};
+use crate::fx::{comp::Comp, drive::Drive};
 use crate::inst::{Engine, Foley, Hit, KitSample, Pan, Spec, Table, Voice, table};
 
 /// Engine sample rate.
@@ -1638,6 +1639,13 @@ pub struct BusMix {
     pub autopan: Option<(f32, f32)>,
     /// Chorus: (rate Hz, centre ms, depth ms, mix).
     pub chorus: Option<(f32, f32, f32, f32)>,
+    /// Saturation: (amount 0..1, tone 0..1), level-matched ([`crate::fx::drive`]).
+    #[serde(default)]
+    pub drive: Option<(f32, f32)>,
+    /// Compressor: (threshold dB, ratio, attack ms, release ms, mix 0..1)
+    /// ([`crate::fx::comp`]); mix under 1 is parallel compression.
+    #[serde(default)]
+    pub comp: Option<(f32, f32, f32, f32, f32)>,
 }
 
 pub static MIX: friendslop_data::Data<Mix> = friendslop_data::Data::ron("data/music/mix.ron");
@@ -1650,6 +1658,8 @@ struct BusFx {
     eq: Vec<StereoEq>,
     autopan: Vec<Option<AutoPan>>,
     chorus: Vec<Option<Chorus>>,
+    drive: Vec<Option<Drive>>,
+    comp: Vec<Option<Comp>>,
     trim: [f32; BUSES],
     pump: [f32; BUSES],
 }
@@ -1685,6 +1695,16 @@ impl BusFx {
                     bus(b)
                         .and_then(|m| m.chorus)
                         .map(|(r, c, d, x)| Chorus::new(r, c, d, x))
+                })
+                .collect(),
+            drive: (0..BUSES)
+                .map(|b| bus(b).and_then(|m| m.drive).map(|(a, t)| Drive::new(a, t)))
+                .collect(),
+            comp: (0..BUSES)
+                .map(|b| {
+                    bus(b)
+                        .and_then(|m| m.comp)
+                        .map(|(t, r, a, rl, x)| Comp::new(t, r, a, rl, x))
                 })
                 .collect(),
             trim: std::array::from_fn(|b| bus(b).map_or(1.0, |m| m.trim)),
@@ -2264,6 +2284,12 @@ impl Band {
             } else {
                 l.iter_mut().for_each(|x| *x *= t);
                 r.iter_mut().for_each(|x| *x *= t);
+            }
+            if let Some(d) = &mut fx.drive[b] {
+                d.process(l, r);
+            }
+            if let Some(c) = &mut fx.comp[b] {
+                c.process(l, r);
             }
             if let Some(a) = &mut fx.autopan[b] {
                 a.process(l, r);

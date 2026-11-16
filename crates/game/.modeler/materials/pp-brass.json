@@ -1,0 +1,126 @@
+{
+  "name": "pp-brass",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.1,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 9,
+      "size": 0.01,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "nv",
+      "to": [
+        0.85,
+        1.05
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "#c9a24e",
+      "b": "nv",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "rg",
+      "to": [
+        0.3,
+        0.5
+      ],
+      "type": "remap"
+    },
+    {
+      "base_color": "col",
+      "metallic": 1,
+      "name": "out",
+      "roughness": "rg",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pp-brass",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.1,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 9,
+              "size": 0.01,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "nv",
+              "to": [
+                0.85,
+                1.05
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "#c9a24e",
+              "b": "nv",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "rg",
+              "to": [
+                0.3,
+                0.5
+              ],
+              "type": "remap"
+            },
+            {
+              "base_color": "col",
+              "metallic": 1,
+              "name": "out",
+              "roughness": "rg",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +nv +col +rg +out"
+      }
+    ],
+    "current": 0
+  }
+}

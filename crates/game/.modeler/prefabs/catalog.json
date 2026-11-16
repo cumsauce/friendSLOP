@@ -3419,11 +3419,15 @@
     },
     {
       "name": "nyc-kit-cab",
-      "description": "",
-      "tags": [],
+      "description": "NYC yellow cab: the sedan with a checker stripe, NYC TAXI doors and a lit TAXI roof sign.",
+      "tags": [
+        "nyc",
+        "vehicle",
+        "kit"
+      ],
       "prompt": "",
       "file": "nyc-kit-cab.json",
-      "created_at": "2026-11-13T06:12:42Z"
+      "created_at": "2026-11-16T11:38:24Z"
     },
     {
       "name": "nyc-kit-streetlamp",
@@ -3970,17 +3974,15 @@
     },
     {
       "name": "nyc-kit-cruiser",
-      "description": "NYPD-style police cruiser street car: white body with navy side stripe, navy POLICE door text, red/blue glow light bar, raked windshield, real A/B/C pillars, wheels in open cut wheel arches, and poop-smear decals splattered over the sides, hood, roof, trunk and nose. ~2.1 x 5.6 m, front +z, origin on the ground at the car's centre. Same ns-paint/ns-steel/ns-tar materials as nyc-kit-cab so they share bakes; decals use the pc-poop-smear decal material.",
+      "description": "NYPD cruiser: white car with a blue stripe, POLICE lettering and a red/blue light bar.",
       "tags": [
         "nyc",
-        "city",
-        "car",
         "vehicle",
-        "police"
+        "kit"
       ],
-      "prompt": "a couple more car models for the NYC map, in the nyc-kit-cab style, then add poop smear decals all over the cruiser (decals, not models)",
+      "prompt": "",
       "file": "nyc-kit-cruiser.json",
-      "created_at": "2026-11-13T21:04:36Z"
+      "created_at": "2026-11-16T11:38:43Z"
     },
     {
       "name": "nyc-penn",
@@ -4556,25 +4558,27 @@
     },
     {
       "name": "nyc-kit-sedan",
-      "description": "NYC parked sedan: the cab's body in dark blue paint, no taxi sign or checkers; 5.5 m long along z.",
+      "description": "NYC sedan: a boxy blue four-door with glass, chrome bumpers, lights, mirrors and door seams.",
       "tags": [
         "nyc",
-        "vehicle"
+        "vehicle",
+        "kit"
       ],
       "prompt": "",
       "file": "nyc-kit-sedan.json",
-      "created_at": "2026-11-14T08:36:04Z"
+      "created_at": "2026-11-16T11:37:44Z"
     },
     {
       "name": "nyc-kit-box-truck",
-      "description": "NYC delivery box truck: red cab, plain white cargo box (no logos), 7.6 m long, front toward +z.",
+      "description": "NYC box truck: red cab with tinted windows on a chassis, a white cargo box with a roll-up rear door.",
       "tags": [
         "nyc",
-        "vehicle"
+        "vehicle",
+        "kit"
       ],
       "prompt": "",
       "file": "nyc-kit-box-truck.json",
-      "created_at": "2026-11-14T08:36:34Z"
+      "created_at": "2026-11-16T11:39:38Z"
     },
     {
       "name": "nyc-kit-food-cart",
@@ -4636,6 +4640,18 @@
       "prompt": "Redo Penn Station's interior entirely from #352 and #357, game-scaled and recognisable, with its layout as map data. Generated from a script (geometry, Block colliders, spots, lights); signs are card materials on -z-built plates with label uvs; checked for coplanar same-facing faces against itself and the train station models.",
       "file": "penn-map.json",
       "created_at": "2026-11-16T09:55:16Z"
+    },
+    {
+      "name": "nyc-kit-van",
+      "description": "NYC parcel van: brown step van with a windshield and cab windows, a sliding door seam and PARCEL lettering.",
+      "tags": [
+        "nyc",
+        "vehicle",
+        "kit"
+      ],
+      "prompt": "",
+      "file": "nyc-kit-van.json",
+      "created_at": "2026-11-16T11:39:15Z"
     }
   ]
 }

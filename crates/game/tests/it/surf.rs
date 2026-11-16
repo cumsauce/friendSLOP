@@ -47,13 +47,59 @@ fn ride(air: Air, ticks: usize) -> Vec3 {
 
 #[test]
 fn strafing_into_a_ramp_surfs_along_it() {
+    // The hall's CS surf numbers (data/side/surf.ron).
     let surf = Air {
-        accel_hz: 120.0,
-        max_wish_speed: 0.76,
-        max_speed: 45.0,
+        accel_hz: 150.0,
+        max_wish_speed: 0.762,
+        max_speed: 88.9,
+        gravity: 20.32,
+        ground_accel_hz: 10.0,
+        friction_hz: 8.0,
+        stop_speed: 1.905,
+        wish_speed: 6.35,
     };
     let feet = ride(surf, 90);
     // Still on the left face, well along the ramp.
     assert!(feet.z < -30.0, "{feet}");
     assert!((-6.5..0.0).contains(&feet.x), "{feet}");
+}
+
+/// Ride `ticks` looking down the ramp (-z), holding strafe into the face:
+/// the speed it ends with.
+fn surf_speed(air: Air, ticks: usize) -> f32 {
+    let mut app = world();
+    let w = spawn(&mut app, Vec3::new(-3.6, -10.3, -20.0));
+    let mut v = Vec3::ZERO;
+    for i in 0..ticks {
+        tick(&mut app, w, |w, k| {
+            if i == 0 {
+                w.feet = Vec3::new(-3.6, -10.3, -20.0);
+                k.velocity = Vec3::new(0.0, 0.0, -8.0);
+                k.grounded = None;
+            }
+            v = k.velocity;
+            w.yaw = 0.0;
+            w.stick = Vec2::X;
+            w.air = air;
+        });
+    }
+    v.length()
+}
+
+#[test]
+fn surfing_a_ramp_keeps_the_speed_gravity_gives() {
+    let surf = Air {
+        accel_hz: 150.0,
+        max_wish_speed: 0.762,
+        max_speed: 88.9,
+        gravity: 20.32,
+        ground_accel_hz: 10.0,
+        friction_hz: 8.0,
+        stop_speed: 1.905,
+        wish_speed: 6.35,
+    };
+    // On the face gravity pulls you down it and nothing takes speed away
+    // (no friction on a surf face): you come off faster than you went on.
+    let speed = surf_speed(surf, 60);
+    assert!(speed > 9.0, "{speed}");
 }

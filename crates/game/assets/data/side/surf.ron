@@ -17,13 +17,31 @@
     // Fall this far (metres) below the start pad and you're back on it
     // (a backstop: falling off a stage puts you back on its pad first).
     fall_below: 700.0,
-    // Air control inside the hall. Out in the world the walker uses
-    // 10 (acceleration, per second), 0.76 (m/s you may add towards
-    // where you steer) and 30 (top speed, m/s). Surf servers crank the
-    // first one way up: strafe into a ramp's face and you glide along it.
-    air_accel_hz: 120.0,
-    air_max_wish: 0.76,
-    max_speed: 45.0,
+    // Movement inside the hall, from a Counter-Strike surf server (Source
+    // engine) converted at 1 Hammer unit = 0.0254 m (a CS player is 72 u,
+    // 1.83 m, tall). Out in the world the walker uses 10 / 0.76 / 30 / 14
+    // / 20 / 12 / 2.54 and its own walk speed. Ramps steeper than 45
+    // degrees aren't ground: you slide along them in the air, velocity
+    // clipped onto the face, no friction (Source's ClipVelocity), so strafe
+    // into a ramp's face, steer with the mouse, and every turn adds speed.
+    // sv_airaccelerate 150 (surf servers; 10 in plain CS).
+    air_accel_hz: 150.0,
+    // The 30 u/s cap on the wish speed in the air (0.762 m/s).
+    air_max_wish: 0.762,
+    // sv_maxvelocity 3500 u/s (88.9 m/s).
+    max_speed: 88.9,
+    // sv_gravity 800 u/s^2 (20.32 m/s^2).
+    gravity: 20.32,
+    // sv_accelerate 10 (surf servers; 5.5 in CS:GO).
+    ground_accel_hz: 10.0,
+    // sv_friction 4. Ground friction here is this times the surface's own
+    // coefficient (0.5 by default), so 8 gives CS's 4.
+    friction_hz: 8.0,
+    // sv_stopspeed 75 u/s (1.905 m/s).
+    stop_speed: 1.905,
+    // Run speed with the knife out, 250 u/s (6.35 m/s): the wish speed
+    // the air acceleration scales with (walk/run don't matter in here).
+    wish_speed: 6.35,
     // Shown when you walk in.
     enter_line: "SURF: five stages, each pad is a checkpoint. drop off the pad, hold strafe into a ramp's side and steer with the mouse. don't press forward.",
     // Shown when you fall off ({secs} is how long that run lasted).

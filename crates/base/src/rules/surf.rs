@@ -20,12 +20,22 @@ pub struct Tuning {
     pub hall_at: (f32, f32, f32),
     /// Fall this far below the start pad and you're back on it.
     pub fall_below: f32,
-    /// Air acceleration (per second) inside the hall.
+    /// Air acceleration (per second) inside the hall (`sv_airaccelerate`).
     pub air_accel_hz: f32,
-    /// Speed you may add towards where you steer in the air (m/s).
+    /// Cap on the wish speed in the air (m/s; Source's 30 u/s).
     pub air_max_wish: f32,
-    /// Top speed inside the hall (m/s).
+    /// Top speed inside the hall (m/s, `sv_maxvelocity`).
     pub max_speed: f32,
+    /// Gravity inside the hall (m/s^2, `sv_gravity`).
+    pub gravity: f32,
+    /// Ground acceleration inside the hall (`sv_accelerate`).
+    pub ground_accel_hz: f32,
+    /// Ground friction inside the hall (`sv_friction` / the surface's 0.5).
+    pub friction_hz: f32,
+    /// `sv_stopspeed` (m/s).
+    pub stop_speed: f32,
+    /// Wish speed at full stick inside the hall (m/s; 250 u/s with a knife).
+    pub wish_speed: f32,
     pub enter_line: String,
     /// `{secs}`.
     pub wipeout_line: String,
@@ -450,6 +460,41 @@ pub fn unbounded(feet: Vec3) -> bool {
     in_hall(&tuning(), feet).is_some()
 }
 
+/// One Hammer unit in metres (a CS player is 72 u tall).
+pub const HAMMER_UNIT: f32 = 0.0254;
+
+/// Quake/Source `PM_AirAccelerate`, as ahoy's air move does it: only the
+/// part of `velocity` along `wish_dir` is tested against the capped wish
+/// speed, so steering across your velocity (strafing while turning) always
+/// adds speed, while pushing along it adds almost nothing. `wish_dir` is a
+/// unit vector (or zero).
+pub fn air_accelerate(
+    velocity: Vec3,
+    wish_dir: Vec3,
+    wish_speed: f32,
+    max_wish: f32,
+    accel_hz: f32,
+    dt: f32,
+) -> Vec3 {
+    let capped = wish_speed.min(max_wish);
+    let add = capped - velocity.dot(wish_dir);
+    if add <= 0.0 {
+        return velocity;
+    }
+    velocity + wish_dir * (accel_hz * wish_speed * dt).min(add)
+}
+
+/// Source's `ClipVelocity`: what's left of `velocity` after hitting a plane
+/// with this (unit) `normal`. `overbounce` 1 slides along it, keeping every
+/// bit of speed along the plane: a surf ramp turns falling into gliding.
+pub fn clip_velocity(velocity: Vec3, normal: Vec3, overbounce: f32) -> Vec3 {
+    let into = velocity.dot(normal);
+    if into >= 0.0 {
+        return velocity;
+    }
+    velocity - normal * into * overbounce
+}
+
 /// The walker's air control for a body with feet at `feet`.
 pub fn air_at(feet: Vec3) -> crate::kcc::Air {
     let t = tuning();
@@ -458,8 +503,101 @@ pub fn air_at(feet: Vec3) -> crate::kcc::Air {
             accel_hz: t.air_accel_hz,
             max_wish_speed: t.air_max_wish,
             max_speed: t.max_speed,
+            gravity: t.gravity,
+            ground_accel_hz: t.ground_accel_hz,
+            friction_hz: t.friction_hz,
+            stop_speed: t.stop_speed,
+            wish_speed: t.wish_speed,
         }
     } else {
         crate::kcc::Air::NORMAL
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const DT: f32 = 1.0 / 60.0;
+
+    #[test]
+    fn air_accel_is_capped_along_the_wish_direction() {
+        // Pushing straight ahead in the air adds at most the 30 u/s cap.
+        let mut v = Vec3::ZERO;
+        for _ in 0..600 {
+            v = air_accelerate(v, Vec3::NEG_Z, 6.35, 0.762, 150.0, DT);
+        }
+        assert!((v.length() - 0.762).abs() < 1e-4, "{v}");
+        // Already faster than the cap that way: nothing.
+        let fast = Vec3::NEG_Z * 10.0;
+        assert_eq!(
+            air_accelerate(fast, Vec3::NEG_Z, 6.35, 0.762, 150.0, DT),
+            fast
+        );
+    }
+
+    #[test]
+    fn strafing_sideways_adds_speed_every_tick() {
+        // The wish direction square to your velocity: each tick adds up to
+        // the cap, so speed grows without bound (sv_airaccelerate 150).
+        let v0 = Vec3::NEG_Z * 10.0;
+        let v1 = air_accelerate(v0, Vec3::X, 6.35, 0.762, 150.0, DT);
+        assert!(v1.length() > v0.length());
+        assert!((v1.x - 0.762).abs() < 1e-4, "one tick adds the cap: {v1}");
+    }
+
+    #[test]
+    fn turning_with_the_strafe_gains_speed_like_cs() {
+        // Hold strafe right and turn right at a steady rate, keeping the
+        // wish direction just over 90 degrees off velocity: the classic
+        // air strafe. With sv_airaccelerate this high a tick can add the
+        // whole 30 u/s cap, so square to velocity is the best angle and
+        // speed^2 grows by cap^2 a tick: 6.35 -> ~14.6 m/s in five seconds.
+        let mut v = Vec3::NEG_Z * 6.35;
+        for _ in 0..300 {
+            let along = v.normalize();
+            let right = Vec3::new(-along.z, 0.0, along.x);
+            v = air_accelerate(v, right, 6.35, 0.762, 150.0, DT);
+        }
+        assert!(v.length() > 14.0, "{}", v.length());
+    }
+
+    #[test]
+    fn clipping_onto_a_ramp_keeps_the_speed_along_it() {
+        // A 59 degree face leaning towards +x; falling straight down onto it.
+        let a = 59f32.to_radians();
+        let n = Vec3::new(a.sin(), a.cos(), 0.0);
+        let v = Vec3::new(0.0, -10.0, -20.0);
+        let c = clip_velocity(v, n, 1.0);
+        assert!(c.dot(n).abs() < 1e-4, "on the plane: {c}");
+        assert_eq!(c.z, -20.0, "speed along the ramp is kept");
+        assert!(c.x > 0.0 && c.y < 0.0, "sliding down and across: {c}");
+        // Moving away from it: untouched.
+        let away = Vec3::new(5.0, 1.0, 0.0);
+        assert_eq!(clip_velocity(away, n, 1.0), away);
+    }
+
+    #[test]
+    fn surf_numbers_come_from_hammer_units() {
+        assert!((30.0 * HAMMER_UNIT - 0.762).abs() < 1e-6);
+        assert!((800.0 * HAMMER_UNIT - 20.32).abs() < 1e-4);
+        assert!((3500.0 * HAMMER_UNIT - 88.9).abs() < 1e-3);
+    }
+
+    #[test]
+    fn the_data_file_has_the_surf_movement() {
+        let path = format!(
+            "{}/../game/assets/{}",
+            env!("CARGO_MANIFEST_DIR"),
+            TUNING.path()
+        );
+        let Ok(bytes) = std::fs::read(&path) else {
+            panic!("no {path}");
+        };
+        assert!(TUNING.set_bytes(&bytes), "{path} doesn't parse");
+        let t = TUNING.get();
+        assert!(t.air_accel_hz >= 100.0 && t.air_max_wish > 0.5 && t.air_max_wish < 1.0);
+        assert!(t.gravity > 15.0 && t.ground_accel_hz > 0.0 && t.friction_hz > 0.0);
+        assert!(t.stop_speed > 0.0 && t.wish_speed > 5.0 && t.max_speed > 45.0);
     }
 }

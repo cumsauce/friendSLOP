@@ -295,7 +295,9 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   junction chamber, cellar, torch-lit secret passage. Four ways in (two manholes, the east village
   cottage cellar, a secret floorboard in the woodcutter's hut); click any ladder to climb out
   anywhere. Local fog, own music, the helicopter loses you, and a line shows the nearest ladder
-  (`features/underground`).
+  (`features/underground`). Seeded wall clutter (looks only): fallen bricks, moss and leak streaks
+  in the sewers, faintly glowing mushrooms, crates, cobwebs and candle stubs in the passage and
+  cellar (odds in `data/places/underground.ron`).
 - **Wendy's** (#117, Kori.exe). A walk-in burger restaurant east of the commune with a dining
   room, counter, kitchen, butcher's backroom and attic. Click a human meat burger on the counter
   to pocket it; it respawns later. Nothing else uses them yet (`features/wendys.rs`).

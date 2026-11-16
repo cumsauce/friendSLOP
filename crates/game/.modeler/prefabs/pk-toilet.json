@@ -1,13 +1,11 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "pk-toilet",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 54310,
   "ops": [
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "bowl",
         "profile": [
           [
@@ -49,20 +47,20 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 12,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "tank_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.5,
           0.42,
@@ -72,23 +70,23 @@
           0.0,
           0.72,
           -0.33
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "tank",
         "input": "tank_raw",
         "mode": "chamfer",
-        "name": "tank",
         "radius": 0.03,
         "segments": 0
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "tlid_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.54,
           0.05,
@@ -98,23 +96,23 @@
           0.0,
           0.955,
           -0.33
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "tlid",
         "input": "tlid_raw",
         "mode": "chamfer",
-        "name": "tlid",
         "radius": 0.015,
         "segments": 0
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "neck",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.16,
           0.2,
@@ -124,12 +122,13 @@
           0.0,
           0.45,
           -0.24
-        ]
+        ],
+        "rotation": null,
+        "round": 0.02
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "seat",
         "profile": [
           [
@@ -159,24 +158,31 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 12,
+        "round": 0.003,
         "translation": [
           0.0,
           0.4,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "bowl",
-        "metalness": null,
         "name": "bowl",
+        "input": "bowl",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -260,25 +266,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.5
-          },
-          "material": "pk-porcelain",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "tank",
-        "metalness": null,
         "name": "tank",
+        "input": "tank",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -362,25 +368,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.5
-          },
-          "material": "pk-porcelain",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "tlid",
-        "metalness": null,
         "name": "tlid",
+        "input": "tlid",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -464,25 +470,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.5
-          },
-          "material": "pk-porcelain",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "neck",
-        "metalness": null,
         "name": "neck",
+        "input": "neck",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -566,25 +572,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.5
-          },
-          "material": "pk-porcelain",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "seat",
-        "metalness": null,
         "name": "seat",
+        "input": "seat",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "n",
@@ -668,33 +674,27 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.5
-          },
-          "material": "pk-porcelain",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "visibility": {
-        "input": "tank_raw",
         "name": "tank_raw",
+        "input": "tank_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "tlid_raw",
         "name": "tlid_raw",
+        "input": "tlid_raw",
         "visible": false
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "water",
         "profile": [
           [
@@ -716,24 +716,30 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 12,
         "translation": [
           0.0,
           0.36,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "water",
-        "metalness": null,
         "name": "water",
+        "input": "water",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pk-sewage",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -772,19 +778,13 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.25
-          },
-          "material": "pk-sewage",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "flush",
         "profile": [
           [
@@ -806,24 +806,30 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 8,
         "translation": [
           0.15,
           0.99,
           -0.33
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "flush",
-        "metalness": null,
         "name": "flush",
+        "input": "flush",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "sf-metal",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.2,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "fn",
@@ -1031,17 +1037,13 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.2
-          },
-          "material": "sf-metal",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     }
   ],
-  "parts": [],
-  "version": 16496
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

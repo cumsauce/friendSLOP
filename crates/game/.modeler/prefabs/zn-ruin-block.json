@@ -1,15 +1,13 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "zn-ruin-block",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 54455,
   "ops": [
     {
       "primitive": {
-        "kind": "box",
         "name": "body_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           1.0,
           0.72,
@@ -19,40 +17,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "body_ch",
         "input": "body_raw",
         "mode": "chamfer",
-        "name": "body_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "body_ch",
         "name": "body",
-        "rotation": null,
-        "scale": null,
+        "input": "body_ch",
         "translation": [
           0.0,
           -0.14,
           0.0
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "body",
-        "metalness": null,
         "name": "body",
+        "input": "body",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-stonework",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -192,21 +196,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 2.0
-          },
-          "material": "zn-stonework",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "top0_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.34,
           0.17807434,
@@ -216,40 +214,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "top0_ch",
         "input": "top0_raw",
         "mode": "chamfer",
-        "name": "top0_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "top0_ch",
         "name": "top0",
-        "rotation": null,
-        "scale": null,
+        "input": "top0_ch",
         "translation": [
           -0.32,
           0.28903717,
           -0.00780269
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "top0",
-        "metalness": null,
         "name": "top0",
+        "input": "top0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-stonework",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -389,21 +393,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 2.0
-          },
-          "material": "zn-stonework",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "top1_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.32,
           0.280392,
@@ -413,40 +411,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "top1_ch",
         "input": "top1_raw",
         "mode": "chamfer",
-        "name": "top1_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "top1_ch",
         "name": "top1",
-        "rotation": null,
-        "scale": null,
+        "input": "top1_ch",
         "translation": [
           0.03,
           0.340196,
-          -0.026068268
-        ]
+          -0.035
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "top1",
-        "metalness": null,
         "name": "top1",
+        "input": "top1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-stonework",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -586,21 +590,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 2.0
-          },
-          "material": "zn-stonework",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "top2_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.28,
           0.14210688,
@@ -610,40 +608,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "top2_ch",
         "input": "top2_raw",
         "mode": "chamfer",
-        "name": "top2_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "top2_ch",
         "name": "top2",
-        "rotation": null,
-        "scale": null,
+        "input": "top2_ch",
         "translation": [
           0.35,
           0.27105343,
-          -0.01443876
-        ]
+          0.0
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "top2",
-        "metalness": null,
         "name": "top2",
+        "input": "top2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-stonework",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -783,21 +787,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 2.0
-          },
-          "material": "zn-stonework",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "foot_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.4,
           0.2,
@@ -807,40 +805,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "foot_ch",
         "input": "foot_raw",
         "mode": "chamfer",
-        "name": "foot_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "foot_ch",
         "name": "foot",
-        "rotation": null,
-        "scale": null,
+        "input": "foot_ch",
         "translation": [
           0.18,
           -0.4,
           0.0
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "foot",
-        "metalness": null,
         "name": "foot",
+        "input": "foot",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-stonework",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -980,89 +984,86 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 2.0
-          },
-          "material": "zn-stonework",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "visibility": {
-        "input": "body_raw",
         "name": "body_raw",
+        "input": "body_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "top0_raw",
         "name": "top0_raw",
+        "input": "top0_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "top1_raw",
         "name": "top1_raw",
+        "input": "top1_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "top2_raw",
         "name": "top2_raw",
+        "input": "top2_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "foot_raw",
         "name": "foot_raw",
+        "input": "foot_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "body_ch",
         "name": "body_ch",
+        "input": "body_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "top0_ch",
         "name": "top0_ch",
+        "input": "top0_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "top1_ch",
         "name": "top1_ch",
+        "input": "top1_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "top2_ch",
         "name": "top2_ch",
+        "input": "top2_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "foot_ch",
         "name": "foot_ch",
+        "input": "foot_ch",
         "visible": false
       }
     }
   ],
-  "parts": [],
+  "annotations": [],
+  "next_annotation_id": 0,
   "style": {
+    "name": "friendslop",
     "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
     "colors": {
       "bark": "#6b4a2f",
@@ -1077,10 +1078,9 @@
       "stone_dark": "#5e5a54",
       "wood": "#9a6a3e"
     },
-    "name": "friendslop",
     "numbers": {
       "segments": 12.0
     }
   },
-  "version": 6298
+  "derived_from_ops": true
 }

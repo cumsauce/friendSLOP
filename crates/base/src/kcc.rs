@@ -148,11 +148,32 @@ impl Default for Jump {
 
 /// Air control and the speed cap: [`Air::NORMAL`] everywhere, except places
 /// that want more (the surf map cranks air acceleration the way surf servers do).
+///
+/// Ahoy's air move is Quake/Source's `PM_AirAccelerate` (the wish speed
+/// capped at `max_wish_speed` for the "can I add more" test, the full wish
+/// speed for how much per tick), and ground steeper than the walkable slope
+/// isn't ground: you slide along it in the air, velocity clipped onto its
+/// plane, with no friction. That is surfing; the numbers here make it feel
+/// like a surf server (see `data/side/surf.ron`).
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Air {
+    /// Air acceleration (Source `sv_airaccelerate`).
     pub accel_hz: f32,
+    /// Cap on the wish speed in the air (m/s; Source's 30 u/s).
     pub max_wish_speed: f32,
     pub max_speed: f32,
+    /// Free-fall acceleration (m/s^2, `sv_gravity`).
+    pub gravity: f32,
+    /// Ground acceleration (`sv_accelerate`).
+    pub ground_accel_hz: f32,
+    /// Ground friction (`sv_friction`, times the surface's own coefficient).
+    pub friction_hz: f32,
+    /// Below this speed friction acts as if you were going this fast
+    /// (m/s, `sv_stopspeed`).
+    pub stop_speed: f32,
+    /// Wish speed at full stick (m/s) in place of the walker's walk/run
+    /// speed; 0 keeps the walker's own.
+    pub wish_speed: f32,
 }
 
 impl Air {
@@ -160,6 +181,11 @@ impl Air {
         accel_hz: AIR_ACCELERATION_HZ,
         max_wish_speed: MAX_AIR_WISH_SPEED,
         max_speed: MAX_SPEED,
+        gravity: GRAVITY,
+        ground_accel_hz: ACCELERATION_HZ,
+        friction_hz: FRICTION_HZ,
+        stop_speed: STOP_SPEED,
+        wish_speed: 0.0,
     };
 }
 
@@ -295,6 +321,10 @@ fn tune(c: &mut CharacterController, air: Air, jump: &Jump) {
     c.air_acceleration_hz = air.accel_hz;
     c.max_air_wish_speed = air.max_wish_speed;
     c.max_speed = air.max_speed;
+    c.gravity = air.gravity;
+    c.acceleration_hz = air.ground_accel_hz;
+    c.friction_hz = air.friction_hz;
+    c.stop_speed = air.stop_speed;
     c.jump_height = jump.height.max(0.0);
     c.coyote_time = Duration::from_secs_f32(jump.coyote.max(0.0));
     c.jump_input_buffer = Duration::from_secs_f32(jump.buffer.max(0.0));
@@ -387,7 +417,12 @@ pub fn drive(mut owners: Query<(&mut Kcc, &Walking, &Body)>, mut bodies: Query<B
         // Ahoy walks at full speed in the stick's direction; scale the speed
         // by how far the stick is pushed.
         let push = w.stick.length().min(1.0);
-        cfg.speed = w.speed * push;
+        let speed = if w.air.wish_speed > 0.0 {
+            w.air.wish_speed
+        } else {
+            w.speed
+        };
+        cfg.speed = speed * push;
         input.last_movement = Some(w.stick.normalize_or_zero());
         // Jumping: a fresh press, or (auto hop) the button held on landing.
         let pressed = w.jump && !kcc.jump.held;

@@ -7,31 +7,39 @@
 //! barely see yourself. important detail. make it look like the real place".
 //!
 //! You get there on the 1 train (a line in `trains.ron`, from its stop in the
-//! trees at the city's north end). The concourse (the `penn-station` model,
-//! its origin the Penn Station stop's frame) is a low, dingy LIRR-style hall
-//! that floats high over New York like Miami: tiled columns, flickering
-//! tubes, a departures board, Rose Pizza's counter under a red neon sign and
-//! a tiled restroom with a sink, a postcard-sized filthy mirror and a stall.
+//! trees at the city's north end). The interior is the modeler map `penn-map`,
+//! exported to `maps/penn.bsn` (the models) and `maps/penn.map.json` (this
+//! file's data), laid out in the Penn Station stop's frame and floating high
+//! over New York like Miami. Its middle is the 7th Ave exit concourse: low,
+//! tiled and buzzing, the 1 train's track along its south side, a TRACK TBA
+//! board, Rose Pizza under a red neon sign, the stairs up to 7 Av, and a tiled
+//! restroom with a sink, a postcard-sized filthy mirror and a stall.
 //!
 //! The bathroom queue is yours alone (each player has their own person in
 //! front of them): walk up to the door, they talk nonsense at you, go in, and
 //! then nothing happens for 15 seconds. Then the stall's yours. Walk away
 //! and come back and somebody else is in front of you. Writing and timings in
-//! `data/side/penn.ron`; the colliders are mesh-less boxes, so the place
-//! works without the model file.
+//! `data/side/penn.ron`.
 //!
 //! Issue #352 by doomy: "It should be accurate to how it looks externally. it
 //! can be a new map load when u go inside. ... there is an NJ Transit side,
 //! and a LIRR side. Both should have completely different vibes". From the
 //! street it's the Garden's finned drum with the glass 7th Ave entrance
 //! (`nyc-penn` on the city map, its `penn` spot): walk in the doors and
-//! you're in the concourse; the stairs by the tracks (EXIT 7 AV) take you back
-//! out. Off the hall's west side is the NJ Transit wing (low, cold blue light,
-//! every storefront behind a chained gate, trash fires, blood, pee and poop on
-//! the floor, a board of cancellations); through the north wall is the LIRR
-//! wing (tall, warm, a wood ceiling, a lounge, a cafe, charging and a bottle
-//! refill). Each side plays its own music (moods `PennNjt` and `PennLirr`,
-//! signals `penn_njt` / `penn_lirr`).
+//! you're in the concourse; the stairs (EXIT 7 AV) take you back out. West is
+//! the NJ Transit side (wide but cramped under a 3.2 m ceiling, cold light,
+//! every storefront behind a chained gate, track stairs boarded up, a board of
+//! cancellations, trash fires, blood, pee and poop on the floor); north is the
+//! LIRR side (7 m tall, white terrazzo, a warm wood-slat ceiling, an on-time
+//! board, a lounge, a cafe, charging and a bottle refill). Each side plays its
+//! own music (moods `PennNjt` and `PennLirr`, signals `penn_njt` /
+//! `penn_lirr`).
+//!
+//! Nothing here holds positions: the rooms (`room_hall`, `room_njt`,
+//! `room_lirr`), the spots (`door`, `in_line`, `toilet`, `mirror`, `counter`,
+//! `arrive`, `exit`, `fire_*`) and the colliders (`Block` boxes) are markers
+//! in the map. The colliders are read from the data file, so the place works
+//! without the model files.
 
 use bevy::prelude::*;
 use serde::Deserialize;
@@ -80,6 +88,8 @@ pub struct Tuning {
     /// How bright the trash fires burn (lumens) and how much they flicker (0..1).
     pub fire_lumens: f32,
     pub fire_flicker: f32,
+    /// How bright each space's baked light probe is (1 = as baked).
+    pub probe: f32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/side/penn.ron");
@@ -88,43 +98,147 @@ pub fn tuning() -> std::sync::Arc<Tuning> {
     TUNING.get()
 }
 
-// ------------------------------------------------------------------ the concourse's shape
-// Offsets inside the `penn-station` model, in the stop's frame (x along the
-// track, +z away from it, y up from the floor).
+// ------------------------------------------------------------------ the interior's layout
 
-/// The concourse's corners (x, z) and its ceiling.
-const HALL_MIN: Vec2 = Vec2::new(-30.0, -4.0);
-const HALL_MAX: Vec2 = Vec2::new(10.0, 34.0);
-const HALL_H: f32 = 4.2;
-/// The bathroom door's middle (in the restroom's west wall) and where the
-/// person in front of you stands (just outside it).
-pub const DOOR: Vec3 = Vec3::new(1.1, 0.0, 24.1);
-pub const IN_LINE: Vec3 = Vec3::new(0.4, 0.0, 24.1);
-/// The toilet, the mirror and Rose Pizza's counter.
-pub const TOILET: Vec3 = Vec3::new(8.1, 0.0, 33.2);
-pub const MIRROR: Vec3 = Vec3::new(3.0, 1.55, 33.9);
-pub const COUNTER: Vec3 = Vec3::new(-21.0, 0.0, 29.3);
-/// The NJ Transit wing: a strip off the hall's west side (through a gap at
-/// z 16..22) and a room north of it; its ceiling. Corners (x, z).
-const NJT_A: (Vec2, Vec2) = (Vec2::new(-48.0, 10.0), Vec2::new(-30.0, 34.0));
-const NJT_B: (Vec2, Vec2) = (Vec2::new(-48.0, 34.0), Vec2::new(-19.0, 68.0));
-const NJT_H: f32 = 3.6;
-/// The LIRR wing, through the hall's north wall (a gap at x -17..-3), and its ceiling.
-const LIRR: (Vec2, Vec2) = (Vec2::new(-18.7, 34.0), Vec2::new(10.0, 68.0));
-const LIRR_H: f32 = 6.0;
-/// The trash fires' barrels (NJ Transit side).
-pub const FIRES: [Vec3; 3] = [
-    Vec3::new(-40.0, 0.0, 24.0),
-    Vec3::new(-34.0, 0.0, 50.0),
-    Vec3::new(-26.0, 0.0, 60.0),
-];
-/// Where you come in from the street, and the foot of the way-out stairs (EXIT 7 AV).
-pub const ARRIVE: Vec3 = Vec3::new(-10.0, 0.0, 16.0);
-pub const EXIT: Vec3 = Vec3::new(-14.0, 0.0, 0.2);
-/// On the street, from the map's `penn` spot (the drum's middle; the
-/// entrance faces +x, the avenue): the doors, and where you come out.
+/// The interior as the modeler lays it out: the `penn-map` document, exported to
+/// `assets/maps/penn.bsn` (the models) and `penn.map.json` (this data: `Block`
+/// collider boxes, `room_*` and the named spots). Everything is in the Penn
+/// Station stop's frame (x along the track, +z away from it, y up from the
+/// floor). Read at run time on every peer, so the colliders agree everywhere.
+/// Change the place in the modeler and re-export; nothing here holds positions.
+pub static MAP: friendslop_data::Data<friendslop_world::places::MapFile> =
+    friendslop_data::Data::json("maps/penn.map.json");
+
+/// On the street, from the city map's `penn` spot (the drum's middle; the
+/// entrance faces +x, the avenue): the doors, and where you come out. Offsets
+/// inside the `nyc-penn` model, not a choice.
 pub const DOORS: Vec3 = Vec3::new(22.6, 0.0, 0.0);
 pub const STREET: Vec3 = Vec3::new(26.0, 0.0, 0.0);
+
+/// A room's box in the stop's frame (floor to ceiling).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct Room {
+    pub min: Vec3,
+    pub max: Vec3,
+}
+
+impl Room {
+    /// Is `l` inside, standing anywhere from just under the floor to the ceiling?
+    pub fn contains(&self, l: Vec3) -> bool {
+        (self.min.x..self.max.x).contains(&l.x)
+            && (self.min.z..self.max.z).contains(&l.z)
+            && (self.min.y - 1.0..self.max.y).contains(&l.y)
+    }
+}
+
+/// One static collider box: centre, size and turn about +y.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Wall {
+    pub centre: Vec3,
+    pub size: Vec3,
+    pub yaw: f32,
+}
+
+/// What the game needs from the interior's map.
+#[derive(Clone, Debug, Default)]
+pub struct Layout {
+    /// The 7th Ave concourse, the NJ Transit side and the LIRR side.
+    pub hall: Room,
+    pub njt: Room,
+    pub lirr: Room,
+    /// The bathroom door's middle and where the person in front of you stands.
+    pub door: Vec3,
+    pub in_line: Vec3,
+    /// The toilet, the mirror (its middle, at eye height) and Rose Pizza's counter.
+    pub toilet: Vec3,
+    pub mirror: Vec3,
+    pub counter: Vec3,
+    /// Where you come in from the street, and the foot of the way-out stairs (EXIT 7 AV).
+    pub arrive: Vec3,
+    pub exit: Vec3,
+    /// The trash fires' drums (NJ Transit side).
+    pub fires: Vec<Vec3>,
+    pub walls: Vec<Wall>,
+}
+
+/// Read the interior out of its map file. A missing spot is the origin and a
+/// missing room is empty, so a half-made map still loads.
+pub fn layout(map: &friendslop_world::places::MapFile) -> Layout {
+    let find = |name: &str| map.entities.iter().find(|e| e.name == name);
+    let at = |name: &str| find(name).map_or(Vec3::ZERO, |e| Vec3::from_array(e.translation));
+    let room = |name: &str| {
+        find(name).map_or(Room::default(), |e| {
+            let c = Vec3::from_array(e.translation);
+            let half = e.size.map_or(Vec3::ZERO, Vec3::from_array) / 2.0;
+            Room {
+                min: c - half,
+                max: c + half,
+            }
+        })
+    };
+    let mut fires: Vec<(String, Vec3)> = map
+        .entities
+        .iter()
+        .filter(|e| e.kind == "spot" && e.name.starts_with("fire_"))
+        .map(|e| (e.name.clone(), Vec3::from_array(e.translation)))
+        .collect();
+    fires.sort_by(|a, b| a.0.cmp(&b.0));
+    Layout {
+        hall: room("room_hall"),
+        njt: room("room_njt"),
+        lirr: room("room_lirr"),
+        door: at("door"),
+        in_line: at("in_line"),
+        toilet: at("toilet"),
+        mirror: at("mirror"),
+        counter: at("counter"),
+        arrive: at("arrive"),
+        exit: at("exit"),
+        fires: fires.into_iter().map(|(_, p)| p).collect(),
+        walls: map
+            .entities
+            .iter()
+            .filter(|e| e.has("Block"))
+            .map(|e| Wall {
+                centre: Vec3::from_array(e.translation),
+                size: e.size.map_or(Vec3::ONE, Vec3::from_array),
+                yaw: e.yaw.to_radians(),
+            })
+            .collect(),
+    }
+}
+
+/// The interior as the data file has it now.
+pub fn here() -> Layout {
+    layout(&MAP.get())
+}
+
+/// Each space's look (`data/base/place_looks.ron`): the sky is out in all
+/// three; the concourse is fluorescent-dim, the NJ Transit side darker in a
+/// cold haze, the LIRR side brighter and warm. Each is also the name its
+/// light probe is baked under (`assets/probes/<look>_*.ktx2`).
+pub const LOOK_HALL: &str = "penn_hall";
+pub const LOOK_NJT: &str = "penn_njt";
+pub const LOOK_LIRR: &str = "penn_lirr";
+
+/// Which space's look a point (stop frame) gets, if it's in the station.
+pub fn look(lay: &Layout, l: Vec3) -> Option<&'static str> {
+    match side(lay, l) {
+        Some(Side::NjTransit) => Some(LOOK_NJT),
+        Some(Side::Lirr) => Some(LOOK_LIRR),
+        None if in_hall(lay, l) => Some(LOOK_HALL),
+        None => None,
+    }
+}
+
+/// The three spaces with their look (and probe) names.
+fn spaces(lay: &Layout) -> [(&'static str, Room); 3] {
+    [
+        (LOOK_HALL, lay.hall),
+        (LOOK_NJT, lay.njt),
+        (LOOK_LIRR, lay.lirr),
+    ]
+}
 
 /// Which side of the station you're on.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -133,24 +247,20 @@ pub enum Side {
     Lirr,
 }
 
-fn inside(r: (Vec2, Vec2), l: Vec3, h: f32) -> bool {
-    (r.0.x..r.1.x).contains(&l.x) && (r.0.y..r.1.y).contains(&l.z) && (-1.0..h).contains(&l.y)
-}
-
-/// Which wing a point (stop frame) is in, if any.
-pub fn side(l: Vec3) -> Option<Side> {
-    if inside(NJT_A, l, NJT_H) || inside(NJT_B, l, NJT_H) {
+/// Which side a point (stop frame) is on, if any.
+pub fn side(lay: &Layout, l: Vec3) -> Option<Side> {
+    if lay.njt.contains(l) {
         Some(Side::NjTransit)
-    } else if inside(LIRR, l, LIRR_H) {
+    } else if lay.lirr.contains(l) {
         Some(Side::Lirr)
     } else {
         None
     }
 }
 
-/// Anywhere in the station: the hall or a wing.
-pub fn in_station(l: Vec3) -> bool {
-    in_hall(l) || side(l).is_some()
+/// Anywhere in the station: the hall or a side.
+pub fn in_station(lay: &Layout, l: Vec3) -> bool {
+    in_hall(lay, l) || side(lay, l).is_some()
 }
 
 /// Where the map puts Penn Station's drum (its `penn` spot).
@@ -162,13 +272,13 @@ pub fn street_spot(map: &friendslop_world::places::MapFile) -> Option<Vec3> {
 /// Walking through: from the street doors into the concourse, or from the
 /// way-out stairs onto the street. `pos` is your feet, `spot` the drum's
 /// middle, `f` the concourse's frame. Where you end up, if anywhere.
-pub fn through(pos: Vec3, spot: Vec3, f: &Transform, reach: f32) -> Option<Vec3> {
+pub fn through(lay: &Layout, pos: Vec3, spot: Vec3, f: &Transform, reach: f32) -> Option<Vec3> {
     let flat = |a: Vec3, b: Vec3| Vec2::new(a.x - b.x, a.z - b.z).length();
     if flat(pos, spot + DOORS) < reach && (pos.y - spot.y).abs() < 3.0 {
-        return Some(f.transform_point(ARRIVE));
+        return Some(f.transform_point(lay.arrive));
     }
     let l = f.rotation.inverse() * (pos - f.translation);
-    if in_hall(l) && flat(l, EXIT) < reach {
+    if in_hall(lay, l) && flat(l, lay.exit) < reach {
         return Some(spot + STREET);
     }
     None
@@ -186,94 +296,9 @@ pub fn frame() -> Option<Transform> {
         .map(crate::features::trains::stop_frame)
 }
 
-/// The concourse's static boxes (centre, size) in the stop's frame.
-pub fn boxes() -> Vec<(Vec3, Vec3)> {
-    let span = |a: Vec3, b: Vec3| ((a + b) / 2.0, (b - a).abs());
-    let (lo, hi, h) = (HALL_MIN, HALL_MAX, HALL_H);
-    vec![
-        // Floor and ceiling.
-        span(Vec3::new(lo.x, -0.3, lo.y), Vec3::new(hi.x, 0.0, hi.y)),
-        span(Vec3::new(lo.x, h, lo.y), Vec3::new(hi.x, h + 0.3, hi.y)),
-        // Walls (the east one leaves the tunnel mouth to the station's own
-        // boxes; the north and west ones leave gaps into the wings).
-        span(Vec3::new(lo.x, 0.0, hi.y), Vec3::new(-17.0, h, hi.y + 0.3)),
-        span(Vec3::new(-3.0, 0.0, hi.y), Vec3::new(hi.x, h, hi.y + 0.3)),
-        span(Vec3::new(lo.x, 0.0, lo.y - 0.3), Vec3::new(hi.x, h, lo.y)),
-        span(Vec3::new(lo.x - 0.3, 0.0, lo.y), Vec3::new(lo.x, h, 16.0)),
-        span(Vec3::new(lo.x - 0.3, 0.0, 22.0), Vec3::new(lo.x, h, hi.y)),
-        span(Vec3::new(hi.x, 0.0, 5.1), Vec3::new(hi.x + 0.3, h, hi.y)),
-        // The way-out stairs.
-        span(Vec3::new(-15.5, 0.0, -4.0), Vec3::new(-12.5, 2.4, -0.6)),
-        // The NJ Transit wing: floors, ceilings, walls, the wall to the LIRR.
-        span(
-            Vec3::new(NJT_A.0.x, -0.3, NJT_A.0.y),
-            Vec3::new(NJT_A.1.x, 0.0, NJT_A.1.y),
-        ),
-        span(
-            Vec3::new(NJT_B.0.x, -0.3, NJT_B.0.y),
-            Vec3::new(NJT_B.1.x, 0.0, NJT_B.1.y),
-        ),
-        span(
-            Vec3::new(NJT_A.0.x, NJT_H, NJT_A.0.y),
-            Vec3::new(NJT_A.1.x, NJT_H + 0.3, NJT_A.1.y),
-        ),
-        span(
-            Vec3::new(NJT_B.0.x, NJT_H, NJT_B.0.y),
-            Vec3::new(NJT_B.1.x, NJT_H + 0.3, NJT_B.1.y),
-        ),
-        span(Vec3::new(-48.3, 0.0, 10.0), Vec3::new(-48.0, NJT_H, 68.0)),
-        span(Vec3::new(-48.0, 0.0, 9.7), Vec3::new(-30.0, NJT_H, 10.0)),
-        span(Vec3::new(-48.0, 0.0, 68.0), Vec3::new(-19.0, NJT_H, 68.3)),
-        span(Vec3::new(-19.0, 0.0, 34.0), Vec3::new(-18.7, LIRR_H, 68.0)),
-        // The LIRR wing.
-        span(
-            Vec3::new(LIRR.0.x, -0.3, LIRR.0.y),
-            Vec3::new(LIRR.1.x, 0.0, LIRR.1.y),
-        ),
-        span(
-            Vec3::new(LIRR.0.x, LIRR_H, LIRR.0.y),
-            Vec3::new(LIRR.1.x, LIRR_H + 0.3, LIRR.1.y),
-        ),
-        span(
-            Vec3::new(LIRR.0.x, 0.0, 68.0),
-            Vec3::new(10.0, LIRR_H, 68.3),
-        ),
-        span(Vec3::new(10.0, 0.0, 34.0), Vec3::new(10.3, LIRR_H, 68.0)),
-        span(Vec3::new(LIRR.0.x, h, 34.0), Vec3::new(10.0, LIRR_H, 34.3)),
-        // The cafe's counter and the fire barrels.
-        span(Vec3::new(-0.5, 0.0, 64.5), Vec3::new(4.5, 1.1, 65.5)),
-        span(
-            FIRES[0] - Vec3::new(0.35, 0.0, 0.35),
-            FIRES[0] + Vec3::new(0.35, 0.9, 0.35),
-        ),
-        span(
-            FIRES[1] - Vec3::new(0.35, 0.0, 0.35),
-            FIRES[1] + Vec3::new(0.35, 0.9, 0.35),
-        ),
-        span(
-            FIRES[2] - Vec3::new(0.35, 0.0, 0.35),
-            FIRES[2] + Vec3::new(0.35, 0.9, 0.35),
-        ),
-        // Rose Pizza's counter and ovens.
-        span(Vec3::new(-26.5, 0.0, 29.6), Vec3::new(-15.5, 1.1, 30.4)),
-        span(Vec3::new(-27.5, 0.0, 32.8), Vec3::new(-19.0, 1.6, 34.0)),
-        // The restroom: its south wall, its west wall either side of the door.
-        span(Vec3::new(1.0, 0.0, 21.9), Vec3::new(hi.x, h, 22.1)),
-        span(Vec3::new(1.0, 0.0, 22.1), Vec3::new(1.2, h, DOOR.z - 0.6)),
-        span(Vec3::new(1.0, 0.0, DOOR.z + 0.6), Vec3::new(1.2, h, hi.y)),
-        // The stall's side and front (its door stands open).
-        span(Vec3::new(6.47, 0.0, 30.3), Vec3::new(6.53, 2.15, hi.y)),
-        span(Vec3::new(6.5, 0.0, 30.27), Vec3::new(8.1, 2.15, 30.33)),
-        // The bench.
-        span(Vec3::new(-14.0, 0.0, 23.7), Vec3::new(-10.0, 0.45, 24.3)),
-    ]
-}
-
-/// Is a point (stop frame) inside the concourse?
-pub fn in_hall(l: Vec3) -> bool {
-    (HALL_MIN.x..HALL_MAX.x).contains(&l.x)
-        && (HALL_MIN.y..HALL_MAX.y).contains(&l.z)
-        && (-1.0..HALL_H).contains(&l.y)
+/// Is a point (stop frame) inside the 7th Ave concourse?
+pub fn in_hall(lay: &Layout, l: Vec3) -> bool {
+    lay.hall.contains(l)
 }
 
 // ------------------------------------------------------------------ the queue
@@ -371,6 +396,7 @@ pub fn plugin(app: &mut App) {
             (
                 // Penn Station is under New York: it sleeps with it (#412).
                 (queue, pizza_line, side_line, fires).run_if(crate::sites::here("nyc")),
+                penn_look.in_set(crate::place::PlaceSet),
                 music_signals,
             )
                 .run_if(in_state(AppState::InGame)),
@@ -403,16 +429,39 @@ enum Thing {
 
 fn build(mut commands: Commands, assets: Res<AssetServer>) {
     let Some(f) = frame() else { return };
+    let lay = here();
+    // The models, all from the modeler map, at the stop's frame on their own
+    // flat floor. SALT: not needing `Cargo.lock` for this `.bsn` either; x
+    // didn't set us up for success, we need more SME's, we haven't considered
+    // the problem space enough, BSN syntax needs more changes, and `Children`
+    // sugaring? Ask Sam "Salt" Saltman.
     commands.spawn((
-        WorldAssetRoot(
-            assets.load(GltfAssetLabel::Scene(0).from_asset("models/penn-station.gltf")),
-        ),
+        friendslop_world::map::Map(assets.load("maps/penn.bsn")),
+        friendslop_world::map::FlatGround,
         f,
+        Visibility::default(),
         crate::area::show(),
     ));
-    spawn_stranger(&mut commands, &f, 0);
+    spawn_stranger(&mut commands, &f, lay.in_line, 0);
+    // Each space's baked light: what lights things inside is the room's own
+    // light, not the sky's (`data/game/probes.ron`; re-bake when the map changes).
+    if !friendslop_base::probes::baking() {
+        let t = tuning();
+        for (name, r) in spaces(&lay) {
+            commands.spawn((
+                friendslop_base::probes::probe(
+                    &assets,
+                    name,
+                    f.transform_point((r.min + r.max) / 2.0),
+                    r.max - r.min + Vec3::Y * 0.4,
+                    t.probe,
+                ),
+                crate::area::show(),
+            ));
+        }
+    }
     // The trash fires' light (flickered by `fires`).
-    for (i, at) in FIRES.iter().enumerate() {
+    for (i, at) in lay.fires.iter().enumerate() {
         commands.spawn((
             Fire(i),
             PointLight {
@@ -429,7 +478,7 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
     let out = f.rotation * Vec3::NEG_Z;
     crate::area::doorway(
         &mut commands,
-        f.transform_point(EXIT),
+        f.transform_point(lay.exit),
         crate::features::doorway::yaw_towards(Vec2::new(out.x, out.z)),
         crate::features::doorway::Doorway::way_out("7 Av & 33 St").size(3.0, 2.4),
     );
@@ -442,14 +491,14 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
         );
     }
     for (thing, at, label, h) in [
-        (Thing::Toilet, TOILET, "use the bathroom", 0.5),
+        (Thing::Toilet, lay.toilet, "use the bathroom", 0.5),
         (
             Thing::Mirror,
-            MIRROR - Vec3::Y * 1.2,
+            lay.mirror - Vec3::Y * 1.2,
             "look in the mirror",
             1.2,
         ),
-        (Thing::Slice, COUNTER, "buy a slice", 1.0),
+        (Thing::Slice, lay.counter, "buy a slice", 1.0),
     ] {
         commands.spawn((
             thing,
@@ -462,11 +511,27 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
 
 fn build_sim(mut commands: Commands) {
     let Some(f) = frame() else { return };
-    for (c, s) in boxes() {
+    // Where each space's probe is baked: its middle, at head height.
+    let bakes: Vec<(&'static str, Vec3)> = spaces(&here())
+        .into_iter()
+        .map(|(name, r)| {
+            let mid = (r.min + r.max) / 2.0;
+            (name, f.transform_point(mid.with_y(r.min.y + 1.7)))
+        })
+        .collect();
+    commands.queue(move |world: &mut World| {
+        if let Some(mut b) = world.get_resource_mut::<friendslop_base::probes::ProbeBakes>() {
+            for (name, at) in bakes {
+                b.add(name, at);
+            }
+        }
+    });
+    for w in here().walls {
         commands.spawn((
-            Transform::from_translation(f.transform_point(c)).with_rotation(f.rotation),
+            Transform::from_translation(f.transform_point(w.centre))
+                .with_rotation(f.rotation * Quat::from_rotation_y(w.yaw)),
             avian3d::prelude::RigidBody::Static,
-            avian3d::prelude::Collider::cuboid(s.x, s.y, s.z),
+            avian3d::prelude::Collider::cuboid(w.size.x, w.size.y, w.size.z),
             crate::area::sim(),
         ));
     }
@@ -478,7 +543,7 @@ fn starts() -> Vec<(String, Vec3)> {
     if let Some(f) = frame() {
         out.push((
             "penn".into(),
-            f.transform_point(Vec3::new(-10.0, 0.05, 16.0)),
+            f.transform_point(here().arrive + Vec3::Y * 0.05),
         ));
     }
     if let Some(spot) = street_spot(&super::nyc::MAP.get()) {
@@ -502,8 +567,9 @@ fn walk_through(
         return;
     };
     let reach = tuning().door_reach;
+    let lay = here();
     for (mut walker, mut input, mut kcc) in &mut bodies {
-        let Some(to) = through(walker.pos, spot, &f, reach) else {
+        let Some(to) = through(&lay, walker.pos, spot, &f, reach) else {
             continue;
         };
         let yaw = walker.yaw;
@@ -537,7 +603,7 @@ fn fires(time: Res<Time>, mut lights: Query<(&Fire, &mut PointLight)>) {
 fn my_side(me: &Option<Res<LocalPlayer>>, walkers: &Query<(&Player, &Walker)>) -> Option<Side> {
     let f = frame()?;
     let pos = my_pos(me, walkers)?;
-    side(f.rotation.inverse() * (pos - f.translation))
+    side(&here(), f.rotation.inverse() * (pos - f.translation))
 }
 
 /// Local: a line when you walk into either side.
@@ -560,6 +626,15 @@ fn side_line(
     *was = now;
 }
 
+/// Local: inside, the station's look replaces the sky's light (`place.rs`).
+fn penn_look(here: Res<crate::place::Here>, mut looks: ResMut<crate::place::PlaceLooks>) {
+    let Some(f) = frame() else { return };
+    let l = f.rotation.inverse() * (here.0 - f.translation);
+    if let Some(id) = look(&self::here(), l) {
+        looks.push(id);
+    }
+}
+
 /// For the music: the camera's on the NJ Transit side (`penn_njt`) or the LIRR side (`penn_lirr`).
 fn music_signals(
     camera: Query<&GlobalTransform, With<Camera3d>>,
@@ -567,20 +642,21 @@ fn music_signals(
 ) {
     let Some(mut signals) = signals else { return };
     let at = crate::music::camera_at(&camera);
+    let lay = here();
     let s = frame()
         .zip(at)
-        .and_then(|(f, p)| side(f.rotation.inverse() * (p - f.translation)));
+        .and_then(|(f, p)| side(&lay, f.rotation.inverse() * (p - f.translation)));
     signals.flag("penn_njt", s == Some(Side::NjTransit));
     signals.flag("penn_lirr", s == Some(Side::Lirr));
 }
 
-fn spawn_stranger(commands: &mut Commands, f: &Transform, visit: usize) {
+fn spawn_stranger(commands: &mut Commands, f: &Transform, in_line: Vec3, visit: usize) {
     // Facing you (-x, out of the door), back to the door.
     let turn = f.rotation * Quat::from_rotation_y(-std::f32::consts::FRAC_PI_2);
     commands.spawn((
         Stranger,
         crate::people::Gait::default(),
-        Transform::from_translation(f.transform_point(IN_LINE)).with_rotation(turn),
+        Transform::from_translation(f.transform_point(in_line)).with_rotation(turn),
         Visibility::default(),
         crate::people::CharacterLook::random(0x0357_0000 + visit as u64 * 7919),
         crate::area::show(),
@@ -609,10 +685,11 @@ fn queue(
         return;
     };
     let t = tuning();
+    let lay = here();
     let l = f.rotation.inverse() * (pos - f.translation);
-    let d = Vec2::new(l.x - DOOR.x, l.z - DOOR.z).length();
-    let near = in_hall(l) && d < t.queue_reach;
-    let away = !in_hall(l) || d > t.reset_dist;
+    let d = Vec2::new(l.x - lay.door.x, l.z - lay.door.z).length();
+    let near = in_hall(&lay, l) && d < t.queue_reach;
+    let away = !in_hall(&lay, l) || d > t.reset_dist;
     let convo = if t.conversations.is_empty() {
         None
     } else {
@@ -628,7 +705,7 @@ fn queue(
         for (e, _) in &strangers {
             commands.entity(e).despawn();
         }
-        spawn_stranger(&mut commands, &f, line.visit);
+        spawn_stranger(&mut commands, &f, lay.in_line, line.visit);
     }
     let outside = stranger_outside(next);
     for (_, mut v) in &mut strangers {
@@ -685,8 +762,10 @@ fn pizza_line(
     let (Some(f), Some(pos), Some(mut toast)) = (frame(), my_pos(&me, &walkers), toast) else {
         return;
     };
+    let lay = here();
     let l = f.rotation.inverse() * (pos - f.translation);
-    let near = in_hall(l) && Vec2::new(l.x - COUNTER.x, l.z - COUNTER.z).length() < 6.0;
+    let near =
+        in_hall(&lay, l) && Vec2::new(l.x - lay.counter.x, l.z - lay.counter.z).length() < 6.0;
     if near && !*was {
         toast.show(tuning().pizza_line.clone());
     }
@@ -716,6 +795,7 @@ mod tests {
         assert!(t.queue_reach > 0.0 && t.line_secs > 0.0 && t.reset_dist > t.queue_reach);
         assert_eq!(t.silence_secs, 15.0, "catherine: 15 seconds of silence");
         assert!(t.door_reach > 0.0 && t.fire_lumens > 0.0 && (0.0..=1.0).contains(&t.fire_flicker));
+        assert!(t.probe > 0.0, "the probes light the inside");
         assert!(!t.njt_line.is_empty() && !t.lirr_line.is_empty());
         assert!(!t.conversations.is_empty() && t.conversations.iter().all(|c| !c.is_empty()));
         for s in [
@@ -731,23 +811,89 @@ mod tests {
         }
     }
 
+    fn lay() -> Layout {
+        load(&MAP);
+        here()
+    }
+
+    /// Is `p` inside any of the interior's collider boxes?
+    fn blocked(lay: &Layout, p: Vec3) -> Option<Wall> {
+        lay.walls.iter().copied().find(|w| {
+            let d = Quat::from_rotation_y(-w.yaw) * (p - w.centre);
+            d.x.abs() < w.size.x / 2.0 && d.y.abs() < w.size.y / 2.0 && d.z.abs() < w.size.z / 2.0
+        })
+    }
+
+    #[test]
+    fn the_map_has_every_room_and_spot() {
+        load(&MAP);
+        let map = MAP.get();
+        for name in [
+            "room_hall",
+            "room_njt",
+            "room_lirr",
+            "door",
+            "in_line",
+            "toilet",
+            "mirror",
+            "counter",
+            "arrive",
+            "exit",
+            "fire_0",
+        ] {
+            assert!(
+                map.entities.iter().any(|e| e.name == name),
+                "maps/penn.map.json has no `{name}` spot"
+            );
+        }
+        let l = layout(&map);
+        for r in [l.hall, l.njt, l.lirr] {
+            assert!(r.max.x > r.min.x && r.max.z > r.min.z && r.max.y > 2.0);
+        }
+        assert!(l.walls.len() > 10, "the interior has its colliders");
+        assert!(l.mirror.y > 1.0, "the mirror hangs at face height");
+    }
+
     #[test]
     fn the_1_train_stops_in_the_concourse_inside_the_city() {
         let t = t();
+        let l = lay();
         load(&crate::features::trains::TUNING);
         let Some(f) = frame() else {
             panic!("no stop named {} in trains.ron", t.stop);
         };
-        for c in [HALL_MIN, HALL_MAX, NJT_A.0, NJT_B.1, LIRR.1] {
-            let p = f.transform_point(Vec3::new(c.x, 0.0, c.y));
-            assert!(
-                crate::rules::nyc::in_city(p.x, p.z),
-                "the city's soft wall would push you home"
-            );
+        for r in [l.hall, l.njt, l.lirr] {
+            for c in [r.min, r.max] {
+                let p = f.transform_point(Vec3::new(c.x, 0.0, c.z));
+                assert!(
+                    crate::rules::nyc::in_city(p.x, p.z),
+                    "the city's soft wall would push you home"
+                );
+            }
         }
         // Clear of Miami's island.
         let miami = Vec3::from(crate::features::miami::TUNING.get().ground);
         assert!((f.translation.y - miami.y).abs() > 100.0 || miami == Vec3::ZERO);
+    }
+
+    #[test]
+    fn the_track_and_platform_are_clear() {
+        let l = lay();
+        // The 1 train's track bed and platform (trains.rs), and its tunnel mouth.
+        for x in [-9.0, -5.0, 0.0, 5.0, 9.0, 10.2] {
+            for z in [-2.0, 0.0, 1.0, 3.0, 4.6] {
+                let p = Vec3::new(x, 1.2, z);
+                assert!(
+                    blocked(&l, p).is_none(),
+                    "{:?} blocks the train at {p}",
+                    blocked(&l, p)
+                );
+            }
+        }
+        assert!(
+            l.hall.contains(Vec3::new(0.0, 1.0, 3.0)),
+            "the platform is in the hall"
+        );
     }
 
     #[test]
@@ -790,42 +936,52 @@ mod tests {
 
     #[test]
     fn the_doors_are_open_and_the_line_spot_is_clear() {
-        let b = boxes();
-        let inside = |p: Vec3| {
-            b.iter().any(|(c, s)| {
-                let d = (p - *c).abs();
-                d.x < s.x / 2.0 && d.y < s.y / 2.0 && d.z < s.z / 2.0
-            })
-        };
+        let l = lay();
         for p in [
-            DOOR,
-            IN_LINE,
-            Vec3::new(4.0, 0.0, 27.0),
-            Vec3::new(8.0, 0.0, 31.0),
-            Vec3::new(-10.0, 0.0, 16.0),
-            // Into the NJ Transit wing and the LIRR wing, and the way out.
-            Vec3::new(-30.0, 0.0, 19.0),
-            Vec3::new(-10.0, 0.0, 34.0),
-            Vec3::new(-35.0, 0.0, 40.0),
-            Vec3::new(-5.0, 0.0, 50.0),
-            ARRIVE,
-            EXIT,
+            l.door,
+            l.in_line,
+            l.arrive,
+            l.exit,
+            l.counter,
+            // In front of the stall and the sink, inside the restroom.
+            l.toilet - Vec3::new(0.4, 0.0, 1.6),
+            l.mirror.with_y(0.0) - Vec3::Z * 0.8,
+            // Through into the NJ Transit side and the LIRR side, and across them.
+            Vec3::new(
+                l.hall.min.x,
+                0.0,
+                (l.njt.min.z.max(l.hall.min.z) + 13.0) / 2.0 + 6.0,
+            ),
+            Vec3::new(-7.0, 0.0, l.lirr.min.z),
+            (l.njt.min + l.njt.max).with_y(0.0) / 2.0 + Vec3::new(0.0, 0.0, 9.0),
+            (l.lirr.min + l.lirr.max).with_y(0.0) / 2.0,
         ] {
-            assert!(!inside(p + Vec3::Y), "blocked at {p}");
+            let at = p + Vec3::Y;
+            assert!(
+                blocked(&l, at).is_none(),
+                "{:?} blocks {at}",
+                blocked(&l, at)
+            );
         }
-        assert!(inside(Vec3::new(0.0, -0.1, 10.0)), "a floor");
+        assert!(
+            blocked(&l, Vec3::new(0.0, -0.1, 10.0)).is_some(),
+            "the hall has a floor"
+        );
     }
 
     #[test]
     fn two_sides_and_the_hall_between() {
-        assert_eq!(side(Vec3::new(-40.0, 1.0, 20.0)), Some(Side::NjTransit));
-        assert_eq!(side(Vec3::new(-30.0, 1.0, 60.0)), Some(Side::NjTransit));
-        assert_eq!(side(Vec3::new(0.0, 1.0, 50.0)), Some(Side::Lirr));
-        assert_eq!(side(Vec3::new(-10.0, 1.0, 16.0)), None);
-        assert!(in_station(Vec3::new(-10.0, 1.0, 16.0)));
-        for at in FIRES {
+        let l = lay();
+        let mid = |r: Room| (r.min + r.max) / 2.0;
+        assert_eq!(side(&l, mid(l.njt)), Some(Side::NjTransit));
+        assert_eq!(side(&l, mid(l.lirr)), Some(Side::Lirr));
+        assert_eq!(side(&l, l.arrive + Vec3::Y), None);
+        assert!(in_station(&l, l.arrive + Vec3::Y));
+        assert!(in_hall(&l, l.door - Vec3::X * 0.3) && in_hall(&l, l.counter));
+        assert!(!l.fires.is_empty());
+        for at in &l.fires {
             assert_eq!(
-                side(at),
+                side(&l, *at),
                 Some(Side::NjTransit),
                 "fires burn on the NJ Transit side"
             );
@@ -833,16 +989,30 @@ mod tests {
     }
 
     #[test]
+    fn each_space_has_its_look() {
+        let l = lay();
+        let mid = |r: Room| (r.min + r.max) / 2.0;
+        assert_eq!(look(&l, mid(l.hall)), Some(LOOK_HALL));
+        assert_eq!(look(&l, mid(l.njt)), Some(LOOK_NJT));
+        assert_eq!(look(&l, mid(l.lirr)), Some(LOOK_LIRR));
+        assert_eq!(look(&l, Vec3::new(0.0, 1.0, -100.0)), None);
+    }
+
+    #[test]
     fn in_the_doors_and_out_the_stairs() {
+        let l = lay();
         let f = Transform::from_xyz(-40.0, 1000.0, 260.0);
         let spot = Vec3::new(-42.0, 0.0, 281.0);
-        let inn = through(spot + DOORS, spot, &f, 1.5);
-        assert_eq!(inn, Some(f.transform_point(ARRIVE)));
+        let inn = through(&l, spot + DOORS, spot, &f, 1.5);
+        assert_eq!(inn, Some(f.transform_point(l.arrive)));
         // Arriving isn't standing at the way out, and coming out isn't at the doors.
-        assert_eq!(through(f.transform_point(ARRIVE), spot, &f, 1.5), None);
-        let out = through(f.transform_point(EXIT), spot, &f, 1.5);
+        assert_eq!(
+            through(&l, f.transform_point(l.arrive), spot, &f, 1.5),
+            None
+        );
+        let out = through(&l, f.transform_point(l.exit), spot, &f, 1.5);
         assert_eq!(out, Some(spot + STREET));
-        assert_eq!(through(spot + STREET, spot, &f, 1.5), None);
+        assert_eq!(through(&l, spot + STREET, spot, &f, 1.5), None);
     }
 
     #[test]

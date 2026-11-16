@@ -1,0 +1,180 @@
+{
+  "name": "pn-wall-tile",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.2,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "g",
+      "size": [
+        0.15,
+        0.15
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "in": [
+        0.002,
+        0.005
+      ],
+      "input": "g.edge",
+      "name": "grout",
+      "out": [
+        1,
+        0
+      ],
+      "type": "levels"
+    },
+    {
+      "id": "g.id",
+      "max": 1,
+      "min": 0.86,
+      "name": "r",
+      "seed": 4,
+      "type": "random"
+    },
+    {
+      "name": "n",
+      "octaves": 2,
+      "seed": 5,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "a": "r",
+      "b": 0.82,
+      "c": "n",
+      "name": "t",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "t",
+      "b": 0.5,
+      "c": "grout",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.22,
+      "b": 0.85,
+      "c": "grout",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "grout",
+      "b": -0.002,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pn-wall-tile",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.2,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.15,
+                0.15
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.002,
+                0.005
+              ],
+              "input": "g.edge",
+              "name": "grout",
+              "out": [
+                1,
+                0
+              ],
+              "type": "levels"
+            },
+            {
+              "id": "g.id",
+              "max": 1,
+              "min": 0.86,
+              "name": "r",
+              "seed": 4,
+              "type": "random"
+            },
+            {
+              "name": "n",
+              "octaves": 2,
+              "seed": 5,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "a": "r",
+              "b": 0.82,
+              "c": "n",
+              "name": "t",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "t",
+              "b": 0.5,
+              "c": "grout",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.22,
+              "b": 0.85,
+              "c": "grout",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "grout",
+              "b": -0.002,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+g +grout +r +n +t +col +rough +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

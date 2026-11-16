@@ -91,6 +91,12 @@ fn apply_hidden(
 #[derive(Resource, Default, Clone, Copy, Debug, PartialEq)]
 pub struct Here(pub Vec3);
 
+/// Inside a walk-in interior with windows and a door onto the street (shops,
+/// Wendy's): the sun still shines in, only the sky's flat ambient light comes
+/// down; the interior's baked light probe carries its own light and auto
+/// exposure keeps it reading bright (`data/base/place_looks.ron`).
+pub const INDOORS: &str = "indoors";
+
 /// The ids of the places you're in this frame (cleared every frame).
 #[derive(Resource, Default, Debug)]
 pub struct PlaceLooks(Vec<&'static str>);

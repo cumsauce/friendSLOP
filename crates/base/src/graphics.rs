@@ -62,6 +62,46 @@ pub struct Tuning {
     pub long_shadows: Cascades,
     /// ... and when it's Short.
     pub short_shadows: Cascades,
+    /// Eye adaptation (desktop, with the HDR target): how far exposure follows
+    /// a scene that's darker or brighter than daylight.
+    pub auto_exposure: AutoExposureTuning,
+}
+
+/// How the camera's exposure adapts (Bevy's auto exposure meters the scene's
+/// average log2 luminance; these bound what it may do with it). Stops are
+/// powers of two.
+#[derive(serde::Deserialize, Default, Debug, Clone, PartialEq)]
+pub struct AutoExposureTuning {
+    /// Daylight's average log2 luminance: no change at this level.
+    pub outdoor: f32,
+    /// The most a darker scene is brightened, in stops (a shop, Penn).
+    pub brighten: f32,
+    /// The most a brighter scene is darkened, in stops.
+    pub darken: f32,
+    /// How many stops under daylight the boost starts to fade, and where it's
+    /// gone: places dark on purpose (the warehouse, Fulton St, night) stay dark.
+    pub fade_start: f32,
+    pub fade_end: f32,
+    /// How fast it adapts, stops per second, going brighter and going darker.
+    pub speed_brighten: f32,
+    pub speed_darken: f32,
+}
+
+/// Pure: how many stops exposure moves for a scene of average log2 luminance
+/// `l` (positive brightens). Follows the scene fully within `brighten` /
+/// `darken` stops of daylight, then the boost fades out for scenes from
+/// `fade_start` to `fade_end` stops darker than daylight.
+pub fn adapt_stops(t: &AutoExposureTuning, l: f32) -> f32 {
+    let under = t.outdoor - l;
+    let follow = under.clamp(-t.darken, t.brighten);
+    if under <= t.fade_start {
+        follow
+    } else if under >= t.fade_end {
+        0.0
+    } else {
+        let k = (under - t.fade_start) / (t.fade_end - t.fade_start).max(1e-3);
+        follow * (1.0 - k)
+    }
 }
 
 /// The sun's shadow cascades.
@@ -458,6 +498,64 @@ pub fn plugin(app: &mut App) {
     );
     #[cfg(not(target_arch = "wasm32"))]
     app.add_systems(PostUpdate, render_scale::apply);
+    // Eye adaptation needs compute shaders: not in WebGL2 browsers.
+    #[cfg(not(target_arch = "wasm32"))]
+    app.add_plugins(bevy::post_process::auto_exposure::AutoExposurePlugin)
+        .add_systems(PostUpdate, apply_auto_exposure.after(apply_camera));
+}
+
+/// Desktop: the camera's exposure adapts (only with the HDR target; Low keeps
+/// a fixed exposure). Rebuilt when the tuning file changes.
+#[cfg(not(target_arch = "wasm32"))]
+fn apply_auto_exposure(
+    mut commands: Commands,
+    mut curves: ResMut<Assets<bevy::post_process::auto_exposure::AutoExposureCompensationCurve>>,
+    cameras: Query<
+        (
+            Entity,
+            Has<bevy::camera::Hdr>,
+            Has<bevy::post_process::auto_exposure::AutoExposure>,
+        ),
+        With<MainCamera>,
+    >,
+    mut last: Local<Option<std::sync::Arc<Tuning>>>,
+) {
+    use bevy::post_process::auto_exposure::{AutoExposure, AutoExposureCompensationCurve};
+    let t = TUNING.get();
+    let changed = !last.as_ref().is_some_and(|l| std::sync::Arc::ptr_eq(l, &t));
+    for (e, hdr, has) in &cameras {
+        if !hdr {
+            if has {
+                commands.entity(e).remove::<AutoExposure>();
+            }
+            continue;
+        }
+        if has && !changed {
+            continue;
+        }
+        let a = &t.auto_exposure;
+        // The curve maps the metered luminance to where it should end up
+        // (luminance + the stops to move), sampled every half stop.
+        let points: Vec<Vec2> = (0..=36)
+            .map(|i| {
+                let l = a.outdoor - 12.0 + i as f32 * 0.5;
+                Vec2::new(l, l + adapt_stops(a, l))
+            })
+            .collect();
+        let Ok(curve) = AutoExposureCompensationCurve::from_curve(
+            bevy::curve::cubic_splines::LinearSpline::new(points),
+        ) else {
+            continue;
+        };
+        commands.entity(e).insert(AutoExposure {
+            range: (a.outdoor - 12.0)..=(a.outdoor + 6.0),
+            speed_brighten: a.speed_brighten,
+            speed_darken: a.speed_darken,
+            compensation_curve: curves.add(curve),
+            ..default()
+        });
+    }
+    *last = Some(t);
 }
 
 pub use friendslop_core::DrawRange;
@@ -700,6 +798,41 @@ mod tests {
         assert!(text.contains("long_shadows") && text.contains("short_shadows"));
         assert!(TUNING.get().long_shadows.count >= TUNING.get().short_shadows.count);
         assert!(TUNING.get().short_shadows.count >= 1);
+        assert!(text.contains("auto_exposure"));
+        let a = &TUNING.get().auto_exposure;
+        assert!(a.brighten > 0.0 && a.darken >= 0.0 && a.fade_end > a.fade_start);
+        assert!(a.speed_brighten > 0.0 && a.speed_darken > 0.0);
+    }
+
+    #[test]
+    fn exposure_lifts_dim_rooms_but_leaves_dark_places_dark() {
+        let a = AutoExposureTuning {
+            outdoor: -1.5,
+            brighten: 2.0,
+            darken: 0.5,
+            fade_start: 3.0,
+            fade_end: 5.0,
+            speed_brighten: 1.0,
+            speed_darken: 1.0,
+        };
+        assert_eq!(adapt_stops(&a, a.outdoor), 0.0, "daylight stays as it is");
+        assert_eq!(
+            adapt_stops(&a, a.outdoor - 1.5),
+            1.5,
+            "a shop comes back up"
+        );
+        assert_eq!(adapt_stops(&a, a.outdoor - 2.8), 2.0, "capped");
+        assert!(adapt_stops(&a, a.outdoor - 4.0) < 2.0, "fading");
+        assert_eq!(
+            adapt_stops(&a, a.outdoor - 7.0),
+            0.0,
+            "the warehouse stays dark"
+        );
+        assert_eq!(
+            adapt_stops(&a, a.outdoor + 3.0),
+            -0.5,
+            "glare only darkens a little"
+        );
     }
 
     #[test]

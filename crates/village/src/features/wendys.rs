@@ -105,6 +105,27 @@ pub fn floor_y() -> f32 {
     .fold(0.0, f32::max)
 }
 
+/// The ground floor's ceiling and the attic's roof ridge above the floor (m),
+/// from the model: the light probes' heights.
+const STOREY_H: f32 = 3.4;
+const RIDGE_H: f32 = 7.2;
+
+/// Is `p` inside the building (either floor)?
+pub fn inside(p: Vec3) -> bool {
+    let d = p - Vec3::new(wendys_at().x, floor_y(), wendys_at().y);
+    d.x.abs() < HALF_W - 0.3
+        && d.z > -FRONT + 0.3
+        && d.z < BACK - 0.3
+        && (-0.5..RIDGE_H).contains(&d.y)
+}
+
+/// Local: inside the sky's flat ambient comes down (`place::INDOORS`).
+fn restaurant_look(here: Res<crate::place::Here>, mut looks: ResMut<crate::place::PlaceLooks>) {
+    if inside(here.0) {
+        looks.push(crate::place::INDOORS);
+    }
+}
+
 /// Where the burger in `slot` sits (on top of the order counter inside).
 pub fn burger_spot(slot: u8) -> Vec3 {
     let x = (slot as f32 - (SLOTS as f32 - 1.0) / 2.0) * 0.9;
@@ -241,7 +262,12 @@ pub fn plugin(app: &mut App) {
         .add_hud(spawn_ui)
         .add_systems(
             Update,
-            (dress_burgers, show_bag).run_if(in_state(AppState::InGame)),
+            (
+                dress_burgers,
+                show_bag,
+                restaurant_look.in_set(crate::place::PlaceSet),
+            )
+                .run_if(in_state(AppState::InGame)),
         );
 }
 
@@ -465,6 +491,27 @@ fn build_restaurant(
         Transform::from_translation(c),
         DespawnOnExit(AppState::InGame),
     ));
+    // Each floor's baked light: the restaurant and the attic over it.
+    let mid_z = (BACK - FRONT) / 2.0;
+    let size = Vec3::new(HALF_W * 2.0, 0.0, FRONT + BACK);
+    for (name, y0, y1) in [
+        ("wendys", 0.0, STOREY_H),
+        ("wendys_attic", STOREY_H, RIDGE_H),
+    ] {
+        friendslop_base::probes::register(&mut commands, name, c + Vec3::new(0.0, y0 + 1.7, mid_z));
+        if !friendslop_base::probes::baking() {
+            commands.spawn((
+                friendslop_base::probes::probe(
+                    &assets,
+                    name,
+                    c + Vec3::new(0.0, (y0 + y1) / 2.0, mid_z),
+                    size.with_y(y1 - y0 + 0.2),
+                    friendslop_base::probes::INTERIORS.get().probe,
+                ),
+                DespawnOnExit(AppState::InGame),
+            ));
+        }
+    }
     // The front door (walk in southwards, +z) and the foot of the attic
     // stairs in the backroom (they climb westwards, -x).
     {

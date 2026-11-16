@@ -96,7 +96,7 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
   `golden_log` (listed in `data/side/kori.ron`).
 - `models/` (root) — the one-model-one-area places, each dropped in whole:
   `high-places`, `ice-cream`, `miami-factory-town`, `out-of-order`,
-  `penn-station`, `pigeon`, `plane-car`, `plane-gate`, the three boba shops
+  `pigeon`, `plane-car`, `plane-gate`, the three boba shops
   (`nyc-boba-gong-chaw`, `nyc-boba-kung-fu-tee`, `nyc-boba-tiger-sugah`) and
   the six PATH rail pieces (`path-car`, `path-hall`, `path-platform`,
   `path-station`, `path-tunnel`, `path-viaduct`).
@@ -105,8 +105,9 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
   sign and tile kit (`fs_room_*`, `fs_sign_*`, `fs_tile_*`).
 - `maps/` — the modeler map documents and their exports: `commune.bsn`,
   `commune.map.json` and `commune.ground.heights` (the terrain heights the
-  loader falls back to procedurally when missing), and `nyc.bsn`, `nyc.gltf`,
-  `nyc.bin`, `nyc.map.json`.
+  loader falls back to procedurally when missing), `nyc.bsn`, `nyc.gltf`,
+  `nyc.bin`, `nyc.map.json`, and Penn Station's interior `penn.bsn`,
+  `penn.gltf`, `penn.bin`, `penn.map.json`.
 - `probes/` — the baked environment maps for reflections: `world` and
   `fulton`, each diffuse + specular KTX2 (`friendslop_art::envmap`).
 

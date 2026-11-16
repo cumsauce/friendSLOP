@@ -1,0 +1,164 @@
+{
+  "name": "pn-ceiling",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.2,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "g",
+      "size": [
+        0.6,
+        0.6
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "in": [
+        0.008,
+        0.014
+      ],
+      "input": "g.edge",
+      "name": "bar",
+      "out": [
+        1,
+        0
+      ],
+      "type": "levels"
+    },
+    {
+      "name": "n",
+      "octaves": 2,
+      "seed": 6,
+      "size": 0.02,
+      "type": "noise"
+    },
+    {
+      "id": "g.id",
+      "max": 0.95,
+      "min": 0.8,
+      "name": "r",
+      "seed": 7,
+      "type": "random"
+    },
+    {
+      "a": "r",
+      "b": 0.7,
+      "c": "n",
+      "name": "p",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "p",
+      "b": 0.95,
+      "c": "bar",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "bar",
+      "b": 0.003,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.9,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pn-ceiling",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.2,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.6,
+                0.6
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.008,
+                0.014
+              ],
+              "input": "g.edge",
+              "name": "bar",
+              "out": [
+                1,
+                0
+              ],
+              "type": "levels"
+            },
+            {
+              "name": "n",
+              "octaves": 2,
+              "seed": 6,
+              "size": 0.02,
+              "type": "noise"
+            },
+            {
+              "id": "g.id",
+              "max": 0.95,
+              "min": 0.8,
+              "name": "r",
+              "seed": 7,
+              "type": "random"
+            },
+            {
+              "a": "r",
+              "b": 0.7,
+              "c": "n",
+              "name": "p",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "p",
+              "b": 0.95,
+              "c": "bar",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "bar",
+              "b": 0.003,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.9,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+g +bar +n +r +p +col +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

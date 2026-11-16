@@ -3928,18 +3928,6 @@
       "created_at": "2026-11-13T19:45:42Z"
     },
     {
-      "name": "penn-station",
-      "description": "Penn Station concourse (#357 + #352): Rose Pizza, the restroom, a rundown NJ Transit wing (west, chained gates, trash fires, stains) and a pristine LIRR wing (north, wood ceiling, lounge, amenities).",
-      "tags": [
-        "nyc",
-        "penn",
-        "interior"
-      ],
-      "prompt": "",
-      "file": "penn-station.json",
-      "created_at": "2026-11-13T21:14:20Z"
-    },
-    {
       "name": "street-drum",
       "description": "A street performer's upturned plastic bucket drum with sticks on top, and a rubber drum pad on a stand beside it.",
       "tags": [
@@ -4606,6 +4594,20 @@
       "prompt": "",
       "file": "nyc-kit-road-pit.json",
       "created_at": "2026-11-14T08:37:24Z"
+    },
+    {
+      "name": "penn-map",
+      "description": "Penn Station's interior (#352, #357) as a map in the 1 train stop's frame: the low tiled 7th Ave concourse (Rose Pizza, the restroom with its postcard mirror and a stall, a TRACK TBA board, the 7 Av exit stairs), the cramped cold NJ Transit side west (chained gates, closed track stairs, a board of cancellations, trash fires, blood, pee, poop) and the tall warm LIRR side north (wood-slat ceiling, on-time board, lounge, cafe, charging, bottle refill). Block markers are its colliders; Spot markers (room_*, door, in_line, toilet, mirror, counter, arrive, exit, fire_*) are read by penn.rs. The hall floor goes round the 1 train's plinth (trains.rs) so the two never share a plane.",
+      "tags": [
+        "friendslop",
+        "nyc",
+        "penn",
+        "map",
+        "interior"
+      ],
+      "prompt": "Redo Penn Station's interior entirely from #352 and #357, game-scaled and recognisable, with its layout as map data. Generated from a script (geometry, Block colliders, spots, lights); signs are card materials on -z-built plates with label uvs; checked for coplanar same-facing faces against itself and the train station models.",
+      "file": "penn-map.json",
+      "created_at": "2026-11-16T09:55:16Z"
     }
   ]
 }

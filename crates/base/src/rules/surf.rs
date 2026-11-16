@@ -51,8 +51,15 @@ pub struct Tuning {
     pub ramp_samples: u32,
     /// Fall this far below your stage's lowest ridge and you're back on its pad.
     pub stage_fall: f32,
+    /// A checkpoint (a stage's pad, and the finish) counts you this high
+    /// above its top (m) and this much past its edges, so flying over it
+    /// counts too.
+    pub checkpoint_reach: (f32, f32),
     /// The course: each stage's pad and ramps. The first pad is the start.
     pub stages: Vec<Stage>,
+    /// Speed checks: (stage, ramp), the gap after that ramp of that stage,
+    /// cleared only carrying speed ([`speed_needed`]).
+    pub speed_gaps: Vec<(usize, usize)>,
     /// The finish pad (centre, size).
     pub finish: Pad,
     /// Solid boxes (centre, size): pads, towers, the skyline.
@@ -399,6 +406,87 @@ pub fn pieces(
         .collect()
 }
 
+/// A gap between the end of one ramp and the start of the next (hall
+/// coordinates): you leave `from` heading along `dir` (across the ground,
+/// unit) and dropping `pitch` (tan of the angle down), and land on the next
+/// ramp's face, whose ridge starts at `to`.
+#[derive(Debug, Clone, Copy)]
+pub struct Gap {
+    pub from: Vec3,
+    pub to: Vec3,
+    pub dir: Vec2,
+    pub pitch: f32,
+    /// Distance across the ground along `dir` to the next ramp's start.
+    pub length: f32,
+    /// How far the next ramp's start is off that line (m).
+    pub lateral: f32,
+    /// How far the next ridge starts below this one ends (m).
+    pub drop: f32,
+}
+
+/// The gap after ramp `ramp` of stage `stage`.
+pub fn gap(t: &Tuning, stage: usize, ramp: usize) -> Option<Gap> {
+    let ramps = &t.stages.get(stage)?.ramps;
+    let (a, b) = (ramps.get(ramp)?, ramps.get(ramp + 1)?);
+    let r = ridge(a, t.ramp_samples);
+    let (p, q) = (*r.get(r.len().checked_sub(2)?)?, *r.last()?);
+    let to = Vec3::from(*b.first()?);
+    let run = (q - p).xz();
+    let dir = run.normalize_or_zero();
+    if dir == Vec2::ZERO {
+        return None;
+    }
+    let off = (to - q).xz();
+    Some(Gap {
+        from: q,
+        to,
+        dir,
+        pitch: (p.y - q.y) / run.length(),
+        length: off.dot(dir),
+        lateral: off.perp_dot(dir).abs(),
+        drop: q.y - to.y,
+    })
+}
+
+/// How far below the next ridge (m) you may be when you reach it and still
+/// land: the upper half of its face.
+pub fn landing_depth(t: &Tuning) -> f32 {
+    t.ramp_height / 2.0
+}
+
+/// Do you clear the gap leaving at `speed` (m/s, along the ramp's end)?
+/// A ballistic flight from the ridge's end: you clear it if you reach the
+/// next ramp no more than [`landing_depth`] below its ridge.
+pub fn clears(t: &Tuning, g: &Gap, speed: f32) -> bool {
+    let cos = 1.0 / (1.0 + g.pitch * g.pitch).sqrt();
+    let across = speed * cos;
+    if across <= 0.0 || g.length <= 0.0 {
+        return g.length <= 0.0;
+    }
+    let time = g.length / across;
+    let y = g.from.y - speed * cos * g.pitch * time - t.gravity * time * time / 2.0;
+    y >= g.to.y - landing_depth(t)
+}
+
+/// The least speed (m/s) that clears the gap, or `None` if no speed does.
+pub fn speed_needed(t: &Tuning, g: &Gap) -> Option<f32> {
+    // y(L) = from - pitch L - g L^2 / (2 v^2 cos^2) >= to - depth.
+    let room = g.drop + landing_depth(t) - g.pitch * g.length;
+    (room > 0.0).then(|| {
+        let cos2 = 1.0 / (1.0 + g.pitch * g.pitch);
+        (t.gravity * g.length * g.length / (2.0 * cos2 * room)).sqrt()
+    })
+}
+
+/// The most you could be carrying at hall height `y` on a stage: off its
+/// pad at the run speed and everything the drop since gives you (no
+/// losses). A clean run gets most of it.
+pub fn ideal_speed(t: &Tuning, stage: usize, y: f32) -> Option<f32> {
+    let (c, s) = pad(t.stages.get(stage)?.pad);
+    let fall = (c.y + s.y / 2.0 - y).max(0.0);
+    Some((t.wish_speed * t.wish_speed + 2.0 * t.gravity * fall).sqrt())
+}
+
 /// The lowest ridge point of a stage (hall coordinates).
 pub fn stage_low(t: &Tuning, stage: usize) -> Option<f32> {
     let s = t.stages.get(stage)?;
@@ -423,12 +511,42 @@ pub fn on_pad(p: (Vec3, Vec3), local: Vec3) -> bool {
         && (top - 0.3..top + 2.0).contains(&local.y)
 }
 
+/// Is a hall-coordinate point passing through this pad's checkpoint: over
+/// the pad (a little past its edges) and anywhere up to `reach.0` metres
+/// above its top?
+pub fn through_checkpoint(p: (Vec3, Vec3), local: Vec3, reach: (f32, f32)) -> bool {
+    let (c, s) = p;
+    let top = c.y + s.y / 2.0;
+    (local.x - c.x).abs() <= s.x / 2.0 + reach.1
+        && (local.z - c.z).abs() <= s.z / 2.0 + reach.1
+        && (top - 0.3..top + reach.0).contains(&local.y)
+}
+
+#[cfg(test)]
+mod checkpoint_tests {
+    use super::*;
+
+    #[test]
+    fn flying_over_a_checkpoint_counts() {
+        let p = (Vec3::ZERO, Vec3::new(16.0, 1.0, 16.0));
+        let reach = (30.0, 3.0);
+        // Standing on it, high over it, just past its edge.
+        assert!(through_checkpoint(p, Vec3::new(0.0, 0.5, 0.0), reach));
+        assert!(through_checkpoint(p, Vec3::new(4.0, 25.0, 0.0), reach));
+        assert!(through_checkpoint(p, Vec3::new(10.0, 3.0, 0.0), reach));
+        // Too high, too far out, or under it.
+        assert!(!through_checkpoint(p, Vec3::new(0.0, 40.0, 0.0), reach));
+        assert!(!through_checkpoint(p, Vec3::new(14.0, 3.0, 0.0), reach));
+        assert!(!through_checkpoint(p, Vec3::new(0.0, -2.0, 0.0), reach));
+    }
+}
+
 /// One step of a body's stage for feet at `local` (hall coordinates): the
 /// stage it's on now, and whether it fell off (back to that stage's pad).
 pub fn stage_step(t: &Tuning, stage: usize, local: Vec3) -> (usize, bool) {
-    let reached = (0..t.stages.len())
-        .rev()
-        .find(|&i| i > stage && on_pad(pad(t.stages[i].pad), local));
+    let reached = (0..t.stages.len()).rev().find(|&i| {
+        i > stage && through_checkpoint(pad(t.stages[i].pad), local, t.checkpoint_reach)
+    });
     let stage = reached.unwrap_or(stage);
     let fell = stage_low(t, stage).is_some_and(|low| local.y < low - t.stage_fall);
     (stage, fell)
@@ -599,5 +717,53 @@ mod tests {
         assert!(t.air_accel_hz >= 100.0 && t.air_max_wish > 0.5 && t.air_max_wish < 1.0);
         assert!(t.gravity > 15.0 && t.ground_accel_hz > 0.0 && t.friction_hz > 0.0);
         assert!(t.stop_speed > 0.0 && t.wish_speed > 5.0 && t.max_speed > 45.0);
+    }
+    #[test]
+    fn speed_gaps_need_speed_but_not_too_much() {
+        let path = format!(
+            "{}/../game/assets/{}",
+            env!("CARGO_MANIFEST_DIR"),
+            TUNING.path()
+        );
+        let Ok(bytes) = std::fs::read(&path) else {
+            panic!("no {path}");
+        };
+        assert!(TUNING.set_bytes(&bytes), "{path} doesn't parse");
+        let t = TUNING.get();
+        assert!((3..=5).contains(&t.speed_gaps.len()));
+        // Fly it tick by tick: from the ramp's end along its ridge.
+        let fly = |g: &Gap, speed: f32| {
+            let cos = 1.0 / (1.0 + g.pitch * g.pitch).sqrt();
+            let mut v = Vec3::new(g.dir.x * cos, -g.pitch * cos, g.dir.y * cos) * speed;
+            let mut p = g.from;
+            let dt = 1.0 / 240.0;
+            while (p - g.from).xz().dot(g.dir) < g.length {
+                v.y -= t.gravity * dt;
+                p += v * dt;
+            }
+            p.y >= g.to.y - landing_depth(&t)
+        };
+        for &(stage, ramp) in &t.speed_gaps {
+            let Some(g) = gap(&t, stage, ramp) else {
+                panic!("no gap after stage {stage} ramp {ramp}");
+            };
+            let Some(need) = speed_needed(&t, &g) else {
+                panic!("stage {stage} ramp {ramp}: no speed clears it");
+            };
+            let Some(ideal) = ideal_speed(&t, stage, g.from.y) else {
+                panic!("stage {stage}");
+            };
+            let at = format!("stage {stage} ramp {ramp}: {g:?} needs {need} (ideal {ideal})");
+            assert!(fly(&g, need * 1.02) && clears(&t, &g, need * 1.02), "{at}");
+            assert!(!fly(&g, need * 0.6) && !clears(&t, &g, need * 0.6), "{at}");
+            // A real gap, mostly straight ahead, and it takes a clean line:
+            // more than half what the drop could give you, but not all of it.
+            assert!(
+                g.length > 15.0 && g.lateral < t.ramp_half_width * 0.75,
+                "{at}"
+            );
+            assert!(need > ideal * 0.5 && need < ideal * 0.75, "{at}");
+            assert!(need < t.max_speed, "{at}");
+        }
     }
 }

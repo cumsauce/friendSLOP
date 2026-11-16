@@ -1,0 +1,364 @@
+{
+  "name": "sf-fa-roof",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 8.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "grav",
+      "octaves": 2,
+      "seed": 41,
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "name": "st",
+      "octaves": 4,
+      "seed": 42,
+      "size": 2.0,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.3,
+        0.9
+      ],
+      "input": "st",
+      "name": "stl",
+      "type": "levels"
+    },
+    {
+      "name": "m",
+      "size": [
+        2.0,
+        8.0
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "in": [
+        0.02,
+        0.04
+      ],
+      "input": "m.edge",
+      "name": "seam",
+      "type": "levels"
+    },
+    {
+      "a": 0.22,
+      "b": 0.34,
+      "c": "grav",
+      "name": "v0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "v0",
+      "b": 0.85,
+      "c": "stl",
+      "name": "v1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.12,
+      "b": "v1",
+      "c": "seam",
+      "name": "v2",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "name": "h",
+      "size": [
+        4.0,
+        4.0
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "id": "h.id",
+      "max": 1,
+      "min": 0,
+      "name": "hr",
+      "seed": 44,
+      "type": "random"
+    },
+    {
+      "in": [
+        0.6,
+        0.61
+      ],
+      "input": "hr",
+      "name": "hon",
+      "type": "levels"
+    },
+    {
+      "coords": "h.local",
+      "name": "hb",
+      "round": 0.05,
+      "size": [
+        1.6,
+        1.2
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "hm0",
+      "sdf": "hb",
+      "type": "mask"
+    },
+    {
+      "a": "hm0",
+      "b": "hon",
+      "name": "hm",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "v2",
+      "b": 0.55,
+      "c": "hm",
+      "name": "v3",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": [
+        0.95,
+        0.95,
+        1.0
+      ],
+      "b": "v3",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "grav",
+      "b": 0.006,
+      "name": "g1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "hm",
+      "b": 0.04,
+      "name": "h1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "g1",
+      "b": "h1",
+      "name": "hh",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": 0.95,
+      "b": 0.5,
+      "c": "hm",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "hh",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-fa-roof",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 8.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "grav",
+              "octaves": 2,
+              "seed": 41,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "name": "st",
+              "octaves": 4,
+              "seed": 42,
+              "size": 2.0,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.3,
+                0.9
+              ],
+              "input": "st",
+              "name": "stl",
+              "type": "levels"
+            },
+            {
+              "name": "m",
+              "size": [
+                2.0,
+                8.0
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.02,
+                0.04
+              ],
+              "input": "m.edge",
+              "name": "seam",
+              "type": "levels"
+            },
+            {
+              "a": 0.22,
+              "b": 0.34,
+              "c": "grav",
+              "name": "v0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "v0",
+              "b": 0.85,
+              "c": "stl",
+              "name": "v1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.12,
+              "b": "v1",
+              "c": "seam",
+              "name": "v2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "name": "h",
+              "size": [
+                4.0,
+                4.0
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "id": "h.id",
+              "max": 1,
+              "min": 0,
+              "name": "hr",
+              "seed": 44,
+              "type": "random"
+            },
+            {
+              "in": [
+                0.6,
+                0.61
+              ],
+              "input": "hr",
+              "name": "hon",
+              "type": "levels"
+            },
+            {
+              "coords": "h.local",
+              "name": "hb",
+              "round": 0.05,
+              "size": [
+                1.6,
+                1.2
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "hm0",
+              "sdf": "hb",
+              "type": "mask"
+            },
+            {
+              "a": "hm0",
+              "b": "hon",
+              "name": "hm",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "v2",
+              "b": 0.55,
+              "c": "hm",
+              "name": "v3",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": [
+                0.95,
+                0.95,
+                1.0
+              ],
+              "b": "v3",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "grav",
+              "b": 0.006,
+              "name": "g1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hm",
+              "b": 0.04,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "g1",
+              "b": "h1",
+              "name": "hh",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": 0.95,
+              "b": 0.5,
+              "c": "hm",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "hh",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+grav +st +stl +m +seam +v0 +v1 +v2 +h +hr +hon +hb +hm0 +hm +v3 +col +g1 +h1 +hh +rough +out"
+      }
+    ],
+    "current": 0
+  }
+}

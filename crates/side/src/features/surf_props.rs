@@ -25,7 +25,7 @@ use friendslop_base::areas::AreaApp as _;
 use serde::Deserialize;
 
 use crate::AppState;
-use crate::rules::surf::{Piece, Tuning, city, hall_at, ridge, tuning};
+use crate::rules::surf::{Piece, Tuning, city, gap, hall_at, ridge, tuning};
 
 /// Tuning numbers: `assets/data/side/surf_props.ron`.
 #[derive(Deserialize, Default, Debug, Clone)]
@@ -60,6 +60,9 @@ pub struct Props {
     /// spinning things turn (radians a second).
     pub bob: (f32, f32),
     pub spin: f32,
+    /// The sign over every speed gap (`Tuning::speed_gaps`): its model,
+    /// pointing along the jump, and how high (m) over the gap's middle.
+    pub speed_sign: (String, f32),
 }
 
 /// A roof prop: its model, height and reach from the roof's middle, odds,
@@ -195,6 +198,20 @@ pub fn layout(t: &Tuning, p: &Props) -> Vec<Placed> {
                 k += 1;
             }
         }
+    }
+    // A sign over every speed gap, pointing across it.
+    for &(stage, ramp) in &t.speed_gaps {
+        let Some(g) = gap(t, stage, ramp) else {
+            continue;
+        };
+        out.push(Placed {
+            model: p.speed_sign.0.clone(),
+            at: (g.from + g.to) / 2.0 + Vec3::Y * p.speed_sign.1,
+            yaw: g.dir.x.atan2(g.dir.y),
+            stretch: 1.0,
+            solids: vec![],
+            motion: Motion::Still,
+        });
     }
     // The finish gantry over the finish pad.
     let (fc, fs) = (Vec3::from(t.finish.0), Vec3::from(t.finish.1));
@@ -517,6 +534,8 @@ mod tests {
         assert!(roofs >= 10, "{roofs} roof props");
         assert!(bridges >= 2, "{bridges} sky bridges");
         assert!(floaters >= 6, "{floaters} floaters");
+        let signs = count(&|x| x.model == p.speed_sign.0 && x.motion == Motion::Still);
+        assert_eq!(signs, t.speed_gaps.len(), "a sign over every speed gap");
         // Same seed, same layout.
         assert_eq!(all, layout(&t, &p));
     }

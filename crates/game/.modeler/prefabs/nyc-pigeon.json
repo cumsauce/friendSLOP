@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "nyc-pigeon",
   "parts": [],
-  "version": 51707,
+  "version": 63916,
   "ops": [
     {
       "sdf": {
@@ -458,7 +458,9 @@
         "parts": [
           "body_lo",
           "beak",
-          "neck"
+          "neck",
+          "eyes",
+          "pupils"
         ],
         "bone": "root",
         "mode": "rigid"
@@ -580,21 +582,21 @@
       "decimate": {
         "name": "body_lo",
         "input": "body",
-        "tris": 500
+        "tris": 800
       }
     },
     {
       "decimate": {
         "name": "wing_l_lo",
         "input": "wing_l",
-        "tris": 80
+        "tris": 200
       }
     },
     {
       "decimate": {
         "name": "wing_r_lo",
         "input": "wing_r",
-        "tris": 80
+        "tris": 200
       }
     },
     {
@@ -615,6 +617,180 @@
       "visibility": {
         "name": "wing_r",
         "input": "wing_r",
+        "visible": false
+      }
+    },
+    {
+      "sdf": {
+        "name": "eyes_hi",
+        "shapes": [
+          {
+            "shape": "sphere",
+            "at": [
+              0.037,
+              0.172,
+              -0.147
+            ],
+            "radius": [
+              0.0115
+            ]
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "eyes",
+        "input": "eyes_hi",
+        "tris": 120
+      }
+    },
+    {
+      "sdf": {
+        "name": "pupils_hi",
+        "shapes": [
+          {
+            "shape": "sphere",
+            "at": [
+              0.046,
+              0.1735,
+              -0.15
+            ],
+            "radius": [
+              0.0055
+            ]
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "pupils",
+        "input": "pupils_hi",
+        "tris": 80
+      }
+    },
+    {
+      "material": {
+        "name": "eyes",
+        "input": "eyes",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pt-duck-beak",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.94,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#ff8c26",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pupils",
+        "input": "pupils",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pt-eye-pupil",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.94,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#0a0a0f",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.1,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "eyes_hi",
+        "input": "eyes_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "pupils_hi",
+        "input": "pupils_hi",
         "visible": false
       }
     }

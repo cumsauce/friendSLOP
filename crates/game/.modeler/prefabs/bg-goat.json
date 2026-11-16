@@ -1,23 +1,20 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "bg-goat",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 63879,
   "ops": [
     {
       "sdf": {
-        "blend": 0.08,
-        "mirror": "x",
         "name": "wool_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               0.92,
               -0.3
             ],
-            "shape": "ellipsoid",
             "size": [
               0.36,
               0.32,
@@ -25,12 +22,12 @@
             ]
           },
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               0.98,
               0.05
             ],
-            "shape": "ellipsoid",
             "size": [
               0.36,
               0.32,
@@ -38,12 +35,12 @@
             ]
           },
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               0.9,
               0.35
             ],
-            "shape": "ellipsoid",
             "size": [
               0.36,
               0.32,
@@ -51,120 +48,122 @@
             ]
           },
           {
+            "shape": "sphere",
+            "blend": 0.06,
             "at": [
               0.32,
               1.0,
               -0.4
             ],
-            "blend": 0.06,
             "radius": [
               0.2
-            ],
-            "shape": "sphere"
+            ]
           },
           {
+            "shape": "sphere",
+            "blend": 0.06,
             "at": [
               0.22901201,
               1.129124,
               -0.29
             ],
-            "blend": 0.06,
             "radius": [
               0.2
-            ],
-            "shape": "sphere"
+            ]
           },
           {
+            "shape": "sphere",
+            "blend": 0.06,
             "at": [
               0.028759856,
               1.1799233,
               -0.18
             ],
-            "blend": 0.06,
             "radius": [
               0.2
-            ],
-            "shape": "sphere"
+            ]
           },
           {
+            "shape": "sphere",
+            "blend": 0.06,
             "at": [
               0.24121812,
               1.1215833,
               -0.07
             ],
-            "blend": 0.06,
             "radius": [
               0.2
-            ],
-            "shape": "sphere"
+            ]
           },
           {
+            "shape": "sphere",
+            "blend": 0.06,
             "at": [
               0.31948844,
               0.98949265,
               0.04
             ],
-            "blend": 0.06,
             "radius": [
               0.2
-            ],
-            "shape": "sphere"
+            ]
           },
           {
+            "shape": "sphere",
+            "blend": 0.06,
             "at": [
               0.2160931,
               0.86377555,
               0.15
             ],
-            "blend": 0.06,
             "radius": [
               0.2
-            ],
-            "shape": "sphere"
+            ]
           },
           {
+            "shape": "sphere",
+            "blend": 0.06,
             "at": [
               0.046249695,
               0.8206904,
               0.26
             ],
-            "blend": 0.06,
             "radius": [
               0.2
-            ],
-            "shape": "sphere"
+            ]
           },
           {
+            "shape": "sphere",
+            "blend": 0.06,
             "at": [
               0.25266975,
               0.886372,
               0.37
             ],
-            "blend": 0.06,
             "radius": [
               0.2
-            ],
-            "shape": "sphere"
+            ]
           },
           {
+            "shape": "sphere",
+            "blend": 0.04,
             "at": [
               0.0,
               1.15,
               0.7
             ],
-            "blend": 0.04,
             "radius": [
               0.1
-            ],
-            "shape": "sphere"
+            ]
           }
         ],
+        "blend": 0.08,
+        "mirror": "x",
         "warps": [
           {
-            "amount": 0.025,
             "mode": "displace",
-            "octaves": 2,
+            "amount": 0.025,
             "scale": 0.12,
+            "octaves": 2,
             "seed": 4
           }
         ]
@@ -172,17 +171,15 @@
     },
     {
       "sdf": {
-        "blend": 0.06,
-        "mirror": "x",
         "name": "head_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               1.35,
               -0.65
             ],
-            "shape": "ellipsoid",
             "size": [
               0.22,
               0.22,
@@ -190,13 +187,13 @@
             ]
           },
           {
+            "shape": "ellipsoid",
+            "blend": 0.1,
             "at": [
               0.0,
               1.27,
               -0.88
             ],
-            "blend": 0.1,
-            "shape": "ellipsoid",
             "size": [
               0.13,
               0.13,
@@ -204,17 +201,17 @@
             ]
           },
           {
+            "shape": "capsule",
             "blend": 0.04,
+            "radius": [
+              0.065,
+              0.015
+            ],
             "from": [
               0.0,
               1.18,
               -0.86
             ],
-            "radius": [
-              0.065,
-              0.015
-            ],
-            "shape": "capsule",
             "to": [
               0.0,
               0.98,
@@ -222,91 +219,93 @@
             ]
           },
           {
+            "shape": "ellipsoid",
+            "blend": 0.02,
             "at": [
               0.15,
               1.425,
               -0.8
             ],
-            "blend": 0.02,
-            "shape": "ellipsoid",
             "size": [
               0.075,
               0.04,
               0.065
             ]
           }
-        ]
+        ],
+        "blend": 0.06,
+        "mirror": "x"
       }
     },
     {
       "sdf": {
-        "mirror": "x",
         "name": "eye_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.15,
               1.4,
               -0.805
             ],
-            "shape": "ellipsoid",
             "size": [
               0.06,
               0.042,
               0.05
             ]
           }
-        ]
+        ],
+        "mirror": "x"
       }
     },
     {
       "sdf": {
-        "mirror": "x",
         "name": "slit_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.155,
               1.398,
               -0.852
             ],
-            "shape": "ellipsoid",
             "size": [
               0.03,
               0.009,
               0.01
             ]
           }
-        ]
+        ],
+        "mirror": "x"
       }
     },
     {
       "sdf": {
-        "mirror": "x",
         "name": "nose_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               1.31,
               -1.04
             ],
-            "shape": "ellipsoid",
             "size": [
               0.05,
               0.035,
               0.03
             ]
           }
-        ]
+        ],
+        "mirror": "x"
       }
     },
     {
       "sdf": {
-        "mirror": "x",
         "name": "horn_hi",
         "shapes": [
           {
+            "shape": "chain",
             "points": [
               [
                 0.1,
@@ -332,10 +331,10 @@
                 -0.34,
                 0.012
               ]
-            ],
-            "shape": "chain"
+            ]
           }
-        ]
+        ],
+        "mirror": "x"
       }
     },
     {
@@ -343,6 +342,7 @@
         "name": "ear_l_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.3,
               1.42,
@@ -354,7 +354,6 @@
               -0.1305262,
               0.9914449
             ],
-            "shape": "ellipsoid",
             "size": [
               0.14,
               0.065,
@@ -369,6 +368,7 @@
         "name": "earpink_l_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.31,
               1.415,
@@ -380,7 +380,6 @@
               -0.1305262,
               0.9914449
             ],
-            "shape": "ellipsoid",
             "size": [
               0.1,
               0.04,
@@ -395,15 +394,15 @@
         "name": "fleg_l_hi",
         "shapes": [
           {
+            "shape": "capsule",
+            "radius": [
+              0.08
+            ],
             "from": [
               0.2,
               0.75,
               -0.4
             ],
-            "radius": [
-              0.08
-            ],
-            "shape": "capsule",
             "to": [
               0.2,
               0.1,
@@ -418,17 +417,17 @@
         "name": "fhoof_l_hi",
         "shapes": [
           {
+            "shape": "cylinder",
             "at": [
               0.2,
               0.05,
               -0.4
             ],
-            "height": 0.1,
             "radius": [
               0.1
             ],
-            "round": 0.025,
-            "shape": "cylinder"
+            "height": 0.1,
+            "round": 0.025
           }
         ]
       }
@@ -438,15 +437,15 @@
         "name": "bleg_l_hi",
         "shapes": [
           {
+            "shape": "capsule",
+            "radius": [
+              0.08
+            ],
             "from": [
               0.2,
               0.75,
               0.4
             ],
-            "radius": [
-              0.08
-            ],
-            "shape": "capsule",
             "to": [
               0.2,
               0.1,
@@ -461,17 +460,17 @@
         "name": "bhoof_l_hi",
         "shapes": [
           {
+            "shape": "cylinder",
             "at": [
               0.2,
               0.05,
               0.4
             ],
-            "height": 0.1,
             "radius": [
               0.1
             ],
-            "round": 0.025,
-            "shape": "cylinder"
+            "height": 0.1,
+            "round": 0.025
           }
         ]
       }
@@ -481,6 +480,7 @@
         "name": "ear_r_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               -0.3,
               1.42,
@@ -492,7 +492,6 @@
               0.1305262,
               0.9914449
             ],
-            "shape": "ellipsoid",
             "size": [
               0.14,
               0.065,
@@ -507,6 +506,7 @@
         "name": "earpink_r_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               -0.31,
               1.415,
@@ -518,7 +518,6 @@
               0.1305262,
               0.9914449
             ],
-            "shape": "ellipsoid",
             "size": [
               0.1,
               0.04,
@@ -533,15 +532,15 @@
         "name": "fleg_r_hi",
         "shapes": [
           {
+            "shape": "capsule",
+            "radius": [
+              0.08
+            ],
             "from": [
               -0.2,
               0.75,
               -0.4
             ],
-            "radius": [
-              0.08
-            ],
-            "shape": "capsule",
             "to": [
               -0.2,
               0.1,
@@ -556,17 +555,17 @@
         "name": "fhoof_r_hi",
         "shapes": [
           {
+            "shape": "cylinder",
             "at": [
               -0.2,
               0.05,
               -0.4
             ],
-            "height": 0.1,
             "radius": [
               0.1
             ],
-            "round": 0.025,
-            "shape": "cylinder"
+            "height": 0.1,
+            "round": 0.025
           }
         ]
       }
@@ -576,15 +575,15 @@
         "name": "bleg_r_hi",
         "shapes": [
           {
+            "shape": "capsule",
+            "radius": [
+              0.08
+            ],
             "from": [
               -0.2,
               0.75,
               0.4
             ],
-            "radius": [
-              0.08
-            ],
-            "shape": "capsule",
             "to": [
               -0.2,
               0.1,
@@ -599,1115 +598,287 @@
         "name": "bhoof_r_hi",
         "shapes": [
           {
+            "shape": "cylinder",
             "at": [
               -0.2,
               0.05,
               0.4
             ],
-            "height": 0.1,
             "radius": [
               0.1
             ],
-            "round": 0.025,
-            "shape": "cylinder"
+            "height": 0.1,
+            "round": 0.025
           }
         ]
       }
     },
     {
       "decimate": {
-        "input": "wool_hi",
         "name": "goat_wool",
-        "tris": 1000
+        "input": "wool_hi",
+        "tris": 1800
       }
     },
     {
       "decimate": {
-        "input": "head_hi",
         "name": "goat_head",
-        "tris": 420
+        "input": "head_hi",
+        "tris": 800
       }
     },
     {
       "decimate": {
-        "input": "eye_hi",
         "name": "goat_eye",
-        "tris": 80
+        "input": "eye_hi",
+        "tris": 200
       }
     },
     {
       "decimate": {
-        "input": "slit_hi",
         "name": "goat_slit",
-        "tris": 40
+        "input": "slit_hi",
+        "tris": 120
       }
     },
     {
       "decimate": {
-        "input": "nose_hi",
         "name": "goat_nose",
-        "tris": 50
+        "input": "nose_hi",
+        "tris": 140
       }
     },
     {
       "decimate": {
-        "input": "horn_hi",
         "name": "goat_horn",
+        "input": "horn_hi",
+        "tris": 400
+      }
+    },
+    {
+      "decimate": {
+        "name": "goat_ear_l",
+        "input": "ear_l_hi",
+        "tris": 180
+      }
+    },
+    {
+      "decimate": {
+        "name": "goat_earpink_l",
+        "input": "earpink_l_hi",
+        "tris": 120
+      }
+    },
+    {
+      "decimate": {
+        "name": "goat_fleg_l",
+        "input": "fleg_l_hi",
         "tris": 160
       }
     },
     {
       "decimate": {
-        "input": "ear_l_hi",
-        "name": "goat_ear_l",
-        "tris": 60
-      }
-    },
-    {
-      "decimate": {
-        "input": "earpink_l_hi",
-        "name": "goat_earpink_l",
-        "tris": 40
-      }
-    },
-    {
-      "decimate": {
-        "input": "fleg_l_hi",
-        "name": "goat_fleg_l",
-        "tris": 60
-      }
-    },
-    {
-      "decimate": {
-        "input": "fhoof_l_hi",
         "name": "goat_fhoof_l",
-        "tris": 50
-      }
-    },
-    {
-      "decimate": {
-        "input": "bleg_l_hi",
-        "name": "goat_bleg_l",
-        "tris": 60
-      }
-    },
-    {
-      "decimate": {
-        "input": "bhoof_l_hi",
-        "name": "goat_bhoof_l",
-        "tris": 50
-      }
-    },
-    {
-      "decimate": {
-        "input": "ear_r_hi",
-        "name": "goat_ear_r",
-        "tris": 60
-      }
-    },
-    {
-      "decimate": {
-        "input": "earpink_r_hi",
-        "name": "goat_earpink_r",
-        "tris": 40
-      }
-    },
-    {
-      "decimate": {
-        "input": "fleg_r_hi",
-        "name": "goat_fleg_r",
-        "tris": 60
-      }
-    },
-    {
-      "decimate": {
-        "input": "fhoof_r_hi",
-        "name": "goat_fhoof_r",
-        "tris": 50
-      }
-    },
-    {
-      "decimate": {
-        "input": "bleg_r_hi",
-        "name": "goat_bleg_r",
-        "tris": 60
-      }
-    },
-    {
-      "decimate": {
-        "input": "bhoof_r_hi",
-        "name": "goat_bhoof_r",
-        "tris": 50
-      }
-    },
-    {
-      "visibility": {
-        "input": "wool_hi",
-        "name": "wool_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "head_hi",
-        "name": "head_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "eye_hi",
-        "name": "eye_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "slit_hi",
-        "name": "slit_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "nose_hi",
-        "name": "nose_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "horn_hi",
-        "name": "horn_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "ear_l_hi",
-        "name": "ear_l_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "earpink_l_hi",
-        "name": "earpink_l_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "fleg_l_hi",
-        "name": "fleg_l_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
         "input": "fhoof_l_hi",
-        "name": "fhoof_l_hi",
-        "visible": false
+        "tris": 120
       }
     },
     {
-      "visibility": {
-        "input": "bleg_l_hi",
-        "name": "bleg_l_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "bhoof_l_hi",
-        "name": "bhoof_l_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "ear_r_hi",
-        "name": "ear_r_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "earpink_r_hi",
-        "name": "earpink_r_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "fleg_r_hi",
-        "name": "fleg_r_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "fhoof_r_hi",
-        "name": "fhoof_r_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "bleg_r_hi",
-        "name": "bleg_r_hi",
-        "visible": false
-      }
-    },
-    {
-      "visibility": {
-        "input": "bhoof_r_hi",
-        "name": "bhoof_r_hi",
-        "visible": false
-      }
-    },
-    {
-      "material": {
-        "base_color": null,
-        "input": "goat_wool",
-        "metalness": null,
-        "name": "goat_wool",
-        "pbr": {
-          "graph": {
-            "domain": "tile",
-            "nodes": [
-              {
-                "name": "wc",
-                "seed": 2,
-                "size": 0.025,
-                "type": "worley"
-              },
-              {
-                "a": "wc.f1",
-                "b": 56.0,
-                "name": "fn",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "fn",
-                "b": 0.0,
-                "c": 1.0,
-                "name": "fc",
-                "op": "clamp",
-                "type": "math"
-              },
-              {
-                "a": "fc",
-                "name": "e",
-                "op": "invert",
-                "type": "math"
-              },
-              {
-                "name": "fz",
-                "octaves": 4,
-                "seed": 2,
-                "size": 0.02,
-                "type": "noise"
-              },
-              {
-                "a": "e",
-                "b": 0.7,
-                "name": "t0",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "fz",
-                "b": 0.3,
-                "name": "t1",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "t0",
-                "b": "t1",
-                "name": "t",
-                "op": "add",
-                "type": "math"
-              },
-              {
-                "input": "t",
-                "name": "col",
-                "stops": [
-                  [
-                    0,
-                    "#b5ad9c"
-                  ],
-                  [
-                    1,
-                    "#fbf7ee"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "a": "t",
-                "b": 0.004,
-                "name": "ht",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "t",
-                "name": "ao",
-                "to": [
-                  0.6,
-                  1.0
-                ],
-                "type": "remap"
-              },
-              {
-                "ao": "ao",
-                "base_color": "col",
-                "height": "ht",
-                "name": "out",
-                "roughness": 0.95,
-                "type": "output"
-              }
-            ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.2
-          },
-          "material": "bg-boucle-wool",
-          "scale": 1.0
-        },
-        "roughness": null
-      }
-    },
-    {
-      "material": {
-        "base_color": null,
-        "input": "goat_head",
-        "metalness": null,
-        "name": "goat_head",
-        "pbr": {
-          "graph": {
-            "domain": "tile",
-            "nodes": [
-              {
-                "name": "wc",
-                "seed": 2,
-                "size": 0.025,
-                "type": "worley"
-              },
-              {
-                "a": "wc.f1",
-                "b": 56.0,
-                "name": "fn",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "fn",
-                "b": 0.0,
-                "c": 1.0,
-                "name": "fc",
-                "op": "clamp",
-                "type": "math"
-              },
-              {
-                "a": "fc",
-                "name": "e",
-                "op": "invert",
-                "type": "math"
-              },
-              {
-                "name": "fz",
-                "octaves": 4,
-                "seed": 2,
-                "size": 0.02,
-                "type": "noise"
-              },
-              {
-                "a": "e",
-                "b": 0.7,
-                "name": "t0",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "fz",
-                "b": 0.3,
-                "name": "t1",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "t0",
-                "b": "t1",
-                "name": "t",
-                "op": "add",
-                "type": "math"
-              },
-              {
-                "input": "t",
-                "name": "col",
-                "stops": [
-                  [
-                    0,
-                    "#b5ad9c"
-                  ],
-                  [
-                    1,
-                    "#fbf7ee"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "a": "t",
-                "b": 0.004,
-                "name": "ht",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "t",
-                "name": "ao",
-                "to": [
-                  0.6,
-                  1.0
-                ],
-                "type": "remap"
-              },
-              {
-                "ao": "ao",
-                "base_color": "col",
-                "height": "ht",
-                "name": "out",
-                "roughness": 0.95,
-                "type": "output"
-              }
-            ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.2
-          },
-          "material": "bg-boucle-wool",
-          "scale": 1.0
-        },
-        "roughness": null
-      }
-    },
-    {
-      "material": {
-        "base_color": null,
-        "input": "goat_ear_l",
-        "metalness": null,
-        "name": "goat_ear_l",
-        "pbr": {
-          "graph": {
-            "domain": "tile",
-            "nodes": [
-              {
-                "name": "wc",
-                "seed": 2,
-                "size": 0.025,
-                "type": "worley"
-              },
-              {
-                "a": "wc.f1",
-                "b": 56.0,
-                "name": "fn",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "fn",
-                "b": 0.0,
-                "c": 1.0,
-                "name": "fc",
-                "op": "clamp",
-                "type": "math"
-              },
-              {
-                "a": "fc",
-                "name": "e",
-                "op": "invert",
-                "type": "math"
-              },
-              {
-                "name": "fz",
-                "octaves": 4,
-                "seed": 2,
-                "size": 0.02,
-                "type": "noise"
-              },
-              {
-                "a": "e",
-                "b": 0.7,
-                "name": "t0",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "fz",
-                "b": 0.3,
-                "name": "t1",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "t0",
-                "b": "t1",
-                "name": "t",
-                "op": "add",
-                "type": "math"
-              },
-              {
-                "input": "t",
-                "name": "col",
-                "stops": [
-                  [
-                    0,
-                    "#b5ad9c"
-                  ],
-                  [
-                    1,
-                    "#fbf7ee"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "a": "t",
-                "b": 0.004,
-                "name": "ht",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "t",
-                "name": "ao",
-                "to": [
-                  0.6,
-                  1.0
-                ],
-                "type": "remap"
-              },
-              {
-                "ao": "ao",
-                "base_color": "col",
-                "height": "ht",
-                "name": "out",
-                "roughness": 0.95,
-                "type": "output"
-              }
-            ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.2
-          },
-          "material": "bg-boucle-wool",
-          "scale": 1.0
-        },
-        "roughness": null
-      }
-    },
-    {
-      "material": {
-        "base_color": null,
-        "input": "goat_ear_r",
-        "metalness": null,
-        "name": "goat_ear_r",
-        "pbr": {
-          "graph": {
-            "domain": "tile",
-            "nodes": [
-              {
-                "name": "wc",
-                "seed": 2,
-                "size": 0.025,
-                "type": "worley"
-              },
-              {
-                "a": "wc.f1",
-                "b": 56.0,
-                "name": "fn",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "fn",
-                "b": 0.0,
-                "c": 1.0,
-                "name": "fc",
-                "op": "clamp",
-                "type": "math"
-              },
-              {
-                "a": "fc",
-                "name": "e",
-                "op": "invert",
-                "type": "math"
-              },
-              {
-                "name": "fz",
-                "octaves": 4,
-                "seed": 2,
-                "size": 0.02,
-                "type": "noise"
-              },
-              {
-                "a": "e",
-                "b": 0.7,
-                "name": "t0",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "fz",
-                "b": 0.3,
-                "name": "t1",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "t0",
-                "b": "t1",
-                "name": "t",
-                "op": "add",
-                "type": "math"
-              },
-              {
-                "input": "t",
-                "name": "col",
-                "stops": [
-                  [
-                    0,
-                    "#b5ad9c"
-                  ],
-                  [
-                    1,
-                    "#fbf7ee"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "a": "t",
-                "b": 0.004,
-                "name": "ht",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "t",
-                "name": "ao",
-                "to": [
-                  0.6,
-                  1.0
-                ],
-                "type": "remap"
-              },
-              {
-                "ao": "ao",
-                "base_color": "col",
-                "height": "ht",
-                "name": "out",
-                "roughness": 0.95,
-                "type": "output"
-              }
-            ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.2
-          },
-          "material": "bg-boucle-wool",
-          "scale": 1.0
-        },
-        "roughness": null
-      }
-    },
-    {
-      "material": {
-        "base_color": null,
-        "input": "goat_fleg_l",
-        "metalness": null,
-        "name": "goat_fleg_l",
-        "pbr": {
-          "graph": {
-            "domain": "tile",
-            "nodes": [
-              {
-                "name": "wc",
-                "seed": 2,
-                "size": 0.025,
-                "type": "worley"
-              },
-              {
-                "a": "wc.f1",
-                "b": 56.0,
-                "name": "fn",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "fn",
-                "b": 0.0,
-                "c": 1.0,
-                "name": "fc",
-                "op": "clamp",
-                "type": "math"
-              },
-              {
-                "a": "fc",
-                "name": "e",
-                "op": "invert",
-                "type": "math"
-              },
-              {
-                "name": "fz",
-                "octaves": 4,
-                "seed": 2,
-                "size": 0.02,
-                "type": "noise"
-              },
-              {
-                "a": "e",
-                "b": 0.7,
-                "name": "t0",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "fz",
-                "b": 0.3,
-                "name": "t1",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "t0",
-                "b": "t1",
-                "name": "t",
-                "op": "add",
-                "type": "math"
-              },
-              {
-                "input": "t",
-                "name": "col",
-                "stops": [
-                  [
-                    0,
-                    "#b5ad9c"
-                  ],
-                  [
-                    1,
-                    "#fbf7ee"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "a": "t",
-                "b": 0.004,
-                "name": "ht",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "t",
-                "name": "ao",
-                "to": [
-                  0.6,
-                  1.0
-                ],
-                "type": "remap"
-              },
-              {
-                "ao": "ao",
-                "base_color": "col",
-                "height": "ht",
-                "name": "out",
-                "roughness": 0.95,
-                "type": "output"
-              }
-            ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.2
-          },
-          "material": "bg-boucle-wool",
-          "scale": 1.0
-        },
-        "roughness": null
-      }
-    },
-    {
-      "material": {
-        "base_color": null,
-        "input": "goat_bleg_l",
-        "metalness": null,
+      "decimate": {
         "name": "goat_bleg_l",
-        "pbr": {
-          "graph": {
-            "domain": "tile",
-            "nodes": [
-              {
-                "name": "wc",
-                "seed": 2,
-                "size": 0.025,
-                "type": "worley"
-              },
-              {
-                "a": "wc.f1",
-                "b": 56.0,
-                "name": "fn",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "fn",
-                "b": 0.0,
-                "c": 1.0,
-                "name": "fc",
-                "op": "clamp",
-                "type": "math"
-              },
-              {
-                "a": "fc",
-                "name": "e",
-                "op": "invert",
-                "type": "math"
-              },
-              {
-                "name": "fz",
-                "octaves": 4,
-                "seed": 2,
-                "size": 0.02,
-                "type": "noise"
-              },
-              {
-                "a": "e",
-                "b": 0.7,
-                "name": "t0",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "fz",
-                "b": 0.3,
-                "name": "t1",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "t0",
-                "b": "t1",
-                "name": "t",
-                "op": "add",
-                "type": "math"
-              },
-              {
-                "input": "t",
-                "name": "col",
-                "stops": [
-                  [
-                    0,
-                    "#b5ad9c"
-                  ],
-                  [
-                    1,
-                    "#fbf7ee"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "a": "t",
-                "b": 0.004,
-                "name": "ht",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "t",
-                "name": "ao",
-                "to": [
-                  0.6,
-                  1.0
-                ],
-                "type": "remap"
-              },
-              {
-                "ao": "ao",
-                "base_color": "col",
-                "height": "ht",
-                "name": "out",
-                "roughness": 0.95,
-                "type": "output"
-              }
-            ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.2
-          },
-          "material": "bg-boucle-wool",
-          "scale": 1.0
-        },
-        "roughness": null
+        "input": "bleg_l_hi",
+        "tris": 160
       }
     },
     {
-      "material": {
-        "base_color": null,
-        "input": "goat_fleg_r",
-        "metalness": null,
+      "decimate": {
+        "name": "goat_bhoof_l",
+        "input": "bhoof_l_hi",
+        "tris": 120
+      }
+    },
+    {
+      "decimate": {
+        "name": "goat_ear_r",
+        "input": "ear_r_hi",
+        "tris": 180
+      }
+    },
+    {
+      "decimate": {
+        "name": "goat_earpink_r",
+        "input": "earpink_r_hi",
+        "tris": 120
+      }
+    },
+    {
+      "decimate": {
         "name": "goat_fleg_r",
-        "pbr": {
-          "graph": {
-            "domain": "tile",
-            "nodes": [
-              {
-                "name": "wc",
-                "seed": 2,
-                "size": 0.025,
-                "type": "worley"
-              },
-              {
-                "a": "wc.f1",
-                "b": 56.0,
-                "name": "fn",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "fn",
-                "b": 0.0,
-                "c": 1.0,
-                "name": "fc",
-                "op": "clamp",
-                "type": "math"
-              },
-              {
-                "a": "fc",
-                "name": "e",
-                "op": "invert",
-                "type": "math"
-              },
-              {
-                "name": "fz",
-                "octaves": 4,
-                "seed": 2,
-                "size": 0.02,
-                "type": "noise"
-              },
-              {
-                "a": "e",
-                "b": 0.7,
-                "name": "t0",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "fz",
-                "b": 0.3,
-                "name": "t1",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "t0",
-                "b": "t1",
-                "name": "t",
-                "op": "add",
-                "type": "math"
-              },
-              {
-                "input": "t",
-                "name": "col",
-                "stops": [
-                  [
-                    0,
-                    "#b5ad9c"
-                  ],
-                  [
-                    1,
-                    "#fbf7ee"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "a": "t",
-                "b": 0.004,
-                "name": "ht",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "t",
-                "name": "ao",
-                "to": [
-                  0.6,
-                  1.0
-                ],
-                "type": "remap"
-              },
-              {
-                "ao": "ao",
-                "base_color": "col",
-                "height": "ht",
-                "name": "out",
-                "roughness": 0.95,
-                "type": "output"
-              }
-            ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.2
-          },
-          "material": "bg-boucle-wool",
-          "scale": 1.0
-        },
-        "roughness": null
+        "input": "fleg_r_hi",
+        "tris": 160
       }
     },
     {
-      "material": {
-        "base_color": null,
-        "input": "goat_bleg_r",
-        "metalness": null,
+      "decimate": {
+        "name": "goat_fhoof_r",
+        "input": "fhoof_r_hi",
+        "tris": 120
+      }
+    },
+    {
+      "decimate": {
         "name": "goat_bleg_r",
+        "input": "bleg_r_hi",
+        "tris": 160
+      }
+    },
+    {
+      "decimate": {
+        "name": "goat_bhoof_r",
+        "input": "bhoof_r_hi",
+        "tris": 120
+      }
+    },
+    {
+      "visibility": {
+        "name": "wool_hi",
+        "input": "wool_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "head_hi",
+        "input": "head_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "eye_hi",
+        "input": "eye_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "slit_hi",
+        "input": "slit_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "nose_hi",
+        "input": "nose_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "horn_hi",
+        "input": "horn_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ear_l_hi",
+        "input": "ear_l_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "earpink_l_hi",
+        "input": "earpink_l_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "fleg_l_hi",
+        "input": "fleg_l_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "fhoof_l_hi",
+        "input": "fhoof_l_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bleg_l_hi",
+        "input": "bleg_l_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bhoof_l_hi",
+        "input": "bhoof_l_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "ear_r_hi",
+        "input": "ear_r_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "earpink_r_hi",
+        "input": "earpink_r_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "fleg_r_hi",
+        "input": "fleg_r_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "fhoof_r_hi",
+        "input": "fhoof_r_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bleg_r_hi",
+        "input": "bleg_r_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bhoof_r_hi",
+        "input": "bhoof_r_hi",
+        "visible": false
+      }
+    },
+    {
+      "material": {
+        "name": "goat_wool",
+        "input": "goat_wool",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "bg-boucle-wool",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "wc",
@@ -1808,25 +979,858 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.2
-          },
-          "material": "bg-boucle-wool",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
+        "name": "goat_head",
+        "input": "goat_head",
         "base_color": null,
-        "input": "goat_eye",
+        "roughness": null,
         "metalness": null,
-        "name": "goat_eye",
         "pbr": {
+          "material": "bg-boucle-wool",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "wc",
+                "seed": 2,
+                "size": 0.025,
+                "type": "worley"
+              },
+              {
+                "a": "wc.f1",
+                "b": 56.0,
+                "name": "fn",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.0,
+                "c": 1.0,
+                "name": "fc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "a": "fc",
+                "name": "e",
+                "op": "invert",
+                "type": "math"
+              },
+              {
+                "name": "fz",
+                "octaves": 4,
+                "seed": 2,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "a": "e",
+                "b": 0.7,
+                "name": "t0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fz",
+                "b": 0.3,
+                "name": "t1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "t0",
+                "b": "t1",
+                "name": "t",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#b5ad9c"
+                  ],
+                  [
+                    1,
+                    "#fbf7ee"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "t",
+                "b": 0.004,
+                "name": "ht",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "t",
+                "name": "ao",
+                "to": [
+                  0.6,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "ao": "ao",
+                "base_color": "col",
+                "height": "ht",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "goat_ear_l",
+        "input": "goat_ear_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bg-boucle-wool",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "wc",
+                "seed": 2,
+                "size": 0.025,
+                "type": "worley"
+              },
+              {
+                "a": "wc.f1",
+                "b": 56.0,
+                "name": "fn",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.0,
+                "c": 1.0,
+                "name": "fc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "a": "fc",
+                "name": "e",
+                "op": "invert",
+                "type": "math"
+              },
+              {
+                "name": "fz",
+                "octaves": 4,
+                "seed": 2,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "a": "e",
+                "b": 0.7,
+                "name": "t0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fz",
+                "b": 0.3,
+                "name": "t1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "t0",
+                "b": "t1",
+                "name": "t",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#b5ad9c"
+                  ],
+                  [
+                    1,
+                    "#fbf7ee"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "t",
+                "b": 0.004,
+                "name": "ht",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "t",
+                "name": "ao",
+                "to": [
+                  0.6,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "ao": "ao",
+                "base_color": "col",
+                "height": "ht",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "goat_ear_r",
+        "input": "goat_ear_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bg-boucle-wool",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "wc",
+                "seed": 2,
+                "size": 0.025,
+                "type": "worley"
+              },
+              {
+                "a": "wc.f1",
+                "b": 56.0,
+                "name": "fn",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.0,
+                "c": 1.0,
+                "name": "fc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "a": "fc",
+                "name": "e",
+                "op": "invert",
+                "type": "math"
+              },
+              {
+                "name": "fz",
+                "octaves": 4,
+                "seed": 2,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "a": "e",
+                "b": 0.7,
+                "name": "t0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fz",
+                "b": 0.3,
+                "name": "t1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "t0",
+                "b": "t1",
+                "name": "t",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#b5ad9c"
+                  ],
+                  [
+                    1,
+                    "#fbf7ee"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "t",
+                "b": 0.004,
+                "name": "ht",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "t",
+                "name": "ao",
+                "to": [
+                  0.6,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "ao": "ao",
+                "base_color": "col",
+                "height": "ht",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "goat_fleg_l",
+        "input": "goat_fleg_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bg-boucle-wool",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "wc",
+                "seed": 2,
+                "size": 0.025,
+                "type": "worley"
+              },
+              {
+                "a": "wc.f1",
+                "b": 56.0,
+                "name": "fn",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.0,
+                "c": 1.0,
+                "name": "fc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "a": "fc",
+                "name": "e",
+                "op": "invert",
+                "type": "math"
+              },
+              {
+                "name": "fz",
+                "octaves": 4,
+                "seed": 2,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "a": "e",
+                "b": 0.7,
+                "name": "t0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fz",
+                "b": 0.3,
+                "name": "t1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "t0",
+                "b": "t1",
+                "name": "t",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#b5ad9c"
+                  ],
+                  [
+                    1,
+                    "#fbf7ee"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "t",
+                "b": 0.004,
+                "name": "ht",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "t",
+                "name": "ao",
+                "to": [
+                  0.6,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "ao": "ao",
+                "base_color": "col",
+                "height": "ht",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "goat_bleg_l",
+        "input": "goat_bleg_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bg-boucle-wool",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "wc",
+                "seed": 2,
+                "size": 0.025,
+                "type": "worley"
+              },
+              {
+                "a": "wc.f1",
+                "b": 56.0,
+                "name": "fn",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.0,
+                "c": 1.0,
+                "name": "fc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "a": "fc",
+                "name": "e",
+                "op": "invert",
+                "type": "math"
+              },
+              {
+                "name": "fz",
+                "octaves": 4,
+                "seed": 2,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "a": "e",
+                "b": 0.7,
+                "name": "t0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fz",
+                "b": 0.3,
+                "name": "t1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "t0",
+                "b": "t1",
+                "name": "t",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#b5ad9c"
+                  ],
+                  [
+                    1,
+                    "#fbf7ee"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "t",
+                "b": 0.004,
+                "name": "ht",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "t",
+                "name": "ao",
+                "to": [
+                  0.6,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "ao": "ao",
+                "base_color": "col",
+                "height": "ht",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "goat_fleg_r",
+        "input": "goat_fleg_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bg-boucle-wool",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "wc",
+                "seed": 2,
+                "size": 0.025,
+                "type": "worley"
+              },
+              {
+                "a": "wc.f1",
+                "b": 56.0,
+                "name": "fn",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.0,
+                "c": 1.0,
+                "name": "fc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "a": "fc",
+                "name": "e",
+                "op": "invert",
+                "type": "math"
+              },
+              {
+                "name": "fz",
+                "octaves": 4,
+                "seed": 2,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "a": "e",
+                "b": 0.7,
+                "name": "t0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fz",
+                "b": 0.3,
+                "name": "t1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "t0",
+                "b": "t1",
+                "name": "t",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#b5ad9c"
+                  ],
+                  [
+                    1,
+                    "#fbf7ee"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "t",
+                "b": 0.004,
+                "name": "ht",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "t",
+                "name": "ao",
+                "to": [
+                  0.6,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "ao": "ao",
+                "base_color": "col",
+                "height": "ht",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "goat_bleg_r",
+        "input": "goat_bleg_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bg-boucle-wool",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "wc",
+                "seed": 2,
+                "size": 0.025,
+                "type": "worley"
+              },
+              {
+                "a": "wc.f1",
+                "b": 56.0,
+                "name": "fn",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.0,
+                "c": 1.0,
+                "name": "fc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "a": "fc",
+                "name": "e",
+                "op": "invert",
+                "type": "math"
+              },
+              {
+                "name": "fz",
+                "octaves": 4,
+                "seed": 2,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "a": "e",
+                "b": 0.7,
+                "name": "t0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "fz",
+                "b": 0.3,
+                "name": "t1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "t0",
+                "b": "t1",
+                "name": "t",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "t",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#b5ad9c"
+                  ],
+                  [
+                    1,
+                    "#fbf7ee"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "t",
+                "b": 0.004,
+                "name": "ht",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "t",
+                "name": "ao",
+                "to": [
+                  0.6,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "ao": "ao",
+                "base_color": "col",
+                "height": "ht",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "goat_eye",
+        "input": "goat_eye",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bg-eye-amber",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.1,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "fz",
@@ -1863,25 +1867,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.1
-          },
-          "material": "bg-eye-amber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "goat_slit",
-        "metalness": null,
         "name": "goat_slit",
+        "input": "goat_slit",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "bg-eye-black",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.1,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "fz",
@@ -1918,25 +1922,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.1
-          },
-          "material": "bg-eye-black",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "goat_nose",
-        "metalness": null,
         "name": "goat_nose",
+        "input": "goat_nose",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "bg-felt-dark",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -2127,25 +2131,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "bg-felt-dark",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "goat_horn",
-        "metalness": null,
         "name": "goat_horn",
+        "input": "goat_horn",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "bg-knit-horn",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -2336,25 +2340,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "bg-knit-horn",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "goat_fhoof_l",
-        "metalness": null,
         "name": "goat_fhoof_l",
+        "input": "goat_fhoof_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "bg-knit-horn",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -2545,25 +2549,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "bg-knit-horn",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "goat_bhoof_l",
-        "metalness": null,
         "name": "goat_bhoof_l",
+        "input": "goat_bhoof_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "bg-knit-horn",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -2754,25 +2758,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "bg-knit-horn",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "goat_fhoof_r",
-        "metalness": null,
         "name": "goat_fhoof_r",
+        "input": "goat_fhoof_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "bg-knit-horn",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -2963,25 +2967,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "bg-knit-horn",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "goat_bhoof_r",
-        "metalness": null,
         "name": "goat_bhoof_r",
+        "input": "goat_bhoof_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "bg-knit-horn",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -3172,25 +3176,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "bg-knit-horn",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "goat_earpink_l",
-        "metalness": null,
         "name": "goat_earpink_l",
+        "input": "goat_earpink_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "bg-knit-pink",
+          "scale": 0.8,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -3381,25 +3385,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "bg-knit-pink",
-          "scale": 0.8
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "goat_earpink_r",
-        "metalness": null,
         "name": "goat_earpink_r",
+        "input": "goat_earpink_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "bg-knit-pink",
+          "scale": 0.8,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -3590,101 +3594,97 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.12
-          },
-          "material": "bg-knit-pink",
-          "scale": 0.8
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "skeleton": {
+        "name": "rig",
         "bones": [
           {
+            "name": "bleg_l",
+            "parent": "root",
             "head": [
               0.2,
               0.72,
               0.4
             ],
-            "name": "bleg_l",
-            "parent": "root",
-            "radius": 0.1,
             "tail": [
               0.2,
               0.0,
               0.4
-            ]
+            ],
+            "radius": 0.1
           },
           {
+            "name": "body",
+            "parent": "root",
             "head": [
               0.0,
               0.7,
               0.0
             ],
-            "name": "body",
-            "parent": "root",
-            "radius": 0.45,
             "tail": [
               0.0,
               1.15,
               0.0
-            ]
+            ],
+            "radius": 0.45
           },
           {
+            "name": "ear_l",
+            "parent": "head",
             "head": [
               0.17,
               1.43,
               -0.6
             ],
-            "name": "ear_l",
-            "parent": "head",
-            "radius": 0.07,
             "tail": [
               0.44,
               1.36,
               -0.6
-            ]
+            ],
+            "radius": 0.07
           },
           {
+            "name": "fleg_l",
+            "parent": "root",
             "head": [
               0.2,
               0.72,
               -0.4
             ],
-            "name": "fleg_l",
-            "parent": "root",
-            "radius": 0.1,
             "tail": [
               0.2,
               0.0,
               -0.4
-            ]
+            ],
+            "radius": 0.1
           },
           {
+            "name": "head",
+            "parent": "body",
             "head": [
               0.0,
               1.25,
               -0.5
             ],
-            "name": "head",
-            "parent": "body",
-            "radius": 0.3,
             "tail": [
               0.0,
               1.5,
               -0.75
-            ]
+            ],
+            "radius": 0.3
           },
           {
+            "name": "root",
             "head": [
               0.0,
               0.0,
               0.0
             ],
-            "name": "root",
             "tail": [
               0.0,
               0.3,
@@ -3692,68 +3692,66 @@
             ]
           },
           {
+            "name": "tail",
+            "parent": "body",
             "head": [
               0.0,
               1.08,
               0.6
             ],
-            "name": "tail",
-            "parent": "body",
-            "radius": 0.1,
             "tail": [
               0.0,
               1.2,
               0.82
-            ]
+            ],
+            "radius": 0.1
           }
         ],
-        "mirror": "x",
-        "name": "rig"
+        "mirror": "x"
       }
     },
     {
       "bind": {
-        "mode": "smooth",
         "name": "wool_bind",
+        "skeleton": "rig",
+        "parts": [
+          "goat_wool"
+        ],
+        "mode": "smooth",
         "paint": [
           {
             "bone": "body",
-            "max": [
-              1.0,
-              1.6,
-              0.58
-            ],
             "min": [
               -1.0,
               0.3,
               -1.0
+            ],
+            "max": [
+              1.0,
+              1.6,
+              0.58
             ]
           },
           {
             "bone": "tail",
-            "max": [
-              0.25,
-              1.35,
-              1.0
-            ],
             "min": [
               -0.25,
               0.95,
               0.66
+            ],
+            "max": [
+              0.25,
+              1.35,
+              1.0
             ]
           }
-        ],
-        "parts": [
-          "goat_wool"
-        ],
-        "skeleton": "rig"
+        ]
       }
     },
     {
       "bind": {
-        "bone": "head",
-        "mode": "rigid",
         "name": "head_bind",
+        "skeleton": "rig",
         "parts": [
           "goat_head",
           "goat_eye",
@@ -3761,98 +3759,92 @@
           "goat_nose",
           "goat_horn"
         ],
-        "skeleton": "rig"
+        "bone": "head",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "ear_l",
-        "mode": "rigid",
         "name": "ear_bind_l",
+        "skeleton": "rig",
         "parts": [
           "goat_ear_l",
           "goat_earpink_l"
         ],
-        "skeleton": "rig"
+        "bone": "ear_l",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "fleg_l",
-        "mode": "rigid",
         "name": "fleg_bind_l",
+        "skeleton": "rig",
         "parts": [
           "goat_fleg_l",
           "goat_fhoof_l"
         ],
-        "skeleton": "rig"
+        "bone": "fleg_l",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "bleg_l",
-        "mode": "rigid",
         "name": "bleg_bind_l",
+        "skeleton": "rig",
         "parts": [
           "goat_bleg_l",
           "goat_bhoof_l"
         ],
-        "skeleton": "rig"
+        "bone": "bleg_l",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "ear_r",
-        "mode": "rigid",
         "name": "ear_bind_r",
+        "skeleton": "rig",
         "parts": [
           "goat_ear_r",
           "goat_earpink_r"
         ],
-        "skeleton": "rig"
+        "bone": "ear_r",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "fleg_r",
-        "mode": "rigid",
         "name": "fleg_bind_r",
+        "skeleton": "rig",
         "parts": [
           "goat_fleg_r",
           "goat_fhoof_r"
         ],
-        "skeleton": "rig"
+        "bone": "fleg_r",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "bleg_r",
-        "mode": "rigid",
         "name": "bleg_bind_r",
+        "skeleton": "rig",
         "parts": [
           "goat_bleg_r",
           "goat_bhoof_r"
         ],
-        "skeleton": "rig"
+        "bone": "bleg_r",
+        "mode": "rigid"
       }
     },
     {
       "clip": {
-        "duration": 4.0,
-        "loop": true,
-        "mirror": {
-          "ear_r": {
-            "from": "ear_l",
-            "phase": 0.35
-          }
-        },
         "name": "idle",
         "skeleton": "rig",
+        "duration": 4.0,
+        "loop": true,
         "tracks": {
           "body": {
             "scale": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3881,14 +3873,14 @@
                       0.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "ear_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3962,14 +3954,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "head": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4016,14 +4008,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "tail": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4097,30 +4089,30 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
+          }
+        },
+        "mirror": {
+          "ear_r": {
+            "from": "ear_l",
+            "phase": 0.35
           }
         }
       }
     },
     {
       "clip": {
-        "duration": 2.4,
-        "loop": false,
-        "mirror": {
-          "ear_r": {
-            "from": "ear_l",
-            "phase": 0.0
-          }
-        },
         "name": "judge",
         "skeleton": "rig",
+        "duration": 2.4,
+        "loop": false,
         "tracks": {
           "body": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4176,14 +4168,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "ear_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4221,14 +4213,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "fleg_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4275,14 +4267,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "head": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4365,14 +4357,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "tail": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4428,14 +4420,22 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
+          }
+        },
+        "mirror": {
+          "ear_r": {
+            "from": "ear_l",
+            "phase": 0.0
           }
         }
       }
     }
   ],
-  "parts": [],
-  "version": 20298
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

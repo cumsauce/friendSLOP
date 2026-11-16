@@ -1,13 +1,12 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "cowboy-male",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 63964,
   "ops": [
     {
       "skin": {
-        "blend": 0.02,
+        "name": "shirt_hi",
         "chains": [
           [
             "pelvis",
@@ -63,19 +62,20 @@
             0.15
           ]
         },
-        "mirror": "x",
-        "name": "shirt_hi"
+        "blend": 0.02,
+        "mirror": "x"
       }
     },
     {
       "decimate": {
-        "input": "shirt_hi",
         "name": "shirt",
+        "input": "shirt_hi",
         "tris": 560
       }
     },
     {
       "skin": {
+        "name": "pants_hi",
         "chains": [
           [
             "pelvis",
@@ -107,32 +107,30 @@
             0.15
           ]
         },
-        "mirror": "x",
-        "name": "pants_hi"
+        "mirror": "x"
       }
     },
     {
       "decimate": {
-        "input": "pants_hi",
         "name": "pants",
+        "input": "pants_hi",
         "tris": 340
       }
     },
     {
       "sdf": {
-        "blend": 0.03,
         "name": "boot_l_hi",
         "shapes": [
           {
+            "shape": "capsule",
+            "radius": [
+              0.072
+            ],
             "from": [
               -0.11,
               0.075,
               0.04
             ],
-            "radius": [
-              0.072
-            ],
-            "shape": "capsule",
             "to": [
               -0.11,
               0.075,
@@ -140,15 +138,15 @@
             ]
           },
           {
+            "shape": "capsule",
+            "radius": [
+              0.074
+            ],
             "from": [
               -0.11,
               0.09,
               0.02
             ],
-            "radius": [
-              0.074
-            ],
-            "shape": "capsule",
             "to": [
               -0.11,
               0.29,
@@ -156,32 +154,32 @@
             ]
           },
           {
+            "shape": "cylinder",
             "at": [
               -0.11,
               0.3,
               0.02
             ],
-            "height": 0.04,
             "radius": [
               0.085
             ],
-            "shape": "cylinder"
+            "height": 0.04
           }
-        ]
+        ],
+        "blend": 0.03
       }
     },
     {
       "decimate": {
-        "input": "boot_l_hi",
         "name": "boot_l",
-        "tris": 140
+        "input": "boot_l_hi",
+        "tris": 320
       }
     },
     {
       "primitive": {
-        "kind": "sphere",
         "name": "hand_l_raw",
-        "rotation": null,
+        "kind": "sphere",
         "size": [
           0.052,
           0.0,
@@ -191,14 +189,14 @@
           -0.33,
           0.885,
           -0.012
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "primitive": {
-        "kind": "sphere",
         "name": "eye_l_raw",
-        "rotation": null,
+        "kind": "sphere",
         "size": [
           0.021,
           0.0,
@@ -208,24 +206,24 @@
           -0.052,
           1.655,
           -0.124
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "sdf": {
-        "blend": 0.03,
         "name": "boot_r_hi",
         "shapes": [
           {
+            "shape": "capsule",
+            "radius": [
+              0.072
+            ],
             "from": [
               0.11,
               0.075,
               0.04
             ],
-            "radius": [
-              0.072
-            ],
-            "shape": "capsule",
             "to": [
               0.11,
               0.075,
@@ -233,15 +231,15 @@
             ]
           },
           {
+            "shape": "capsule",
+            "radius": [
+              0.074
+            ],
             "from": [
               0.11,
               0.09,
               0.02
             ],
-            "radius": [
-              0.074
-            ],
-            "shape": "capsule",
             "to": [
               0.11,
               0.29,
@@ -249,32 +247,32 @@
             ]
           },
           {
+            "shape": "cylinder",
             "at": [
               0.11,
               0.3,
               0.02
             ],
-            "height": 0.04,
             "radius": [
               0.085
             ],
-            "shape": "cylinder"
+            "height": 0.04
           }
-        ]
+        ],
+        "blend": 0.03
       }
     },
     {
       "decimate": {
-        "input": "boot_r_hi",
         "name": "boot_r",
-        "tris": 140
+        "input": "boot_r_hi",
+        "tris": 320
       }
     },
     {
       "primitive": {
-        "kind": "sphere",
         "name": "hand_r_raw",
-        "rotation": null,
+        "kind": "sphere",
         "size": [
           0.052,
           0.0,
@@ -284,14 +282,14 @@
           0.33,
           0.885,
           -0.012
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "primitive": {
-        "kind": "sphere",
         "name": "eye_r_raw",
-        "rotation": null,
+        "kind": "sphere",
         "size": [
           0.021,
           0.0,
@@ -301,16 +299,16 @@
           0.052,
           1.655,
           -0.124
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "sdf": {
-        "blend": 0.02,
-        "mirror": "x",
         "name": "head_hi",
         "shapes": [
           {
+            "shape": "sphere",
             "at": [
               0.0,
               1.625,
@@ -318,10 +316,10 @@
             ],
             "radius": [
               0.14
-            ],
-            "shape": "sphere"
+            ]
           },
           {
+            "shape": "sphere",
             "at": [
               0.0,
               1.61,
@@ -329,67 +327,67 @@
             ],
             "radius": [
               0.034
-            ],
-            "shape": "sphere"
+            ]
           },
           {
+            "shape": "ellipsoid",
             "at": [
               0.138,
               1.625,
               0.0
             ],
-            "shape": "ellipsoid",
             "size": [
               0.025,
               0.04,
               0.03
             ]
           }
-        ]
+        ],
+        "blend": 0.02,
+        "mirror": "x"
       }
     },
     {
       "decimate": {
-        "input": "head_hi",
         "name": "head",
-        "tris": 300
+        "input": "head_hi",
+        "tris": 700
       }
     },
     {
       "sdf": {
-        "blend": 0.01,
-        "mirror": "x",
         "name": "stache_hi",
         "shapes": [
           {
+            "shape": "capsule",
+            "radius": [
+              0.017
+            ],
             "from": [
               0.0,
               1.585,
               -0.134
             ],
-            "radius": [
-              0.017
-            ],
-            "shape": "capsule",
             "to": [
               0.065,
               1.57,
               -0.115
             ]
           }
-        ]
+        ],
+        "blend": 0.01,
+        "mirror": "x"
       }
     },
     {
       "decimate": {
-        "input": "stache_hi",
         "name": "stache",
-        "tris": 80
+        "input": "stache_hi",
+        "tris": 200
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "hat_raw",
         "profile": [
           [
@@ -423,19 +421,19 @@
             ]
           ]
         ],
-        "rotation": null,
-        "round": 0.008,
+        "degrees": 360.0,
         "segments": 20,
+        "round": 0.008,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "hatband",
         "profile": [
           [
@@ -457,18 +455,18 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 12,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "bandana_ring",
         "profile": [
           [
@@ -490,18 +488,18 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 16,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "extrude": {
-        "height": 0.025,
         "name": "bandana_flap",
         "profile": [
           [
@@ -519,12 +517,7 @@
             ]
           ]
         ],
-        "rotation": [
-          0.5150381,
-          0.0,
-          0.0,
-          0.8571673
-        ],
+        "height": 0.025,
         "scale_top": [
           1.0,
           1.0
@@ -534,21 +527,26 @@
           0.0,
           1.44,
           -0.155
+        ],
+        "rotation": [
+          0.5150381,
+          0.0,
+          0.0,
+          0.8571673
         ]
       }
     },
     {
       "group": {
+        "name": "bandana",
         "inputs": [
-          "bandana_ring",
-          "bandana_flap"
-        ],
-        "name": "bandana"
+          "bandana_ring_lo",
+          "bandana_flap_lo"
+        ]
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "belt_ring",
         "profile": [
           [
@@ -570,25 +568,20 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 20,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "holster",
-        "rotation": [
-          0.0,
-          0.0,
-          -0.06975647,
-          0.9975641
-        ],
+        "kind": "box",
         "size": [
           0.05,
           0.19,
@@ -598,23 +591,28 @@
           -0.19,
           0.86,
           0.02
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          -0.06975647,
+          0.9975641
         ]
       }
     },
     {
       "group": {
+        "name": "leather",
         "inputs": [
           "belt_ring",
           "holster"
-        ],
-        "name": "leather"
+        ]
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "buckle",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.075,
           0.055,
@@ -624,14 +622,14 @@
           0.0,
           0.962,
           -0.18
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "gun_drum",
-        "rotation": null,
+        "kind": "cylinder",
         "size": [
           0.027,
           0.055,
@@ -641,14 +639,14 @@
           0.33,
           0.8,
           -0.012
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "gun_barrel",
-        "rotation": null,
+        "kind": "cylinder",
         "size": [
           0.012,
           0.15,
@@ -658,28 +656,23 @@
           0.33,
           0.7,
           -0.022
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "group": {
+        "name": "gun_raw",
         "inputs": [
           "gun_drum",
           "gun_barrel"
-        ],
-        "name": "gun_raw"
+        ]
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "gun_grip",
-        "rotation": [
-          -0.1305262,
-          0.0,
-          0.0,
-          0.9914449
-        ],
+        "kind": "box",
         "size": [
           0.03,
           0.04,
@@ -689,186 +682,197 @@
           0.33,
           0.84,
           0.035
+        ],
+        "rotation": [
+          -0.1305262,
+          0.0,
+          0.0,
+          0.9914449
         ]
       }
     },
     {
       "decimate": {
-        "input": "hand_l_raw",
         "name": "hand_l",
-        "tris": 60
+        "input": "hand_l_raw",
+        "tris": 160
       }
     },
     {
       "decimate": {
-        "input": "eye_l_raw",
         "name": "eye_l",
-        "tris": 40
+        "input": "eye_l_raw",
+        "tris": 100
       }
     },
     {
       "decimate": {
-        "input": "hand_r_raw",
         "name": "hand_r",
-        "tris": 60
+        "input": "hand_r_raw",
+        "tris": 160
       }
     },
     {
       "decimate": {
-        "input": "eye_r_raw",
         "name": "eye_r",
-        "tris": 40
+        "input": "eye_r_raw",
+        "tris": 100
       }
     },
     {
       "decimate": {
-        "input": "hat_raw",
         "name": "hat",
+        "input": "hat_raw",
+        "tris": 600
+      }
+    },
+    {
+      "decimate": {
+        "name": "gun",
+        "input": "gun_raw",
         "tris": 240
       }
     },
     {
-      "decimate": {
-        "input": "gun_raw",
-        "name": "gun",
-        "tris": 120
-      }
-    },
-    {
       "visibility": {
-        "input": "shirt_hi",
         "name": "shirt_hi",
+        "input": "shirt_hi",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "pants_hi",
         "name": "pants_hi",
+        "input": "pants_hi",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "boot_l_hi",
         "name": "boot_l_hi",
+        "input": "boot_l_hi",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "boot_r_hi",
         "name": "boot_r_hi",
+        "input": "boot_r_hi",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "head_hi",
         "name": "head_hi",
+        "input": "head_hi",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "stache_hi",
         "name": "stache_hi",
+        "input": "stache_hi",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "bandana_ring",
         "name": "bandana_ring",
+        "input": "bandana_ring",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "bandana_flap",
         "name": "bandana_flap",
+        "input": "bandana_flap",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "belt_ring",
         "name": "belt_ring",
+        "input": "belt_ring",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "holster",
         "name": "holster",
+        "input": "holster",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "gun_drum",
         "name": "gun_drum",
+        "input": "gun_drum",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "gun_barrel",
         "name": "gun_barrel",
+        "input": "gun_barrel",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "gun_raw",
         "name": "gun_raw",
+        "input": "gun_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "hat_raw",
         "name": "hat_raw",
+        "input": "hat_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "hand_l_raw",
         "name": "hand_l_raw",
+        "input": "hand_l_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "hand_r_raw",
         "name": "hand_r_raw",
+        "input": "hand_r_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "eye_l_raw",
         "name": "eye_l_raw",
+        "input": "eye_l_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "eye_r_raw",
         "name": "eye_r_raw",
+        "input": "eye_r_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "shirt",
-        "metalness": null,
         "name": "shirt",
+        "input": "shirt",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-shirt-m",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -984,25 +988,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-shirt-m",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "pants",
-        "metalness": null,
         "name": "pants",
+        "input": "pants",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-pants-m",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1118,25 +1122,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-pants-m",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "boot_l",
-        "metalness": null,
         "name": "boot_l",
+        "input": "boot_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-leather",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1252,25 +1256,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-leather",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "boot_r",
-        "metalness": null,
         "name": "boot_r",
+        "input": "boot_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-leather",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1386,25 +1390,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-leather",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "hand_l",
-        "metalness": null,
         "name": "hand_l",
+        "input": "hand_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-skin",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1520,25 +1524,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-skin",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "hand_r",
-        "metalness": null,
         "name": "hand_r",
+        "input": "hand_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-skin",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1654,25 +1658,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-skin",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "head",
-        "metalness": null,
         "name": "head",
+        "input": "head",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-skin",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1788,25 +1792,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-skin",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "eye_l",
-        "metalness": null,
         "name": "eye_l",
+        "input": "eye_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-eye",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1922,25 +1926,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-eye",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "eye_r",
-        "metalness": null,
         "name": "eye_r",
+        "input": "eye_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-eye",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -2056,25 +2060,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-eye",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "hat",
-        "metalness": null,
         "name": "hat",
+        "input": "hat",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-hat-m",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -2190,25 +2194,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-hat-m",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "hatband",
-        "metalness": null,
         "name": "hatband",
+        "input": "hatband",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-leather",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -2324,25 +2328,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-leather",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "bandana",
-        "metalness": null,
         "name": "bandana",
+        "input": "bandana",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-bandana-m",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -2458,25 +2462,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-bandana-m",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "leather",
-        "metalness": null,
         "name": "leather",
+        "input": "leather",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-leather",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -2592,25 +2596,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-leather",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "buckle",
-        "metalness": null,
         "name": "buckle",
+        "input": "buckle",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-brass",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -2726,25 +2730,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-brass",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "gun",
-        "metalness": null,
         "name": "gun",
+        "input": "gun",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "gunmetal",
+          "scale": 1.0,
           "graph": {
             "domain": "object",
+            "tile": 1.0,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -2819,25 +2823,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 1.0
-          },
-          "material": "gunmetal",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "gun_grip",
-        "metalness": null,
         "name": "gun_grip",
+        "input": "gun_grip",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "grip-wood",
+          "scale": 1.0,
           "graph": {
             "domain": "object",
+            "tile": 1.0,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "p",
@@ -2897,25 +2901,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 1.0
-          },
-          "material": "grip-wood",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "stache",
-        "metalness": null,
         "name": "stache",
+        "input": "stache",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "cb-hair",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -3031,243 +3035,263 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "cb-hair",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "skeleton": {
+        "name": "rig",
         "bones": [
           {
+            "name": "chest",
+            "parent": "spine",
             "head": [
               0.0,
               1.3,
               0.0
             ],
-            "name": "chest",
-            "parent": "spine",
-            "radius": 0.17,
             "tail": [
               0.0,
               1.46,
               0.0
-            ]
+            ],
+            "radius": 0.17
           },
           {
+            "name": "foot_l",
+            "parent": "shin_l",
             "head": [
               -0.11,
               0.1,
               0.0
             ],
-            "name": "foot_l",
-            "parent": "shin_l",
-            "radius": 0.07,
             "tail": [
               -0.11,
               0.06,
               -0.14
-            ]
+            ],
+            "radius": 0.07
           },
           {
+            "name": "forearm_l",
+            "parent": "upper_arm_l",
             "head": [
               -0.275,
               1.16,
               0.0
             ],
-            "name": "forearm_l",
-            "parent": "upper_arm_l",
-            "radius": 0.06,
             "tail": [
               -0.325,
               0.94,
               -0.01
-            ]
+            ],
+            "radius": 0.06
           },
           {
+            "name": "hand_l",
+            "parent": "forearm_l",
             "head": [
               -0.325,
               0.94,
               -0.01
             ],
-            "name": "hand_l",
-            "parent": "forearm_l",
-            "radius": 0.05,
             "tail": [
               -0.335,
               0.83,
               -0.01
-            ]
+            ],
+            "radius": 0.05
           },
           {
+            "name": "head",
+            "parent": "chest",
             "head": [
               0.0,
               1.46,
               0.0
             ],
-            "name": "head",
-            "parent": "chest",
-            "radius": 0.12,
             "tail": [
               0.0,
               1.8,
               0.0
-            ]
+            ],
+            "radius": 0.12
           },
           {
+            "name": "hips",
             "head": [
               0.0,
               0.96,
               0.0
             ],
-            "name": "hips",
-            "radius": 0.15,
             "tail": [
               0.0,
               1.08,
               0.0
-            ]
+            ],
+            "radius": 0.15
           },
           {
+            "name": "shin_l",
+            "parent": "thigh_l",
             "head": [
               -0.11,
               0.52,
               0.0
             ],
-            "name": "shin_l",
-            "parent": "thigh_l",
-            "radius": 0.075,
             "tail": [
               -0.11,
               0.1,
               0.0
-            ]
+            ],
+            "radius": 0.075
           },
           {
+            "name": "spine",
+            "parent": "hips",
             "head": [
               0.0,
               1.08,
               0.0
             ],
-            "name": "spine",
-            "parent": "hips",
-            "radius": 0.16,
             "tail": [
               0.0,
               1.3,
               0.0
-            ]
+            ],
+            "radius": 0.16
           },
           {
+            "name": "thigh_l",
+            "parent": "hips",
             "head": [
               -0.1,
               0.9,
               0.0
             ],
-            "name": "thigh_l",
-            "parent": "hips",
-            "radius": 0.09,
             "tail": [
               -0.11,
               0.52,
               0.0
-            ]
+            ],
+            "radius": 0.09
           },
           {
+            "name": "upper_arm_l",
+            "parent": "chest",
             "head": [
               -0.17,
               1.39,
               0.0
             ],
-            "name": "upper_arm_l",
-            "parent": "chest",
-            "radius": 0.07,
             "tail": [
               -0.275,
               1.16,
               0.0
-            ]
+            ],
+            "radius": 0.07
           }
         ],
-        "mirror": "x",
-        "name": "rig"
+        "mirror": "x"
       }
     },
     {
       "bind": {
-        "blend": 0.08,
-        "mode": "smooth",
         "name": "bind_shirt",
+        "skeleton": "rig",
+        "parts": [
+          "shirt"
+        ],
+        "mode": "smooth",
+        "blend": 0.16,
         "paint": [
           {
             "bone": "spine",
-            "max": [
-              0.16,
-              1.28,
-              0.3
-            ],
             "min": [
               -0.16,
               0.8,
               -0.3
+            ],
+            "max": [
+              0.16,
+              1.28,
+              0.3
             ]
           },
           {
             "bone": "chest",
-            "max": [
-              0.13,
-              1.5,
-              0.3
-            ],
             "min": [
               -0.13,
               1.28,
               -0.3
+            ],
+            "max": [
+              0.13,
+              1.5,
+              0.3
+            ]
+          },
+          {
+            "bone": "upper_arm_r",
+            "min": [
+              0.17,
+              1.17,
+              -0.1
+            ],
+            "max": [
+              0.25,
+              1.32,
+              0.1
+            ]
+          },
+          {
+            "bone": "upper_arm_l",
+            "min": [
+              -0.25,
+              1.17,
+              -0.1
+            ],
+            "max": [
+              -0.17,
+              1.32,
+              0.1
             ]
           }
-        ],
-        "parts": [
-          "shirt"
-        ],
-        "skeleton": "rig"
+        ]
       }
     },
     {
       "bind": {
-        "blend": 0.06,
-        "mode": "smooth",
         "name": "bind_pants",
+        "skeleton": "rig",
+        "parts": [
+          "pants"
+        ],
+        "mode": "smooth",
+        "blend": 0.06,
         "paint": [
           {
             "bone": "hips",
-            "max": [
-              0.3,
-              1.2,
-              0.3
-            ],
             "min": [
               -0.3,
               0.88,
               -0.3
+            ],
+            "max": [
+              0.3,
+              1.2,
+              0.3
             ]
           }
-        ],
-        "parts": [
-          "pants"
-        ],
-        "skeleton": "rig"
+        ]
       }
     },
     {
       "bind": {
-        "bone": "head",
-        "mode": "rigid",
         "name": "bind_head",
+        "skeleton": "rig",
         "parts": [
           "head",
           "eye_l",
@@ -3276,89 +3300,89 @@
           "hatband",
           "stache"
         ],
-        "skeleton": "rig"
+        "bone": "head",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "chest",
-        "mode": "rigid",
         "name": "bind_chest",
+        "skeleton": "rig",
         "parts": [
           "bandana"
         ],
-        "skeleton": "rig"
+        "bone": "chest",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "hips",
-        "mode": "rigid",
         "name": "bind_hips",
+        "skeleton": "rig",
         "parts": [
           "leather",
           "buckle"
         ],
-        "skeleton": "rig"
+        "bone": "hips",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "hand_r",
-        "mode": "rigid",
         "name": "bind_hand_r",
+        "skeleton": "rig",
         "parts": [
           "hand_r",
           "gun",
           "gun_grip"
         ],
-        "skeleton": "rig"
+        "bone": "hand_r",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "hand_l",
-        "mode": "rigid",
         "name": "bind_hand_l",
+        "skeleton": "rig",
         "parts": [
           "hand_l"
         ],
-        "skeleton": "rig"
+        "bone": "hand_l",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "foot_l",
-        "mode": "rigid",
         "name": "bind_foot_l",
+        "skeleton": "rig",
         "parts": [
           "boot_l"
         ],
-        "skeleton": "rig"
+        "bone": "foot_l",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "foot_r",
-        "mode": "rigid",
         "name": "bind_foot_r",
+        "skeleton": "rig",
         "parts": [
           "boot_r"
         ],
-        "skeleton": "rig"
+        "bone": "foot_r",
+        "mode": "rigid"
       }
     },
     {
       "clip": {
-        "duration": 2.4,
-        "loop": true,
         "name": "idle",
         "skeleton": "rig",
+        "duration": 2.4,
+        "loop": true,
         "tracks": {
           "chest": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3387,14 +3411,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "forearm_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3414,14 +3438,14 @@
                       0.9961947
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "forearm_r": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3450,14 +3474,14 @@
                       0.95371693
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "head": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3495,14 +3519,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "shin_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3522,14 +3546,14 @@
                       0.99965733
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "shin_r": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3549,14 +3573,14 @@
                       0.99965733
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "upper_arm_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3585,14 +3609,14 @@
                       0.99939084
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "upper_arm_r": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3621,7 +3645,8 @@
                       0.9969564
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           }
@@ -3630,34 +3655,20 @@
     },
     {
       "clip": {
-        "duration": 1.0,
-        "loop": true,
-        "mirror": {
-          "foot_r": {
-            "from": "foot_l",
-            "phase": 0.5
-          },
-          "shin_r": {
-            "from": "shin_l",
-            "phase": 0.5
-          },
-          "thigh_r": {
-            "from": "thigh_l",
-            "phase": 0.5
-          }
-        },
         "name": "walk",
         "skeleton": "rig",
+        "duration": 1.0,
+        "loop": true,
         "tracks": {
           "chest": {
             "rotate": {
               "wave": {
-                "amount": -6.0,
                 "axis": [
                   0.0,
                   1.0,
                   0.0
                 ],
+                "amount": -6.0,
                 "period": 1.0,
                 "phase": 0.0
               }
@@ -3666,7 +3677,6 @@
           "foot_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3713,14 +3723,14 @@
                       0.98768836
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "forearm_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3749,14 +3759,14 @@
                       0.9961947
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "forearm_r": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3776,26 +3786,26 @@
                       0.95371693
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "hips": {
             "rotate": {
               "wave": {
-                "amount": 5.0,
                 "axis": [
                   0.0,
                   1.0,
                   0.0
                 ],
+                "amount": 5.0,
                 "period": 1.0,
                 "phase": 0.0
               }
             },
             "translate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3842,14 +3852,14 @@
                       0.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "shin_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3896,14 +3906,14 @@
                       0.99939084
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "thigh_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3932,14 +3942,14 @@
                       0.97437006
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "upper_arm_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3968,14 +3978,14 @@
                       0.9848077
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "upper_arm_r": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4004,24 +4014,38 @@
                       0.98768836
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
+          }
+        },
+        "mirror": {
+          "foot_r": {
+            "from": "foot_l",
+            "phase": 0.5
+          },
+          "shin_r": {
+            "from": "shin_l",
+            "phase": 0.5
+          },
+          "thigh_r": {
+            "from": "thigh_l",
+            "phase": 0.5
           }
         }
       }
     },
     {
       "clip": {
-        "duration": 0.6,
-        "loop": false,
         "name": "shoot",
         "skeleton": "rig",
+        "duration": 0.6,
+        "loop": false,
         "tracks": {
           "chest": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4059,14 +4083,14 @@
                       0.99254614
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "forearm_r": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4080,38 +4104,38 @@
                   [
                     0.12,
                     [
-                      0.017452406,
+                      0.3007058,
                       0.0,
                       0.0,
-                      0.9998477
+                      0.95371693
                     ]
                   ],
                   [
                     0.2,
                     [
-                      0.05233596,
+                      0.3007058,
                       0.0,
                       0.0,
-                      0.9986295
+                      0.95371693
                     ]
                   ],
                   [
                     0.6,
                     [
-                      0.034899496,
+                      0.3007058,
                       0.0,
                       0.0,
-                      0.99939084
+                      0.95371693
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "hand_r": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4158,14 +4182,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "head": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4194,14 +4218,14 @@
                       0.9961947
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "upper_arm_r": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4215,40 +4239,41 @@
                   [
                     0.12,
                     [
-                      0.66546506,
-                      -0.0699432,
-                      -0.07767978,
-                      0.7390738
+                      0.4370149,
+                      -0.04593212,
+                      -0.05101278,
+                      0.89683104
                     ]
                   ],
                   [
                     0.2,
                     [
-                      0.7153992,
-                      -0.07519148,
-                      -0.07261158,
-                      0.690853
+                      0.47529086,
+                      -0.04995508,
+                      -0.048241068,
+                      0.8770838
                     ]
                   ],
                   [
                     0.36,
                     [
-                      0.67188925,
-                      -0.0706184,
-                      -0.077066466,
-                      0.73323846
+                      0.44184598,
+                      -0.04643988,
+                      -0.05068024,
+                      0.8944536
                     ]
                   ],
                   [
                     0.6,
                     [
-                      0.62692565,
-                      -0.054848883,
-                      -0.06773273,
-                      0.77418864
+                      0.4083262,
+                      -0.03572391,
+                      -0.044115357,
+                      0.91106945
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           }
@@ -4257,15 +4282,14 @@
     },
     {
       "clip": {
-        "duration": 0.7,
-        "loop": false,
         "name": "hit",
         "skeleton": "rig",
+        "duration": 0.7,
+        "loop": false,
         "tracks": {
           "chest": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4294,14 +4318,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "forearm_r": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4315,10 +4339,10 @@
                   [
                     0.12,
                     [
-                      0.17364818,
+                      0.1736482,
                       0.0,
                       0.0,
-                      0.9848077
+                      0.98480785
                     ]
                   ],
                   [
@@ -4330,14 +4354,14 @@
                       0.95371693
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "head": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4375,14 +4399,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "hips": {
             "translate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4411,14 +4435,14 @@
                       0.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "shin_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4432,10 +4456,10 @@
                   [
                     0.15,
                     [
-                      -0.17364818,
+                      -0.1736482,
                       0.0,
                       0.0,
-                      0.9848077
+                      0.98480785
                     ]
                   ],
                   [
@@ -4447,14 +4471,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "spine": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4468,19 +4492,19 @@
                   [
                     0.1,
                     [
-                      0.1391731,
+                      0.13917312,
                       0.0,
                       0.0,
-                      0.99026805
+                      0.9902682
                     ]
                   ],
                   [
                     0.35,
                     [
-                      0.06104854,
+                      0.06104855,
                       0.0,
                       0.0,
-                      0.9981348
+                      0.9981349
                     ]
                   ],
                   [
@@ -4492,14 +4516,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "thigh_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4528,14 +4552,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "upper_arm_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4549,10 +4573,10 @@
                   [
                     0.12,
                     [
-                      0.252684,
-                      -0.056018695,
-                      -0.20906462,
-                      0.9430295
+                      0.15349217,
+                      -0.034028396,
+                      -0.12699571,
+                      0.97936434
                     ]
                   ],
                   [
@@ -4564,14 +4588,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "upper_arm_r": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -4585,10 +4609,10 @@
                   [
                     0.12,
                     [
-                      0.252684,
-                      0.056018695,
-                      0.20906462,
-                      0.9430295
+                      0.15349217,
+                      0.034028396,
+                      0.12699571,
+                      0.97936434
                     ]
                   ],
                   [
@@ -4600,14 +4624,169 @@
                       0.9969564
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           }
         }
       }
+    },
+    {
+      "sdf": {
+        "name": "bandana_ring_hi",
+        "shapes": [
+          {
+            "shape": "part",
+            "part": "shirt_hi"
+          },
+          {
+            "shape": "box",
+            "op": "intersect",
+            "blend": 0.006,
+            "at": [
+              0.0,
+              1.475,
+              0.0
+            ],
+            "size": [
+              0.6,
+              0.05,
+              0.6
+            ],
+            "round": 0.012
+          }
+        ]
+      }
+    },
+    {
+      "transform": {
+        "name": "bandana_ring_s",
+        "input": "bandana_ring_hi",
+        "translation": null,
+        "rotation": null,
+        "scale": [
+          1.07,
+          1.05,
+          1.1
+        ],
+        "relative": true,
+        "pivot": [
+          0.0,
+          1.47,
+          0.0
+        ]
+      }
+    },
+    {
+      "sdf": {
+        "name": "bandana_flap_hi",
+        "shapes": [
+          {
+            "shape": "part",
+            "part": "shirt_hi"
+          },
+          {
+            "shape": "box",
+            "op": "intersect",
+            "blend": 0.004,
+            "at": [
+              0.0,
+              1.435,
+              -0.2
+            ],
+            "rotation": [
+              0.0,
+              0.0,
+              0.38268346,
+              0.9238795
+            ],
+            "size": [
+              0.12,
+              0.12,
+              0.4
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "transform": {
+        "name": "bandana_flap_s",
+        "input": "bandana_flap_hi",
+        "translation": null,
+        "rotation": null,
+        "scale": [
+          1.0,
+          1.0,
+          1.07
+        ],
+        "relative": true,
+        "pivot": [
+          0.0,
+          1.38,
+          0.0
+        ]
+      }
+    },
+    {
+      "visibility": {
+        "name": "bandana_ring_hi",
+        "input": "bandana_ring_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bandana_flap_hi",
+        "input": "bandana_flap_hi",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bandana_ring_s",
+        "input": "bandana_ring_s",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bandana_flap_s",
+        "input": "bandana_flap_s",
+        "visible": false
+      }
+    },
+    {
+      "decimate": {
+        "name": "bandana_ring_lo",
+        "input": "bandana_ring_s",
+        "tris": 400
+      }
+    },
+    {
+      "decimate": {
+        "name": "bandana_flap_lo",
+        "input": "bandana_flap_s",
+        "tris": 160
+      }
+    },
+    {
+      "visibility": {
+        "name": "bandana_ring_lo",
+        "input": "bandana_ring_lo",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bandana_flap_lo",
+        "input": "bandana_flap_lo",
+        "visible": false
+      }
     }
   ],
-  "parts": [],
-  "version": 20394
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

@@ -1,23 +1,20 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "ct-fat-cat",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 63839,
   "ops": [
     {
       "sdf": {
-        "blend": 0.05,
-        "mirror": "x",
         "name": "cat_fur_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               0.4,
               0.02
             ],
-            "shape": "ellipsoid",
             "size": [
               0.54,
               0.38,
@@ -25,13 +22,13 @@
             ]
           },
           {
+            "shape": "ellipsoid",
+            "blend": 0.08,
             "at": [
               0.0,
               0.27,
               -0.04
             ],
-            "blend": 0.08,
-            "shape": "ellipsoid",
             "size": [
               0.44,
               0.22,
@@ -39,13 +36,13 @@
             ]
           },
           {
+            "shape": "ellipsoid",
+            "blend": 0.1,
             "at": [
               0.0,
               0.7,
               -0.52
             ],
-            "blend": 0.1,
-            "shape": "ellipsoid",
             "size": [
               0.29,
               0.24,
@@ -53,13 +50,13 @@
             ]
           },
           {
+            "shape": "ellipsoid",
+            "blend": 0.05,
             "at": [
               0.13,
               0.63,
               -0.64
             ],
-            "blend": 0.05,
-            "shape": "ellipsoid",
             "size": [
               0.12,
               0.09,
@@ -67,17 +64,17 @@
             ]
           },
           {
+            "shape": "capsule",
             "blend": 0.05,
+            "radius": [
+              0.09,
+              0.075
+            ],
             "from": [
               0.3,
               0.25,
               -0.3
             ],
-            "radius": [
-              0.09,
-              0.075
-            ],
-            "shape": "capsule",
             "to": [
               0.31,
               0.075,
@@ -85,17 +82,17 @@
             ]
           },
           {
+            "shape": "capsule",
             "blend": 0.05,
+            "radius": [
+              0.09,
+              0.075
+            ],
             "from": [
               0.3,
               0.25,
               0.3
             ],
-            "radius": [
-              0.09,
-              0.075
-            ],
-            "shape": "capsule",
             "to": [
               0.31,
               0.075,
@@ -103,17 +100,17 @@
             ]
           },
           {
+            "shape": "capsule",
             "blend": 0.03,
+            "radius": [
+              0.075,
+              0.012
+            ],
             "from": [
               0.14,
               0.84,
               -0.5
             ],
-            "radius": [
-              0.075,
-              0.012
-            ],
-            "shape": "capsule",
             "to": [
               0.19,
               1.0,
@@ -121,6 +118,7 @@
             ]
           },
           {
+            "shape": "chain",
             "blend": 0.05,
             "points": [
               [
@@ -147,19 +145,20 @@
                 0.72,
                 0.055
               ]
-            ],
-            "shape": "chain"
+            ]
           }
-        ]
+        ],
+        "blend": 0.05,
+        "mirror": "x"
       }
     },
     {
       "decimate": {
-        "bake": true,
-        "input": "cat_fur_hi",
         "name": "cat_fur",
-        "resolution": 512,
-        "tris": 1700
+        "input": "cat_fur_hi",
+        "tris": 1700,
+        "bake": true,
+        "resolution": 512
       }
     },
     {
@@ -167,12 +166,12 @@
         "name": "cat_jaw",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               0.565,
               -0.66
             ],
-            "shape": "ellipsoid",
             "size": [
               0.12,
               0.055,
@@ -184,9 +183,9 @@
     },
     {
       "decimate": {
-        "input": "cat_jaw",
         "name": "cat_jaw_lo",
-        "tris": 120
+        "input": "cat_jaw",
+        "tris": 220
       }
     },
     {
@@ -194,12 +193,12 @@
         "name": "cat_mouth_hi",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
               0.0,
               0.6,
               -0.67
             ],
-            "shape": "ellipsoid",
             "size": [
               0.11,
               0.06,
@@ -211,16 +210,15 @@
     },
     {
       "decimate": {
-        "input": "cat_mouth_hi",
         "name": "cat_mouth",
-        "tris": 80
+        "input": "cat_mouth_hi",
+        "tris": 160
       }
     },
     {
       "primitive": {
-        "kind": "sphere",
         "name": "cat_eye_l",
-        "rotation": null,
+        "kind": "sphere",
         "size": [
           0.058,
           0.0,
@@ -230,14 +228,14 @@
           0.1,
           0.76,
           -0.735
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "primitive": {
-        "kind": "sphere",
         "name": "cat_pupil_l",
-        "rotation": null,
+        "kind": "sphere",
         "size": [
           0.036,
           0.0,
@@ -247,14 +245,14 @@
           0.102,
           0.757,
           -0.772
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "primitive": {
-        "kind": "sphere",
         "name": "cat_spark_l",
-        "rotation": null,
+        "kind": "sphere",
         "size": [
           0.013,
           0.0,
@@ -264,14 +262,15 @@
           0.112,
           0.775,
           -0.802
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "mirror": {
-        "axis": "x",
-        "input": "lo_eye_l",
         "name": "cat_eye_r",
+        "input": "lo_eye_l",
+        "axis": "x",
         "offset": [
           0.0,
           0.0,
@@ -281,9 +280,9 @@
     },
     {
       "mirror": {
-        "axis": "x",
-        "input": "lo_pupil_l",
         "name": "cat_pupil_r",
+        "input": "lo_pupil_l",
+        "axis": "x",
         "offset": [
           0.0,
           0.0,
@@ -293,9 +292,9 @@
     },
     {
       "mirror": {
-        "axis": "x",
-        "input": "lo_spark_l",
         "name": "cat_spark_r",
+        "input": "lo_spark_l",
+        "axis": "x",
         "offset": [
           0.0,
           0.0,
@@ -305,9 +304,8 @@
     },
     {
       "primitive": {
-        "kind": "sphere",
         "name": "cat_nose",
-        "rotation": null,
+        "kind": "sphere",
         "size": [
           0.034,
           0.0,
@@ -317,19 +315,14 @@
           0.0,
           0.67,
           -0.775
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "cat_whisker_l1",
-        "rotation": [
-          0.11161889,
-          -0.13302222,
-          0.6330222,
-          0.7544065
-        ],
+        "kind": "cylinder",
         "size": [
           0.006,
           0.3,
@@ -339,19 +332,19 @@
           0.27,
           0.645,
           -0.67
+        ],
+        "rotation": [
+          0.11161889,
+          -0.13302222,
+          0.6330222,
+          0.7544065
         ]
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "cat_whisker_l2",
-        "rotation": [
-          0.13302222,
-          -0.1116189,
-          0.7544065,
-          0.63302225
-        ],
+        "kind": "cylinder",
         "size": [
           0.006,
           0.3,
@@ -361,14 +354,20 @@
           0.27,
           0.61,
           -0.67
+        ],
+        "rotation": [
+          0.13302222,
+          -0.1116189,
+          0.7544065,
+          0.63302225
         ]
       }
     },
     {
       "mirror": {
-        "axis": "x",
-        "input": "lo_whisker_l1",
         "name": "cat_whisker_r1",
+        "input": "lo_whisker_l1",
+        "axis": "x",
         "offset": [
           0.0,
           0.0,
@@ -378,9 +377,9 @@
     },
     {
       "mirror": {
-        "axis": "x",
-        "input": "lo_whisker_l2",
         "name": "cat_whisker_r2",
+        "input": "lo_whisker_l2",
+        "axis": "x",
         "offset": [
           0.0,
           0.0,
@@ -390,34 +389,39 @@
     },
     {
       "visibility": {
-        "input": "cat_fur_hi",
         "name": "cat_fur_hi",
+        "input": "cat_fur_hi",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "cat_jaw",
         "name": "cat_jaw",
+        "input": "cat_jaw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "cat_mouth_hi",
         "name": "cat_mouth_hi",
+        "input": "cat_mouth_hi",
         "visible": false
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cat_fur",
-        "metalness": null,
         "name": "cat_fur",
+        "input": "cat_fur",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "ct-cat-fur",
+          "scale": 1.0,
           "graph": {
             "domain": "object",
+            "tile": 1.0,
+            "resolution": 512,
             "nodes": [
               {
                 "name": "pos",
@@ -636,25 +640,25 @@
                 "type": "math"
               }
             ],
-            "params": {},
-            "resolution": 512,
-            "tile": 1.0
-          },
-          "material": "ct-cat-fur",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cat_jaw_lo",
-        "metalness": null,
         "name": "cat_jaw_lo",
+        "input": "cat_jaw_lo",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "ct-knit-cream",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -762,25 +766,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.2
-          },
-          "material": "ct-knit-cream",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cat_mouth",
-        "metalness": null,
         "name": "cat_mouth",
+        "input": "cat_mouth",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "ct-mouth",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -816,25 +820,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.25
-          },
-          "material": "ct-mouth",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cat_eye_l",
-        "metalness": null,
         "name": "cat_eye_l",
+        "input": "cat_eye_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "ct-eye-white",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -870,25 +874,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.25
-          },
-          "material": "ct-eye-white",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cat_eye_r",
-        "metalness": null,
         "name": "cat_eye_r",
+        "input": "cat_eye_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "ct-eye-white",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -924,25 +928,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.25
-          },
-          "material": "ct-eye-white",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cat_spark_l",
-        "metalness": null,
         "name": "cat_spark_l",
+        "input": "cat_spark_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "ct-eye-white",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -978,25 +982,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.25
-          },
-          "material": "ct-eye-white",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cat_spark_r",
-        "metalness": null,
         "name": "cat_spark_r",
+        "input": "cat_spark_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "ct-eye-white",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -1032,25 +1036,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.25
-          },
-          "material": "ct-eye-white",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cat_whisker_l1",
-        "metalness": null,
         "name": "cat_whisker_l1",
+        "input": "cat_whisker_l1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "ct-eye-white",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -1086,25 +1090,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.25
-          },
-          "material": "ct-eye-white",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cat_whisker_l2",
-        "metalness": null,
         "name": "cat_whisker_l2",
+        "input": "cat_whisker_l2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "ct-eye-white",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -1140,25 +1144,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.25
-          },
-          "material": "ct-eye-white",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cat_whisker_r1",
-        "metalness": null,
         "name": "cat_whisker_r1",
+        "input": "cat_whisker_r1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "ct-eye-white",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -1194,25 +1198,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.25
-          },
-          "material": "ct-eye-white",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cat_whisker_r2",
-        "metalness": null,
         "name": "cat_whisker_r2",
+        "input": "cat_whisker_r2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "ct-eye-white",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -1248,25 +1252,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.25
-          },
-          "material": "ct-eye-white",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cat_pupil_l",
-        "metalness": null,
         "name": "cat_pupil_l",
+        "input": "cat_pupil_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "ct-eye-black",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -1302,25 +1306,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.25
-          },
-          "material": "ct-eye-black",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cat_pupil_r",
-        "metalness": null,
         "name": "cat_pupil_r",
+        "input": "cat_pupil_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "ct-eye-black",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "n",
@@ -1356,25 +1360,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.25
-          },
-          "material": "ct-eye-black",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cat_nose",
-        "metalness": null,
         "name": "cat_nose",
+        "input": "cat_nose",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "ct-knit-pink",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1482,325 +1486,319 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.2
-          },
-          "material": "ct-knit-pink",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "skeleton": {
+        "name": "rig",
         "bones": [
           {
+            "name": "chest",
+            "parent": "hips",
             "head": [
               0.0,
               0.42,
               -0.05
             ],
-            "name": "chest",
-            "parent": "hips",
-            "radius": 0.4,
             "tail": [
               0.0,
               0.5,
               -0.32
-            ]
+            ],
+            "radius": 0.4
           },
           {
+            "name": "ear_l",
+            "parent": "head",
             "head": [
               0.15,
               0.86,
               -0.5
             ],
-            "name": "ear_l",
-            "parent": "head",
-            "radius": 0.05,
             "tail": [
               0.19,
               1.0,
               -0.49
-            ]
+            ],
+            "radius": 0.05
           },
           {
+            "name": "head",
+            "parent": "neck",
             "head": [
               0.0,
               0.62,
               -0.45
             ],
-            "name": "head",
-            "parent": "neck",
-            "radius": 0.24,
             "tail": [
               0.0,
               0.72,
               -0.75
-            ]
+            ],
+            "radius": 0.24
           },
           {
+            "name": "hips",
+            "parent": "root",
             "head": [
               0.0,
               0.4,
               0.22
             ],
-            "name": "hips",
-            "parent": "root",
-            "radius": 0.4,
             "tail": [
               0.0,
               0.42,
               -0.05
-            ]
+            ],
+            "radius": 0.4
           },
           {
+            "name": "jaw",
+            "parent": "head",
             "head": [
               0.0,
               0.6,
               -0.56
             ],
-            "name": "jaw",
-            "parent": "head",
-            "radius": 0.08,
             "tail": [
               0.0,
               0.56,
               -0.74
-            ]
+            ],
+            "radius": 0.08
           },
           {
+            "name": "leg_back_l",
+            "parent": "hips",
             "head": [
               0.3,
               0.27,
               0.3
             ],
-            "name": "leg_back_l",
-            "parent": "hips",
-            "radius": 0.09,
             "tail": [
               0.31,
               0.0,
               0.32
-            ]
+            ],
+            "radius": 0.09
           },
           {
+            "name": "leg_front_l",
+            "parent": "chest",
             "head": [
               0.3,
               0.27,
               -0.3
             ],
-            "name": "leg_front_l",
-            "parent": "chest",
-            "radius": 0.09,
             "tail": [
               0.31,
               0.0,
               -0.33
-            ]
+            ],
+            "radius": 0.09
           },
           {
+            "name": "mouth",
+            "parent": "head",
             "head": [
               0.0,
               0.6,
               -0.62
             ],
-            "name": "mouth",
-            "parent": "head",
-            "radius": 0.06,
             "tail": [
               0.0,
               0.6,
               -0.72
-            ]
+            ],
+            "radius": 0.06
           },
           {
+            "name": "neck",
+            "parent": "chest",
             "head": [
               0.0,
               0.5,
               -0.32
             ],
-            "name": "neck",
-            "parent": "chest",
-            "radius": 0.2,
             "tail": [
               0.0,
               0.62,
               -0.45
-            ]
+            ],
+            "radius": 0.2
           },
           {
+            "name": "root",
             "head": [
               0.0,
               0.02,
               0.0
             ],
-            "name": "root",
-            "radius": 0.1,
             "tail": [
               0.0,
               0.3,
               0.0
-            ]
+            ],
+            "radius": 0.1
           },
           {
+            "name": "tail1",
+            "parent": "hips",
             "head": [
               0.0,
               0.42,
               0.5
             ],
-            "name": "tail1",
-            "parent": "hips",
-            "radius": 0.075,
             "tail": [
               0.0,
               0.55,
               0.68
-            ]
+            ],
+            "radius": 0.075
           },
           {
-            "head": [
-              0.0,
-              0.55,
-              0.68
-            ],
             "name": "tail2",
             "parent": "tail1",
-            "radius": 0.065,
+            "head": [
+              0.0,
+              0.55,
+              0.68
+            ],
             "tail": [
               0.0,
               0.75,
               0.76
-            ]
+            ],
+            "radius": 0.065
           },
           {
+            "name": "tail3",
+            "parent": "tail2",
             "head": [
               0.0,
               0.75,
               0.76
             ],
-            "name": "tail3",
-            "parent": "tail2",
-            "radius": 0.055,
             "tail": [
               0.0,
               0.95,
               0.72
-            ]
+            ],
+            "radius": 0.055
           }
         ],
-        "mirror": "x",
-        "name": "rig"
+        "mirror": "x"
       }
     },
     {
       "bind": {
-        "blend": 0.08,
-        "mode": "smooth",
         "name": "bind_fur",
+        "skeleton": "rig",
+        "parts": [
+          "cat_fur"
+        ],
+        "mode": "smooth",
+        "blend": 0.08,
         "paint": [
           {
             "bone": "neck",
-            "max": [
-              0.4,
-              0.95,
-              -0.3
-            ],
             "min": [
               -0.4,
               0.35,
               -0.52
+            ],
+            "max": [
+              0.4,
+              0.95,
+              -0.3
             ]
           },
           {
             "bone": "head",
-            "max": [
-              0.32,
-              1.05,
-              -0.47
-            ],
             "min": [
               -0.32,
               0.5,
               -0.85
+            ],
+            "max": [
+              0.32,
+              1.05,
+              -0.47
             ]
           },
           {
             "bone": "neck",
-            "max": [
-              0.32,
-              0.56,
-              -0.5
-            ],
             "min": [
               -0.32,
               0.38,
               -0.9
+            ],
+            "max": [
+              0.32,
+              0.56,
+              -0.5
             ]
           },
           {
             "bone": "head",
-            "max": [
-              0.32,
-              1.05,
-              -0.36
-            ],
             "min": [
               -0.32,
               0.78,
               -0.6
+            ],
+            "max": [
+              0.32,
+              1.05,
+              -0.36
             ]
           },
           {
             "bone": "ear_l",
-            "max": [
-              0.3,
-              1.05,
-              -0.36
-            ],
             "min": [
               0.08,
               0.86,
               -0.6
+            ],
+            "max": [
+              0.3,
+              1.05,
+              -0.36
             ]
           },
           {
             "bone": "ear_r",
-            "max": [
-              -0.08,
-              1.05,
-              -0.36
-            ],
             "min": [
               -0.3,
               0.86,
               -0.6
+            ],
+            "max": [
+              -0.08,
+              1.05,
+              -0.36
             ]
           }
-        ],
-        "parts": [
-          "cat_fur"
-        ],
-        "skeleton": "rig"
+        ]
       }
     },
     {
       "bind": {
-        "bone": "jaw",
-        "mode": "rigid",
         "name": "bind_jaw",
+        "skeleton": "rig",
         "parts": [
           "cat_jaw_lo"
         ],
-        "skeleton": "rig"
+        "bone": "jaw",
+        "mode": "rigid"
       }
     },
     {
       "bind": {
-        "bone": "head",
-        "mode": "rigid",
         "name": "bind_face",
+        "skeleton": "rig",
         "parts": [
           "cat_eye_r",
           "cat_pupil_r",
@@ -1809,20 +1807,20 @@
           "cat_whisker_r2",
           "lo_*"
         ],
-        "skeleton": "rig"
+        "bone": "head",
+        "mode": "rigid"
       }
     },
     {
       "clip": {
-        "duration": 3.0,
-        "loop": true,
         "name": "idle",
         "skeleton": "rig",
+        "duration": 3.0,
+        "loop": true,
         "tracks": {
           "ear_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -1869,14 +1867,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "head": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -1914,14 +1912,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "neck": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -1968,19 +1966,20 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "tail1": {
             "rotate": {
               "wave": {
-                "amount": 10.0,
                 "axis": [
                   0.0,
                   1.0,
                   0.0
                 ],
+                "amount": 10.0,
                 "period": 1.5,
                 "phase": 0.0
               }
@@ -1989,12 +1988,12 @@
           "tail2": {
             "rotate": {
               "wave": {
-                "amount": 14.0,
                 "axis": [
                   0.0,
                   1.0,
                   0.0
                 ],
+                "amount": 14.0,
                 "period": 1.5,
                 "phase": 0.15
               }
@@ -2003,12 +2002,12 @@
           "tail3": {
             "rotate": {
               "wave": {
-                "amount": 18.0,
                 "axis": [
                   0.0,
                   1.0,
                   0.0
                 ],
+                "amount": 18.0,
                 "period": 1.5,
                 "phase": 0.3
               }
@@ -2019,25 +2018,14 @@
     },
     {
       "clip": {
-        "duration": 0.6,
-        "loop": true,
-        "mirror": {
-          "leg_back_r": {
-            "from": "leg_back_l",
-            "phase": 0.5
-          },
-          "leg_front_r": {
-            "from": "leg_front_l",
-            "phase": 0.5
-          }
-        },
         "name": "walk",
         "skeleton": "rig",
+        "duration": 0.6,
+        "loop": true,
         "tracks": {
           "leg_back_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -2066,14 +2054,14 @@
                       0.99254614
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "leg_front_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -2102,19 +2090,20 @@
                       0.99254614
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "neck": {
             "rotate": {
               "wave": {
-                "amount": 4.0,
                 "axis": [
                   1.0,
                   0.0,
                   0.0
                 ],
+                "amount": 4.0,
                 "period": 0.3,
                 "phase": 0.0
               }
@@ -2123,7 +2112,6 @@
           "root": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -2170,12 +2158,12 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             },
             "translate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -2222,19 +2210,20 @@
                       0.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "tail1": {
             "rotate": {
               "wave": {
-                "amount": 14.0,
                 "axis": [
                   0.0,
                   1.0,
                   0.0
                 ],
+                "amount": 14.0,
                 "period": 0.6,
                 "phase": 0.0
               }
@@ -2243,12 +2232,12 @@
           "tail2": {
             "rotate": {
               "wave": {
-                "amount": 16.0,
                 "axis": [
                   0.0,
                   1.0,
                   0.0
                 ],
+                "amount": 16.0,
                 "period": 0.6,
                 "phase": 0.1
               }
@@ -2257,37 +2246,40 @@
           "tail3": {
             "rotate": {
               "wave": {
-                "amount": 20.0,
                 "axis": [
                   0.0,
                   1.0,
                   0.0
                 ],
+                "amount": 20.0,
                 "period": 0.6,
                 "phase": 0.2
               }
             }
+          }
+        },
+        "mirror": {
+          "leg_back_r": {
+            "from": "leg_back_l",
+            "phase": 0.5
+          },
+          "leg_front_r": {
+            "from": "leg_front_l",
+            "phase": 0.5
           }
         }
       }
     },
     {
       "clip": {
-        "duration": 1.6,
-        "loop": false,
-        "mirror": {
-          "ear_r": {
-            "from": "ear_l",
-            "phase": 0.0
-          }
-        },
         "name": "meow",
         "skeleton": "rig",
+        "duration": 1.6,
+        "loop": false,
         "tracks": {
           "ear_l": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -2325,14 +2317,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "head": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -2370,14 +2362,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "jaw": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -2433,14 +2425,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "mouth": {
             "scale": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -2496,14 +2488,14 @@
                       0.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "neck": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -2541,14 +2533,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "tail1": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -2586,30 +2578,30 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
+          }
+        },
+        "mirror": {
+          "ear_r": {
+            "from": "ear_l",
+            "phase": 0.0
           }
         }
       }
     },
     {
       "clip": {
-        "duration": 1.4,
-        "loop": false,
-        "mirror": {
-          "ear_r": {
-            "from": "ear_l",
-            "phase": 0.0
-          }
-        },
         "name": "gobble",
         "skeleton": "rig",
+        "duration": 1.4,
+        "loop": false,
         "tracks": {
           "ear_l": {
             "rotate": {
               "keys": {
-                "interp": "linear",
                 "keys": [
                   [
                     0.0,
@@ -2647,14 +2639,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "linear"
               }
             }
           },
           "head": {
             "rotate": {
               "keys": {
-                "interp": "linear",
                 "keys": [
                   [
                     0.0,
@@ -2692,14 +2684,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "linear"
               }
             }
           },
           "jaw": {
             "rotate": {
               "keys": {
-                "interp": "linear",
                 "keys": [
                   [
                     0.0,
@@ -2782,12 +2774,12 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "linear"
               }
             },
             "scale": {
               "keys": {
-                "interp": "linear",
                 "keys": [
                   [
                     0.0,
@@ -2834,14 +2826,14 @@
                       0.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "linear"
               }
             }
           },
           "mouth": {
             "scale": {
               "keys": {
-                "interp": "linear",
                 "keys": [
                   [
                     0.0,
@@ -2924,14 +2916,14 @@
                       0.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "linear"
               }
             }
           },
           "neck": {
             "rotate": {
               "keys": {
-                "interp": "linear",
                 "keys": [
                   [
                     0.0,
@@ -2978,14 +2970,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "linear"
               }
             }
           },
           "root": {
             "translate": {
               "keys": {
-                "interp": "linear",
                 "keys": [
                   [
                     0.0,
@@ -3032,14 +3024,14 @@
                       0.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "linear"
               }
             }
           },
           "tail1": {
             "rotate": {
               "keys": {
-                "interp": "linear",
                 "keys": [
                   [
                     0.0,
@@ -3077,24 +3069,30 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "linear"
               }
             }
+          }
+        },
+        "mirror": {
+          "ear_r": {
+            "from": "ear_l",
+            "phase": 0.0
           }
         }
       }
     },
     {
       "clip": {
-        "duration": 1.0,
-        "loop": true,
         "name": "lap",
         "skeleton": "rig",
+        "duration": 1.0,
+        "loop": true,
         "tracks": {
           "head": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3141,14 +3139,14 @@
                       0.9953962
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "jaw": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3195,14 +3193,14 @@
                       1.0
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "neck": {
             "rotate": {
               "keys": {
-                "interp": "smooth",
                 "keys": [
                   [
                     0.0,
@@ -3249,19 +3247,20 @@
                       0.9832549
                     ]
                   ]
-                ]
+                ],
+                "interp": "smooth"
               }
             }
           },
           "tail1": {
             "rotate": {
               "wave": {
-                "amount": 8.0,
                 "axis": [
                   0.0,
                   1.0,
                   0.0
                 ],
+                "amount": 8.0,
                 "period": 1.0,
                 "phase": 0.0
               }
@@ -3270,12 +3269,12 @@
           "tail3": {
             "rotate": {
               "wave": {
-                "amount": 14.0,
                 "axis": [
                   0.0,
                   1.0,
                   0.0
                 ],
+                "amount": 14.0,
                 "period": 1.0,
                 "phase": 0.2
               }
@@ -3286,100 +3285,317 @@
     },
     {
       "bind": {
-        "bone": "mouth",
-        "mode": "rigid",
         "name": "bind_mouth",
+        "skeleton": "rig",
         "parts": [
           "cat_mouth"
         ],
-        "skeleton": "rig"
+        "bone": "mouth",
+        "mode": "rigid"
       }
     },
     {
       "decimate": {
-        "input": "cat_eye_l",
         "name": "lo_eye_l",
-        "tris": 80
-      }
-    },
-    {
-      "decimate": {
-        "input": "cat_pupil_l",
-        "name": "lo_pupil_l",
-        "tris": 60
-      }
-    },
-    {
-      "decimate": {
-        "input": "cat_spark_l",
-        "name": "lo_spark_l",
-        "tris": 24
-      }
-    },
-    {
-      "decimate": {
-        "input": "cat_nose",
-        "name": "lo_nose",
-        "tris": 60
-      }
-    },
-    {
-      "decimate": {
-        "input": "cat_whisker_l1",
-        "name": "lo_whisker_l1",
-        "tris": 24
-      }
-    },
-    {
-      "decimate": {
-        "input": "cat_whisker_l2",
-        "name": "lo_whisker_l2",
-        "tris": 24
-      }
-    },
-    {
-      "visibility": {
         "input": "cat_eye_l",
-        "name": "cat_eye_l",
-        "visible": false
+        "tris": 200
       }
     },
     {
-      "visibility": {
+      "decimate": {
+        "name": "lo_pupil_l",
         "input": "cat_pupil_l",
-        "name": "cat_pupil_l",
-        "visible": false
+        "tris": 140
       }
     },
     {
-      "visibility": {
+      "decimate": {
+        "name": "lo_spark_l",
         "input": "cat_spark_l",
-        "name": "cat_spark_l",
-        "visible": false
+        "tris": 60
       }
     },
     {
-      "visibility": {
+      "decimate": {
+        "name": "lo_nose",
         "input": "cat_nose",
-        "name": "cat_nose",
-        "visible": false
+        "tris": 120
       }
     },
     {
-      "visibility": {
+      "decimate": {
+        "name": "lo_whisker_l1",
         "input": "cat_whisker_l1",
-        "name": "cat_whisker_l1",
+        "tris": 24
+      }
+    },
+    {
+      "decimate": {
+        "name": "lo_whisker_l2",
+        "input": "cat_whisker_l2",
+        "tris": 24
+      }
+    },
+    {
+      "visibility": {
+        "name": "cat_eye_l",
+        "input": "cat_eye_l",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "cat_whisker_l2",
+        "name": "cat_pupil_l",
+        "input": "cat_pupil_l",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "cat_spark_l",
+        "input": "cat_spark_l",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "cat_nose",
+        "input": "cat_nose",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "cat_whisker_l1",
+        "input": "cat_whisker_l1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
         "name": "cat_whisker_l2",
+        "input": "cat_whisker_l2",
+        "visible": false
+      }
+    },
+    {
+      "sdf": {
+        "name": "cat_inner_ears_hi",
+        "shapes": [
+          {
+            "shape": "capsule",
+            "radius": [
+              0.05,
+              0.009
+            ],
+            "from": [
+              0.146,
+              0.862,
+              -0.541
+            ],
+            "to": [
+              0.183,
+              0.975,
+              -0.503
+            ]
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "cat_inner_ears",
+        "input": "cat_inner_ears_hi",
+        "tris": 260
+      }
+    },
+    {
+      "material": {
+        "name": "cat_inner_ears",
+        "input": "cat_inner_ears",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pt-knit-pink",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 402.1239,
+                "name": "ux",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 201.06195,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ux",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "name": "asu",
+                "op": "abs",
+                "type": "math"
+              },
+              {
+                "a": "asu",
+                "b": "sv",
+                "name": "w",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  -1,
+                  1
+                ],
+                "input": "w",
+                "name": "w01",
+                "to": [
+                  0,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 3,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "w01",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#ae727d"
+                  ],
+                  [
+                    1,
+                    "#fca4b4"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nt",
+                "to": [
+                  0.9,
+                  1.07
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "c0",
+                "b": "nt",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "w01",
+                "b": 0.0015,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.92,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "bind": {
+        "name": "bind_inner_ears",
+        "skeleton": "rig",
+        "parts": [
+          "cat_inner_ears"
+        ],
+        "mode": "smooth",
+        "paint": [
+          {
+            "bone": "ear_l",
+            "min": [
+              0.0,
+              -1.0,
+              -2.0
+            ],
+            "max": [
+              2.0,
+              2.0,
+              2.0
+            ]
+          },
+          {
+            "bone": "ear_r",
+            "min": [
+              -2.0,
+              -1.0,
+              -2.0
+            ],
+            "max": [
+              0.0,
+              2.0,
+              2.0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "visibility": {
+        "name": "cat_inner_ears_hi",
+        "input": "cat_inner_ears_hi",
         "visible": false
       }
     }
   ],
-  "parts": [],
-  "version": 19716
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

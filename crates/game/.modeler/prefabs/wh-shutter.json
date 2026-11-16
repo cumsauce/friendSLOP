@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "wh-shutter",
   "parts": [],
-  "version": 22437,
+  "version": 61041,
   "ops": [
     {
       "primitive": {
@@ -426,24 +426,12 @@
           4.05,
           0.065
         ],
-        "rotation": null
-      }
-    },
-    {
-      "text": {
-        "name": "sign_text",
-        "text": "EXIT",
-        "font": "bold",
-        "size": 0.13,
-        "depth": 0.008,
-        "align": "center",
-        "line_spacing": 1.0,
-        "translation": [
+        "rotation": [
           0.0,
-          3.985,
-          0.078
-        ],
-        "rotation": null
+          1.0,
+          0.0,
+          -4.371139e-8
+        ]
       }
     },
     {
@@ -3757,103 +3745,72 @@
     },
     {
       "material": {
-        "name": "sign_text",
-        "input": "sign_text",
-        "base_color": [
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ],
+        "name": "sign_face",
+        "input": "sign_face",
+        "base_color": null,
         "roughness": null,
         "metalness": null,
         "pbr": {
-          "material": "sp-paint",
+          "material": "wh-exit-sign",
           "scale": 1.0,
           "graph": {
-            "domain": "tile",
+            "domain": "card",
             "tile": 1.0,
             "resolution": 256,
             "nodes": [
               {
-                "name": "fn",
-                "octaves": 4,
-                "seed": 121,
-                "size": 0.2,
-                "type": "noise"
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
               },
               {
-                "name": "cn",
-                "octaves": 3,
-                "seed": 122,
-                "size": 0.04,
-                "type": "noise"
-              },
-              {
-                "in": [
-                  0.74,
-                  0.78
+                "coords": "uv",
+                "name": "c",
+                "scale": [
+                  0.8,
+                  0.22
                 ],
-                "input": "cn",
-                "name": "chip",
-                "type": "levels"
+                "type": "transform"
               },
               {
-                "from": [
-                  0,
-                  1
+                "center": [
+                  0.4,
+                  0.11
                 ],
-                "input": "fn",
-                "name": "v",
-                "to": [
-                  0.86,
-                  0.96
-                ],
-                "type": "remap"
+                "coords": "c",
+                "font": "bold",
+                "name": "word",
+                "size": 0.13,
+                "text": "EXIT",
+                "type": "text"
               },
               {
-                "a": "#ffffff",
-                "b": "#f2f2f2",
-                "c": "fn",
-                "name": "base",
-                "op": "mix",
-                "type": "math"
+                "mode": "fill",
+                "name": "m",
+                "sdf": "word",
+                "type": "mask"
               },
               {
-                "a": "base",
-                "b": "v",
-                "name": "col0",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": "col0",
-                "b": "#8a8178",
-                "c": "chip",
+                "a": "#2ee85a",
+                "b": "#f4fff6",
+                "c": "m",
                 "name": "col",
                 "op": "mix",
                 "type": "math"
               },
               {
-                "a": "chip",
-                "b": -0.0006,
-                "name": "h",
-                "op": "mul",
-                "type": "math"
-              },
-              {
-                "a": 0.55,
-                "b": 0.85,
-                "c": "chip",
-                "name": "rough",
+                "a": "#1fa83f",
+                "b": "#e8ffe8",
+                "c": "m",
+                "name": "glow",
                 "op": "mix",
                 "type": "math"
               },
               {
                 "base_color": "col",
-                "height": "h",
+                "emissive": "glow",
                 "name": "out",
-                "roughness": "rough",
+                "roughness": 0.4,
                 "type": "output"
               }
             ],

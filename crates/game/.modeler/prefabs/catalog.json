@@ -1576,17 +1576,15 @@
     },
     {
       "name": "sp-warehouse-exterior",
-      "description": "Derelict warehouse outside: concrete plinth (reaching 2.9 m below the floor), rusty corrugated shell 20 x 7.5 x 13 with ribs, pitched roof and gables, dead high windows (some boarded), a rolling shutter door on the -z face and a lamp over it. Origin at the floor centre.",
+      "description": "Warehouse exterior: corrugated metal shell on a concrete plinth, pitched roof, boarded windows, roller shutter and a hooded lamp.",
       "tags": [
         "warehouse",
         "building",
-        "industrial",
-        "friendslop",
-        "setpieces"
+        "exterior"
       ],
-      "prompt": "friendSLOP setpieces: replace code-built feature props with modeler models",
+      "prompt": "",
       "file": "sp-warehouse-exterior.json",
-      "created_at": "2026-11-11T22:48:19Z"
+      "created_at": "2026-11-16T10:57:59Z"
     },
     {
       "name": "md-grass-tuft",
@@ -1832,15 +1830,15 @@
     },
     {
       "name": "wh-tube",
-      "description": "Warehouse fluorescent fitting: two glowing tubes 1.4 m under a steel housing, hanging wires up 0.3 m; origin at the tubes' centre",
+      "description": "Warehouse fluorescent fitting: a steel housing on two hanging wires, end caps and two glowing tubes.",
       "tags": [
-        "friendslop",
         "warehouse",
+        "light",
         "prop"
       ],
-      "prompt": "friendSLOP warehouse interior props",
+      "prompt": "",
       "file": "wh-tube.json",
-      "created_at": "2026-11-12T01:19:01Z"
+      "created_at": "2026-11-16T10:55:48Z"
     },
     {
       "name": "pn-pine-1",
@@ -1859,15 +1857,15 @@
     },
     {
       "name": "wh-rack",
-      "description": "Warehouse metal shelving rack, 3.6 m long (x) x 0.6 deep (z) x 2.6 tall, origin at the floor under its middle",
+      "description": "Warehouse shelving rack: four steel posts with braced end frames, three plank shelves on steel beams.",
       "tags": [
-        "friendslop",
         "warehouse",
+        "shelf",
         "prop"
       ],
-      "prompt": "friendSLOP warehouse interior props",
+      "prompt": "",
       "file": "wh-rack.json",
-      "created_at": "2026-11-12T01:20:27Z"
+      "created_at": "2026-11-16T10:55:33Z"
     },
     {
       "name": "pn-pine-2",
@@ -1940,42 +1938,39 @@
     },
     {
       "name": "wh-box-a",
-      "description": "Warehouse cardboard box (taped), unit cube centred on the origin (scaled per instance)",
+      "description": "Warehouse cardboard box (1 m), flaps closed, taped across the top and down front and back.",
       "tags": [
-        "friendslop",
         "warehouse",
-        "prop",
-        "box"
+        "box",
+        "prop"
       ],
-      "prompt": "friendSLOP warehouse interior props",
+      "prompt": "",
       "file": "wh-box-a.json",
-      "created_at": "2026-11-12T03:13:05Z"
+      "created_at": "2026-11-16T10:54:46Z"
     },
     {
       "name": "wh-box-b",
-      "description": "Warehouse cardboard box (open), unit cube centred on the origin (scaled per instance)",
+      "description": "Warehouse cardboard box (1 m), flaps sprung open, a tape tail on the front.",
       "tags": [
-        "friendslop",
         "warehouse",
-        "prop",
-        "box"
+        "box",
+        "prop"
       ],
-      "prompt": "friendSLOP warehouse interior props",
+      "prompt": "",
       "file": "wh-box-b.json",
-      "created_at": "2026-11-12T03:13:59Z"
+      "created_at": "2026-11-16T10:54:59Z"
     },
     {
       "name": "wh-box-c",
-      "description": "Warehouse cardboard box (cross), unit cube centred on the origin (scaled per instance)",
+      "description": "Warehouse grey board box (1 m), cross-taped over the top and down all four sides.",
       "tags": [
-        "friendslop",
         "warehouse",
-        "prop",
-        "box"
+        "box",
+        "prop"
       ],
-      "prompt": "friendSLOP warehouse interior props",
+      "prompt": "",
       "file": "wh-box-c.json",
-      "created_at": "2026-11-12T03:14:10Z"
+      "created_at": "2026-11-16T10:55:05Z"
     },
     {
       "name": "pt-crow",
@@ -2952,14 +2947,15 @@
     },
     {
       "name": "wh-crate",
-      "description": "friendSLOP warehouse yard crate, 0.9 m, framed and braced planks; origin on the floor under its middle",
+      "description": "Warehouse wooden crate (0.9 m): plank body with a framed edge, corner posts and a diagonal brace each side.",
       "tags": [
-        "friendslop",
-        "warehouse"
+        "warehouse",
+        "crate",
+        "prop"
       ],
       "prompt": "",
       "file": "wh-crate.json",
-      "created_at": "2026-11-12T23:56:09Z"
+      "created_at": "2026-11-16T10:56:18Z"
     },
     {
       "name": "wh-monster-arm",
@@ -2999,14 +2995,15 @@
     },
     {
       "name": "wh-shutter",
-      "description": "friendSLOP warehouse loading shutter seen from inside (3 m slatted roller door, rails, hood) with a glowing EXIT sign; back at z=0",
+      "description": "Warehouse roller shutter in its rails and hood, with a glowing EXIT sign (texture) on the wall above.",
       "tags": [
-        "friendslop",
-        "warehouse"
+        "warehouse",
+        "door",
+        "sign"
       ],
       "prompt": "",
       "file": "wh-shutter.json",
-      "created_at": "2026-11-12T23:55:51Z"
+      "created_at": "2026-11-16T10:57:10Z"
     },
     {
       "name": "wh-stain",
@@ -3021,14 +3018,15 @@
     },
     {
       "name": "wh-outer-wall",
-      "description": "friendSLOP warehouse outer wall panel, 5 m: concrete with pilaster, kick plate, painted band, pipe, damp patch; inner face at z=0",
+      "description": "Warehouse outer wall bay (5 m): concrete wall, pilaster, kick plate, yellow band, a pipe on brackets and a damp patch.",
       "tags": [
-        "friendslop",
-        "warehouse"
+        "warehouse",
+        "wall",
+        "kit"
       ],
       "prompt": "",
       "file": "wh-outer-wall.json",
-      "created_at": "2026-11-12T23:54:57Z"
+      "created_at": "2026-11-16T10:57:25Z"
     },
     {
       "name": "vb-tower",

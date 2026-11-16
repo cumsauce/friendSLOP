@@ -25,7 +25,11 @@
 use std::f32::consts::TAU;
 use std::sync::Arc;
 
-use super::dsp::{AutoPan, Chorus, Echo, Eq, Reverb, StereoEq, Svf, saw, square};
+use super::dsp::{AutoPan, Chorus, Eq, Reverb, StereoEq, Svf, saw, square};
+use crate::fx::{
+    comp::Comp, crush::Crush, drive::Drive, echo::EchoMix, echo::SyncEcho, phaser::Phaser,
+    transient::Transient,
+};
 use crate::inst::{Engine, Foley, Hit, KitSample, Pan, Spec, Table, Voice, table};
 
 /// Engine sample rate.
@@ -1716,6 +1720,9 @@ pub struct Ev {
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Mix {
     pub buses: std::collections::BTreeMap<String, BusMix>,
+    /// The shared echo send (a song's `echo` replaces it).
+    #[serde(default)]
+    pub echo: EchoMix,
 }
 
 crate::bus_mix! {
@@ -1734,6 +1741,21 @@ crate::bus_mix! {
         autopan: Option<(f32, f32)> = None => [rate, depth],
         /// Chorus: (rate Hz, centre ms, depth ms, mix).
         chorus: Option<(f32, f32, f32, f32)> = None => [rate, centre, depth, mix],
+        /// Phaser: (rate Hz, depth 0..1, feedback, mix).
+        phaser: Option<(f32, f32, f32, f32)> = None => [rate, depth, feedback, mix],
+        /// Bit and sample-rate crush: (bits, rate Hz, mix).
+        crush: Option<(f32, f32, f32)> = None => [bits, rate, mix],
+        /// Transient shaper: (attack, sustain), about -1..1.
+        transient: Option<(f32, f32)> = None => [attack, sustain],
+        /// Resonant bus filter: (Lp or Hp, cutoff Hz, q).
+        filter: Option<(crate::fx::filter::FilterKind, f32, f32)> = None => [kind, cutoff, q],
+        /// Stereo width: (width 0 mono..1 as is..2 wide, mono below Hz; 0 = off).
+        width: Option<(f32, f32)> = None => [amount, mono_below],
+        /// Saturation: (amount 0..1, tone 0..1), level-matched ([`crate::fx::drive`]).
+        drive: Option<(f32, f32)> = None => [amount, tone],
+        /// Compressor: (threshold dB, ratio, attack ms, release ms, mix 0..1)
+        /// ([`crate::fx::comp`]); mix under 1 is parallel compression.
+        comp: Option<(f32, f32, f32, f32, f32)> = None => [threshold, ratio, attack, release, mix],
     }
 }
 
@@ -1760,6 +1782,13 @@ struct BusFx {
     eq: Vec<StereoEq>,
     autopan: Vec<Option<AutoPan>>,
     chorus: Vec<Option<Chorus>>,
+    drive: Vec<Option<Drive>>,
+    comp: Vec<Option<Comp>>,
+    width: Vec<Option<crate::fx::width::Width>>,
+    filter: Vec<Option<crate::fx::filter::BusFilter>>,
+    transient: Vec<Option<Transient>>,
+    crush: Vec<Option<Crush>>,
+    phaser: Vec<Option<Phaser>>,
     trim: [f32; BUSES],
     pump: [f32; BUSES],
 }
@@ -1775,6 +1804,37 @@ impl BusFx {
             chorus: m
                 .iter()
                 .map(|m| m.chorus.map(|(r, c, d, x)| Chorus::new(r, c, d, x)))
+                .collect(),
+            comp: m
+                .iter()
+                .map(|m| m.comp.map(|(t, ra, a, rl, x)| Comp::new(t, ra, a, rl, x)))
+                .collect(),
+            drive: m
+                .iter()
+                .map(|m| m.drive.map(|(a, t)| Drive::new(a, t)))
+                .collect(),
+            width: m
+                .iter()
+                .map(|m| m.width.map(|(w, f)| crate::fx::width::Width::new(w, f)))
+                .collect(),
+            filter: m
+                .iter()
+                .map(|m| {
+                    m.filter
+                        .map(|(k, f, q)| crate::fx::filter::BusFilter::new(k, f, q))
+                })
+                .collect(),
+            transient: m
+                .iter()
+                .map(|m| m.transient.map(|(a, s)| Transient::new(a, s)))
+                .collect(),
+            crush: m
+                .iter()
+                .map(|m| m.crush.map(|(x, ra, m)| Crush::new(x, ra, m)))
+                .collect(),
+            phaser: m
+                .iter()
+                .map(|m| m.phaser.map(|(ra, d, f, x)| Phaser::new(ra, d, f, x)))
                 .collect(),
             trim: std::array::from_fn(|b| m[b].trim),
             pump: std::array::from_fn(|b| m[b].pump),
@@ -1792,6 +1852,27 @@ impl BusFx {
             if let (Some(c), Some((r, ce, d, x))) = (&mut self.chorus[b], m.chorus) {
                 c.set(r, ce, d, x);
             }
+            if let (Some(e), Some((t, ra, a, rl, x))) = (&mut self.comp[b], m.comp) {
+                e.set(t, ra, a, rl, x);
+            }
+            if let (Some(e), Some((a, t))) = (&mut self.drive[b], m.drive) {
+                e.set(a, t);
+            }
+            if let (Some(e), Some((w, f))) = (&mut self.width[b], m.width) {
+                e.set(w, f);
+            }
+            if let (Some(e), Some((k, f, q))) = (&mut self.filter[b], m.filter) {
+                e.set(k, f, q);
+            }
+            if let (Some(e), Some((a, s))) = (&mut self.transient[b], m.transient) {
+                e.set(a, s);
+            }
+            if let (Some(e), Some((x, ra, m))) = (&mut self.crush[b], m.crush) {
+                e.set(x, ra, m);
+            }
+            if let (Some(e), Some((ra, d, f, x))) = (&mut self.phaser[b], m.phaser) {
+                e.set(ra, d, f, x);
+            }
             self.trim[b] = m.trim;
             self.pump[b] = m.pump;
         }
@@ -1799,7 +1880,16 @@ impl BusFx {
 
     /// Bus `b`'s chain on one block, `pump` the sidechain envelope.
     fn run(&mut self, b: usize, l: &mut [f32], r: &mut [f32], pump: &[f32]) {
+        // chain: start
+        if let Some(e) = &mut self.transient[b] {
+            e.process(l, r);
+        }
         self.eq[b].process(l, r);
+        // chain: eq
+        if let Some(e) = &mut self.crush[b] {
+            e.process(l, r);
+        }
+
         let t = self.trim[b];
         let depth = self.pump[b];
         if depth > 0.0 {
@@ -1813,11 +1903,28 @@ impl BusFx {
             l.iter_mut().for_each(|x| *x *= t);
             r.iter_mut().for_each(|x| *x *= t);
         }
+        // chain: trim
+        if let Some(e) = &mut self.drive[b] {
+            e.process(l, r);
+        }
+        if let Some(e) = &mut self.comp[b] {
+            e.process(l, r);
+        }
         if let Some(a) = &mut self.autopan[b] {
             a.process(l, r);
         }
         if let Some(c) = &mut self.chorus[b] {
             c.process(l, r);
+        }
+        // chain: chorus
+        if let Some(e) = &mut self.phaser[b] {
+            e.process(l, r);
+        }
+        if let Some(e) = &mut self.filter[b] {
+            e.process(l, r);
+        }
+        if let Some(e) = &mut self.width[b] {
+            e.process(l, r);
         }
     }
 }
@@ -1868,7 +1975,9 @@ pub struct Band {
     automated: bool,
     /// The instruments, refreshed once per block.
     table: Arc<Table>,
-    echo: Echo,
+    echo: SyncEcho,
+    /// The playing song's echo, if it sets its own (else the mix's).
+    pub echo_song: Option<EchoMix>,
     verb: Reverb,
     limiter: f32,
     rng: u32,
@@ -2002,7 +2111,8 @@ impl Band {
             mix_step: 0.0,
             automated: false,
             table: table(),
-            echo: Echo::new(),
+            echo: SyncEcho::new(),
+            echo_song: None,
             verb: Reverb::new(),
             limiter: 1.0,
             rng: 0x9E37_79B9,
@@ -2040,7 +2150,8 @@ impl Band {
 
     /// Sync the echo to the tempo.
     pub fn set_tempo(&mut self, bpm: f32) {
-        self.echo.set_tempo(bpm);
+        let set = self.echo_song.unwrap_or_else(|| MIX.get().echo);
+        self.echo.configure(set, bpm);
     }
 
     /// Voices currently sounding (for tests and the CPU budget).
@@ -2343,11 +2454,14 @@ impl Band {
         for (now, m) in self.now.iter_mut().zip(&self.mixes) {
             now.copy_from(m);
         }
-        let mut master = crate::fx::params::Master::DEFAULT;
+        let mut master = crate::fx::params::Master {
+            feedback: self.echo.base_feedback(),
+            ..crate::fx::params::Master::DEFAULT
+        };
         crate::fx::params::apply(&self.mix_lanes, 0.5 * (p0 + p1), &mut self.now, &mut master);
         self.fx.set(&self.now);
         self.master_mix = master;
-        self.echo.set_feedback(master.feedback);
+        self.echo.feedback = (!self.mix_lanes.is_empty()).then_some(master.feedback);
         self.automated = !self.mix_lanes.is_empty();
     }
 
@@ -2701,10 +2815,10 @@ mod tests {
             bars: 1.0,
         }];
         run(&mut band, &mut last, 1);
-        assert_eq!(band.master_mix.feedback, 0.7);
+        assert_eq!(band.echo.feedback, Some(0.7));
         band.mix_lanes.clear();
         run(&mut band, &mut last, 1);
-        assert_eq!(band.master_mix.feedback, crate::dsp::ECHO_FEEDBACK);
+        assert_eq!(band.echo.feedback, None);
     }
 
     /// One guitar note, mono, `secs` long.

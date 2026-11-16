@@ -298,6 +298,8 @@ pub(super) struct Style {
     pub(super) mix: &'static crate::fx::song_mix::SongMix,
     /// Who holds the stillness's pad.
     pub(super) hold_inst: Inst,
+    /// The song's echo (else the mix's).
+    pub(super) echo: Option<crate::fx::echo::EchoMix>,
 }
 
 impl Style {
@@ -418,6 +420,10 @@ pub struct SongScore {
     pub(super) modulate: f32,
     #[serde(default)]
     pub(super) kime: f32,
+    /// The song's echo: `echo: Some((division: Quarter, pingpong: false,
+    /// feedback: 0.5, tone: 0.4))`, missing fields from the defaults.
+    #[serde(default)]
+    pub(super) echo: Option<crate::fx::echo::EchoMix>,
     /// The band its shorthand fields fill (and whose form and feel it uses).
     #[serde(default = "fusion")]
     pub(super) band: String,
@@ -543,6 +549,7 @@ pub(super) fn fallback() -> &'static Style {
             lead_range: (62, 84),
             lead_style: empty(),
             hold_inst: Inst::NONE,
+            echo: None,
             mix: &crate::fx::song_mix::NO_MIX,
         }))
     })
@@ -987,6 +994,7 @@ fn song(
         lead_range,
         lead_style,
         hold_inst,
+        echo: s.echo,
         mix: if s.mix.is_empty() && s.mix_auto.is_empty() {
             &crate::fx::song_mix::NO_MIX
         } else {
@@ -1343,5 +1351,10 @@ mod score_file {
             BUSES,
             "mix.ron names a bus the band doesn't have"
         );
+        assert!(
+            mix.buses["drums"].transient.is_some(),
+            "mix.ron's new fields didn't parse"
+        );
+        assert!(mix.echo.feedback > 0.0, "mix.ron has no echo");
     }
 }

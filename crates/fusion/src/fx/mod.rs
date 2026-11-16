@@ -7,8 +7,16 @@
 //! its settings type implements [`params::Params`] (plain `f32`s, tuples of
 //! them, `Option`s and `Vec`s already do; a struct uses [`crate::params!`]).
 
+pub mod comp;
+pub mod crush;
+pub mod drive;
+pub mod echo;
+pub mod filter;
 pub mod params;
+pub mod phaser;
 pub mod song_mix;
+pub mod transient;
+pub mod width;
 
 /// A field in an override: `None` when the song doesn't write it,
 /// `Some(v)` when it does (even when `v` is itself `None`, so a song can

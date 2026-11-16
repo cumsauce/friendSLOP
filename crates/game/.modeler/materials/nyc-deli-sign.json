@@ -1,0 +1,148 @@
+{
+  "name": "nyc-deli-sign",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        9.2,
+        0.76
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        4.6,
+        0.38
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t",
+      "size": 0.36,
+      "text": "DELI · GROCERY · 24 HRS",
+      "type": "text"
+    },
+    {
+      "mode": "fill",
+      "name": "m",
+      "sdf": "t",
+      "type": "mask"
+    },
+    {
+      "a": "#1f5a34",
+      "b": "#f4efe0",
+      "c": "m",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "m",
+      "b": [
+        0.6,
+        0.58,
+        0.5
+      ],
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "name": "out",
+      "roughness": 0.5,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "nyc-deli-sign",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                9.2,
+                0.76
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                4.6,
+                0.38
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t",
+              "size": 0.36,
+              "text": "DELI · GROCERY · 24 HRS",
+              "type": "text"
+            },
+            {
+              "mode": "fill",
+              "name": "m",
+              "sdf": "t",
+              "type": "mask"
+            },
+            {
+              "a": "#1f5a34",
+              "b": "#f4efe0",
+              "c": "m",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "m",
+              "b": [
+                0.6,
+                0.58,
+                0.5
+              ],
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +t +m +col +em +out"
+      }
+    ],
+    "current": 0
+  }
+}

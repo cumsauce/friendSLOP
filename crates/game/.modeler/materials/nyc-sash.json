@@ -1,0 +1,352 @@
+{
+  "name": "nyc-sash",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        1.1,
+        2
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.55,
+        1
+      ],
+      "coords": "c",
+      "name": "gl",
+      "size": [
+        0.96,
+        1.86
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.55,
+        1
+      ],
+      "coords": "c",
+      "name": "rail",
+      "size": [
+        1.1,
+        0.07
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.55,
+        1
+      ],
+      "coords": "c",
+      "name": "mun",
+      "size": [
+        0.04,
+        2
+      ],
+      "type": "rect"
+    },
+    {
+      "mode": "fill",
+      "name": "glm",
+      "sdf": "gl",
+      "type": "mask"
+    },
+    {
+      "mode": "fill",
+      "name": "railm",
+      "sdf": "rail",
+      "type": "mask"
+    },
+    {
+      "mode": "fill",
+      "name": "munm",
+      "sdf": "mun",
+      "type": "mask"
+    },
+    {
+      "name": "gn",
+      "octaves": 2,
+      "seed": 86,
+      "size": 0.6,
+      "type": "noise"
+    },
+    {
+      "input": "gn",
+      "name": "glc",
+      "stops": [
+        [
+          0,
+          "#18212a"
+        ],
+        [
+          1,
+          "#3c4e5e"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "#e6dfcf",
+      "b": "glc",
+      "c": "glm",
+      "name": "c0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c0",
+      "b": "#e6dfcf",
+      "c": "railm",
+      "name": "c1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "#e6dfcf",
+      "c": "munm",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "railm",
+      "b": "munm",
+      "name": "frame",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": 1,
+      "b": "glm",
+      "name": "fr2",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "a": "frame",
+      "b": "fr2",
+      "name": "fr",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": 0.08,
+      "b": 0.6,
+      "c": "fr",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "fr",
+      "b": 0.01,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "nyc-sash",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1.1,
+                2
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.55,
+                1
+              ],
+              "coords": "c",
+              "name": "gl",
+              "size": [
+                0.96,
+                1.86
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.55,
+                1
+              ],
+              "coords": "c",
+              "name": "rail",
+              "size": [
+                1.1,
+                0.07
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.55,
+                1
+              ],
+              "coords": "c",
+              "name": "mun",
+              "size": [
+                0.04,
+                2
+              ],
+              "type": "rect"
+            },
+            {
+              "mode": "fill",
+              "name": "glm",
+              "sdf": "gl",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "railm",
+              "sdf": "rail",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "munm",
+              "sdf": "mun",
+              "type": "mask"
+            },
+            {
+              "name": "gn",
+              "octaves": 2,
+              "seed": 86,
+              "size": 0.6,
+              "type": "noise"
+            },
+            {
+              "input": "gn",
+              "name": "glc",
+              "stops": [
+                [
+                  0,
+                  "#18212a"
+                ],
+                [
+                  1,
+                  "#3c4e5e"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#e6dfcf",
+              "b": "glc",
+              "c": "glm",
+              "name": "c0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "#e6dfcf",
+              "c": "railm",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#e6dfcf",
+              "c": "munm",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "railm",
+              "b": "munm",
+              "name": "frame",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": 1,
+              "b": "glm",
+              "name": "fr2",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": "frame",
+              "b": "fr2",
+              "name": "fr",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": 0.08,
+              "b": 0.6,
+              "c": "fr",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "fr",
+              "b": 0.01,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +gl +rail +mun +glm +railm +munm +gn +glc +c0 +c1 +col +frame +fr2 +fr +rough +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

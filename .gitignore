@@ -9,3 +9,9 @@ __pycache__/
 
 # Written by the modeler action in CI (claude.yml)
 .mcp.json
+
+# Per-worktree game binary copied by scripts/lib/target.sh, scratch screenshots,
+# and the worktree's own Claude settings (scripts/worktree-setup.sh)
+/.run
+/renders/tmp
+.claude/settings.local.json

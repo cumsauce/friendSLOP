@@ -312,7 +312,25 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all
 cargo clippy -p friendslop --target wasm32-unknown-unknown   # the web build must keep compiling (CI)
 scripts/build-web.sh && python3 -m http.server -d dist/web   # browser build (needs wasm-bindgen-cli)
+scripts/check.sh                # fmt + clippy + tests for the crates you changed and their dependents
 ```
+
+### Many agents, one target dir
+
+Agents work in git worktrees that share the main checkout's `target/`. Run
+`scripts/worktree-setup.sh <worktree>` once per worktree before its session starts. It sets
+`CARGO_TARGET_DIR` and a BRP port of its own (`FRIENDSLOP_BRP_PORT`) in the worktree's
+`.claude/settings.local.json`, and pulls the LFS files. Cargo locks the target dir, so builds
+queue; keep them small:
+
+- Check with `scripts/check.sh` (only your crates and what depends on them), not `--workspace`.
+- Never run `target/debug/friendslop` directly: whichever worktree linked last owns it. The
+  scripts build and copy it to `.run/friendslop` in your worktree; run that copy.
+- Write screenshots and scratch output inside your worktree (`renders/tmp/`), not `/tmp`.
+- Perf runs need the screen to themselves: `scripts/perf-lock.sh <command>` (the sweep takes
+  the lock by itself).
+- `scripts/sweep-target.sh` trims stale build output when the target dir grows; not while
+  agents are building.
 
 ### Reflections (baked probes)
 

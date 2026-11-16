@@ -27,6 +27,7 @@ mod shipwreck;
 mod sites;
 mod sites_bench;
 mod skills;
+mod stoops;
 mod surf;
 mod underground;
 mod vessel_climb;

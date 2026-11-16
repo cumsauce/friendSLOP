@@ -31,5 +31,6 @@ mod stoops;
 mod surf;
 mod underground;
 mod vessel_climb;
+mod walking;
 mod warehouse;
 mod wendys;

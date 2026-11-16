@@ -10,7 +10,7 @@
 //!
 //! The server is authoritative: clients send stick/look/jump input, the server
 //! moves the body, and `Walker.pos` replicates. On the host the body is moved
-//! by the kinematic controller in [`crate::kcc`] (ported from bevy_ahoy): it
+//! by bevy_ahoy's kinematic controller (see [`crate::kcc`]) each fixed tick: it
 //! steps up stairs and ramps, slides along walls, walks slopes up to 45° and
 //! snaps down them, treating the terrain heightfield, the village and all
 //! scenery colliders alike. Headless tests (no physics at all) fall back to
@@ -99,6 +99,9 @@ pub struct WalkInput {
     pub jump: bool,
     run: bool,
     vy: f32,
+    /// Jump went down since the controller's last tick (a tap shorter than
+    /// a tick still jumps).
+    tapped: bool,
     /// Host: climbing this tick (#99), so `climb` moves the body, not the
     /// controller.
     pub climbing: bool,
@@ -172,11 +175,10 @@ pub fn teleport(
         input.run = false;
         input.vy = 0.0;
         input.climbing = false;
+        input.tapped = false;
     }
     if let Some(kcc) = kcc {
-        kcc.velocity = Vec3::ZERO;
-        kcc.grounded = None;
-        kcc.jump = default();
+        kcc.stop();
     }
 }
 
@@ -189,6 +191,10 @@ fn give_bodies(mut commands: Commands, new: Query<(Entity, &Player), Without<Wal
             },
             WalkInput::default(),
             crate::kcc::Kcc::default(),
+            crate::kcc::Walking {
+                feet: spawn_point(player.id),
+                ..default()
+            },
         ));
     }
 }
@@ -209,6 +215,7 @@ fn on_walk_control(
     } else {
         Vec2::ZERO
     };
+    input.tapped |= ev.jump && !input.jump;
     input.jump = ev.jump;
     input.run = ev.run;
     if ev.yaw.is_finite() && walker.yaw != ev.yaw {
@@ -302,38 +309,27 @@ fn move_walkers(
 
 // ---------------------------------------------------------------- host side
 
-/// Host: walk the bodies with the kinematic controller (`crate::kcc`, ported
-/// from bevy_ahoy) against the real physics world — terrain, village and
-/// scenery colliders all alike, no special cases.
+/// Host: hand each body's input to its controller (`crate::kcc`, on
+/// bevy_ahoy) before the fixed tick moves it against the real physics world:
+/// terrain, village and scenery colliders all alike, no special cases.
 #[allow(clippy::type_complexity)]
 pub fn kcc_move_walkers(
-    time: Res<Time>,
     still: Query<&super::stillness::Stillness>,
     duelists: Query<&Duelist>,
-    move_and_slide: avian3d::character_controller::move_and_slide::MoveAndSlide,
-    mut walkers: Query<
-        (
-            &Player,
-            &mut Walker,
-            &mut WalkInput,
-            &mut crate::kcc::Kcc,
-            Option<&crate::rules::skills::Skills>,
-            Option<&crate::rules::boba::Buzz>,
-            Option<&crate::rules::kori::HeldPrize>,
-        ),
-        Without<super::ragdoll::Ragdoll>,
-    >,
+    mut walkers: Query<(
+        &Player,
+        &Walker,
+        &mut WalkInput,
+        &mut crate::kcc::Walking,
+        Has<super::ragdoll::Ragdoll>,
+        Option<&crate::rules::skills::Skills>,
+        Option<&crate::rules::boba::Buzz>,
+        Option<&crate::rules::kori::HeldPrize>,
+    )>,
 ) {
-    if super::stillness::is_frozen(&still) {
-        return; // the world stands still, and so do you
-    }
-    // The old movement ticked per frame with a clamped dt; keep that.
-    let dt = time.delta_secs().min(0.1);
+    let frozen = super::stillness::is_frozen(&still); // the world stands still, and so do you
     let jump: crate::kcc::Jump = tuning().jump.into();
-    for (player, mut walker, input, mut kcc, skills, buzz, held) in &mut walkers {
-        if input.climbing || duelists.iter().any(|d| d.player == player.id) {
-            continue; // climbing (see `climb.rs`), or your duel body is moving
-        }
+    for (player, walker, mut input, mut w, ragdoll, skills, buzz, held) in &mut walkers {
         let speed = if input.run {
             crate::kcc::RUN_SPEED
         } else {
@@ -341,21 +337,33 @@ pub fn kcc_move_walkers(
         } * skills.map_or(1.0, |s| s.walk_speed()) // Walking skill (#176)
             * buzz.map_or(1.0, |b| b.speed()) // boba stacks (#356)
             * held.map_or(1.0, |h| h.speed()); // a Kori prize in hand (#382)
-        let mut pos = crate::kcc::step_with(
-            &mut kcc,
-            walker.pos,
-            walker.yaw,
-            input.stick,
-            input.jump,
+        *w = crate::kcc::Walking {
+            feet: walker.pos,
+            yaw: walker.yaw,
+            stick: input.stick,
+            jump: input.jump || std::mem::take(&mut input.tapped),
             speed,
-            dt,
-            &move_and_slide,
             // The surf map's air control (#306), else the usual.
-            crate::rules::surf::air_at(walker.pos),
-            &jump,
-        );
-        // The soft wall at the edge of the world (the old `step` clamped too),
-        // or New York City's own edges (#283).
+            air: crate::rules::surf::air_at(walker.pos),
+            jump_tuning: jump,
+            // Climbing (see `climb.rs`), ragdolling, or your duel body is moving.
+            skip: frozen
+                || ragdoll
+                || input.climbing
+                || duelists.iter().any(|d| d.player == player.id),
+        };
+    }
+}
+
+/// Host: after the controller's tick, the feet it reached are the walker's,
+/// kept inside the soft wall at the edge of the world or New York City's own
+/// edges (#283).
+pub fn kcc_moved_walkers(mut walkers: Query<(&mut Walker, &crate::kcc::Walking)>) {
+    for (mut walker, w) in &mut walkers {
+        if w.skip {
+            continue;
+        }
+        let mut pos = w.feet;
         if let Some(kept) = crate::rules::nyc::keep_in_city(walker.pos, pos) {
             pos = kept;
         } else if !crate::rules::surf::unbounded(walker.pos) {
@@ -467,22 +475,25 @@ fn where_am_i(
 }
 
 pub fn plugin(app: &mut App) {
+    crate::kcc::plugin(app);
     app.add_systems(Update, where_am_i.before(crate::place::PlaceSet))
         .init_resource::<FpsView>()
         .init_resource::<HiddenLabels>()
         .add_systems(OnEnter(AppState::InGame), (reset_view, spawn_crosshair))
         .add_systems(OnExit(AppState::InGame), free_cursor)
         .add_systems(
-            Update,
+            FixedUpdate,
             kcc_move_walkers
-                .in_set(WalkSet)
-                .after(give_bodies)
-                .after(move_walkers)
+                .before(crate::kcc::KccSet::Drive)
                 .run_if(in_state(ServerState::Running))
-                .run_if(in_state(AppState::InGame))
-                .run_if(
-                    |trees: Option<Res<avian3d::collider_tree::ColliderTrees>>| trees.is_some(),
-                ),
+                .run_if(in_state(AppState::InGame)),
+        )
+        .add_systems(
+            FixedPostUpdate,
+            kcc_moved_walkers
+                .after(crate::kcc::KccSet::Read)
+                .run_if(in_state(ServerState::Running))
+                .run_if(in_state(AppState::InGame)),
         )
         .add_systems(
             Update,
@@ -929,11 +940,10 @@ mod tests {
             run: true,
             vy: 3.0,
             climbing: true,
+            tapped: true,
         };
-        let mut kcc = crate::kcc::Kcc {
-            velocity: Vec3::new(1.0, 2.0, 3.0),
-            ..Default::default()
-        };
+        let mut kcc = crate::kcc::Kcc::default();
+        kcc.velocity = Vec3::new(1.0, 2.0, 3.0);
         let to = Vec3::new(4.0, 5.0, 6.0);
         teleport(&mut walker, Some(&mut input), Some(&mut kcc), to, 1.5);
         assert_eq!(walker.pos, to);

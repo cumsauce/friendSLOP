@@ -51,6 +51,8 @@ pub fn main() -> AppExit {
         RepliconPlugins,
         PhysicsPlugins::default(),
     ))
+    // bevy_ahoy's character controller walks the bodies on the host.
+    .add_plugins(friendslop::kcc::controller_plugins())
     .add_plugins(friendslop::GamePlugin)
     .init_resource::<friendslop::features::save::SaveGames>()
     .add_plugins(friendslop::screenshot::ScreenshotPlugin)

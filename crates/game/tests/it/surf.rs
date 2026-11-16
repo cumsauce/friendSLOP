@@ -1,21 +1,14 @@
 //! The surf map (#306): with the hall's air control, strafing into a ramp's
 //! 59 degree face keeps you gliding along it instead of sliding off.
 
-use avian3d::character_controller::move_and_slide::MoveAndSlide;
 use avian3d::prelude::*;
-use bevy::ecs::system::RunSystemOnce;
 use bevy::prelude::*;
-use friendslop::kcc::{Air, Kcc};
+use friendslop::kcc::Air;
+
+use super::walking::{self, spawn, tick};
 
 fn world() -> App {
-    let mut app = App::new();
-    app.add_plugins((
-        MinimalPlugins,
-        TransformPlugin,
-        AssetPlugin::default(),
-        PhysicsPlugins::default(),
-    ));
-    app.init_asset::<Mesh>();
+    let mut app = walking::app();
     // A straight ramp from (0, -6, -16) to (0, -14, -76), 6 m to each side
     // and 10 m down: the shape every piece of the course is cut from.
     let points = [(0.0, -6.0, -16.0), (0.0, -14.0, -76.0)];
@@ -27,51 +20,29 @@ fn world() -> App {
     };
     app.world_mut()
         .spawn((RigidBody::Static, hull, Transform::default()));
-    app.finish();
-    app.cleanup();
+    walking::settle(&mut app);
     app
-}
-
-#[derive(Resource)]
-struct Ride {
-    kcc: Kcc,
-    feet: Vec3,
-    air: Air,
 }
 
 /// Ride for `ticks` at 60 Hz, facing -z, holding strafe right (into the face).
 fn ride(air: Air, ticks: usize) -> Vec3 {
     let mut app = world();
     // Just off the left face, a third of the way in.
-    app.insert_resource(Ride {
-        kcc: Kcc {
-            velocity: Vec3::new(0.0, 0.0, -8.0),
-            grounded: None,
-            ..Default::default()
-        },
-        feet: Vec3::new(-3.6, -10.3, -20.0),
-        air,
-    });
-    for _ in 0..ticks {
-        app.world_mut()
-            .run_system_once(|move_and_slide: MoveAndSlide, mut r: ResMut<Ride>| {
-                let (feet, air) = (r.feet, r.air);
-                r.feet = friendslop::kcc::step_with(
-                    &mut r.kcc,
-                    feet,
-                    0.0,
-                    Vec2::X,
-                    false,
-                    friendslop::kcc::WALK_SPEED,
-                    1.0 / 60.0,
-                    &move_and_slide,
-                    air,
-                    &friendslop::kcc::Jump::NORMAL,
-                );
-            })
-            .expect("step");
+    let w = spawn(&mut app, Vec3::new(-3.6, -10.3, -20.0));
+    let mut at = Vec3::ZERO;
+    for i in 0..ticks {
+        at = tick(&mut app, w, |w, k| {
+            w.yaw = 0.0;
+            w.stick = Vec2::X;
+            w.air = air;
+            if i == 0 {
+                w.feet = Vec3::new(-3.6, -10.3, -20.0);
+                k.velocity = Vec3::new(0.0, 0.0, -8.0);
+                k.grounded = None;
+            }
+        });
     }
-    app.world().resource::<Ride>().feet
+    at
 }
 
 #[test]

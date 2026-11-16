@@ -1,22 +1,16 @@
-//! The kinematic walker controller (ported from bevy_ahoy) against a real
-//! physics world: flat ground, a step-up, a steep slope that blocks and a
-//! wall that stops you.
+//! The walker controller (bevy_ahoy's, as `friendslop::kcc` drives it)
+//! against a real physics world: flat ground, a step-up, a steep slope that
+//! blocks and a wall that stops you.
 
 use avian3d::character_controller::move_and_slide::MoveAndSlide;
 use avian3d::prelude::*;
 use bevy::ecs::system::RunSystemOnce;
 use bevy::prelude::*;
 
+use super::walking::{self, feet, kcc, spawn, tick, walk};
+
 fn world() -> App {
-    let mut app = App::new();
-    app.add_plugins((
-        MinimalPlugins,
-        TransformPlugin,
-        AssetPlugin::default(),
-        PhysicsPlugins::default(),
-    ));
-    // Avian tracks mesh asset events for collider caches.
-    app.init_asset::<Mesh>();
+    let mut app = walking::app();
     // Flat ground with its top at y = 0.
     app.world_mut().spawn((
         RigidBody::Static,
@@ -42,219 +36,179 @@ fn world() -> App {
         Collider::cuboid(0.5, 3.0, 8.0),
         Transform::from_xyz(-4.0, 1.5, -18.0),
     ));
-    // Plugins' `finish` registers avian's diagnostics resources (its spatial
-    // queries and collider tree need them); `App::run` would call it.
-    app.finish();
-    app.cleanup();
     app
-}
-
-/// One controller tick at walking speed, facing -Z (yaw 0).
-#[derive(Resource)]
-struct Tick {
-    kcc: friendslop::kcc::Kcc,
-    feet: Vec3,
-    jump: bool,
-}
-
-fn tick(app: &mut App, kcc: &mut friendslop::kcc::Kcc, feet: Vec3, jump: bool) -> Vec3 {
-    app.insert_resource(Tick {
-        kcc: *kcc,
-        feet,
-        jump,
-    });
-    app.world_mut()
-        .run_system_once(|move_and_slide: MoveAndSlide, mut t: ResMut<Tick>| {
-            let (feet, jump) = (t.feet, t.jump);
-            t.feet = friendslop::kcc::step(
-                &mut t.kcc,
-                feet,
-                0.0,
-                Vec2::Y,
-                jump,
-                friendslop::kcc::WALK_SPEED,
-                1.0 / 60.0,
-                &move_and_slide,
-            );
-        })
-        .expect("step");
-    let Tick {
-        kcc: out,
-        feet,
-        jump: _,
-    } = app.world_mut().remove_resource::<Tick>().expect("tick");
-    *kcc = out;
-    feet
-}
-
-/// Walk for `ticks`, then return where we ended up.
-fn walk(app: &mut App, feet: Vec3, ticks: usize) -> (Vec3, friendslop::kcc::Kcc) {
-    let mut kcc = friendslop::kcc::Kcc::default();
-    let mut feet = feet;
-    for _ in 0..ticks {
-        feet = tick(app, &mut kcc, feet, false);
-    }
-    (feet, kcc)
-}
-
-/// Walk facing `yaw` for `ticks` (a tick system variant that turns).
-#[derive(Resource)]
-struct WalkYaw {
-    kcc: friendslop::kcc::Kcc,
-    feet: Vec3,
-    yaw: f32,
 }
 
 #[test]
 fn walks_steps_and_hits_walls() {
     let mut app = world();
-    // Let the physics backend pick up the colliders.
-    for _ in 0..3 {
-        app.update();
-    }
+    walking::settle(&mut app);
 
     // Stands on the flat ground without sinking.
-    let (feet, kcc) = walk(&mut app, Vec3::new(0.0, 0.05, 2.0), 10);
-    assert!(kcc.grounded.is_some(), "should be grounded");
+    let w = spawn(&mut app, Vec3::new(0.0, 0.05, 2.0));
+    let (feet_at, _) = walk(&mut app, w, 0.0, 10);
+    assert!(kcc(&app, w).grounded.is_some(), "should be grounded");
     assert!(
-        (feet.y - 0.0).abs() < 0.05,
-        "feet settle on the ground, got {feet}"
+        (feet_at.y - 0.0).abs() < 0.05,
+        "feet settle on the ground, got {feet_at}"
     );
 
     // A 0.4 m step is stepped up and crossed, not stopped at. (Past the
     // step's far edge the walker drops the 0.4 m back to the ground, like a
     // kerb, so it is briefly airborne: only position is asserted here.)
-    let (feet, _) = walk(&mut app, Vec3::new(0.0, 0.05, -2.0), 56);
-    assert!(feet.z < -6.5, "walked across the step, at {feet}");
+    let w = spawn(&mut app, Vec3::new(0.0, 0.05, -2.0));
+    let (feet_at, lowest) = walk(&mut app, w, 0.0, 60);
+    assert!(feet_at.z < -6.5, "walked across the step, at {feet_at}");
     assert!(
-        feet.y > -0.05 && feet.y < 0.45,
-        "never fell or flew, {feet}"
+        lowest > -0.05 && feet_at.y < 0.45,
+        "never fell or flew, {feet_at}"
     );
 
     // Standing on top of the step keeps you at its height.
-    let (feet, kcc) = walk(&mut app, Vec3::new(0.0, 0.45, -6.0), 10);
-    assert!(kcc.grounded.is_some(), "standing on the step");
+    let w = spawn(&mut app, Vec3::new(0.0, 0.45, -6.0));
+    let mut feet_at = Vec3::ZERO;
+    for _ in 0..10 {
+        feet_at = tick(&mut app, w, |w, _| w.stick = Vec2::ZERO);
+    }
+    assert!(kcc(&app, w).grounded.is_some(), "standing on the step");
     assert!(
-        (feet.y - 0.4).abs() < 0.06,
-        "feet settle on the step top, got {feet}"
+        (feet_at.y - 0.4).abs() < 0.06,
+        "feet settle on the step top, got {feet_at}"
     );
 
     // The steep ramp stops you at its base: you never climb it.
-    let (feet, _kcc) = walk(&mut app, Vec3::new(0.0, 0.05, -2.0), 600);
-    assert!(feet.y < 1.0, "never climbed the steep ramp, got {feet}");
+    let w = spawn(&mut app, Vec3::new(0.0, 0.05, -2.0));
+    let (feet_at, _) = walk(&mut app, w, 0.0, 600);
+    assert!(
+        feet_at.y < 1.0,
+        "never climbed the steep ramp, got {feet_at}"
+    );
 
     // The wall blocks walking west, and you don't pass through it.
-    let mut kcc = friendslop::kcc::Kcc::default();
-    let mut feet = Vec3::new(0.0, 0.05, -18.0);
-    let yaw = -90.0_f32.to_radians();
-    for _ in 0..600 {
-        app.insert_resource(WalkYaw { kcc, feet, yaw });
-        app.world_mut()
-            .run_system_once(|move_and_slide: MoveAndSlide, mut w: ResMut<WalkYaw>| {
-                let (feet, yaw) = (w.feet, w.yaw);
-                w.feet = friendslop::kcc::step(
-                    &mut w.kcc,
-                    feet,
-                    yaw,
-                    Vec2::Y,
-                    false,
-                    friendslop::kcc::WALK_SPEED,
-                    1.0 / 60.0,
-                    &move_and_slide,
-                );
-            })
-            .expect("step");
-        let WalkYaw {
-            kcc: out,
-            feet: out_feet,
-            yaw: _,
-        } = app.world_mut().remove_resource::<WalkYaw>().expect("walk");
-        kcc = out;
-        feet = out_feet;
-    }
-    assert!(feet.x > -4.0 + 0.3, "the wall stopped the walk, got {feet}");
+    let w = spawn(&mut app, Vec3::new(0.0, 0.05, -18.0));
+    let (feet_at, _) = walk(&mut app, w, -90.0_f32.to_radians(), 600);
+    assert!(
+        feet_at.x > -4.0 + 0.3,
+        "the wall stopped the walk, got {feet_at}"
+    );
 }
 
 #[test]
 fn jumps_and_comes_back_down() {
     let mut app = world();
-    for _ in 0..3 {
-        app.update();
-    }
-    let mut kcc = friendslop::kcc::Kcc::default();
-    let mut feet = Vec3::new(0.0, 0.05, 2.0);
+    walking::settle(&mut app);
+    let w = spawn(&mut app, Vec3::new(0.0, 0.05, 2.0));
     // Settle, then jump.
+    let still = |w: &mut friendslop::kcc::Walking, _: &mut friendslop::kcc::Kcc| {
+        w.stick = Vec2::ZERO;
+        w.jump = false;
+    };
     for _ in 0..10 {
-        feet = tick(&mut app, &mut kcc, feet, false);
+        tick(&mut app, w, still);
     }
-    assert!(kcc.grounded.is_some(), "settled on the ground");
-    let start_y = feet.y;
-    feet = tick(&mut app, &mut kcc, feet, true);
-    assert!(feet.y > start_y + 0.05, "left the ground, got {feet}");
+    assert!(kcc(&app, w).grounded.is_some(), "settled on the ground");
+    let start_y = feet(&app, w).y;
+    let at = tick(&mut app, w, |w, _| w.jump = true);
+    assert!(at.y > start_y + 0.05, "left the ground, got {at}");
     // Come back down within a second.
     let mut landed = false;
+    let mut at = at;
     for _ in 0..60 {
-        feet = tick(&mut app, &mut kcc, feet, false);
-        if kcc.grounded.is_some() && feet.y < start_y + 0.2 {
+        at = tick(&mut app, w, still);
+        if kcc(&app, w).grounded.is_some() && at.y < start_y + 0.2 {
             landed = true;
             break;
         }
     }
-    assert!(landed, "never landed after a jump, at {feet}");
+    assert!(landed, "never landed after a jump, at {at}");
 }
 
-#[derive(Resource)]
-struct Climber {
-    kcc: friendslop::kcc::Kcc,
-    feet: Vec3,
-    climbed: bool,
+#[test]
+fn holding_jump_hops_again_on_landing_and_a_tap_hops_lower() {
+    let mut app = world();
+    walking::settle(&mut app);
+    let w = spawn(&mut app, Vec3::new(0.0, 0.05, 2.0));
+    for _ in 0..10 {
+        tick(&mut app, w, |w, _| w.jump = false);
+    }
+    // Held for two seconds: several hops, no standing about between them.
+    let mut takeoffs = 0;
+    let mut was_grounded = true;
+    let mut highest_held = 0.0_f32;
+    for _ in 0..120 {
+        let at = tick(&mut app, w, |w, _| w.jump = true);
+        highest_held = highest_held.max(at.y);
+        let grounded = kcc(&app, w).grounded.is_some();
+        if was_grounded && !grounded {
+            takeoffs += 1;
+        }
+        was_grounded = grounded;
+    }
+    assert!(takeoffs >= 3, "bunny hopped {takeoffs} times");
+    // Land, then a one-tick tap: the early release cuts the jump short.
+    for _ in 0..60 {
+        tick(&mut app, w, |w, _| w.jump = false);
+    }
+    let mut highest_tap = 0.0_f32;
+    tick(&mut app, w, |w, _| w.jump = true);
+    for _ in 0..60 {
+        highest_tap = highest_tap.max(tick(&mut app, w, |w, _| w.jump = false).y);
+    }
+    assert!(
+        highest_tap > 0.1 && highest_tap < highest_held * 0.8,
+        "tap {highest_tap} vs held {highest_held}"
+    );
+}
+
+#[test]
+fn a_teleport_puts_the_body_there_and_stops_it() {
+    let mut app = world();
+    walking::settle(&mut app);
+    let w = spawn(&mut app, Vec3::new(0.0, 0.05, 2.0));
+    walk(&mut app, w, 0.0, 30);
+    assert!(kcc(&app, w).velocity.length() > 1.0, "walking");
+    let to = Vec3::new(5.0, 0.0, 5.0);
+    let at = tick(&mut app, w, |w, k| {
+        w.feet = to;
+        w.stick = Vec2::ZERO;
+        k.stop();
+    });
+    assert!(at.distance(to) < 0.05, "teleported to {to}, at {at}");
+    assert!(kcc(&app, w).velocity.length() < 0.1, "stopped dead");
 }
 
 /// One host tick with W held. With `space` down, climb if there's a face and
 /// jump otherwise (Space is both keys, as in the game); with `space` up, walk.
-fn climb_tick(app: &mut App, c: Climber, space: bool) -> Climber {
-    app.insert_resource(c);
-    app.world_mut()
-        .run_system_once(
-            move |move_and_slide: MoveAndSlide, mut c: ResMut<Climber>| {
-                let dt = 1.0 / 60.0;
-                let feet = c.feet;
-                if let Some((feet, v)) = space
-                    .then(|| {
-                        friendslop::features::climb::climb_step(
-                            &move_and_slide,
-                            feet,
-                            0.0,
-                            Vec2::Y,
-                            dt,
-                        )
-                    })
-                    .flatten()
-                {
-                    c.feet = feet;
-                    c.kcc.velocity = v;
-                    c.kcc.grounded = None;
-                    c.climbed = true;
-                } else {
-                    let mut kcc = c.kcc;
-                    c.feet = friendslop::kcc::step(
-                        &mut kcc,
-                        feet,
+fn climb_tick(app: &mut App, w: Entity, space: bool) -> bool {
+    let at = feet(app, w);
+    let step = app
+        .world_mut()
+        .run_system_once(move |move_and_slide: MoveAndSlide| {
+            space
+                .then(|| {
+                    friendslop::features::climb::climb_step(
+                        &move_and_slide,
+                        at,
                         0.0,
                         Vec2::Y,
-                        space,
-                        friendslop::kcc::WALK_SPEED,
-                        dt,
-                        &move_and_slide,
-                    );
-                    c.kcc = kcc;
-                }
-            },
-        )
-        .expect("climb tick");
-    app.world_mut()
-        .remove_resource::<Climber>()
-        .expect("climber")
+                        1.0 / walking::HZ as f32,
+                    )
+                })
+                .flatten()
+        })
+        .expect("climb step");
+    tick(app, w, |w, k| {
+        w.yaw = 0.0;
+        w.stick = Vec2::Y;
+        w.jump = space;
+        w.skip = step.is_some();
+        if let Some((feet, v)) = step {
+            w.feet = feet;
+            k.velocity = v;
+            k.grounded = None;
+        }
+    });
+    step.is_some()
 }
 
 #[test]
@@ -266,29 +220,25 @@ fn climbs_a_tall_block_and_hauls_over_the_top() {
         Collider::cuboid(4.0, 4.0, 4.0),
         Transform::from_xyz(12.0, 2.0, -4.0),
     ));
-    for _ in 0..3 {
-        app.update();
-    }
-    let mut c = Climber {
-        kcc: friendslop::kcc::Kcc::default(),
-        feet: Vec3::new(12.0, 0.0, 1.0),
-        climbed: false,
-    };
+    walking::settle(&mut app);
+    let w = spawn(&mut app, Vec3::new(12.0, 0.0, 1.0));
     // Walk up to it, climb, haul over, and stand on top.
+    let mut climbed = false;
     let mut on_top = None;
     for tick in 0..600 {
-        c = climb_tick(&mut app, c, true);
-        if c.climbed && c.kcc.grounded.is_some() {
-            on_top = Some((tick, c.feet));
+        climbed |= climb_tick(&mut app, w, true);
+        // (Grounded on the lip's edge first, then up onto the top.)
+        if climbed && kcc(&app, w).grounded.is_some() && feet(&app, w).y > 3.9 {
+            on_top = Some((tick, feet(&app, w)));
             break;
         }
     }
-    let Some((tick, feet)) = on_top else {
-        panic!("never landed after climbing, ended at {}", c.feet);
+    let Some((tick, at)) = on_top else {
+        panic!("never landed after climbing, ended at {}", feet(&app, w));
     };
     assert!(
-        feet.y > 3.9 && feet.y < 4.2,
-        "lands on top of the block, got {feet}"
+        at.y > 3.9 && at.y < 4.2,
+        "lands on top of the block, got {at}"
     );
     assert!(
         tick < 300,
@@ -297,11 +247,8 @@ fn climbs_a_tall_block_and_hauls_over_the_top() {
     // Let go of Space and walk on across the top rather than slipping back
     // down. (Still holding Space just bunnies, since Space is jump too.)
     for _ in 0..20 {
-        c = climb_tick(&mut app, c, false);
+        climb_tick(&mut app, w, false);
     }
-    assert!(
-        c.feet.y > 3.9 && c.feet.z < -2.5,
-        "walking on top, got {}",
-        c.feet
-    );
+    let at = feet(&app, w);
+    assert!(at.y > 3.9 && at.z < -2.5, "walking on top, got {at}");
 }

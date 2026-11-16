@@ -116,7 +116,6 @@ pub fn plugin(app: &mut App) {
         .add_systems(
             Update,
             climb
-                .before(super::fps::kcc_move_walkers)
                 .run_if(in_state(ServerState::Running))
                 .run_if(in_state(AppState::InGame))
                 .run_if(

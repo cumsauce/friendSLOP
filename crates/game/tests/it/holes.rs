@@ -2,11 +2,10 @@
 //! stairs through the hole in New York's street, past where the street's
 //! slab used to be solid, and back up again.
 
-use avian3d::character_controller::move_and_slide::MoveAndSlide;
 use avian3d::prelude::*;
-use bevy::ecs::system::RunSystemOnce;
 use bevy::prelude::*;
-use friendslop::kcc::Kcc;
+
+use super::walking;
 use friendslop_side::features::{fulton, nyc};
 
 fn tuning() -> fulton::Tuning {
@@ -20,14 +19,7 @@ fn tuning() -> fulton::Tuning {
 }
 
 fn world(t: &fulton::Tuning) -> App {
-    let mut app = App::new();
-    app.add_plugins((
-        MinimalPlugins,
-        TransformPlugin,
-        AssetPlugin::default(),
-        PhysicsPlugins::default(),
-    ));
-    app.init_asset::<Mesh>();
+    let mut app = walking::app();
     friendslop_world::holes::cut(fulton::entrance_hole(t));
     for (at, c) in nyc::city_floor() {
         app.world_mut().spawn((RigidBody::Static, c, at));
@@ -49,68 +41,27 @@ fn world(t: &fulton::Tuning) -> App {
             Transform::from_translation(b.centre).with_rotation(b.rotation),
         ));
     }
-    app.finish();
-    app.cleanup();
-    for _ in 0..3 {
-        app.update();
-    }
+    walking::settle(&mut app);
     app
 }
 
-#[derive(Resource)]
-struct Walk {
-    kcc: Kcc,
-    feet: Vec3,
-    yaw: f32,
-}
-
-/// Walk facing `yaw` for `ticks` at 60 Hz; the lowest feet on the way, and the end.
-fn walk(app: &mut App, kcc: &mut Kcc, feet: Vec3, yaw: f32, ticks: usize) -> (Vec3, f32) {
-    app.insert_resource(Walk {
-        kcc: *kcc,
-        feet,
-        yaw,
-    });
-    let mut lowest = feet.y;
-    for _ in 0..ticks {
-        let Ok(y) = app
-            .world_mut()
-            .run_system_once(|mas: MoveAndSlide, mut w: ResMut<Walk>| {
-                let (feet, yaw) = (w.feet, w.yaw);
-                w.feet = friendslop::kcc::step(
-                    &mut w.kcc,
-                    feet,
-                    yaw,
-                    Vec2::Y,
-                    false,
-                    friendslop::kcc::WALK_SPEED,
-                    1.0 / 60.0,
-                    &mas,
-                );
-                w.feet.y
-            })
-        else {
-            panic!("step");
-        };
-        lowest = lowest.min(y);
-    }
-    let Some(w) = app.world_mut().remove_resource::<Walk>() else {
-        panic!("walk");
-    };
-    *kcc = w.kcc;
-    (w.feet, lowest)
+/// A new walker at `feet` walking facing `yaw` for `ticks` at 60 Hz; the
+/// end and the lowest feet on the way. Returns the walker to walk on with.
+fn walk(app: &mut App, feet: Vec3, yaw: f32, ticks: usize) -> (Entity, Vec3, f32) {
+    let w = walking::spawn(app, feet);
+    let (at, lowest) = walking::walk(app, w, yaw, ticks);
+    (w, at, lowest)
 }
 
 #[test]
 fn walks_down_the_entrance_stairs_and_back_up() {
     let t = tuning();
     let mut app = world(&t);
-    let mut kcc = Kcc::default();
     // On the sidewalk in front of the entrance, walking into it (the open
     // end faces the entrance's yaw).
     let start = fulton::street_at(&t) + Vec3::Y * 0.05;
     let into = t.entrance_yaw.to_radians();
-    let (feet, lowest) = walk(&mut app, &mut kcc, start, into, 200);
+    let (w, feet, lowest) = walk(&mut app, start, into, 200);
     assert!(
         lowest < -2.8,
         "never got down the stairs: lowest {lowest}, at {feet}"
@@ -119,13 +70,12 @@ fn walks_down_the_entrance_stairs_and_back_up() {
     assert!(feet.y > -3.3, "fell through the landing: {feet}");
     assert!(fulton::entering(&t, feet), "not in the way in: {feet}");
     // Turn round and climb back up to the street.
-    let (back, _) = walk(&mut app, &mut kcc, feet, into + std::f32::consts::PI, 200);
+    let (back, _) = walking::walk(&mut app, w, into + std::f32::consts::PI, 200);
     assert!(back.y > -0.1 && back.y < 0.3, "didn't get back up: {back}");
     assert!(!fulton::entrance_hole(&t).contains(back.xz()));
     // And the street next to the entrance is still solid.
-    let (beside, low) = walk(
+    let (_, beside, low) = walk(
         &mut app,
-        &mut Kcc::default(),
         fulton::entrance_at(&t) + Vec3::new(0.0, 0.05, 3.0),
         -std::f32::consts::FRAC_PI_2,
         30,
@@ -165,7 +115,7 @@ fn walks_up_from_the_path_platform_into_the_oculus() {
     let start = f.transform_point(bottom - Vec3::X * 1.5 + Vec3::Y * 0.1);
     // Walk along the track's +x (forward is -z turned by the yaw).
     let yaw = wtc.yaw.to_radians() - std::f32::consts::FRAC_PI_2;
-    let (feet, _) = walk(&mut app, &mut Kcc::default(), start, yaw, 400);
+    let (_, feet, _) = walk(&mut app, start, yaw, 400);
     assert!(
         feet.y > -0.1 && feet.y < 0.4,
         "didn't get up into the Oculus: {feet} from {start}"

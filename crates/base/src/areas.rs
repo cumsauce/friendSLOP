@@ -651,7 +651,18 @@ impl Loaded {
                     .iter()
                     .any(|o| o.id != area.id && o.heights.is_some() && o.holds(*p))
             };
-            let me = force.unwrap_or_else(|| area.wanted(show.now, you.filter(counts)));
+            // Visuals are for the area you're in: standing in another one
+            // (New York, beside the commune's edge) shows only that one.
+            // Out in no area (the wastes) the ones near you load as you
+            // walk up to them.
+            let elsewhere = |p: &Vec3| {
+                list.areas
+                    .iter()
+                    .any(|o| o.id != area.id && o.holds(*p) && !area.holds(*p))
+            };
+            let me = force.unwrap_or_else(|| {
+                area.wanted(show.now, you.filter(|p| counts(p) && !elsewhere(p)))
+            });
             let anyone = force.unwrap_or_else(|| {
                 if client {
                     area.wanted(sim.now, you.filter(counts))
@@ -964,6 +975,26 @@ mod tests {
         let mut c = Loaded::default();
         c.track(&list(), None, true, far, &[Vec3::new(5.0, 0.0, 5.0)]);
         assert!(!c.is("nyc", Layer::Sim));
+    }
+
+    #[test]
+    fn standing_in_one_area_shows_only_that_one() {
+        let mut next = area();
+        next.id = "next".into();
+        next.bounds = ((0.0, 16.0), (10.0, 30.0));
+        let two = Areas {
+            areas: vec![area(), next],
+        };
+        let mut l = Loaded::default();
+        // 6 m into `next`, 6 m from `nyc`'s edge: only `next` shows, but
+        // `nyc`'s colliders still load nearby.
+        l.track(&two, None, false, Some(Vec3::new(5.0, 0.0, 16.0)), &[]);
+        assert!(l.is("next", Layer::Show) && !l.is("nyc", Layer::Show));
+        assert!(l.is("nyc", Layer::Sim));
+        // Out in no area, the near one shows as you walk up.
+        let mut l = Loaded::default();
+        l.track(&two, None, false, Some(Vec3::new(-5.0, 0.0, 5.0)), &[]);
+        assert!(l.is("nyc", Layer::Show));
     }
 
     #[test]

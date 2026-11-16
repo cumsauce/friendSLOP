@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "nyc-kit-subway-entrance",
   "parts": [],
-  "version": 42041,
+  "version": 62187,
   "ops": [
     {
       "primitive": {
@@ -561,25 +561,8 @@
         ],
         "translation": [
           0.0,
-          1.55,
-          -3.1
-        ],
-        "rotation": null
-      }
-    },
-    {
-      "primitive": {
-        "name": "sign_band",
-        "kind": "box",
-        "size": [
           1.5,
-          0.08,
-          0.01
-        ],
-        "translation": [
-          0.0,
-          1.66,
-          -3.075
+          -3.1
         ],
         "rotation": null
       }
@@ -2145,47 +2128,86 @@
       }
     },
     {
+      "primitive": {
+        "name": "sign_face",
+        "kind": "box",
+        "size": [
+          1.5,
+          0.32,
+          0.004
+        ],
+        "translation": [
+          0.0,
+          1.5,
+          -3.078
+        ],
+        "rotation": [
+          0.0,
+          1.0,
+          0.0,
+          -4.371139e-8
+        ]
+      }
+    },
+    {
       "material": {
-        "name": "sign_band",
-        "input": "sign_band",
+        "name": "sign_face",
+        "input": "sign_face",
         "base_color": null,
         "roughness": null,
         "metalness": null,
         "pbr": {
-          "material": "nyc-paint-white",
+          "material": "nyc-subway-sign",
           "scale": 1.0,
           "graph": {
-            "domain": "tile",
+            "domain": "card",
             "tile": 1.0,
-            "resolution": 128,
+            "resolution": 256,
             "nodes": [
               {
-                "name": "n",
-                "octaves": 3,
-                "seed": 125,
-                "size": 0.3,
-                "type": "noise"
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
               },
               {
-                "input": "n",
+                "coords": "uv",
                 "name": "c",
-                "stops": [
-                  [
-                    0,
-                    "#d8d8d0"
-                  ],
-                  [
-                    1,
-                    "#e8e8e0"
-                  ]
+                "scale": [
+                  1.5,
+                  0.32
                 ],
-                "type": "ramp"
+                "type": "transform"
               },
               {
-                "base_color": "c",
-                "metallic": 0.0,
+                "center": [
+                  0.75,
+                  0.16
+                ],
+                "coords": "c",
+                "font": "bold",
+                "name": "word",
+                "size": 0.17,
+                "text": "SUBWAY",
+                "type": "text"
+              },
+              {
+                "mode": "fill",
+                "name": "m",
+                "sdf": "word",
+                "type": "mask"
+              },
+              {
+                "a": "#1d1d1f",
+                "b": "#f2f2f2",
+                "c": "m",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
                 "name": "out",
-                "roughness": 0.7,
+                "roughness": 0.5,
                 "type": "output"
               }
             ],

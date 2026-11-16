@@ -1,0 +1,124 @@
+{
+  "name": "nyc-newsstand-sign",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        3,
+        0.4
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        1.5,
+        0.2
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "word",
+      "size": 0.22,
+      "text": "NEWS & MAGAZINES",
+      "type": "text"
+    },
+    {
+      "mode": "fill",
+      "name": "m",
+      "sdf": "word",
+      "type": "mask"
+    },
+    {
+      "a": "#e2b53c",
+      "b": "#1d1a16",
+      "c": "m",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "nyc-newsstand-sign",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                3,
+                0.4
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                1.5,
+                0.2
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "word",
+              "size": 0.22,
+              "text": "NEWS & MAGAZINES",
+              "type": "text"
+            },
+            {
+              "mode": "fill",
+              "name": "m",
+              "sdf": "word",
+              "type": "mask"
+            },
+            {
+              "a": "#e2b53c",
+              "b": "#1d1a16",
+              "c": "m",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +word +m +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

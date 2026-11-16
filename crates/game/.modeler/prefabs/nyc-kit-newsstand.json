@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "nyc-kit-newsstand",
   "parts": [],
-  "version": 30040,
+  "version": 62163,
   "ops": [
     {
       "primitive": {
@@ -1868,6 +1868,179 @@
                 "metallic": 0.0,
                 "name": "out",
                 "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "primitive": {
+        "name": "sign_front",
+        "kind": "box",
+        "size": [
+          2.96,
+          0.36,
+          0.004
+        ],
+        "translation": [
+          0.0,
+          2.75,
+          0.402
+        ],
+        "rotation": [
+          0.0,
+          1.0,
+          0.0,
+          -4.371139e-8
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "sign_back",
+        "kind": "box",
+        "size": [
+          2.96,
+          0.36,
+          0.004
+        ],
+        "translation": [
+          0.0,
+          2.75,
+          0.298
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "sign_front",
+        "input": "sign_front",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-newsstand-sign",
+          "scale": 1.0,
+          "graph": {
+            "domain": "card",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "coords": "uv",
+                "name": "c",
+                "scale": [
+                  3,
+                  0.4
+                ],
+                "type": "transform"
+              },
+              {
+                "center": [
+                  1.5,
+                  0.2
+                ],
+                "coords": "c",
+                "font": "bold",
+                "name": "word",
+                "size": 0.22,
+                "text": "NEWS & MAGAZINES",
+                "type": "text"
+              },
+              {
+                "mode": "fill",
+                "name": "m",
+                "sdf": "word",
+                "type": "mask"
+              },
+              {
+                "a": "#e2b53c",
+                "b": "#1d1a16",
+                "c": "m",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "sign_back",
+        "input": "sign_back",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "nyc-newsstand-sign",
+          "scale": 1.0,
+          "graph": {
+            "domain": "card",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "coords": "uv",
+                "name": "c",
+                "scale": [
+                  3,
+                  0.4
+                ],
+                "type": "transform"
+              },
+              {
+                "center": [
+                  1.5,
+                  0.2
+                ],
+                "coords": "c",
+                "font": "bold",
+                "name": "word",
+                "size": 0.22,
+                "text": "NEWS & MAGAZINES",
+                "type": "text"
+              },
+              {
+                "mode": "fill",
+                "name": "m",
+                "sdf": "word",
+                "type": "mask"
+              },
+              {
+                "a": "#e2b53c",
+                "b": "#1d1a16",
+                "c": "m",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.6,
                 "type": "output"
               }
             ],

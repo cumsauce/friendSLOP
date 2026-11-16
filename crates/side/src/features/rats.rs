@@ -341,6 +341,8 @@ fn move_rats(
 // ---------------------------------------------------------------- local side
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    friendslop_base::areas::dress_in_area::<Rat>(app);
     app.add_observer(click_rat).add_systems(
         Update,
         (dress_rats, glide_rats).run_if(in_state(AppState::InGame)),
@@ -355,7 +357,10 @@ struct Dressed;
 /// (scurrying).
 pub const RAT_MODEL: &str = "models/creatures/rat.gltf";
 
-fn dress_rats(mut commands: Commands, new: Query<(Entity, &Rat), Without<Dressed>>) {
+fn dress_rats(
+    mut commands: Commands,
+    new: Query<(Entity, &Rat), Added<friendslop_base::areas::Shown>>,
+) {
     for (entity, rat) in &new {
         commands.entity(entity).insert((
             Dressed,

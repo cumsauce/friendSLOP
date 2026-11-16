@@ -18,6 +18,7 @@ use crate::rigged::{RigClip, Rigged};
 use crate::scenery::bonfire_at;
 
 pub fn plugin(app: &mut App) {
+    crate::areas::on_show(app, crate::world::COMMUNE, spawn_bonfire);
     app.add_systems(OnEnter(AppState::InGame), spawn_ambience)
         .add_systems(
             Update,
@@ -166,9 +167,59 @@ fn spawn_particle(
             Transform::from_translation(anchor),
             Visibility::default(),
             NotShadowCaster,
+            // Butterflies, motes, leaves and birds drift around you wherever
+            // you are (the bonfire's smoke and sparks are the commune's).
+            crate::areas::Global,
             DespawnOnExit(AppState::InGame),
         ))
         .id()
+}
+
+/// The bonfire's smoke and sparks, in the commune's visuals (they go when
+/// you're away, and come back when it shows again).
+fn spawn_bonfire(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    quality: Option<Res<crate::graphics::GraphicsQuality>>,
+) {
+    let density = crate::graphics::density(quality.as_deref());
+    let n = |count: usize| (count as f32 * density).round() as usize;
+    let mut rng = Rng(0xB0_F1E5);
+    let dot = meshes.add(Sphere::new(0.035).mesh().uv(6, 4));
+    let puff = meshes.add(Sphere::new(0.35).mesh().uv(10, 6));
+    let spark_mat = glow(
+        &mut materials,
+        Color::srgb(1.0, 0.6, 0.2),
+        LinearRgba::rgb(8.0, 3.0, 0.5),
+    );
+    let smoke_mat = materials.add(StandardMaterial {
+        base_color: Color::srgba(0.45, 0.45, 0.48, 0.35),
+        alpha_mode: AlphaMode::Blend,
+        unlit: true,
+        ..default()
+    });
+    let put = |commands: &mut Commands,
+                   rng: &mut Rng,
+                   kind,
+                   life,
+                   look: (Mesh3d, MeshMaterial3d<StandardMaterial>)| {
+        let e = spawn_particle(commands, rng, kind, bonfire_at(), life);
+        commands
+            .entity(e)
+            .remove::<crate::areas::Global>()
+            .insert((look, crate::areas::InArea::show(crate::world::COMMUNE)));
+    };
+    for _ in 0..n(SMOKE) {
+        let life = rng.range(3.5, 5.5);
+        let look = (Mesh3d(puff.clone()), MeshMaterial3d(smoke_mat.clone()));
+        put(&mut commands, &mut rng, Kind::Smoke, life, look);
+    }
+    for _ in 0..n(SPARKS) {
+        let life = rng.range(0.8, 1.6);
+        let look = (Mesh3d(dot.clone()), MeshMaterial3d(spark_mat.clone()));
+        put(&mut commands, &mut rng, Kind::Spark, life, look);
+    }
 }
 
 fn spawn_ambience(
@@ -183,7 +234,6 @@ fn spawn_ambience(
     let n = |count: usize| (count as f32 * density).round() as usize;
     let mut rng = Rng(0xA1B1_E5CE);
     let dot = meshes.add(Sphere::new(0.035).mesh().uv(6, 4));
-    let puff = meshes.add(Sphere::new(0.35).mesh().uv(10, 6));
     let leaves = LEAF_MODELS.map(|file| assets.load(GltfAssetLabel::Scene(0).from_asset(file)));
     let mote_mat = glow(
         &mut materials,
@@ -195,17 +245,6 @@ fn spawn_ambience(
         Color::srgb(0.8, 1.0, 0.3),
         LinearRgba::rgb(4.0, 6.0, 1.0),
     );
-    let spark_mat = glow(
-        &mut materials,
-        Color::srgb(1.0, 0.6, 0.2),
-        LinearRgba::rgb(8.0, 3.0, 0.5),
-    );
-    let smoke_mat = materials.add(StandardMaterial {
-        base_color: Color::srgba(0.45, 0.45, 0.48, 0.35),
-        alpha_mode: AlphaMode::Blend,
-        unlit: true,
-        ..default()
-    });
 
     for i in 0..BUTTERFLIES {
         let anchor = rng.ring(0.6);
@@ -242,20 +281,6 @@ fn spawn_ambience(
         commands
             .entity(e)
             .insert((WorldAssetRoot(leaves[i % leaves.len()].clone()), Shadowless));
-    }
-    for _ in 0..n(SMOKE) {
-        let life = rng.range(3.5, 5.5);
-        let e = spawn_particle(&mut commands, &mut rng, Kind::Smoke, bonfire_at(), life);
-        commands
-            .entity(e)
-            .insert((Mesh3d(puff.clone()), MeshMaterial3d(smoke_mat.clone())));
-    }
-    for _ in 0..n(SPARKS) {
-        let life = rng.range(0.8, 1.6);
-        let e = spawn_particle(&mut commands, &mut rng, Kind::Spark, bonfire_at(), life);
-        commands
-            .entity(e)
-            .insert((Mesh3d(dot.clone()), MeshMaterial3d(spark_mat.clone())));
     }
     for i in 0..BIRDS {
         let life = rng.range(14.0, 22.0);

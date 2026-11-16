@@ -77,6 +77,7 @@ fn spawn_camera(mut commands: Commands) {
         MainCamera,
         VoiceListener { right_from: None },
         crate::camera::CameraRig::default().transform(),
+        crate::areas::Global,
         DespawnOnExit(AppState::InGame),
     ));
 }

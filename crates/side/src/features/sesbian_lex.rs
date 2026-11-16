@@ -300,6 +300,7 @@ fn spawn_visuals(mut commands: Commands, materials: Option<ResMut<Assets<Standar
                 LexHeart(i),
                 Visibility::Hidden,
                 Transform::default(),
+                crate::areas::Global,
                 DespawnOnExit(AppState::InGame),
             ))
             // The modeler heart (romance's), at the old size: 0.6 m across.
@@ -311,6 +312,7 @@ fn spawn_visuals(mut commands: Commands, materials: Option<ResMut<Assets<Standar
     }
     commands.spawn((
         LexGlow,
+        crate::areas::Global,
         PointLight {
             color: Color::srgb(1.0, 0.55, 0.7),
             intensity: 60_000.0,

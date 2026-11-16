@@ -310,6 +310,8 @@ fn prowl(
 // ---------------------------------------------------------------- local side
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    friendslop_base::areas::dress_in_area::<Kitten>(app);
     app.add_systems(
         Update,
         (
@@ -323,7 +325,10 @@ pub fn plugin(app: &mut App) {
 #[derive(Component)]
 struct Dressed;
 
-fn dress_kittens(mut commands: Commands, new: Query<(Entity, &Kitten), Without<Dressed>>) {
+fn dress_kittens(
+    mut commands: Commands,
+    new: Query<(Entity, &Kitten), Added<friendslop_base::areas::Shown>>,
+) {
     let size = tuning().size.max(0.05);
     for (entity, k) in &new {
         commands.entity(entity).insert((

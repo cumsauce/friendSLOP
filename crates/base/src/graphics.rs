@@ -844,6 +844,7 @@ mod render_scale {
             if stretch.is_empty() {
                 commands.spawn((
                     Stretch,
+                    crate::areas::Global,
                     Camera2d,
                     Camera {
                         order: 1,
@@ -855,6 +856,7 @@ mod render_scale {
                 ));
                 commands.spawn((
                     Stretch,
+                    crate::areas::Global,
                     Sprite::from_image(handle.clone()),
                     RenderLayers::layer(LAYER),
                 ));

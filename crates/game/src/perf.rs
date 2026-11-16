@@ -60,7 +60,7 @@ impl Plugin for PerfPlugin {
         app.insert_resource(counts.clone())
             .init_resource::<Churn>()
             .add_systems(PostUpdate, count_churn.after(TransformSystems::Propagate))
-            .add_systems(Last, (report, breakdown, moved_breakdown, census));
+            .add_systems(Last, (report, breakdown, moved_breakdown, census, strays));
         if std::env::var("FRIENDSLOP_PERF").is_ok_and(|v| v == "3") {
             app.add_plugins(bevy::render::diagnostic::RenderDiagnosticsPlugin)
                 .add_systems(Last, gpu_passes);
@@ -285,20 +285,16 @@ fn census(
     mut last: Local<f32>,
     all: Query<(Entity, Has<Mesh3d>, Has<avian3d::prelude::Collider>)>,
     parents: Query<&ChildOf>,
-    tags: Query<(
-        Option<&crate::areas::InArea>,
-        Option<&crate::areas::AreaRoot>,
-    )>,
+    tags: Query<crate::areas::Tags>,
 ) {
     let now = time.elapsed_secs();
     if now - *last < 5.0 {
         return;
     }
     *last = now;
-    let lines = crate::areas::census(
-        all.iter()
-            .map(|(e, mesh, collider)| (crate::areas::owner(e, &parents, &tags), mesh, collider)),
-    );
+    let lines = crate::areas::census(all.iter().filter_map(|(e, mesh, collider)| {
+        Some((crate::areas::owner(e, &parents, &tags)?, mesh, collider))
+    }));
     let text: Vec<String> = lines
         .iter()
         .map(|(area, c)| {
@@ -312,6 +308,60 @@ fn census(
         })
         .collect();
     info!("perf areas: {}", text.join(" | "));
+}
+
+/// `FRIENDSLOP_PERF=2` or `3`: once, 25 s in, what the census's "no area"
+/// line is made of: each top-level owner (its name, or its components when
+/// it has none), by entity count.
+fn strays(world: &mut World, mut done: Local<bool>) {
+    if *done
+        || !std::env::var("FRIENDSLOP_PERF").is_ok_and(|v| v == "2" || v == "3")
+        || world.resource::<Time<Real>>().elapsed_secs() < 25.0
+    {
+        return;
+    }
+    *done = true;
+    let mut state: bevy::ecs::system::SystemState<(
+        Query<Entity>,
+        Query<&ChildOf>,
+        Query<crate::areas::Tags>,
+    )> = bevy::ecs::system::SystemState::new(world);
+    let Ok((all, parents, tags)) = state.get(world) else {
+        return;
+    };
+    let mut by: bevy::platform::collections::HashMap<Entity, usize> = Default::default();
+    for e in &all {
+        if crate::areas::owner(e, &parents, &tags) == Some(None) {
+            let mut top = e;
+            while let Ok(p) = parents.get(top) {
+                top = p.parent();
+            }
+            *by.entry(top).or_default() += 1;
+        }
+    }
+    let mut rows: bevy::platform::collections::HashMap<String, usize> = Default::default();
+    for (top, n) in by {
+        let label = world.get::<Name>(top).map_or_else(
+            || {
+                world.inspect_entity(top).map_or("?".into(), |cs| {
+                    cs.map(|c| {
+                        let n = c.1.name().to_string();
+                        n.rsplit("::").next().unwrap_or(&n).to_string()
+                    })
+                    .filter(|n| !n.starts_with("Global") && !n.contains("Visib"))
+                    .take(6)
+                    .collect::<Vec<_>>()
+                    .join("+")
+                })
+            },
+            |n| n.as_str().to_string(),
+        );
+        *rows.entry(label).or_default() += n;
+    }
+    let mut rows: Vec<_> = rows.into_iter().collect();
+    rows.sort_by_key(|r| std::cmp::Reverse(r.1));
+    let list: Vec<String> = rows.iter().map(|(k, n)| format!("{n} {k}")).collect();
+    info!("perf no area: {}", list.join(" | "));
 }
 
 /// `FRIENDSLOP_PERF=3`: every 5 s, the GPU time of each render pass that

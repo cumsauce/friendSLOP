@@ -336,6 +336,9 @@ fn drop_on_leave(
 }
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    friendslop_base::areas::dress_in_area::<Totem>(app);
+    friendslop_base::areas::on_show(app, "commune", mark_doors);
     app.init_resource::<SpellLog>()
         .add_observer(hear_spell)
         .add_observer(click_totem_or_door)
@@ -390,7 +393,7 @@ fn build_vault(mut commands: Commands, assets: Res<AssetServer>) {
 
 fn dress_totems(
     mut commands: Commands,
-    new: Query<(Entity, &Totem), Added<Totem>>,
+    new: Query<(Entity, &Totem), Added<friendslop_base::areas::Shown>>,
     assets: Res<AssetServer>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
@@ -436,23 +439,41 @@ fn dress_totems(
     }
 }
 
+/// The way into the vault, marked from outside (it walks towards the
+/// vault's middle). Local, like the rest of the door's look, and in the
+/// commune's visuals: put back whenever they load again.
+fn mark_door(commands: &mut Commands, door: &Door) {
+    let inwards = Vec2::new((vault_at().x - door.at.x).signum(), 0.0);
+    let way = crate::features::doorway::spawn(
+        commands,
+        Vec3::new(door.at.x, 0.0, door.at.y) - inwards.extend(0.0).xzy() * 0.35,
+        crate::features::doorway::yaw_towards(inwards),
+        crate::features::doorway::Doorway::way_in("the vault").size(1.2, 1.4),
+    );
+    commands
+        .entity(way)
+        .insert(friendslop_base::areas::InArea::show("commune"));
+}
+
+fn mark_doors(mut commands: Commands, doors: Query<&Door>) {
+    for door in &doors {
+        mark_door(&mut commands, door);
+    }
+}
+
 fn dress_doors(
     mut commands: Commands,
     new: Query<(Entity, &Door), Added<Door>>,
     assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    shown: Res<friendslop_base::areas::Loaded>,
 ) {
     for (entity, door) in &new {
-        // The way into the vault, marked from outside (it walks towards the
-        // vault's middle). Local, like the rest of the door's look.
-        let inwards = Vec2::new((vault_at().x - door.at.x).signum(), 0.0);
-        crate::features::doorway::spawn(
-            &mut commands,
-            Vec3::new(door.at.x, 0.0, door.at.y) - inwards.extend(0.0).xzy() * 0.35,
-            crate::features::doorway::yaw_towards(inwards),
-            crate::features::doorway::Doorway::way_in("the vault").size(1.2, 1.4),
-        );
+        // (The frame the commune's visuals load, `mark_doors` marks it.)
+        if !shown.loaded("commune", friendslop_base::areas::Layer::Show) {
+            mark_door(&mut commands, door);
+        }
         // The rune glows in the door's magic colour; the slab itself is a
         // modeler-made model (timber, iron bands, a gold ring round the rune).
         let mat = materials.add(StandardMaterial {

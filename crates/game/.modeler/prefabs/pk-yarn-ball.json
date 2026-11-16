@@ -1,13 +1,11 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "pk-yarn-ball",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 63488,
   "ops": [
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "ball",
         "profile": [
           [
@@ -29,7 +27,7 @@
             ],
             [
               0.1,
-              -6.123234e-18
+              0.0
             ],
             [
               0.09238795,
@@ -49,214 +47,220 @@
             ]
           ]
         ],
-        "rotation": null,
-        "segments": 10,
+        "degrees": 360.0,
+        "segments": 24,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "wrap0",
         "profile": [
           [
             [
-              0.108,
+              0.105,
               0.0
             ],
             [
-              0.098,
-              0.01
-            ],
-            [
-              0.088,
-              1.2246468e-18
+              0.1015,
+              0.005
             ],
             [
               0.098,
-              -0.01
+              0.0
+            ],
+            [
+              0.1015,
+              -0.005
             ]
           ]
+        ],
+        "degrees": 360.0,
+        "segments": 32,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
         ],
         "rotation": [
           0.0,
           0.0,
           0.0,
           1.0
-        ],
-        "segments": 10,
-        "translation": [
-          0.0,
-          0.0,
-          0.0
         ]
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "wrap1",
         "profile": [
           [
             [
-              0.108,
+              0.105,
               0.0
             ],
             [
-              0.098,
-              0.01
-            ],
-            [
-              0.088,
-              1.2246468e-18
+              0.1015,
+              0.005
             ],
             [
               0.098,
-              -0.01
+              0.0
+            ],
+            [
+              0.1015,
+              -0.005
             ]
           ]
         ],
-        "rotation": [
-          0.49240392,
-          0.15038374,
-          -0.0868241,
-          0.8528686
-        ],
-        "segments": 10,
+        "degrees": 360.0,
+        "segments": 32,
         "translation": [
           0.0,
           0.0,
           0.0
+        ],
+        "rotation": [
+          0.49240386,
+          0.15038373,
+          -0.08682409,
+          0.8528685
         ]
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "wrap2",
         "profile": [
           [
             [
-              0.108,
+              0.105,
               0.0
             ],
             [
-              0.098,
-              0.01
-            ],
-            [
-              0.088,
-              1.2246468e-18
+              0.1015,
+              0.005
             ],
             [
               0.098,
-              -0.01
+              0.0
+            ],
+            [
+              0.1015,
+              -0.005
             ]
           ]
+        ],
+        "degrees": 360.0,
+        "segments": 32,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
         ],
         "rotation": [
           -0.34618863,
           0.5198368,
           0.24240388,
           0.74240386
-        ],
-        "segments": 10,
-        "translation": [
-          0.0,
-          0.0,
-          0.0
         ]
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "wrap3",
         "profile": [
           [
             [
-              0.108,
+              0.105,
               0.0
             ],
             [
-              0.098,
-              0.01
-            ],
-            [
-              0.088,
-              1.2246468e-18
+              0.1015,
+              0.005
             ],
             [
               0.098,
-              -0.01
+              0.0
+            ],
+            [
+              0.1015,
+              -0.005
             ]
           ]
+        ],
+        "degrees": 360.0,
+        "segments": 32,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
         ],
         "rotation": [
           0.66446304,
           -0.24184477,
           0.24184477,
           0.66446304
-        ],
-        "segments": 10,
-        "translation": [
-          0.0,
-          0.0,
-          0.0
         ]
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "wrap4",
         "profile": [
           [
             [
-              0.108,
+              0.105,
               0.0
             ],
             [
-              0.098,
-              0.01
-            ],
-            [
-              0.088,
-              1.2246468e-18
+              0.1015,
+              0.005
             ],
             [
               0.098,
-              -0.01
+              0.0
+            ],
+            [
+              0.1015,
+              -0.005
             ]
           ]
+        ],
+        "degrees": 360.0,
+        "segments": 32,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
         ],
         "rotation": [
           0.09960051,
           0.80670726,
           -0.14224426,
           0.56486255
-        ],
-        "segments": 10,
-        "translation": [
-          0.0,
-          0.0,
-          0.0
         ]
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "ball",
-        "metalness": null,
         "name": "ball",
+        "input": "ball",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pk-yarn",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -371,25 +375,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "pk-yarn",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "wrap0",
-        "metalness": null,
         "name": "wrap0",
+        "input": "wrap0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pk-yarn",
+          "scale": 0.7,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -504,25 +508,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "pk-yarn",
-          "scale": 0.7
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "wrap1",
-        "metalness": null,
         "name": "wrap1",
+        "input": "wrap1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pk-yarn",
+          "scale": 0.7,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -637,25 +641,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "pk-yarn",
-          "scale": 0.7
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "wrap2",
-        "metalness": null,
         "name": "wrap2",
+        "input": "wrap2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pk-yarn",
+          "scale": 0.7,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -770,25 +774,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "pk-yarn",
-          "scale": 0.7
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "wrap3",
-        "metalness": null,
         "name": "wrap3",
+        "input": "wrap3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pk-yarn",
+          "scale": 0.7,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -903,25 +907,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "pk-yarn",
-          "scale": 0.7
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "wrap4",
-        "metalness": null,
         "name": "wrap4",
+        "input": "wrap4",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pk-yarn",
+          "scale": 0.7,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "uv",
@@ -1036,17 +1040,198 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.25
-          },
-          "material": "pk-yarn",
-          "scale": 0.7
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "revolve": {
+        "name": "wrap5",
+        "profile": [
+          [
+            [
+              0.105,
+              0.0
+            ],
+            [
+              0.1015,
+              0.005
+            ],
+            [
+              0.098,
+              0.0
+            ],
+            [
+              0.1015,
+              -0.005
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 32,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.56486255,
+          0.14224426,
+          -0.09960051,
+          0.80670726
+        ]
+      }
+    },
+    {
+      "revolve": {
+        "name": "wrap6",
+        "profile": [
+          [
+            [
+              0.105,
+              0.0
+            ],
+            [
+              0.1015,
+              0.005
+            ],
+            [
+              0.098,
+              0.0
+            ],
+            [
+              0.1015,
+              -0.005
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 32,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          -0.26041886,
+          -0.1503529,
+          0.47685847,
+          0.82594305
+        ]
+      }
+    },
+    {
+      "revolve": {
+        "name": "wrap7",
+        "profile": [
+          [
+            [
+              0.105,
+              0.0
+            ],
+            [
+              0.1015,
+              0.005
+            ],
+            [
+              0.098,
+              0.0
+            ],
+            [
+              0.1015,
+              -0.005
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 32,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.2572737,
+          0.3352856,
+          -0.5517252,
+          0.7190223
+        ]
+      }
+    },
+    {
+      "group": {
+        "name": "strands",
+        "inputs": [
+          "wrap0",
+          "wrap1",
+          "wrap2",
+          "wrap3",
+          "wrap4",
+          "wrap5",
+          "wrap6",
+          "wrap7"
+        ]
+      }
+    },
+    {
+      "visibility": {
+        "name": "wrap0",
+        "input": "wrap0",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "wrap1",
+        "input": "wrap1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "wrap2",
+        "input": "wrap2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "wrap3",
+        "input": "wrap3",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "wrap4",
+        "input": "wrap4",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "wrap5",
+        "input": "wrap5",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "wrap6",
+        "input": "wrap6",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "wrap7",
+        "input": "wrap7",
+        "visible": false
       }
     }
   ],
-  "parts": [],
-  "version": 16290
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

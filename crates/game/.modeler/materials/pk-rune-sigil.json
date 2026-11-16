@@ -1,0 +1,478 @@
+{
+  "name": "pk-rune-sigil",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        1,
+        1
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.5,
+        0.5
+      ],
+      "coords": "c",
+      "name": "ro",
+      "radius": 0.46,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.5,
+        0.5
+      ],
+      "coords": "c",
+      "name": "ri",
+      "radius": 0.42,
+      "type": "circle"
+    },
+    {
+      "coords": "c",
+      "name": "tri_a",
+      "points": [
+        [
+          0.5,
+          0.12
+        ],
+        [
+          0.83,
+          0.69
+        ],
+        [
+          0.17,
+          0.69
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "coords": "c",
+      "name": "tri_a_in",
+      "points": [
+        [
+          0.5,
+          0.2
+        ],
+        [
+          0.76,
+          0.65
+        ],
+        [
+          0.24,
+          0.65
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "coords": "c",
+      "name": "tri_b",
+      "points": [
+        [
+          0.5,
+          0.88
+        ],
+        [
+          0.17,
+          0.31
+        ],
+        [
+          0.83,
+          0.31
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "coords": "c",
+      "name": "tri_b_in",
+      "points": [
+        [
+          0.5,
+          0.8
+        ],
+        [
+          0.24,
+          0.35
+        ],
+        [
+          0.76,
+          0.35
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "center": [
+        0.5,
+        0.5
+      ],
+      "coords": "c",
+      "name": "eye",
+      "radius": 0.07,
+      "type": "circle"
+    },
+    {
+      "name": "mro",
+      "sdf": "ro",
+      "type": "mask"
+    },
+    {
+      "name": "mri",
+      "sdf": "ri",
+      "type": "mask"
+    },
+    {
+      "name": "mta",
+      "sdf": "tri_a",
+      "type": "mask"
+    },
+    {
+      "name": "mtai",
+      "sdf": "tri_a_in",
+      "type": "mask"
+    },
+    {
+      "name": "mtb",
+      "sdf": "tri_b",
+      "type": "mask"
+    },
+    {
+      "name": "mtbi",
+      "sdf": "tri_b_in",
+      "type": "mask"
+    },
+    {
+      "name": "meye",
+      "sdf": "eye",
+      "type": "mask"
+    },
+    {
+      "a": "mro",
+      "b": "mri",
+      "name": "ring",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "a": "mta",
+      "b": "mtai",
+      "name": "ta",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "a": "mtb",
+      "b": "mtbi",
+      "name": "tb",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "a": "ring",
+      "b": "ta",
+      "name": "s1",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "s1",
+      "b": "tb",
+      "name": "s2",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "s2",
+      "b": "meye",
+      "name": "glyph",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "#2a1838",
+      "b": "#b78cff",
+      "c": "glyph",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "glyph",
+      "b": [
+        1.2,
+        0.8,
+        2.4
+      ],
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "name": "out",
+      "roughness": 0.4,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pk-rune-sigil",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1,
+                1
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "coords": "c",
+              "name": "ro",
+              "radius": 0.46,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "coords": "c",
+              "name": "ri",
+              "radius": 0.42,
+              "type": "circle"
+            },
+            {
+              "coords": "c",
+              "name": "tri_a",
+              "points": [
+                [
+                  0.5,
+                  0.12
+                ],
+                [
+                  0.83,
+                  0.69
+                ],
+                [
+                  0.17,
+                  0.69
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "coords": "c",
+              "name": "tri_a_in",
+              "points": [
+                [
+                  0.5,
+                  0.2
+                ],
+                [
+                  0.76,
+                  0.65
+                ],
+                [
+                  0.24,
+                  0.65
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "coords": "c",
+              "name": "tri_b",
+              "points": [
+                [
+                  0.5,
+                  0.88
+                ],
+                [
+                  0.17,
+                  0.31
+                ],
+                [
+                  0.83,
+                  0.31
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "coords": "c",
+              "name": "tri_b_in",
+              "points": [
+                [
+                  0.5,
+                  0.8
+                ],
+                [
+                  0.24,
+                  0.35
+                ],
+                [
+                  0.76,
+                  0.35
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "coords": "c",
+              "name": "eye",
+              "radius": 0.07,
+              "type": "circle"
+            },
+            {
+              "name": "mro",
+              "sdf": "ro",
+              "type": "mask"
+            },
+            {
+              "name": "mri",
+              "sdf": "ri",
+              "type": "mask"
+            },
+            {
+              "name": "mta",
+              "sdf": "tri_a",
+              "type": "mask"
+            },
+            {
+              "name": "mtai",
+              "sdf": "tri_a_in",
+              "type": "mask"
+            },
+            {
+              "name": "mtb",
+              "sdf": "tri_b",
+              "type": "mask"
+            },
+            {
+              "name": "mtbi",
+              "sdf": "tri_b_in",
+              "type": "mask"
+            },
+            {
+              "name": "meye",
+              "sdf": "eye",
+              "type": "mask"
+            },
+            {
+              "a": "mro",
+              "b": "mri",
+              "name": "ring",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": "mta",
+              "b": "mtai",
+              "name": "ta",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": "mtb",
+              "b": "mtbi",
+              "name": "tb",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": "ring",
+              "b": "ta",
+              "name": "s1",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "s1",
+              "b": "tb",
+              "name": "s2",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "s2",
+              "b": "meye",
+              "name": "glyph",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#2a1838",
+              "b": "#b78cff",
+              "c": "glyph",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "glyph",
+              "b": [
+                1.2,
+                0.8,
+                2.4
+              ],
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "name": "out",
+              "roughness": 0.4,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +ro +ri +tri_a +tri_a_in +tri_b +tri_b_in +eye +mro +mri +mta +mtai +mtb +mtbi +meye +ring +ta +tb +s1 +s2 +glyph +col +em +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -39,8 +39,8 @@ use friendslop_wfc as wfc;
 use serde::{Deserialize, Serialize};
 
 use super::fulton::{
-    CELL, HIDE_AT, Kind, Level, Station, TILES, TileSet, Tuning, cell_world, level_at, street_at,
-    tuning,
+    CELL, HIDE_AT, Kind, Level, LevelModels, Station, TILES, TileSet, Tuning, cell_world, level_at,
+    street_at, tuning,
 };
 use crate::AppState;
 use crate::features::fps::{WalkInput, Walker, teleport};
@@ -579,10 +579,10 @@ fn calls(
             continue;
         }
         hunted.coming.remove(&p.id);
-        let Some(you) = node_at(&t, &station.levels, w.pos) else {
+        let Some(you) = node_at(&t, station.levels(), w.pos) else {
             continue;
         };
-        let at = node_pos(&t, arrival(&station.levels, you));
+        let at = node_pos(&t, arrival(station.levels(), you));
         hunted.ticks = hunted.ticks.wrapping_add(1);
         commands.spawn((
             Replicated,
@@ -622,7 +622,7 @@ fn hunt(
     }
     let t = tuning();
     let set = TILES.get();
-    let spots = hiding_spots(&t, &set, &station.levels);
+    let spots = hiding_spots(&t, &set, station.levels());
     // Walk out of a locker and you're out.
     let mut left_locker = Vec::new();
     for (p, owner, w, _, _) in &players {
@@ -648,7 +648,7 @@ fn hunt(
     let dt = time.delta_secs().min(0.1);
     for (e, mut hunter, mut brain) in &mut hunters {
         let mut h = *hunter;
-        let outcome = think(&t, &station.levels, &spots, &mut h, &mut brain, &prey, dt);
+        let outcome = think(&t, station.levels(), &spots, &mut h, &mut brain, &prey, dt);
         if h != *hunter {
             *hunter = h;
         }
@@ -716,7 +716,7 @@ fn hide(
         tell(&mut commands, o, Phone::Hidden(false));
         return;
     }
-    let spots = hiding_spots(&t, &TILES.get(), &station.levels);
+    let spots = hiding_spots(&t, &TILES.get(), station.levels());
     let Some(&(_, spot)) = spots
         .iter()
         .filter(|(_, s)| (s.y - w.pos.y).abs() < 1.5)
@@ -737,13 +737,13 @@ fn hide(
 // ------------------------------------------------------------------ every peer
 
 pub fn plugin(app: &mut App) {
-    crate::area::on_show(app, place_lockers.after(super::fulton::build_sim));
     app.add_observer(on_phone)
         .add_observer(click_locker)
         .init_resource::<Call>()
         .add_systems(OnExit(AppState::InGame), |mut call: ResMut<Call>| {
             *call = Call::default()
         })
+        .add_systems(Update, place_lockers.run_if(in_state(AppState::InGame)))
         .add_systems(
             Update,
             build_ui
@@ -931,28 +931,32 @@ fn set_text<F: bevy::ecs::query::QueryFilter>(q: &mut Query<&mut Text, F>, s: &s
 #[derive(Component)]
 struct Locker;
 
-fn place_lockers(mut commands: Commands, station: Option<Res<Station>>) {
+/// Local: the lockers of each level the station draws (children of its
+/// models, so they go with them).
+fn place_lockers(
+    mut commands: Commands,
+    station: Option<Res<Station>>,
+    levels: Query<(Entity, &LevelModels), Added<LevelModels>>,
+) {
+    let Some(station) = station else { return };
+    if levels.is_empty() {
+        return;
+    }
     let t = tuning();
     let w = WRITING.get();
-    // The station's plan: the one `fulton` made (planning it again took most
-    // of a second every time New York loaded).
-    let planned;
-    let levels = match &station {
-        Some(s) => &s.levels,
-        None => {
-            planned = super::fulton::generate(&t, &TILES.get());
-            &planned
-        }
-    };
     let label: &'static str = w.hide_label.clone().leak();
-    for (_, at) in hiding_spots(&t, &TILES.get(), levels) {
-        commands.spawn((
-            Locker,
-            Transform::from_translation(at),
-            Visibility::default(),
-            Clickable::at_height(1.2).radius(60.0).labelled(label),
-            crate::area::show(),
-        ));
+    let set = TILES.get();
+    let spots = hiding_spots(&t, &set, station.levels());
+    for (root, l) in &levels {
+        for (_, at) in spots.iter().filter(|(n, _)| n.0 == l.0) {
+            commands.spawn((
+                Locker,
+                Transform::from_translation(*at),
+                Visibility::default(),
+                Clickable::at_height(1.2).radius(60.0).labelled(label),
+                ChildOf(root),
+            ));
+        }
     }
 }
 

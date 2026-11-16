@@ -18,6 +18,10 @@
     station_at: (40.0, 280.0),
     // How many levels deep it goes. The J is on the last one.
     levels: 40,
+    // Levels are planned and built as you go down, this many below the
+    // deepest player (the top this many when New York loads): at least 2,
+    // so the level under you is solid before you drop into it.
+    plan_ahead: 2,
     // Cells across (x) and deep (z) on every level; a cell is 6 m.
     width: 6,
     depth: 6,

@@ -77,6 +77,10 @@ pub struct Tuning {
     pub station_at: (f32, f32),
     /// How many levels deep it goes (the J is on the last).
     pub levels: usize,
+    /// Levels are planned and built as people go down: this many below the
+    /// deepest body in the station (and the top this many when New York loads).
+    #[serde(default)]
+    pub plan_ahead: usize,
     /// Cells across (x) on every level.
     pub width: usize,
     /// Cells deep (z) on every level.
@@ -789,23 +793,56 @@ fn fallback(w: usize, h: usize, ask: &LevelAsk) -> Level {
     level
 }
 
-/// The whole station: every level, top first. Pure and seeded.
-pub fn generate(t: &Tuning, set: &TileSet) -> Vec<Level> {
-    let (w, h) = (t.width.max(3), t.depth.max(3));
-    let mut rng = wfc::Rng::new(t.seed);
-    let vars = variants(set);
-    let mut levels = Vec::with_capacity(t.levels);
-    let mut arrive = (w / 2, 0);
-    let mut landing = None;
-    let mut under = vec![false; w * h];
-    for l in 0..t.levels.max(1) {
-        let last = l + 1 == t.levels.max(1);
+/// The station's plan so far, planned a level at a time (each takes a WFC
+/// solve): the same levels [`generate`] makes, in the same order, from the
+/// same seed, however many are planned at once. Every peer plans its own copy.
+#[derive(Clone)]
+pub struct StationPlan {
+    rng: wfc::Rng,
+    vars: Vec<Var>,
+    size: (usize, usize),
+    total: usize,
+    arrive: wfc::Cell,
+    landing: Option<wfc::Side>,
+    /// Cells under the last planned level's track beds.
+    under: Vec<bool>,
+    /// The levels planned so far, top first.
+    pub levels: Vec<Level>,
+}
+
+impl StationPlan {
+    /// Nothing planned yet.
+    pub fn new(t: &Tuning, set: &TileSet) -> Self {
+        let (w, h) = (t.width.max(3), t.depth.max(3));
+        StationPlan {
+            rng: wfc::Rng::new(t.seed),
+            vars: variants(set),
+            size: (w, h),
+            total: t.levels.max(1),
+            arrive: (w / 2, 0),
+            landing: None,
+            under: vec![false; w * h],
+            levels: Vec::with_capacity(t.levels.max(1)),
+        }
+    }
+
+    /// Every level is planned.
+    pub fn done(&self) -> bool {
+        self.levels.len() >= self.total
+    }
+
+    /// Plan the next level down (`None` when the station is all planned).
+    pub fn plan_next(&mut self, t: &Tuning) -> Option<&Level> {
+        if self.done() {
+            return None;
+        }
+        let l = self.levels.len();
         let ask = LevelAsk {
-            arrive,
-            landing,
-            last,
+            arrive: self.arrive,
+            landing: self.landing,
+            last: l + 1 == self.total,
             min_path: t.min_path,
-            under: &under,
+            under: &self.under,
             platform_cells: if platform_level(t, l) {
                 t.platform_cells.max(2)
             } else {
@@ -814,17 +851,29 @@ pub fn generate(t: &Tuning, set: &TileSet) -> Vec<Level> {
             platform_max: t.platform_max.max(t.platform_cells.max(2)),
             rooms: &t.rooms,
         };
-        let level = if vars.is_empty() {
-            fallback(w, h, &ask)
+        let level = if self.vars.is_empty() {
+            fallback(self.size.0, self.size.1, &ask)
         } else {
-            plan_level(&mut rng, (w, h), &ask, &vars)
+            plan_level(&mut self.rng, self.size, &ask, &self.vars)
         };
-        arrive = level.goal;
-        landing = Some(level.goal_entry.opposite());
-        under = level.cells.iter().map(|f| f.track != 0).collect();
-        levels.push(level);
+        self.arrive = level.goal;
+        self.landing = Some(level.goal_entry.opposite());
+        self.under = level.cells.iter().map(|f| f.track != 0).collect();
+        self.levels.push(level);
+        self.levels.last()
     }
-    levels
+
+    /// Plan until at least `n` levels (or all of them) are planned.
+    pub fn plan_to(&mut self, t: &Tuning, n: usize) {
+        while self.levels.len() < n && self.plan_next(t).is_some() {}
+    }
+}
+
+/// The whole station: every level, top first. Pure and seeded.
+pub fn generate(t: &Tuning, set: &TileSet) -> Vec<Level> {
+    let mut plan = StationPlan::new(t, set);
+    plan.plan_to(t, usize::MAX);
+    plan.levels
 }
 
 /// Does level `l` get subway platforms? Every [`Tuning::platform_every`]
@@ -1119,7 +1168,11 @@ pub fn start_at(t: &Tuning, levels: &[Level]) -> Vec3 {
 }
 
 /// The middle of the J platform (on the platform side of its cell).
+/// `None` until the last level is planned.
 pub fn platform_at(t: &Tuning, levels: &[Level]) -> Option<Vec3> {
+    if levels.len() < t.levels.max(1) {
+        return None;
+    }
     let li = levels.len().checked_sub(1)?;
     let l = &levels[li];
     let f = l.fill(l.goal);
@@ -1209,10 +1262,122 @@ pub fn entrance_colliders(t: &Tuning) -> Vec<Block> {
 
 // ------------------------------------------------------------------ server
 
-/// The station everyone builds from the data files.
+/// The station everyone builds from the data files, planned a level at a
+/// time as people go down ([`plan_station`]): a level that isn't in
+/// [`Station::levels`] yet isn't planned (or built) yet.
 #[derive(Resource)]
 pub struct Station {
-    pub levels: Vec<Level>,
+    plan: StationPlan,
+    /// Plan at least this many levels (features that need levels nobody
+    /// has reached yet ask for them with [`Station::want`]).
+    want: usize,
+}
+
+impl Station {
+    /// The top [`Tuning::plan_ahead`] levels planned.
+    pub fn new(t: &Tuning, set: &TileSet) -> Self {
+        let mut plan = StationPlan::new(t, set);
+        plan.plan_to(t, t.plan_ahead.max(1));
+        Station { plan, want: 0 }
+    }
+
+    /// The levels planned so far, top first.
+    pub fn levels(&self) -> &[Level] {
+        &self.plan.levels
+    }
+
+    /// Ask for at least `n` levels to be planned (a level a frame).
+    pub fn want(&mut self, n: usize) {
+        self.want = self.want.max(n);
+    }
+
+    /// Are the top `n` levels (or all there are) planned?
+    pub fn has(&self, t: &Tuning, n: usize) -> bool {
+        self.plan.levels.len() >= n.min(t.levels.max(1))
+    }
+}
+
+/// Pure: how many levels should be planned with bodies on these levels
+/// (`None`: not in the station): [`Tuning::plan_ahead`] below the deepest,
+/// and never fewer than `want`.
+pub fn levels_wanted(t: &Tuning, deepest: Option<usize>, want: usize) -> usize {
+    let ahead = t.plan_ahead.max(1);
+    let by_body = deepest.map_or(ahead, |l| l + 1 + ahead);
+    by_body.max(want).min(t.levels.max(1))
+}
+
+/// Pure: which levels' colliders should stand with bodies on these levels:
+/// the top [`Tuning::plan_ahead`], and around each body the level above to
+/// [`Tuning::plan_ahead`] below (the level under you is always solid before
+/// you can drop into it).
+pub fn levels_built(t: &Tuning, bodies: &[usize], planned: usize) -> Vec<usize> {
+    let ahead = t.plan_ahead.max(1);
+    let mut out: Vec<usize> = (0..ahead).collect();
+    for &l in bodies {
+        out.extend(l.saturating_sub(1)..=l + ahead);
+    }
+    out.sort_unstable();
+    out.dedup();
+    out.retain(|&l| l < planned);
+    out
+}
+
+/// The levels of the bodies in the station.
+fn body_levels<'a>(walkers: impl Iterator<Item = &'a Walker>) -> Vec<usize> {
+    walkers
+        .filter(|w| in_station(w.pos))
+        .map(|w| level_at(w.pos.y))
+        .collect()
+}
+
+/// Every peer: plan the next level when someone is getting near the bottom
+/// of the plan (or a feature asked for more), one a frame.
+pub fn plan_station(mut station: ResMut<Station>, walkers: Query<&Walker>) {
+    let t = tuning();
+    let deepest = body_levels(walkers.iter()).into_iter().max();
+    let n = levels_wanted(&t, deepest, station.want);
+    if station.plan.levels.len() < n {
+        station.plan.plan_next(&t);
+    }
+}
+
+/// One level's colliders (a parent in New York's colliders layer).
+#[derive(Component)]
+pub struct LevelSim(pub usize);
+
+/// Every peer: the colliders of the levels near someone ([`levels_built`]),
+/// spawned as they're planned, gone when nobody is near.
+fn build_levels(
+    mut commands: Commands,
+    station: Res<Station>,
+    walkers: Query<&Walker>,
+    built: Query<(Entity, &LevelSim)>,
+) {
+    let t = tuning();
+    let want = levels_built(&t, &body_levels(walkers.iter()), station.levels().len());
+    let mut have = Vec::new();
+    for (e, l) in &built {
+        if want.contains(&l.0) {
+            have.push(l.0);
+        } else {
+            commands.entity(e).despawn();
+        }
+    }
+    for &li in want.iter().filter(|l| !have.contains(l)) {
+        let level = &station.levels()[li];
+        let root = commands
+            .spawn((LevelSim(li), Transform::default(), crate::area::sim()))
+            .id();
+        // Colliders never wait on a model: boxes from the plan.
+        for b in colliders(&t, li, level) {
+            commands.spawn((
+                Transform::from_translation(b.centre).with_rotation(b.rotation),
+                avian3d::prelude::RigidBody::Static,
+                avian3d::prelude::Collider::cuboid(b.size.x, b.size.y, b.size.z),
+                ChildOf(root),
+            ));
+        }
+    }
 }
 
 /// Server: players already rewarded this game.
@@ -1269,7 +1434,7 @@ fn go_down(station: Res<Station>, mut bodies: Query<Body>) {
     let t = tuning();
     for (_, mut walker, input, kcc) in &mut bodies {
         if entering(&t, walker.pos) {
-            put(start_at(&t, &station.levels), &mut walker, input, kcc);
+            put(start_at(&t, station.levels()), &mut walker, input, kcc);
         }
     }
 }
@@ -1282,7 +1447,7 @@ fn reward(
 ) {
     let t = tuning();
     for (p, w, mut stats) in &mut players {
-        if on_platform(&t, &station.levels, w.pos) && done.0.insert(p.id) {
+        if on_platform(&t, station.levels(), w.pos) && done.0.insert(p.id) {
             stats.earn_pelf(t.reward_pelf);
         }
     }
@@ -1304,9 +1469,9 @@ fn leave(
     };
     let t = tuning();
     let post = if ev.ride {
-        platform_at(&t, &station.levels)
+        platform_at(&t, station.levels())
     } else {
-        Some(start_at(&t, &station.levels))
+        Some(start_at(&t, station.levels()))
     };
     if !post.is_some_and(|p| within(walker.pos, p, SERVER_REACH + 3.0)) {
         deny(&mut commands, ev.client_id, "too far away: walk closer");
@@ -1320,6 +1485,15 @@ fn leave(
 pub fn plugin(app: &mut App) {
     crate::area::on_sim(app, build_sim);
     crate::area::on_show(app, build_station.after(build_sim));
+    app.add_systems(
+        PreUpdate,
+        (plan_station, build_levels)
+            .chain()
+            .after(build_sim)
+            .run_if(in_state(AppState::InGame))
+            .run_if(resource_exists::<Station>)
+            .run_if(friendslop_base::areas::live(crate::area::NYC)),
+    );
     crate::features::start::provide(starts);
     app.add_observer(click)
         .add_systems(OnExit(AppState::InGame), |mut commands: Commands| {
@@ -1352,9 +1526,89 @@ fn click(ev: On<Clicked>, mut commands: Commands, posts: Query<&Post>) {
     }
 }
 
-/// The models of one level, spawned while the camera is near it.
+/// The models of one level, spawned while the camera is near it (other
+/// features dress it too: the hunt's lockers).
 #[derive(Component)]
-struct LevelModels(usize);
+pub struct LevelModels(pub usize);
+
+/// The way-out posts' meshes, made once.
+struct PostLook {
+    cube: Handle<Mesh>,
+    pole: Handle<StandardMaterial>,
+    sign: Handle<StandardMaterial>,
+}
+
+impl PostLook {
+    fn new(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) -> Self {
+        PostLook {
+            cube: meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
+            pole: materials.add(Color::srgb(0.2, 0.3, 0.22)),
+            sign: materials.add(Color::srgb(0.6, 0.4, 0.2)),
+        }
+    }
+}
+
+/// A level's ways on and off, children of its `root`: its stairs down
+/// glow where you step onto them, the top has the way-out post and the
+/// J's level the ride post.
+fn level_ways(
+    commands: &mut Commands,
+    t: &Tuning,
+    levels: &[Level],
+    li: usize,
+    root: Entity,
+    look: &mut PostLook,
+) {
+    use crate::features::doorway::Doorway;
+    let level = &levels[li];
+    if level.fill(level.goal).kind == Kind::Stairs {
+        let side = dir(level.goal_entry);
+        let e = crate::area::doorway(
+            commands,
+            cell_world(t, li, level.goal) + side * (CELL / 2.0 - 0.4),
+            crate::features::doorway::yaw_towards(-side.xz()),
+            Doorway::new(
+                crate::features::doorway::Way::Down,
+                format!("level {}", li + 2),
+            )
+            .size(2.6, 2.6),
+        );
+        commands.entity(e).insert(ChildOf(root));
+    }
+    let mut posts = Vec::new();
+    if li == 0 {
+        posts.push((start_at(t, levels), false, t.exit_label.clone()));
+    }
+    if let Some(at) = platform_at(t, levels) {
+        posts.push((at, true, t.ride_label.clone()));
+    }
+    for (at, ride, label) in posts {
+        let way_out = Doorway::way_out(label.clone()).size(1.6, 2.4);
+        commands
+            .spawn((
+                Post { ride },
+                way_out,
+                Transform::from_translation(at + Vec3::new(1.8, 0.0, 0.0)),
+                Visibility::default(),
+                Clickable::at_height(1.6)
+                    .radius(60.0)
+                    .labelled(label.leak()),
+                ChildOf(root),
+            ))
+            .with_children(|p| {
+                p.spawn((
+                    Mesh3d(look.cube.clone()),
+                    MeshMaterial3d(look.pole.clone()),
+                    Transform::from_xyz(0.0, 1.1, 0.0).with_scale(Vec3::new(0.12, 2.2, 0.12)),
+                ));
+                p.spawn((
+                    Mesh3d(look.cube.clone()),
+                    MeshMaterial3d(look.sign.clone()),
+                    Transform::from_xyz(0.0, 1.9, 0.0).with_scale(Vec3::new(1.2, 0.35, 0.06)),
+                ));
+            });
+    }
+}
 
 #[derive(Component)]
 struct StationLight;
@@ -1365,16 +1619,10 @@ fn model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
     )
 }
 
-fn build_station(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    assets: Res<AssetServer>,
-    station: Option<Res<Station>>,
-) {
+fn build_station(mut commands: Commands, assets: Res<AssetServer>, station: Option<Res<Station>>) {
     let t = tuning();
     let Some(station) = station else { return };
-    let levels = &station.levels;
+    let levels = station.levels();
     // The entrance on the sidewalk: the city's subway entrance model over
     // its hole in the street, with its stairs and walls as colliders.
     let at = entrance_at(&t);
@@ -1397,62 +1645,6 @@ fn build_station(
             t.entrance_yaw.to_radians(),
             Doorway::way_in("Fulton St").size(h.size.0, 2.6),
         );
-        // Every level's stairs down glow too, where you step onto them.
-        for (li, level) in levels.iter().enumerate() {
-            if level.fill(level.goal).kind != Kind::Stairs {
-                continue;
-            }
-            let side = dir(level.goal_entry);
-            spawn(
-                &mut commands,
-                cell_world(&t, li, level.goal) + side * (CELL / 2.0 - 0.4),
-                crate::features::doorway::yaw_towards(-side.xz()),
-                Doorway::new(
-                    crate::features::doorway::Way::Down,
-                    format!("level {}", li + 2),
-                )
-                .size(2.6, 2.6),
-            );
-        }
-    }
-    // The way-out posts: top level, and on the J platform.
-    let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
-    let pole = materials.add(Color::srgb(0.2, 0.3, 0.22));
-    let sign = materials.add(Color::srgb(0.6, 0.4, 0.2));
-    let posts = [
-        (start_at(&t, levels), false, t.exit_label.clone()),
-        (
-            platform_at(&t, levels).unwrap_or_else(|| start_at(&t, levels)),
-            true,
-            t.ride_label.clone(),
-        ),
-    ];
-    for (at, ride, label) in posts {
-        let way_out = crate::features::doorway::Doorway::way_out(label.clone()).size(1.6, 2.4);
-        commands
-            .spawn((
-                Post { ride },
-                way_out,
-                Transform::from_translation(at + Vec3::new(1.8, 0.0, 0.0)),
-                Visibility::default(),
-                // Labels are read once a game from the data file.
-                Clickable::at_height(1.6)
-                    .radius(60.0)
-                    .labelled(label.leak()),
-                crate::area::show(),
-            ))
-            .with_children(|p| {
-                p.spawn((
-                    Mesh3d(cube.clone()),
-                    MeshMaterial3d(pole.clone()),
-                    Transform::from_xyz(0.0, 1.1, 0.0).with_scale(Vec3::new(0.12, 2.2, 0.12)),
-                ));
-                p.spawn((
-                    Mesh3d(cube.clone()),
-                    MeshMaterial3d(sign.clone()),
-                    Transform::from_xyz(0.0, 1.9, 0.0).with_scale(Vec3::new(1.2, 0.35, 0.06)),
-                ));
-            });
     }
     commands.spawn((
         StationLight,
@@ -1466,8 +1658,8 @@ fn build_station(
         Visibility::Hidden,
         crate::area::show(),
     ));
-    // Its reflections: one probe baked in a hall (or the arrival), used on
-    // every level (they all look alike).
+    // Its reflections: one probe baked in a hall of the top levels (or the
+    // arrival), used on every level (they all look alike).
     let bake_at = levels
         .iter()
         .enumerate()
@@ -1487,29 +1679,13 @@ fn build_station(
 }
 
 /// The station's plan (once a game, every peer: replicated state and the
-/// server's systems read it) and its colliders, in New York's colliders layer.
+/// server's systems read it; only its top levels now, the rest as people go
+/// down) and the entrance's colliders, in New York's colliders layer. The
+/// levels' colliders come from [`build_levels`].
 pub fn build_sim(mut commands: Commands, station: Option<Res<Station>>) {
     let t = tuning();
-    let levels = match station {
-        Some(s) => s.levels.clone(),
-        None => {
-            let levels = generate(&t, &TILES.get());
-            commands.insert_resource(Station {
-                levels: levels.clone(),
-            });
-            levels
-        }
-    };
-    // Colliders never wait on a model: boxes from the plan, every level.
-    for (li, level) in levels.iter().enumerate() {
-        for b in colliders(&t, li, level) {
-            commands.spawn((
-                Transform::from_translation(b.centre).with_rotation(b.rotation),
-                avian3d::prelude::RigidBody::Static,
-                avian3d::prelude::Collider::cuboid(b.size.x, b.size.y, b.size.z),
-                crate::area::sim(),
-            ));
-        }
+    if station.is_none() {
+        commands.insert_resource(Station::new(&t, &TILES.get()));
     }
     for b in entrance_colliders(&t) {
         commands.spawn((
@@ -1522,8 +1698,8 @@ pub fn build_sim(mut commands: Commands, station: Option<Res<Station>>) {
 }
 
 /// `FRIENDSLOP_START=fulton` starts you on the top level. Every lookup of
-/// any start asks this, and planning all the levels takes most of a second,
-/// so the answer is worked out once and kept.
+/// any start asks this, so the answer (the top level, planned alone) is
+/// worked out once and kept.
 fn starts() -> Vec<(String, Vec3)> {
     static AT: std::sync::Mutex<Option<Vec3>> = std::sync::Mutex::new(None);
     if let Ok(at) = AT.lock()
@@ -1532,7 +1708,9 @@ fn starts() -> Vec<(String, Vec3)> {
         return vec![("fulton".into(), at)];
     }
     let t = tuning();
-    let levels = generate(&t, &TILES.get());
+    let mut plan = StationPlan::new(&t, &TILES.get());
+    plan.plan_to(&t, 1);
+    let levels = plan.levels;
     let at = start_at(&t, &levels);
     // Only keep a real plan (not one made before the data files loaded).
     if !levels.is_empty()
@@ -1640,13 +1818,16 @@ fn stream_levels(
     assets: Res<AssetServer>,
     camera: Query<&GlobalTransform, With<crate::world::MainCamera>>,
     spawned: Query<(Entity, &LevelModels)>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let t = tuning();
+    let mut posts = PostLook::new(&mut meshes, &mut materials);
     let want: Vec<usize> = match camera_at(&camera) {
         Some(at) if in_station(at - Vec3::Y * 1.6) => {
             let l = level_at(at.y - 1.6);
             (l.saturating_sub(1)..=l + 1)
-                .filter(|&l| l < station.levels.len())
+                .filter(|&l| l < station.levels().len())
                 .collect()
         }
         _ => Vec::new(),
@@ -1661,7 +1842,7 @@ fn stream_levels(
     }
     let set = TILES.get();
     for &li in want.iter().filter(|l| !have.contains(l)) {
-        let level = &station.levels[li];
+        let level = &station.levels()[li];
         let root = commands
             .spawn((
                 LevelModels(li),
@@ -1670,6 +1851,7 @@ fn stream_levels(
                 crate::area::show(),
             ))
             .id();
+        level_ways(&mut commands, &t, station.levels(), li, root, &mut posts);
         // The level's reflections.
         if !friendslop_base::probes::baking() {
             let (w, d) = (level.width as f32 * CELL, level.depth as f32 * CELL);
@@ -1870,7 +2052,7 @@ fn toasts(
     };
     let t = tuning();
     let here = in_station(w.pos).then(|| level_at(w.pos.y));
-    let on = on_platform(&t, &station.levels, w.pos);
+    let on = on_platform(&t, station.levels(), w.pos);
     if on && !found.1 {
         toast.show(if found.0 {
             t.again_line.clone()
@@ -1887,7 +2069,7 @@ fn toasts(
             toast.show(
                 t.level_line
                     .replace("{n}", &(l + 1).to_string())
-                    .replace("{of}", &station.levels.len().to_string()),
+                    .replace("{of}", &t.levels.max(1).to_string()),
             );
         }
     }
@@ -2161,6 +2343,52 @@ mod tests {
             "{with_rooms} of {}",
             levels.len()
         );
+    }
+
+    #[test]
+    fn planning_a_level_at_a_time_makes_the_same_station() {
+        let (t, set) = data();
+        let all = generate(&t, &set);
+        let mut plan = StationPlan::new(&t, &set);
+        plan.plan_to(&t, t.plan_ahead);
+        assert_eq!(plan.levels.len(), t.plan_ahead);
+        // Some now, more later, one at a time, as people go down.
+        while plan.plan_next(&t).is_some() {
+            if plan.levels.len() == 7 {
+                plan.plan_to(&t, 12);
+            }
+        }
+        assert!(plan.done());
+        assert_eq!(plan.levels.len(), all.len());
+        for (a, b) in plan.levels.iter().zip(&all) {
+            assert!(a.cells == b.cells && a.path == b.path);
+            assert_eq!(
+                (a.arrive, a.goal, a.goal_entry),
+                (b.arrive, b.goal, b.goal_entry)
+            );
+        }
+        // The J only shows up once its level is planned.
+        assert!(platform_at(&t, &all[..all.len() - 1]).is_none());
+        assert!(platform_at(&t, &all).is_some());
+    }
+
+    #[test]
+    fn levels_are_planned_and_built_ahead_of_the_deepest() {
+        let (t, _) = data();
+        assert!(
+            t.plan_ahead >= 2,
+            "the level under you is built before you drop"
+        );
+        assert_eq!(levels_wanted(&t, None, 0), t.plan_ahead);
+        assert_eq!(levels_wanted(&t, Some(5), 0), 6 + t.plan_ahead);
+        assert_eq!(levels_wanted(&t, Some(1), 12), 12);
+        assert_eq!(levels_wanted(&t, Some(t.levels - 1), 0), t.levels);
+        let built = levels_built(&t, &[10], 40);
+        for l in 9..=10 + t.plan_ahead {
+            assert!(built.contains(&l), "{l}");
+        }
+        assert!(built.contains(&0) && !built.contains(&20));
+        assert!(!levels_built(&t, &[10], 11).contains(&11));
     }
 
     #[test]

@@ -56,6 +56,8 @@ pub struct Clickable {
     pub radius_px: f32,
     /// What clicking does, shown in the hover hint ("pet the cat").
     pub label: Option<&'static str>,
+    /// Extra metres of reach (a big thing's body is that much closer than its middle).
+    pub reach_bonus: f32,
 }
 
 impl Clickable {
@@ -64,6 +66,7 @@ impl Clickable {
             height,
             radius_px: tuning().click_radius,
             label: None,
+            reach_bonus: 0.0,
         }
     }
 
@@ -71,6 +74,17 @@ impl Clickable {
     pub fn labelled(mut self, label: &'static str) -> Self {
         self.label = Some(label);
         self
+    }
+
+    /// Reachable from `metres` further away than [`REACH`].
+    pub fn reach_bonus(mut self, metres: f32) -> Self {
+        self.reach_bonus = metres;
+        self
+    }
+
+    /// How far from your feet this one can be used.
+    pub fn reach(&self) -> f32 {
+        REACH + self.reach_bonus.max(0.0)
     }
 
     pub fn radius(mut self, px: f32) -> Self {
@@ -216,7 +230,7 @@ fn candidates(
                 screen,
                 radius_px: c.radius_px,
                 gap: ray_gap(ray.origin, *ray.direction, foot, c.height + 0.25),
-                in_reach: here.is_some_and(|h| within(h, foot, REACH)),
+                in_reach: here.is_some_and(|h| within(h, foot, c.reach())),
             })
         })
         .collect()
@@ -288,7 +302,7 @@ fn hover_hint(
         Some(Aim {
             at: cursor,
             label: c.label,
-            in_reach: within(here, tf.translation(), REACH),
+            in_reach: within(here, tf.translation(), c.reach()),
         })
     })();
     if hover.0 != target {
@@ -357,10 +371,10 @@ fn click(
     let Some(target) = pick_forgiving(cursor, tuning().aim_slack, seen) else {
         return;
     };
-    let Ok((_, _, target_tf, _)) = clickables.get(target) else {
+    let Ok((_, target_c, target_tf, _)) = clickables.get(target) else {
         return;
     };
-    if !within(here, target_tf.translation(), REACH) {
+    if !within(here, target_tf.translation(), target_c.reach()) {
         toast.show("too far away: walk closer");
         return;
     }

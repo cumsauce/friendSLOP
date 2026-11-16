@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "claw-machine",
   "parts": [],
-  "version": 64,
+  "version": 27,
   "ops": [
     {
       "primitive": {
@@ -1421,6 +1421,553 @@
             "params": {}
           }
         }
+      }
+    },
+    {
+      "primitive": {
+        "name": "bin_wall_x",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.14,
+          0.27
+        ],
+        "translation": [
+          0.16,
+          1.12,
+          0.295
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "bin_wall_z",
+        "kind": "box",
+        "size": [
+          0.27,
+          0.14,
+          0.02
+        ],
+        "translation": [
+          0.295,
+          1.12,
+          0.16
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "bin_hole",
+        "kind": "box",
+        "size": [
+          0.26,
+          0.004,
+          0.26
+        ],
+        "translation": [
+          0.295,
+          1.052,
+          0.295
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "pit_rail_l",
+        "kind": "box",
+        "size": [
+          0.03,
+          0.03,
+          0.84
+        ],
+        "translation": [
+          -0.41,
+          1.72,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "pit_rail_r",
+        "kind": "box",
+        "size": [
+          0.03,
+          0.03,
+          0.84
+        ],
+        "translation": [
+          0.41,
+          1.72,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "bin_wall_x",
+        "input": "bin_wall_x",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bin_wall_z",
+        "input": "bin_wall_z",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bin_hole",
+        "input": "bin_hole",
+        "base_color": [
+          0.06666667,
+          0.06666667,
+          0.06666667,
+          1.0
+        ],
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fa-glossy",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 21,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "v",
+                "to": [
+                  0.96,
+                  1.0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#f8f8f8",
+                "b": "v",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "r",
+                "to": [
+                  0.18,
+                  0.3
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "clearcoat": 0.4,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pit_rail_l",
+        "input": "pit_rail_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pit_rail_r",
+        "input": "pit_rail_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "rail",
+        "input": "rail",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "trolley",
+        "input": "trolley",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "cable",
+        "input": "cable",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "claw_hub",
+        "input": "claw_hub",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "prong",
+        "input": "prong",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "prongs_1",
+        "input": "prongs_1",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "prongs_2",
+        "input": "prongs_2",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "plush_a",
+        "input": "plush_a",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "plush_b",
+        "input": "plush_b",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "plush_c",
+        "input": "plush_c",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "plush_d",
+        "input": "plush_d",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "plush_e",
+        "input": "plush_e",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "plush_f",
+        "input": "plush_f",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "plush_g",
+        "input": "plush_g",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "plush_h",
+        "input": "plush_h",
+        "visible": false
       }
     }
   ],

@@ -80,7 +80,7 @@ now and then they all poop at once.
 Gangs of baby kittens prowl the avenue: get close and they charge, meowing, and swat your
 ankles until they knock you flying. Run: they're slower than you.
 
-**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, the bear (north forest), the goat (pond), Discord dates, rat twins, saying hi (T), toilets of feces that pop up near you (eat for 20 s of double speed), the Lily Garden by the pond (carry love letters between two shy women until they get together). Farts and feces pay Kori coins, spent on the claw machine by the gambling table for little figures you keep between games (main menu: Kori prizes) and can hold in your hand (the . key) for a little speed.
+**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, the bear (north forest), the goat (pond), Discord dates, rat twins, saying hi (T), toilets of feces that pop up near you (eat for 20 s of double speed), the Lily Garden by the pond (carry love letters between two shy women until they get together). Farts and feces pay Kori coins, spent on claw machines (by the gambling table, in every boba shop and on every subway platform) where you steer a real claw over a pit of tumbling figures and drop it, for little figures you keep between games (main menu: Kori prizes) and can hold in your hand (the . key) for a little speed.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
@@ -415,9 +415,14 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   speed boost and brown tint. `data/side/toilets.ron`, `features/toilets.rs`.
 - **Emotes with friends** (#383). U picks an emote, O offers it to a friend within 3 m, who
   accepts with O; both get a toast. No animation yet. `data/side/emotes.ron`.
-- **Kori coins and the claw machine** (#382). Farts and feces earn coins; a claw machine near the
-  gambling table wins figures saved on your machine, shown in the menu and held in hand (+walking
-  speed). `data/side/kori.ron`, `features/kori.rs`. Open: should coins buy more, or be saved?
+- **Kori coins and the claw machines** (#382, #459). Farts and feces earn coins. Claw machines
+  stand by the gambling table, in every boba shop and on every subway platform. A go (5 coins)
+  puts your eyes on the glass: steer the claw (walk keys / stick), drop it (Space / A), it closes,
+  lifts and carries back to the bin, and its grip slips. The figures are local physics balls you
+  can shove about; whatever falls in the bin is yours (one a go), saved on your machine, shown in
+  the menu and held in hand (+walking speed). Only you see your own claw move; everyone sees the
+  win. `data/side/kori.ron`, `features/kori.rs`. Open: should coins buy more, or be saved? Should
+  friends watch your go?
 - **The Lily Garden** (#384). Deliver letters between shy Marigold and Juniper until they meet on
   the bench. Sweet, never explicit. `data/side/lily_garden.ron`. Open: does it matter to the
   chapters?
@@ -537,6 +542,7 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
 - Kori.exe (#379): random feces toilets; eat for 20 s speed; +100%, one eater.
 - #377: The Jokah, laughing Michael Jackson impersonator walking Wendy's to J station; Fulton St loop.
 - catherine (#382): Kori coins from farts and poop buy claw machine figures; hold one for speed.
+- catherine (#459): a fully built claw machine game with physics, like Yakuza 0; one in every boba store and subway station.
 
 ## Open questions
 

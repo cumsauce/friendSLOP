@@ -54,6 +54,8 @@
         (id: "help", label: "controls (this)", keys: ["KeyH"], group: "screens"),
         (id: "copy", label: "copy the invite code", keys: ["KeyC"], pad: ["LeftTrigger2"], group: ""),
         (id: "confirm", label: "continue", keys: ["Enter"], pad: ["RightThumb"], group: "screens"),
+        (id: "claw_drop", label: "drop the claw", keys: ["Space"], group: ""),
+        (id: "claw_quit", label: "walk away from the claw machine", keys: ["Enter"], group: ""),
         (id: "back", label: "close / back", keys: ["Escape"], group: ""),
         (id: "settings", label: "settings / free the mouse", keys: ["Escape"], pad: ["Start"], group: "screens"),
         (id: "fps", label: "frame rate", keys: ["F3"], group: "screens"),
@@ -65,6 +67,7 @@
         (id: "phone", binds: [("South", "answer")], prompt: ["answer"]),
         (id: "chapter", binds: [("South", "confirm"), ("East", "back")], prompt: []),
         (id: "smoking", binds: [("South", "draw"), ("RightTrigger2", "draw")], prompt: ["draw"]),
+        (id: "claw", binds: [("South", "claw_drop")], prompt: ["claw_drop", "claw_quit"]),
         (id: "asleep", binds: [("South", "sleep")], prompt: ["sleep"]),
     ],
     // The action wheel (hold RB): pages of up to 8, clockwise from the top.

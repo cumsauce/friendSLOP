@@ -85,6 +85,9 @@ pub struct Jump {
     pub buffer: f32,
     /// Rising speed kept when the button is let go early (0..=1).
     pub release_cut: f32,
+    /// Holding the button jumps again the tick you land (bunny hopping):
+    /// no ground tick, so no friction eats your speed.
+    pub auto_hop: bool,
 }
 
 impl Jump {
@@ -93,6 +96,7 @@ impl Jump {
         coyote: 0.1,
         buffer: 0.1,
         release_cut: 0.5,
+        auto_hop: true,
     };
 }
 
@@ -135,7 +139,8 @@ impl JumpState {
             *t += dt;
         }
         let can = self.since_ground.is_some_and(|t| t <= tuning.coyote);
-        if self.buffered > 0.0 && can {
+        let hop = tuning.auto_hop && held && grounded;
+        if (self.buffered > 0.0 || hop) && can {
             self.buffered = 0.0;
             self.since_ground = None;
             self.rising = true;
@@ -574,13 +579,32 @@ mod tests {
             .count()
     }
 
+    const NO_HOP: Jump = Jump {
+        auto_hop: false,
+        ..Jump::NORMAL
+    };
+
     #[test]
-    fn a_press_on_the_ground_jumps_once() {
+    fn a_press_on_the_ground_jumps_once_without_auto_hop() {
         let mut s = JumpState::default();
         ticks(&mut s, false, true, 5);
-        assert!(s.tick(true, true, DT, &Jump::NORMAL));
+        assert!(s.tick(true, true, DT, &NO_HOP));
         // Holding does not bounce, on the ground or in the air.
-        assert_eq!(ticks(&mut s, true, true, 30), 0);
+        assert_eq!(
+            (0..30).filter(|_| s.tick(true, true, DT, &NO_HOP)).count(),
+            0
+        );
+    }
+
+    #[test]
+    fn holding_hops_again_the_tick_you_land() {
+        let mut s = JumpState::default();
+        ticks(&mut s, false, true, 2);
+        assert!(s.tick(true, true, DT, &Jump::NORMAL));
+        // In the air, held: no air jump.
+        assert_eq!(ticks(&mut s, true, false, 40), 0);
+        // Land still holding: hop at once.
+        assert!(s.tick(true, true, DT, &Jump::NORMAL));
     }
 
     #[test]

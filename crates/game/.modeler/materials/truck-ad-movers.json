@@ -1,0 +1,566 @@
+{
+  "name": "truck-ad-movers",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        4.6,
+        2.1
+      ],
+      "type": "transform"
+    },
+    {
+      "coords": "c",
+      "name": "band",
+      "points": [
+        [
+          0,
+          1.48
+        ],
+        [
+          4.6,
+          1.48
+        ],
+        [
+          4.6,
+          1.8
+        ],
+        [
+          0,
+          1.8
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "coords": "c",
+      "name": "swoosh",
+      "points": [
+        [
+          0,
+          0.2
+        ],
+        [
+          4.6,
+          0.35
+        ],
+        [
+          4.6,
+          0.27
+        ],
+        [
+          0,
+          0.12
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "center": [
+        2.3,
+        0.82
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "title",
+      "size": 0.42,
+      "text": "SLOP & SONS",
+      "type": "text"
+    },
+    {
+      "center": [
+        2.3,
+        1.24
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "sub",
+      "size": 0.16,
+      "text": "MOVING  ·  STORAGE  ·  REGRETS",
+      "type": "text"
+    },
+    {
+      "center": [
+        2.3,
+        1.64
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "phone",
+      "size": 0.19,
+      "text": "CALL 555-SLOP",
+      "type": "text"
+    },
+    {
+      "mode": "fill",
+      "name": "m_band",
+      "sdf": "band",
+      "type": "mask"
+    },
+    {
+      "mode": "fill",
+      "name": "m_sw",
+      "sdf": "swoosh",
+      "type": "mask"
+    },
+    {
+      "mode": "fill",
+      "name": "m_title",
+      "sdf": "title",
+      "type": "mask"
+    },
+    {
+      "mode": "fill",
+      "name": "m_sub",
+      "sdf": "sub",
+      "type": "mask"
+    },
+    {
+      "mode": "fill",
+      "name": "m_phone",
+      "sdf": "phone",
+      "type": "mask"
+    },
+    {
+      "a": "#1d3577",
+      "b": "#f39a1e",
+      "c": "m_band",
+      "name": "c0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c0",
+      "b": "#f39a1e",
+      "c": "m_sw",
+      "name": "c1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "#fbf7ee",
+      "c": "m_title",
+      "name": "c2",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c2",
+      "b": "#c9d4f2",
+      "c": "m_sub",
+      "name": "c3",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c3",
+      "b": "#1d1a16",
+      "c": "m_phone",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.5,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "truck-ad-movers",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                4.6,
+                2.1
+              ],
+              "type": "transform"
+            },
+            {
+              "coords": "c",
+              "name": "band",
+              "points": [
+                [
+                  0,
+                  0.3
+                ],
+                [
+                  4.6,
+                  0.3
+                ],
+                [
+                  4.6,
+                  0.62
+                ],
+                [
+                  0,
+                  0.62
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "coords": "c",
+              "name": "swoosh",
+              "points": [
+                [
+                  0,
+                  1.9
+                ],
+                [
+                  4.6,
+                  1.75
+                ],
+                [
+                  4.6,
+                  1.83
+                ],
+                [
+                  0,
+                  1.98
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "center": [
+                2.3,
+                1.32
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "title",
+              "size": 0.42,
+              "text": "SLOP & SONS",
+              "type": "text"
+            },
+            {
+              "center": [
+                2.3,
+                0.88
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "sub",
+              "size": 0.16,
+              "text": "MOVING  ·  STORAGE  ·  REGRETS",
+              "type": "text"
+            },
+            {
+              "center": [
+                2.3,
+                0.46
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "phone",
+              "size": 0.19,
+              "text": "CALL 555-SLOP",
+              "type": "text"
+            },
+            {
+              "mode": "fill",
+              "name": "m_band",
+              "sdf": "band",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "m_sw",
+              "sdf": "swoosh",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "m_title",
+              "sdf": "title",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "m_sub",
+              "sdf": "sub",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "m_phone",
+              "sdf": "phone",
+              "type": "mask"
+            },
+            {
+              "a": "#1d3577",
+              "b": "#f39a1e",
+              "c": "m_band",
+              "name": "c0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "#f39a1e",
+              "c": "m_sw",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#fbf7ee",
+              "c": "m_title",
+              "name": "c2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#c9d4f2",
+              "c": "m_sub",
+              "name": "c3",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#1d1a16",
+              "c": "m_phone",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+uv +c +band +swoosh +title +sub +phone +m_band +m_sw +m_title +m_sub +m_phone +c0 +c1 +c2 +c3 +col +out"
+      },
+      {
+        "model": {
+          "name": "truck-ad-movers",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                4.6,
+                2.1
+              ],
+              "type": "transform"
+            },
+            {
+              "coords": "c",
+              "name": "band",
+              "points": [
+                [
+                  0,
+                  1.48
+                ],
+                [
+                  4.6,
+                  1.48
+                ],
+                [
+                  4.6,
+                  1.8
+                ],
+                [
+                  0,
+                  1.8
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "coords": "c",
+              "name": "swoosh",
+              "points": [
+                [
+                  0,
+                  0.2
+                ],
+                [
+                  4.6,
+                  0.35
+                ],
+                [
+                  4.6,
+                  0.27
+                ],
+                [
+                  0,
+                  0.12
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "center": [
+                2.3,
+                0.82
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "title",
+              "size": 0.42,
+              "text": "SLOP & SONS",
+              "type": "text"
+            },
+            {
+              "center": [
+                2.3,
+                1.24
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "sub",
+              "size": 0.16,
+              "text": "MOVING  ·  STORAGE  ·  REGRETS",
+              "type": "text"
+            },
+            {
+              "center": [
+                2.3,
+                1.64
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "phone",
+              "size": 0.19,
+              "text": "CALL 555-SLOP",
+              "type": "text"
+            },
+            {
+              "mode": "fill",
+              "name": "m_band",
+              "sdf": "band",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "m_sw",
+              "sdf": "swoosh",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "m_title",
+              "sdf": "title",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "m_sub",
+              "sdf": "sub",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "m_phone",
+              "sdf": "phone",
+              "type": "mask"
+            },
+            {
+              "a": "#1d3577",
+              "b": "#f39a1e",
+              "c": "m_band",
+              "name": "c0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "#f39a1e",
+              "c": "m_sw",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#fbf7ee",
+              "c": "m_title",
+              "name": "c2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#c9d4f2",
+              "c": "m_sub",
+              "name": "c3",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#1d1a16",
+              "c": "m_phone",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~band ~swoosh ~title ~sub ~phone"
+      }
+    ],
+    "current": 1
+  }
+}

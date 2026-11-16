@@ -1,0 +1,1190 @@
+{
+  "name": "sp-clock-dial",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        1,
+        1
+      ],
+      "type": "transform"
+    },
+    {
+      "name": "pn",
+      "octaves": 3,
+      "seed": 4,
+      "size": 0.1,
+      "type": "noise"
+    },
+    {
+      "input": "pn",
+      "name": "paper",
+      "stops": [
+        [
+          0,
+          "#e3dcc6"
+        ],
+        [
+          1,
+          "#efe8d4"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "center": [
+        0.5,
+        0.5
+      ],
+      "coords": "c",
+      "name": "ro",
+      "radius": 0.47,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.5,
+        0.5
+      ],
+      "coords": "c",
+      "name": "ri",
+      "radius": 0.455,
+      "type": "circle"
+    },
+    {
+      "name": "mro",
+      "sdf": "ro",
+      "type": "mask"
+    },
+    {
+      "name": "mri",
+      "sdf": "ri",
+      "type": "mask"
+    },
+    {
+      "a": "mro",
+      "b": "mri",
+      "name": "ring",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.5,
+        0.14
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "n0",
+      "size": 0.07,
+      "text": "XII",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.5,
+        0.06
+      ],
+      "coords": "c",
+      "name": "t0",
+      "radius": 0.012,
+      "type": "circle"
+    },
+    {
+      "a": "n0",
+      "b": "t0",
+      "name": "u0",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "m0",
+      "sdf": "u0",
+      "type": "mask"
+    },
+    {
+      "a": "ring",
+      "b": "m0",
+      "name": "a0",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.68,
+        0.1882
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "n1",
+      "size": 0.07,
+      "text": "I",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.72,
+        0.1189
+      ],
+      "coords": "c",
+      "name": "t1",
+      "radius": 0.012,
+      "type": "circle"
+    },
+    {
+      "a": "n1",
+      "b": "t1",
+      "name": "u1",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "m1",
+      "sdf": "u1",
+      "type": "mask"
+    },
+    {
+      "a": "a0",
+      "b": "m1",
+      "name": "a1",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.8118,
+        0.32
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "n2",
+      "size": 0.07,
+      "text": "II",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.8811,
+        0.28
+      ],
+      "coords": "c",
+      "name": "t2",
+      "radius": 0.012,
+      "type": "circle"
+    },
+    {
+      "a": "n2",
+      "b": "t2",
+      "name": "u2",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "m2",
+      "sdf": "u2",
+      "type": "mask"
+    },
+    {
+      "a": "a1",
+      "b": "m2",
+      "name": "a2",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.86,
+        0.5
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "n3",
+      "size": 0.07,
+      "text": "III",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.94,
+        0.5
+      ],
+      "coords": "c",
+      "name": "t3",
+      "radius": 0.012,
+      "type": "circle"
+    },
+    {
+      "a": "n3",
+      "b": "t3",
+      "name": "u3",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "m3",
+      "sdf": "u3",
+      "type": "mask"
+    },
+    {
+      "a": "a2",
+      "b": "m3",
+      "name": "a3",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.8118,
+        0.68
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "n4",
+      "size": 0.07,
+      "text": "IV",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.8811,
+        0.72
+      ],
+      "coords": "c",
+      "name": "t4",
+      "radius": 0.012,
+      "type": "circle"
+    },
+    {
+      "a": "n4",
+      "b": "t4",
+      "name": "u4",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "m4",
+      "sdf": "u4",
+      "type": "mask"
+    },
+    {
+      "a": "a3",
+      "b": "m4",
+      "name": "a4",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.68,
+        0.8118
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "n5",
+      "size": 0.07,
+      "text": "V",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.72,
+        0.8811
+      ],
+      "coords": "c",
+      "name": "t5",
+      "radius": 0.012,
+      "type": "circle"
+    },
+    {
+      "a": "n5",
+      "b": "t5",
+      "name": "u5",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "m5",
+      "sdf": "u5",
+      "type": "mask"
+    },
+    {
+      "a": "a4",
+      "b": "m5",
+      "name": "a5",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.5,
+        0.86
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "n6",
+      "size": 0.07,
+      "text": "VI",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.5,
+        0.94
+      ],
+      "coords": "c",
+      "name": "t6",
+      "radius": 0.012,
+      "type": "circle"
+    },
+    {
+      "a": "n6",
+      "b": "t6",
+      "name": "u6",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "m6",
+      "sdf": "u6",
+      "type": "mask"
+    },
+    {
+      "a": "a5",
+      "b": "m6",
+      "name": "a6",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.32,
+        0.8118
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "n7",
+      "size": 0.07,
+      "text": "VII",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.28,
+        0.8811
+      ],
+      "coords": "c",
+      "name": "t7",
+      "radius": 0.012,
+      "type": "circle"
+    },
+    {
+      "a": "n7",
+      "b": "t7",
+      "name": "u7",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "m7",
+      "sdf": "u7",
+      "type": "mask"
+    },
+    {
+      "a": "a6",
+      "b": "m7",
+      "name": "a7",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.1882,
+        0.68
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "n8",
+      "size": 0.07,
+      "text": "VIII",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.1189,
+        0.72
+      ],
+      "coords": "c",
+      "name": "t8",
+      "radius": 0.012,
+      "type": "circle"
+    },
+    {
+      "a": "n8",
+      "b": "t8",
+      "name": "u8",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "m8",
+      "sdf": "u8",
+      "type": "mask"
+    },
+    {
+      "a": "a7",
+      "b": "m8",
+      "name": "a8",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.14,
+        0.5
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "n9",
+      "size": 0.07,
+      "text": "IX",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.06,
+        0.5
+      ],
+      "coords": "c",
+      "name": "t9",
+      "radius": 0.012,
+      "type": "circle"
+    },
+    {
+      "a": "n9",
+      "b": "t9",
+      "name": "u9",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "m9",
+      "sdf": "u9",
+      "type": "mask"
+    },
+    {
+      "a": "a8",
+      "b": "m9",
+      "name": "a9",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.1882,
+        0.32
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "n10",
+      "size": 0.07,
+      "text": "X",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.1189,
+        0.28
+      ],
+      "coords": "c",
+      "name": "t10",
+      "radius": 0.012,
+      "type": "circle"
+    },
+    {
+      "a": "n10",
+      "b": "t10",
+      "name": "u10",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "m10",
+      "sdf": "u10",
+      "type": "mask"
+    },
+    {
+      "a": "a9",
+      "b": "m10",
+      "name": "a10",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.32,
+        0.1882
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "n11",
+      "size": 0.07,
+      "text": "XI",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.28,
+        0.1189
+      ],
+      "coords": "c",
+      "name": "t11",
+      "radius": 0.012,
+      "type": "circle"
+    },
+    {
+      "a": "n11",
+      "b": "t11",
+      "name": "u11",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "m11",
+      "sdf": "u11",
+      "type": "mask"
+    },
+    {
+      "a": "a10",
+      "b": "m11",
+      "name": "a11",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "paper",
+      "b": "#1c1a18",
+      "c": "a11",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sp-clock-dial",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1,
+                1
+              ],
+              "type": "transform"
+            },
+            {
+              "name": "pn",
+              "octaves": 3,
+              "seed": 4,
+              "size": 0.1,
+              "type": "noise"
+            },
+            {
+              "input": "pn",
+              "name": "paper",
+              "stops": [
+                [
+                  0,
+                  "#e3dcc6"
+                ],
+                [
+                  1,
+                  "#efe8d4"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "coords": "c",
+              "name": "ro",
+              "radius": 0.47,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "coords": "c",
+              "name": "ri",
+              "radius": 0.455,
+              "type": "circle"
+            },
+            {
+              "name": "mro",
+              "sdf": "ro",
+              "type": "mask"
+            },
+            {
+              "name": "mri",
+              "sdf": "ri",
+              "type": "mask"
+            },
+            {
+              "a": "mro",
+              "b": "mri",
+              "name": "ring",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.5,
+                0.14
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "n0",
+              "size": 0.07,
+              "text": "XII",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.5,
+                0.06
+              ],
+              "coords": "c",
+              "name": "t0",
+              "radius": 0.012,
+              "type": "circle"
+            },
+            {
+              "a": "n0",
+              "b": "t0",
+              "name": "u0",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "m0",
+              "sdf": "u0",
+              "type": "mask"
+            },
+            {
+              "a": "ring",
+              "b": "m0",
+              "name": "a0",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.68,
+                0.1882
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "n1",
+              "size": 0.07,
+              "text": "I",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.72,
+                0.1189
+              ],
+              "coords": "c",
+              "name": "t1",
+              "radius": 0.012,
+              "type": "circle"
+            },
+            {
+              "a": "n1",
+              "b": "t1",
+              "name": "u1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "m1",
+              "sdf": "u1",
+              "type": "mask"
+            },
+            {
+              "a": "a0",
+              "b": "m1",
+              "name": "a1",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.8118,
+                0.32
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "n2",
+              "size": 0.07,
+              "text": "II",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.8811,
+                0.28
+              ],
+              "coords": "c",
+              "name": "t2",
+              "radius": 0.012,
+              "type": "circle"
+            },
+            {
+              "a": "n2",
+              "b": "t2",
+              "name": "u2",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "m2",
+              "sdf": "u2",
+              "type": "mask"
+            },
+            {
+              "a": "a1",
+              "b": "m2",
+              "name": "a2",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.86,
+                0.5
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "n3",
+              "size": 0.07,
+              "text": "III",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.94,
+                0.5
+              ],
+              "coords": "c",
+              "name": "t3",
+              "radius": 0.012,
+              "type": "circle"
+            },
+            {
+              "a": "n3",
+              "b": "t3",
+              "name": "u3",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "m3",
+              "sdf": "u3",
+              "type": "mask"
+            },
+            {
+              "a": "a2",
+              "b": "m3",
+              "name": "a3",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.8118,
+                0.68
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "n4",
+              "size": 0.07,
+              "text": "IV",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.8811,
+                0.72
+              ],
+              "coords": "c",
+              "name": "t4",
+              "radius": 0.012,
+              "type": "circle"
+            },
+            {
+              "a": "n4",
+              "b": "t4",
+              "name": "u4",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "m4",
+              "sdf": "u4",
+              "type": "mask"
+            },
+            {
+              "a": "a3",
+              "b": "m4",
+              "name": "a4",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.68,
+                0.8118
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "n5",
+              "size": 0.07,
+              "text": "V",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.72,
+                0.8811
+              ],
+              "coords": "c",
+              "name": "t5",
+              "radius": 0.012,
+              "type": "circle"
+            },
+            {
+              "a": "n5",
+              "b": "t5",
+              "name": "u5",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "m5",
+              "sdf": "u5",
+              "type": "mask"
+            },
+            {
+              "a": "a4",
+              "b": "m5",
+              "name": "a5",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.5,
+                0.86
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "n6",
+              "size": 0.07,
+              "text": "VI",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.5,
+                0.94
+              ],
+              "coords": "c",
+              "name": "t6",
+              "radius": 0.012,
+              "type": "circle"
+            },
+            {
+              "a": "n6",
+              "b": "t6",
+              "name": "u6",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "m6",
+              "sdf": "u6",
+              "type": "mask"
+            },
+            {
+              "a": "a5",
+              "b": "m6",
+              "name": "a6",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.32,
+                0.8118
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "n7",
+              "size": 0.07,
+              "text": "VII",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.28,
+                0.8811
+              ],
+              "coords": "c",
+              "name": "t7",
+              "radius": 0.012,
+              "type": "circle"
+            },
+            {
+              "a": "n7",
+              "b": "t7",
+              "name": "u7",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "m7",
+              "sdf": "u7",
+              "type": "mask"
+            },
+            {
+              "a": "a6",
+              "b": "m7",
+              "name": "a7",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.1882,
+                0.68
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "n8",
+              "size": 0.07,
+              "text": "VIII",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.1189,
+                0.72
+              ],
+              "coords": "c",
+              "name": "t8",
+              "radius": 0.012,
+              "type": "circle"
+            },
+            {
+              "a": "n8",
+              "b": "t8",
+              "name": "u8",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "m8",
+              "sdf": "u8",
+              "type": "mask"
+            },
+            {
+              "a": "a7",
+              "b": "m8",
+              "name": "a8",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.14,
+                0.5
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "n9",
+              "size": 0.07,
+              "text": "IX",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.06,
+                0.5
+              ],
+              "coords": "c",
+              "name": "t9",
+              "radius": 0.012,
+              "type": "circle"
+            },
+            {
+              "a": "n9",
+              "b": "t9",
+              "name": "u9",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "m9",
+              "sdf": "u9",
+              "type": "mask"
+            },
+            {
+              "a": "a8",
+              "b": "m9",
+              "name": "a9",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.1882,
+                0.32
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "n10",
+              "size": 0.07,
+              "text": "X",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.1189,
+                0.28
+              ],
+              "coords": "c",
+              "name": "t10",
+              "radius": 0.012,
+              "type": "circle"
+            },
+            {
+              "a": "n10",
+              "b": "t10",
+              "name": "u10",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "m10",
+              "sdf": "u10",
+              "type": "mask"
+            },
+            {
+              "a": "a9",
+              "b": "m10",
+              "name": "a10",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.32,
+                0.1882
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "n11",
+              "size": 0.07,
+              "text": "XI",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.28,
+                0.1189
+              ],
+              "coords": "c",
+              "name": "t11",
+              "radius": 0.012,
+              "type": "circle"
+            },
+            {
+              "a": "n11",
+              "b": "t11",
+              "name": "u11",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "m11",
+              "sdf": "u11",
+              "type": "mask"
+            },
+            {
+              "a": "a10",
+              "b": "m11",
+              "name": "a11",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "paper",
+              "b": "#1c1a18",
+              "c": "a11",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +pn +paper +ro +ri +mro +mri +ring +n0 +t0 +u0 +m0 +a0 +n1 +t1 +u1 +m1 +a1 +n2 +t2 +u2 +m2 +a2 +n3 +t3 +u3 +m3 +a3 +n4 +t4 +u4 +m4 +a4 +n5 +t5 +u5 +m5 +a5 +n6 +t6 +u6 +m6 +a6 +n7 +t7 +u7 +m7 +a7 +n8 +t8 +u8 +m8 +a8 +n9 +t9 +u9 +m9 +a9 +n10 +t10 +u10 +m10 +a10 +n11 +t11 +u11 +m11 +a11 +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

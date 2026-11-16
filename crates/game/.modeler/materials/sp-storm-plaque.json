@@ -1,0 +1,671 @@
+{
+  "name": "sp-storm-plaque",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        0.78,
+        0.43
+      ],
+      "type": "transform"
+    },
+    {
+      "name": "vn",
+      "octaves": 4,
+      "seed": 31,
+      "size": 0.08,
+      "type": "noise"
+    },
+    {
+      "input": "vn",
+      "name": "bronze",
+      "stops": [
+        [
+          0,
+          "#4d3a22"
+        ],
+        [
+          0.55,
+          "#6b4f2c"
+        ],
+        [
+          0.8,
+          "#4f7a64"
+        ],
+        [
+          1,
+          "#5d8c74"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "center": [
+        0.39,
+        0.215
+      ],
+      "coords": "c",
+      "name": "bo",
+      "size": [
+        0.74,
+        0.39
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.39,
+        0.215
+      ],
+      "coords": "c",
+      "name": "bi",
+      "size": [
+        0.71,
+        0.36
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.39,
+        0.085
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "l1",
+      "size": 0.042,
+      "text": "IN MEMORY OF",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.39,
+        0.15
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "l2",
+      "size": 0.038,
+      "text": "THE GREAT STORM OF '21",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.39,
+        0.225
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "l3",
+      "size": 0.027,
+      "text": "WHICH TOPPLED GOVERNMENTS",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.39,
+        0.285
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "l4",
+      "size": 0.024,
+      "text": "THE WORLD IS STILL RECOVERING",
+      "type": "text"
+    },
+    {
+      "name": "mbo",
+      "sdf": "bo",
+      "type": "mask"
+    },
+    {
+      "name": "mbi",
+      "sdf": "bi",
+      "type": "mask"
+    },
+    {
+      "a": "mbo",
+      "b": "mbi",
+      "name": "border",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "a": "l1",
+      "b": "l2",
+      "name": "t12",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "l3",
+      "b": "l4",
+      "name": "t34",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "t12",
+      "b": "t34",
+      "name": "tall",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mt",
+      "sdf": "tall",
+      "type": "mask"
+    },
+    {
+      "a": "border",
+      "b": "mt",
+      "name": "raised",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "bronze",
+      "b": "#c9a15e",
+      "c": "raised",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.7,
+      "b": 0.3,
+      "c": "raised",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.5,
+      "b": 0.95,
+      "c": "raised",
+      "name": "met",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "raised",
+      "b": 0.003,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "metallic": "met",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sp-storm-plaque",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                0.78,
+                0.43
+              ],
+              "type": "transform"
+            },
+            {
+              "name": "vn",
+              "octaves": 4,
+              "seed": 31,
+              "size": 0.08,
+              "type": "noise"
+            },
+            {
+              "input": "vn",
+              "name": "bronze",
+              "stops": [
+                [
+                  0,
+                  "#4d3a22"
+                ],
+                [
+                  0.55,
+                  "#6b4f2c"
+                ],
+                [
+                  0.8,
+                  "#4f7a64"
+                ],
+                [
+                  1,
+                  "#5d8c74"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "center": [
+                0.39,
+                0.215
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                0.74,
+                0.39
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.39,
+                0.215
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                0.71,
+                0.36
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.39,
+                0.085
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "l1",
+              "size": 0.042,
+              "text": "IN MEMORY OF",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.39,
+                0.15
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "l2",
+              "size": 0.05,
+              "text": "THE GREAT STORM OF '21",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.39,
+                0.225
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "l3",
+              "size": 0.034,
+              "text": "WHICH TOPPLED GOVERNMENTS",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.39,
+                0.29
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "l4",
+              "size": 0.034,
+              "text": "THE WORLD IS STILL RECOVERING",
+              "type": "text"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": "l1",
+              "b": "l2",
+              "name": "t12",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "l3",
+              "b": "l4",
+              "name": "t34",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "t12",
+              "b": "t34",
+              "name": "tall",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "tall",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "raised",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "bronze",
+              "b": "#c9a15e",
+              "c": "raised",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.7,
+              "b": 0.3,
+              "c": "raised",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.5,
+              "b": 0.95,
+              "c": "raised",
+              "name": "met",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "raised",
+              "b": 0.003,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "metallic": "met",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+uv +c +vn +bronze +bo +bi +l1 +l2 +l3 +l4 +mbo +mbi +border +t12 +t34 +tall +mt +raised +col +rough +met +h +out"
+      },
+      {
+        "model": {
+          "name": "sp-storm-plaque",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                0.78,
+                0.43
+              ],
+              "type": "transform"
+            },
+            {
+              "name": "vn",
+              "octaves": 4,
+              "seed": 31,
+              "size": 0.08,
+              "type": "noise"
+            },
+            {
+              "input": "vn",
+              "name": "bronze",
+              "stops": [
+                [
+                  0,
+                  "#4d3a22"
+                ],
+                [
+                  0.55,
+                  "#6b4f2c"
+                ],
+                [
+                  0.8,
+                  "#4f7a64"
+                ],
+                [
+                  1,
+                  "#5d8c74"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "center": [
+                0.39,
+                0.215
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                0.74,
+                0.39
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.39,
+                0.215
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                0.71,
+                0.36
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.39,
+                0.085
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "l1",
+              "size": 0.042,
+              "text": "IN MEMORY OF",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.39,
+                0.15
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "l2",
+              "size": 0.038,
+              "text": "THE GREAT STORM OF '21",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.39,
+                0.225
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "l3",
+              "size": 0.027,
+              "text": "WHICH TOPPLED GOVERNMENTS",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.39,
+                0.285
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "l4",
+              "size": 0.024,
+              "text": "THE WORLD IS STILL RECOVERING",
+              "type": "text"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": "l1",
+              "b": "l2",
+              "name": "t12",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "l3",
+              "b": "l4",
+              "name": "t34",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "t12",
+              "b": "t34",
+              "name": "tall",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "tall",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "raised",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "bronze",
+              "b": "#c9a15e",
+              "c": "raised",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.7,
+              "b": 0.3,
+              "c": "raised",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.5,
+              "b": 0.95,
+              "c": "raised",
+              "name": "met",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "raised",
+              "b": 0.003,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "metallic": "met",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~l2 ~l3 ~l4"
+      }
+    ],
+    "current": 1
+  }
+}

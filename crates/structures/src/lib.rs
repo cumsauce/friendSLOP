@@ -20,6 +20,7 @@ use std::hash::Hash;
 
 use bevy::prelude::*;
 
+pub mod batch;
 pub mod build;
 pub mod furniture;
 pub mod grammar;

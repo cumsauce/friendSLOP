@@ -8,10 +8,14 @@
 //! them, `Option`s and `Vec`s already do; a struct uses [`crate::params!`]).
 
 pub mod comp;
+pub mod crush;
 pub mod drive;
+pub mod echo;
 pub mod filter;
 pub mod params;
+pub mod phaser;
 pub mod song_mix;
+pub mod transient;
 pub mod width;
 
 /// A field in an override: `None` when the song doesn't write it,

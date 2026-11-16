@@ -69,7 +69,8 @@
 // Optionally its own mix: `mix: { "<bus>": (<any mix.ron bus fields>) }` changes just those
 //   fields for this song (mix.ron's header lists them), and `mix_auto: [(bus, param, how,
 //   curve, bars, sections, not)]` lanes move a bus setting over time: bus is a mix.ron bus
-//   or "master"; param a setting's name (trim, chorus.mix, eq.1.db, master's feedback...);
+//   or "master"; param a setting's name (trim, chorus.mix, eq.1.db, drive.amount, filter.cutoff,
+//   master's feedback...: the full list is in mix.ron's header);
 //   how Add (default) | Times | Octaves | Set; curve Ramp(from, to) | Lfo(shape: Sine |
 //   Triangle | Saw | Down | Square, center, depth) | Steps([..]); bars one cycle's length
 //   (default 1; counted from the section's start); sections / not where it plays.

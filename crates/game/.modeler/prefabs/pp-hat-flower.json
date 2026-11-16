@@ -1,88 +1,117 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-hat-flower",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 63658,
   "ops": [
     {
       "sdf": {
-        "blend": 0.006,
         "name": "petals_raw",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
-              0.26,
+              0.258,
               0.12,
-              0.04
+              0.033
             ],
-            "shape": "ellipsoid",
+            "rotation": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
             "size": [
-              0.012,
-              0.03,
-              0.03
+              0.009,
+              0.019,
+              0.032
             ]
           },
           {
-            "at": [
-              0.26,
-              0.15804227,
-              0.01236068
-            ],
             "shape": "ellipsoid",
+            "at": [
+              0.258,
+              0.15138,
+              0.0102
+            ],
+            "rotation": [
+              -0.58778524,
+              0.0,
+              0.0,
+              0.809017
+            ],
             "size": [
-              0.012,
-              0.03,
-              0.03
+              0.009,
+              0.019,
+              0.032
             ]
           },
           {
-            "at": [
-              0.26,
-              0.14351141,
-              -0.03236068
-            ],
             "shape": "ellipsoid",
+            "at": [
+              0.258,
+              0.1394,
+              -0.0267
+            ],
+            "rotation": [
+              -0.95105654,
+              0.0,
+              0.0,
+              0.30901697
+            ],
             "size": [
-              0.012,
-              0.03,
-              0.03
+              0.009,
+              0.019,
+              0.032
             ]
           },
           {
-            "at": [
-              0.26,
-              0.09648859,
-              -0.03236068
-            ],
             "shape": "ellipsoid",
+            "at": [
+              0.258,
+              0.1006,
+              -0.0267
+            ],
+            "rotation": [
+              -0.95105654,
+              0.0,
+              0.0,
+              -0.30901694
+            ],
             "size": [
-              0.012,
-              0.03,
-              0.03
+              0.009,
+              0.019,
+              0.032
             ]
           },
           {
-            "at": [
-              0.26,
-              0.08195774,
-              0.01236068
-            ],
             "shape": "ellipsoid",
+            "at": [
+              0.258,
+              0.08862,
+              0.0102
+            ],
+            "rotation": [
+              -0.5877852,
+              0.0,
+              0.0,
+              -0.80901706
+            ],
             "size": [
-              0.012,
-              0.03,
-              0.03
+              0.009,
+              0.019,
+              0.032
             ]
           }
-        ]
+        ],
+        "blend": 0.004
       }
     },
     {
       "decimate": {
-        "input": "petals_raw",
         "name": "petals",
-        "tris": 100
+        "input": "petals_raw",
+        "tris": 320
       }
     },
     {
@@ -90,49 +119,56 @@
         "name": "centre_raw",
         "shapes": [
           {
+            "shape": "ellipsoid",
             "at": [
-              0.275,
+              0.268,
               0.12,
               0.0
             ],
-            "radius": [
-              0.024
-            ],
-            "shape": "sphere"
+            "size": [
+              0.014,
+              0.02,
+              0.02
+            ]
           }
         ]
       }
     },
     {
       "decimate": {
-        "input": "centre_raw",
         "name": "centre",
-        "tris": 30
+        "input": "centre_raw",
+        "tris": 90
       }
     },
     {
       "visibility": {
-        "input": "petals_raw",
         "name": "petals_raw",
+        "input": "petals_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "centre_raw",
         "name": "centre_raw",
+        "input": "centre_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "petals",
-        "metalness": null,
         "name": "petals",
+        "input": "petals",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pp-petal",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.2,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "fz",
@@ -218,25 +254,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.2
-          },
-          "material": "pp-petal",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "centre",
-        "metalness": null,
         "name": "centre",
+        "input": "centre",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pp-pollen",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.2,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "fz",
@@ -322,17 +358,13 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.2
-          },
-          "material": "pp-pollen",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     }
   ],
-  "parts": [],
-  "version": 20888
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

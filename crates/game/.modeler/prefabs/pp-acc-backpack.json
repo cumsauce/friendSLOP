@@ -1,35 +1,34 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "pp-acc-backpack",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 63615,
   "ops": [
     {
       "sdf": {
         "name": "bag_raw",
         "shapes": [
           {
+            "shape": "box",
             "at": [
               0.0,
               0.12,
               0.33
             ],
-            "round": 0.06,
-            "shape": "box",
             "size": [
               0.36,
               0.42,
               0.2
-            ]
+            ],
+            "round": 0.06
           }
         ]
       }
     },
     {
       "decimate": {
-        "input": "bag_raw",
         "name": "bag",
+        "input": "bag_raw",
         "tris": 120
       }
     },
@@ -38,52 +37,57 @@
         "name": "flap_raw",
         "shapes": [
           {
+            "shape": "box",
             "at": [
               0.0,
               0.02,
               0.44
             ],
-            "round": 0.025,
-            "shape": "box",
             "size": [
               0.26,
               0.16,
               0.06
-            ]
+            ],
+            "round": 0.025
           }
         ]
       }
     },
     {
       "decimate": {
-        "input": "flap_raw",
         "name": "flap",
+        "input": "flap_raw",
         "tris": 60
       }
     },
     {
       "visibility": {
-        "input": "bag_raw",
         "name": "bag_raw",
+        "input": "bag_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "flap_raw",
         "name": "flap_raw",
+        "input": "flap_raw",
         "visible": false
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "bag",
-        "metalness": null,
         "name": "bag",
+        "input": "bag",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pp-rib",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.12,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "g",
@@ -300,25 +304,25 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 0.12
-          },
-          "material": "pp-rib",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "flap",
-        "metalness": null,
         "name": "flap",
+        "input": "flap",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "pp-leather",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "fz",
@@ -335,6 +339,67 @@
                 "type": "noise"
               },
               {
+                "name": "pb",
+                "size": [
+                  0.004,
+                  0.004
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "input": "pb.id",
+                "name": "pr",
+                "type": "random"
+              },
+              {
+                "input": "pb.local",
+                "name": "pl",
+                "type": "split"
+              },
+              {
+                "a": "pl.x",
+                "b": "pl.x",
+                "name": "px2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "pl.y",
+                "b": "pl.y",
+                "name": "py2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "px2",
+                "b": "py2",
+                "name": "pd",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  4e-6
+                ],
+                "input": "pd",
+                "name": "peb",
+                "to": [
+                  1,
+                  0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "peb",
+                "b": 0,
+                "c": 1,
+                "name": "pc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
                 "from": [
                   0,
                   1
@@ -342,7 +407,7 @@
                 "input": "fz",
                 "name": "fv",
                 "to": [
-                  0.88,
+                  0.9,
                   1.02
                 ],
                 "type": "remap"
@@ -355,28 +420,48 @@
                 "input": "bl",
                 "name": "bv",
                 "to": [
-                  0.94,
-                  1.02
+                  0.9,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "pc",
+                "name": "pv",
+                "to": [
+                  0.9,
+                  1
                 ],
                 "type": "remap"
               },
               {
                 "a": "fv",
                 "b": "bv",
+                "name": "c0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "c0",
+                "b": "pv",
                 "name": "c1",
                 "op": "mul",
                 "type": "math"
               },
               {
-                "a": "#99806b",
+                "a": "#8f6f55",
                 "b": "c1",
                 "name": "col",
                 "op": "mul",
                 "type": "math"
               },
               {
-                "a": "fz",
-                "b": 0.0005,
+                "a": "pc",
+                "b": 0.0004,
                 "name": "h1",
                 "op": "mul",
                 "type": "math"
@@ -396,25 +481,877 @@
                 "type": "math"
               },
               {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "bl",
+                "name": "rg",
+                "to": [
+                  0.6,
+                  0.85
+                ],
+                "type": "remap"
+              },
+              {
                 "base_color": "col",
                 "height": "hh",
                 "metallic": 0,
                 "name": "out",
-                "roughness": 0.92,
+                "roughness": "rg",
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.2
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "sdf": {
+        "name": "lid_raw",
+        "shapes": [
+          {
+            "shape": "box",
+            "at": [
+              0.0,
+              0.318,
+              0.33
+            ],
+            "size": [
+              0.37,
+              0.045,
+              0.215
+            ],
+            "round": 0.02
           },
+          {
+            "shape": "box",
+            "at": [
+              0.0,
+              0.255,
+              0.44
+            ],
+            "size": [
+              0.3,
+              0.12,
+              0.03
+            ],
+            "round": 0.012
+          }
+        ],
+        "blend": 0.012
+      }
+    },
+    {
+      "decimate": {
+        "name": "lid",
+        "input": "lid_raw",
+        "tris": 220
+      }
+    },
+    {
+      "sdf": {
+        "name": "straps_raw",
+        "shapes": [
+          {
+            "shape": "box",
+            "at": [
+              0.085,
+              0.17,
+              0.456
+            ],
+            "size": [
+              0.032,
+              0.17,
+              0.012
+            ],
+            "round": 0.004
+          }
+        ],
+        "blend": 0.004,
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "straps",
+        "input": "straps_raw",
+        "tris": 120
+      }
+    },
+    {
+      "sdf": {
+        "name": "buckles_raw",
+        "shapes": [
+          {
+            "shape": "torus",
+            "at": [
+              0.085,
+              0.205,
+              0.464
+            ],
+            "rotation": [
+              0.70710677,
+              0.0,
+              0.0,
+              0.70710677
+            ],
+            "size": [
+              0.02,
+              0.0045
+            ]
+          }
+        ],
+        "mirror": "x"
+      }
+    },
+    {
+      "decimate": {
+        "name": "buckles",
+        "input": "buckles_raw",
+        "tris": 160
+      }
+    },
+    {
+      "sdf": {
+        "name": "handle_raw",
+        "shapes": [
+          {
+            "shape": "torus",
+            "at": [
+              0.0,
+              0.33,
+              0.33
+            ],
+            "rotation": [
+              0.49999997,
+              0.49999997,
+              -0.49999997,
+              0.49999997
+            ],
+            "size": [
+              0.045,
+              0.009
+            ]
+          },
+          {
+            "shape": "box",
+            "op": "intersect",
+            "blend": 0.0,
+            "at": [
+              0.0,
+              0.43,
+              0.33
+            ],
+            "size": [
+              0.3,
+              0.2,
+              0.3
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "decimate": {
+        "name": "handle",
+        "input": "handle_raw",
+        "tris": 100
+      }
+    },
+    {
+      "material": {
+        "name": "lid",
+        "input": "lid",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
           "material": "pp-leather",
-          "scale": 1.0
-        },
-        "roughness": null
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fz",
+                "octaves": 3,
+                "seed": 11,
+                "size": 0.0025,
+                "type": "noise"
+              },
+              {
+                "name": "bl",
+                "octaves": 3,
+                "seed": 13,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "name": "pb",
+                "size": [
+                  0.004,
+                  0.004
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "input": "pb.id",
+                "name": "pr",
+                "type": "random"
+              },
+              {
+                "input": "pb.local",
+                "name": "pl",
+                "type": "split"
+              },
+              {
+                "a": "pl.x",
+                "b": "pl.x",
+                "name": "px2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "pl.y",
+                "b": "pl.y",
+                "name": "py2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "px2",
+                "b": "py2",
+                "name": "pd",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  4e-6
+                ],
+                "input": "pd",
+                "name": "peb",
+                "to": [
+                  1,
+                  0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "peb",
+                "b": 0,
+                "c": 1,
+                "name": "pc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fz",
+                "name": "fv",
+                "to": [
+                  0.9,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "bl",
+                "name": "bv",
+                "to": [
+                  0.9,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "pc",
+                "name": "pv",
+                "to": [
+                  0.9,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "fv",
+                "b": "bv",
+                "name": "c0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "c0",
+                "b": "pv",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#8f6f55",
+                "b": "c1",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "pc",
+                "b": 0.0004,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "bl",
+                "b": 0.0012,
+                "name": "h2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h1",
+                "b": "h2",
+                "name": "hh",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "bl",
+                "name": "rg",
+                "to": [
+                  0.6,
+                  0.85
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "rg",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "straps",
+        "input": "straps",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-leather",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fz",
+                "octaves": 3,
+                "seed": 11,
+                "size": 0.0025,
+                "type": "noise"
+              },
+              {
+                "name": "bl",
+                "octaves": 3,
+                "seed": 13,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "name": "pb",
+                "size": [
+                  0.004,
+                  0.004
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "input": "pb.id",
+                "name": "pr",
+                "type": "random"
+              },
+              {
+                "input": "pb.local",
+                "name": "pl",
+                "type": "split"
+              },
+              {
+                "a": "pl.x",
+                "b": "pl.x",
+                "name": "px2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "pl.y",
+                "b": "pl.y",
+                "name": "py2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "px2",
+                "b": "py2",
+                "name": "pd",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  4e-6
+                ],
+                "input": "pd",
+                "name": "peb",
+                "to": [
+                  1,
+                  0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "peb",
+                "b": 0,
+                "c": 1,
+                "name": "pc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fz",
+                "name": "fv",
+                "to": [
+                  0.9,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "bl",
+                "name": "bv",
+                "to": [
+                  0.9,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "pc",
+                "name": "pv",
+                "to": [
+                  0.9,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "fv",
+                "b": "bv",
+                "name": "c0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "c0",
+                "b": "pv",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#8f6f55",
+                "b": "c1",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "pc",
+                "b": 0.0004,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "bl",
+                "b": 0.0012,
+                "name": "h2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h1",
+                "b": "h2",
+                "name": "hh",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "bl",
+                "name": "rg",
+                "to": [
+                  0.6,
+                  0.85
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "rg",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "handle",
+        "input": "handle",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-leather",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.2,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fz",
+                "octaves": 3,
+                "seed": 11,
+                "size": 0.0025,
+                "type": "noise"
+              },
+              {
+                "name": "bl",
+                "octaves": 3,
+                "seed": 13,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "name": "pb",
+                "size": [
+                  0.004,
+                  0.004
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "input": "pb.id",
+                "name": "pr",
+                "type": "random"
+              },
+              {
+                "input": "pb.local",
+                "name": "pl",
+                "type": "split"
+              },
+              {
+                "a": "pl.x",
+                "b": "pl.x",
+                "name": "px2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "pl.y",
+                "b": "pl.y",
+                "name": "py2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "px2",
+                "b": "py2",
+                "name": "pd",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  4e-6
+                ],
+                "input": "pd",
+                "name": "peb",
+                "to": [
+                  1,
+                  0
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "peb",
+                "b": 0,
+                "c": 1,
+                "name": "pc",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fz",
+                "name": "fv",
+                "to": [
+                  0.9,
+                  1.02
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "bl",
+                "name": "bv",
+                "to": [
+                  0.9,
+                  1.04
+                ],
+                "type": "remap"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "pc",
+                "name": "pv",
+                "to": [
+                  0.9,
+                  1
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "fv",
+                "b": "bv",
+                "name": "c0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "c0",
+                "b": "pv",
+                "name": "c1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "#8f6f55",
+                "b": "c1",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "pc",
+                "b": 0.0004,
+                "name": "h1",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "bl",
+                "b": 0.0012,
+                "name": "h2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "h1",
+                "b": "h2",
+                "name": "hh",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "bl",
+                "name": "rg",
+                "to": [
+                  0.6,
+                  0.85
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "height": "hh",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "rg",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "buckles",
+        "input": "buckles",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pp-brass",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.1,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 9,
+                "size": 0.01,
+                "type": "noise"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "nv",
+                "to": [
+                  0.85,
+                  1.05
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "#c9a24e",
+                "b": "nv",
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "rg",
+                "to": [
+                  0.3,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 1,
+                "name": "out",
+                "roughness": "rg",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "lid_raw",
+        "input": "lid_raw",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "straps_raw",
+        "input": "straps_raw",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "buckles_raw",
+        "input": "buckles_raw",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "handle_raw",
+        "input": "handle_raw",
+        "visible": false
       }
     }
   ],
-  "parts": [],
-  "version": 20890
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

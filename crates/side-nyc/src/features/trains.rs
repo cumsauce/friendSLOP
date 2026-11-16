@@ -1020,6 +1020,21 @@ fn stop_show(
     }
 }
 
+/// A ride car's tunnel (centre, size), around the car and its passing
+/// lights: two walls, a roof and a bed, long enough to fill every window.
+pub fn tunnel_boxes() -> [(Vec3, Vec3); 4] {
+    let (len, half, h) = (120.0, 3.8, 5.0);
+    [
+        (Vec3::new(0.0, h / 2.0 - 0.6, half), Vec3::new(len, h, 0.3)),
+        (Vec3::new(0.0, h / 2.0 - 0.6, -half), Vec3::new(len, h, 0.3)),
+        (
+            Vec3::new(0.0, h - 0.6, 0.0),
+            Vec3::new(len, 0.3, half * 2.0),
+        ),
+        (Vec3::new(0.0, -0.75, 0.0), Vec3::new(len, 0.3, half * 2.0)),
+    ]
+}
+
 /// A ride car's model, light and the tunnel lights streaming past.
 fn ride_show(
     commands: &mut Commands,
@@ -1065,6 +1080,23 @@ fn ride_show(
             }),
         )
     };
+    // A train rides in a tunnel: dark walls, roof and bed past its windows
+    // (a plane flies in the open sky).
+    if l.vehicle != Vehicle::Plane {
+        let soot = materials.add(StandardMaterial {
+            base_color: Color::srgb(0.05, 0.045, 0.04),
+            perceptual_roughness: 0.95,
+            ..default()
+        });
+        for (centre, size) in tunnel_boxes() {
+            commands.spawn((
+                Mesh3d(meshes.add(Cuboid::from_size(size))),
+                MeshMaterial3d(soot.clone()),
+                Transform::from_translation(o + centre),
+                tag(),
+            ));
+        }
+    }
     for i in 0..8 {
         for side in [-3.0, 3.0] {
             commands.spawn((
@@ -1230,6 +1262,18 @@ mod tests {
                 assert_eq!(dark_at(&t, *b + ABOARD), Some(RIDE_LOOK), "{b} is dark");
             }
         }
+    }
+
+    #[test]
+    fn the_tunnel_closes_round_the_car_and_its_lights() {
+        let b = tunnel_boxes();
+        let (wall, roof, bed) = (b[0], b[2], b[3]);
+        // Outside the car and the passing lights (3 m out), inside the roof.
+        assert!(wall.0.z - wall.1.z / 2.0 > 3.2);
+        assert!(roof.0.y - roof.1.y / 2.0 > 2.6, "above the lamp");
+        assert!(bed.0.y + bed.1.y / 2.0 < -0.5, "under the car's floor");
+        // Longer than the lights' run (40 m either way) so no window sees out.
+        assert!(wall.1.x / 2.0 > 45.0);
     }
 
     #[test]

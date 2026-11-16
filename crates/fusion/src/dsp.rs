@@ -184,6 +184,12 @@ impl Biquad {
         }
     }
 
+    /// New settings, keeping the filter's state (no click when they move).
+    pub fn retune(&mut self, eq: Eq) {
+        let n = Self::new(eq);
+        (self.b0, self.b1, self.b2, self.a1, self.a2) = (n.b0, n.b1, n.b2, n.a1, n.a2);
+    }
+
     #[inline]
     pub fn tick(&mut self, x: f32) -> f32 {
         let y = self.b0 * x + self.z1;
@@ -211,6 +217,14 @@ impl StereoEq {
             l,
             r: l,
             n: bands.len().min(6),
+        }
+    }
+
+    /// Retune the bands (as many as it was built with), keeping their state.
+    pub fn set(&mut self, bands: &[Eq]) {
+        for (k, b) in bands.iter().enumerate().take(self.n) {
+            self.l[k].retune(*b);
+            self.r[k].retune(*b);
         }
     }
 
@@ -287,6 +301,14 @@ impl Chorus {
         }
     }
 
+    /// New settings, keeping the line and the LFO's phase.
+    pub fn set(&mut self, rate: f32, centre_ms: f32, depth_ms: f32, mix: f32) {
+        self.rate = rate / FS;
+        self.centre = centre_ms * 0.001 * FS;
+        self.depth = depth_ms * 0.001 * FS;
+        self.mix = mix;
+    }
+
     pub fn process(&mut self, l: &mut [f32], r: &mut [f32]) {
         let dry = 1.0 - 0.45 * self.mix;
         for (xl, xr) in l.iter_mut().zip(r.iter_mut()) {
@@ -322,6 +344,12 @@ impl AutoPan {
         }
     }
 
+    /// New rate and depth, keeping the phase.
+    pub fn set(&mut self, rate: f32, depth: f32) {
+        self.rate = rate / FS;
+        self.depth = depth;
+    }
+
     pub fn process(&mut self, l: &mut [f32], r: &mut [f32]) {
         for (xl, xr) in l.iter_mut().zip(r.iter_mut()) {
             self.phase += self.rate;
@@ -334,6 +362,9 @@ impl AutoPan {
         }
     }
 }
+
+/// The echo's feedback as mixed (songs can automate it: `master.feedback`).
+pub const ECHO_FEEDBACK: f32 = 0.42;
 
 /// Ping-pong echo with a darkening feedback path, its time set from the
 /// tempo (and glided, so tempo changes don't click).
@@ -355,11 +386,16 @@ impl Echo {
             r: Line::new((1.3 * FS) as usize),
             time: 0.4 * FS,
             target: 0.4 * FS,
-            fb: 0.42,
+            fb: ECHO_FEEDBACK,
             damp_l: 0.0,
             damp_r: 0.0,
             hp: Biquad::new(Eq::Hp(350.0, 0.7)),
         }
+    }
+
+    /// How much of each repeat comes back (clamped below runaway).
+    pub fn set_feedback(&mut self, fb: f32) {
+        self.fb = fb.clamp(0.0, 0.95);
     }
 
     /// Dotted eighths at `bpm`.

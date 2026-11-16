@@ -56,6 +56,15 @@
 //   the band on a section's last bar, and the answer echoes the melody.
 //   e.g. parts: [(play: Drums(groove: "Laid")), (play: Bass(lines: ["LAID"]), inst: Upright),
 //     (play: Chords(comp: "Laid"), inst: EPiano), (play: Melody(style: "fusion"), inst: Flute)]
+// Optionally its own mix: `mix: { "<bus>": (<any mix.ron bus fields>) }` changes just those
+//   fields for this song (mix.ron's header lists them), and `mix_auto: [(bus, param, how,
+//   curve, bars, sections, not)]` lanes move a bus setting over time: bus is a mix.ron bus
+//   or "master"; param a setting's name (trim, chorus.mix, eq.1.db, master's feedback...);
+//   how Add (default) | Times | Octaves | Set; curve Ramp(from, to) | Lfo(shape: Sine |
+//   Triangle | Saw | Down | Square, center, depth) | Steps([..]); bars one cycle's length
+//   (default 1; counted from the section's start); sections / not where it plays.
+//   e.g. mix: { "bass": (pump: 0.6) }, mix_auto: [(bus: "pad", param: "chorus.mix",
+//     how: Set, curve: Ramp(0.0, 0.6), bars: 8.0, sections: [Hook])]
 (
     progressions: {
         // "Just the Two of Us": IVmaj9 - III7#9 - vim9 - vm9 I13.

@@ -116,6 +116,11 @@ pub struct Bar {
     pub echo: f32,
     /// The mood's colour and feel.
     pub tone: Tone,
+    /// The song's mix, its bus automation lanes playing this bar, and how
+    /// many bars into its section the bar starts.
+    pub mix: &'static crate::fx::song_mix::SongMix,
+    pub mix_lanes: Vec<crate::fx::params::BusLane>,
+    pub at_bar: f32,
 }
 
 impl Bar {
@@ -129,6 +134,9 @@ impl Bar {
             wet: 1.0,
             echo: 1.0,
             tone: Tone::NEUTRAL,
+            mix: &crate::fx::song_mix::NO_MIX,
+            mix_lanes: Vec::new(),
+            at_bar: 0.0,
         }
     }
 }
@@ -519,6 +527,7 @@ impl Composer {
         self.bars_played += 1;
 
         self.layers(&mut bar.bus);
+        self.song_mix(bar);
         bar.gain = 10f32.powf(self.mood.level_db() / 20.0);
         self.colour(bar);
         self.write(bar, new_mood);
@@ -553,6 +562,21 @@ impl Composer {
             bar.wet *= m.wet;
             bar.echo *= m.echo;
         }
+    }
+
+    /// The song's mix and the bus lanes on in this section.
+    fn song_mix(&self, bar: &mut Bar) {
+        let mix = self.style().mix;
+        bar.mix = mix;
+        bar.at_bar = self.plan.bar as f32;
+        bar.mix_lanes.clear();
+        let kind = self.plan.kind;
+        bar.mix_lanes.extend(
+            mix.auto
+                .iter()
+                .filter(|l| l.on(kind))
+                .filter_map(|l| l.lane()),
+        );
     }
 
     /// Bus levels: which instruments are in for this bar (each part's

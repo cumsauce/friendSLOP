@@ -7,6 +7,8 @@
 //! its settings type implements [`params::Params`] (plain `f32`s, tuples of
 //! them, `Option`s and `Vec`s already do; a struct uses [`crate::params!`]).
 
+pub mod comp;
+pub mod drive;
 pub mod params;
 pub mod song_mix;
 

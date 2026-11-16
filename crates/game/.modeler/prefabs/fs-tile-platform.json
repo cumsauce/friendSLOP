@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "fs-tile-platform",
   "parts": [],
-  "version": 44530,
+  "version": 64181,
   "ops": [
     {
       "primitive": {
@@ -241,7 +241,7 @@
           0.0,
           1.0,
           0.0,
-          -4.371139e-08
+          -4.371139e-8
         ]
       }
     },
@@ -263,7 +263,7 @@
           0.0,
           1.0,
           0.0,
-          -4.371139e-08
+          -4.371139e-8
         ]
       }
     },
@@ -285,7 +285,7 @@
           0.0,
           1.0,
           0.0,
-          -4.371139e-08
+          -4.371139e-8
         ]
       }
     },
@@ -307,7 +307,7 @@
           0.0,
           1.0,
           0.0,
-          -4.371139e-08
+          -4.371139e-8
         ]
       }
     },
@@ -2999,6 +2999,477 @@
                 "emissive": "col",
                 "name": "out",
                 "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wall_E",
+        "input": "wall_E",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-subway-tile",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.6,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.15,
+                  0.075
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "in": [
+                  0.002,
+                  0.005
+                ],
+                "input": "g.edge",
+                "name": "grout",
+                "type": "levels"
+              },
+              {
+                "in": [
+                  0.002,
+                  0.012
+                ],
+                "input": "g.edge",
+                "name": "bev",
+                "type": "levels"
+              },
+              {
+                "id": "g.id",
+                "max": 0.93,
+                "min": 0.84,
+                "name": "tone",
+                "seed": 31,
+                "type": "random"
+              },
+              {
+                "name": "grime",
+                "octaves": 4,
+                "seed": 32,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.6,
+                  0.95
+                ],
+                "input": "grime",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "gm",
+                "b": 0.18,
+                "name": "gm2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "tone",
+                "b": "gm2",
+                "name": "face",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "a": 0.42,
+                "b": "face",
+                "c": "grout",
+                "name": "v",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "v",
+                "b": 2.2,
+                "name": "lin",
+                "op": "pow",
+                "type": "math"
+              },
+              {
+                "a": "lin",
+                "b": [
+                  1,
+                  0.99,
+                  0.95
+                ],
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "bev",
+                "b": 0.5,
+                "name": "hb",
+                "op": "pow",
+                "type": "math"
+              },
+              {
+                "a": "hb",
+                "b": 0.0025,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": 0.85,
+                "b": 0.12,
+                "c": "grout",
+                "name": "r0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": "gm2",
+                "name": "r1",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "r1",
+                "b": 0,
+                "c": 1,
+                "name": "rough",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wall_S",
+        "input": "wall_S",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-subway-tile",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.6,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.15,
+                  0.075
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "in": [
+                  0.002,
+                  0.005
+                ],
+                "input": "g.edge",
+                "name": "grout",
+                "type": "levels"
+              },
+              {
+                "in": [
+                  0.002,
+                  0.012
+                ],
+                "input": "g.edge",
+                "name": "bev",
+                "type": "levels"
+              },
+              {
+                "id": "g.id",
+                "max": 0.93,
+                "min": 0.84,
+                "name": "tone",
+                "seed": 31,
+                "type": "random"
+              },
+              {
+                "name": "grime",
+                "octaves": 4,
+                "seed": 32,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.6,
+                  0.95
+                ],
+                "input": "grime",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "gm",
+                "b": 0.18,
+                "name": "gm2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "tone",
+                "b": "gm2",
+                "name": "face",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "a": 0.42,
+                "b": "face",
+                "c": "grout",
+                "name": "v",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "v",
+                "b": 2.2,
+                "name": "lin",
+                "op": "pow",
+                "type": "math"
+              },
+              {
+                "a": "lin",
+                "b": [
+                  1,
+                  0.99,
+                  0.95
+                ],
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "bev",
+                "b": 0.5,
+                "name": "hb",
+                "op": "pow",
+                "type": "math"
+              },
+              {
+                "a": "hb",
+                "b": 0.0025,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": 0.85,
+                "b": 0.12,
+                "c": "grout",
+                "name": "r0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": "gm2",
+                "name": "r1",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "r1",
+                "b": 0,
+                "c": 1,
+                "name": "rough",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "wall_W",
+        "input": "wall_W",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-subway-tile",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.6,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.15,
+                  0.075
+                ],
+                "stagger": 0.5,
+                "type": "tile_grid"
+              },
+              {
+                "in": [
+                  0.002,
+                  0.005
+                ],
+                "input": "g.edge",
+                "name": "grout",
+                "type": "levels"
+              },
+              {
+                "in": [
+                  0.002,
+                  0.012
+                ],
+                "input": "g.edge",
+                "name": "bev",
+                "type": "levels"
+              },
+              {
+                "id": "g.id",
+                "max": 0.93,
+                "min": 0.84,
+                "name": "tone",
+                "seed": 31,
+                "type": "random"
+              },
+              {
+                "name": "grime",
+                "octaves": 4,
+                "seed": 32,
+                "size": 0.25,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.6,
+                  0.95
+                ],
+                "input": "grime",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "gm",
+                "b": 0.18,
+                "name": "gm2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "tone",
+                "b": "gm2",
+                "name": "face",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "a": 0.42,
+                "b": "face",
+                "c": "grout",
+                "name": "v",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "v",
+                "b": 2.2,
+                "name": "lin",
+                "op": "pow",
+                "type": "math"
+              },
+              {
+                "a": "lin",
+                "b": [
+                  1,
+                  0.99,
+                  0.95
+                ],
+                "name": "col",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "bev",
+                "b": 0.5,
+                "name": "hb",
+                "op": "pow",
+                "type": "math"
+              },
+              {
+                "a": "hb",
+                "b": 0.0025,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": 0.85,
+                "b": 0.12,
+                "c": "grout",
+                "name": "r0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": "gm2",
+                "name": "r1",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "r1",
+                "b": 0,
+                "c": 1,
+                "name": "rough",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "rough",
                 "type": "output"
               }
             ],

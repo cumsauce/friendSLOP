@@ -25,7 +25,10 @@
 use std::f32::consts::TAU;
 use std::sync::Arc;
 
-use super::dsp::{AutoPan, Chorus, Echo, Eq, Reverb, StereoEq, Svf, saw, square};
+use super::dsp::{AutoPan, Chorus, Eq, Reverb, StereoEq, Svf, saw, square};
+use super::fx::{
+    crush::Crush, echo::EchoMix, echo::SyncEcho, phaser::Phaser, transient::Transient,
+};
 use crate::inst::{Engine, Foley, Hit, KitSample, Pan, Spec, Table, Voice, table};
 
 /// Engine sample rate.
@@ -1623,6 +1626,9 @@ pub struct Ev {
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Mix {
     pub buses: std::collections::BTreeMap<String, BusMix>,
+    /// The shared echo send (a song's `echo` replaces it).
+    #[serde(default)]
+    pub echo: EchoMix,
 }
 
 /// One bus: level, ducking, EQ and effects.
@@ -1638,6 +1644,15 @@ pub struct BusMix {
     pub autopan: Option<(f32, f32)>,
     /// Chorus: (rate Hz, centre ms, depth ms, mix).
     pub chorus: Option<(f32, f32, f32, f32)>,
+    /// Bit and sample-rate crush: (bits, rate Hz, mix).
+    #[serde(default)]
+    pub crush: Option<(f32, f32, f32)>,
+    /// Transient shaper: (attack, sustain), about -1..1.
+    #[serde(default)]
+    pub transient: Option<(f32, f32)>,
+    /// Phaser: (rate Hz, depth 0..1, feedback, mix).
+    #[serde(default)]
+    pub phaser: Option<(f32, f32, f32, f32)>,
 }
 
 pub static MIX: friendslop_data::Data<Mix> = friendslop_data::Data::ron("data/music/mix.ron");
@@ -1650,6 +1665,9 @@ struct BusFx {
     eq: Vec<StereoEq>,
     autopan: Vec<Option<AutoPan>>,
     chorus: Vec<Option<Chorus>>,
+    crush: Vec<Option<Crush>>,
+    transient: Vec<Option<Transient>>,
+    phaser: Vec<Option<Phaser>>,
     trim: [f32; BUSES],
     pump: [f32; BUSES],
 }
@@ -1687,6 +1705,27 @@ impl BusFx {
                         .map(|(r, c, d, x)| Chorus::new(r, c, d, x))
                 })
                 .collect(),
+            crush: (0..BUSES)
+                .map(|b| {
+                    bus(b)
+                        .and_then(|m| m.crush)
+                        .map(|(x, r, m)| Crush::new(x, r, m))
+                })
+                .collect(),
+            transient: (0..BUSES)
+                .map(|b| {
+                    bus(b)
+                        .and_then(|m| m.transient)
+                        .map(|(a, s)| Transient::new(a, s))
+                })
+                .collect(),
+            phaser: (0..BUSES)
+                .map(|b| {
+                    bus(b)
+                        .and_then(|m| m.phaser)
+                        .map(|(r, d, f, x)| Phaser::new(r, d, f, x))
+                })
+                .collect(),
             trim: std::array::from_fn(|b| bus(b).map_or(1.0, |m| m.trim)),
             pump: std::array::from_fn(|b| bus(b).map_or(0.0, |m| m.pump)),
         }
@@ -1717,7 +1756,9 @@ pub struct Band {
     fx: BusFx,
     /// The instruments, refreshed once per block.
     table: Arc<Table>,
-    echo: Echo,
+    echo: SyncEcho,
+    /// The playing song's echo, if it sets its own (else the mix's).
+    pub echo_song: Option<EchoMix>,
     verb: Reverb,
     limiter: f32,
     rng: u32,
@@ -1832,7 +1873,8 @@ impl Band {
             echo_send: vec![0.0; BLOCK],
             fx: BusFx::build(),
             table: table(),
-            echo: Echo::new(),
+            echo: SyncEcho::new(),
+            echo_song: None,
             verb: Reverb::new(),
             limiter: 1.0,
             rng: 0x9E37_79B9,
@@ -1867,7 +1909,8 @@ impl Band {
 
     /// Sync the echo to the tempo.
     pub fn set_tempo(&mut self, bpm: f32) {
-        self.echo.set_tempo(bpm);
+        let set = self.echo_song.unwrap_or_else(|| MIX.get().echo);
+        self.echo.configure(set, bpm);
     }
 
     /// Voices currently sounding (for tests and the CPU budget).
@@ -2251,7 +2294,13 @@ impl Band {
         let fx = &mut self.fx;
         for b in 0..BUSES {
             let (l, r) = (&mut bl[b][..n], &mut br[b][..n]);
+            if let Some(t) = &mut fx.transient[b] {
+                t.process(l, r);
+            }
             fx.eq[b].process(l, r);
+            if let Some(c) = &mut fx.crush[b] {
+                c.process(l, r);
+            }
             let t = fx.trim[b];
             let depth = fx.pump[b];
             if depth > 0.0 {
@@ -2270,6 +2319,9 @@ impl Band {
             }
             if let Some(c) = &mut fx.chorus[b] {
                 c.process(l, r);
+            }
+            if let Some(p) = &mut fx.phaser[b] {
+                p.process(l, r);
             }
         }
         // Sum the buses into the first one, add the echo.

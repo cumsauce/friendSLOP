@@ -1,0 +1,104 @@
+{
+  "name": "sf-warning-red",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 2,
+      "seed": 5,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#ff2010"
+        ],
+        [
+          1,
+          "#ff5030"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "col",
+      "b": 6.0,
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "name": "out",
+      "roughness": 0.3,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-warning-red",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 2,
+              "seed": 5,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#ff2010"
+                ],
+                [
+                  1,
+                  "#ff5030"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "col",
+              "b": 6.0,
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "name": "out",
+              "roughness": 0.3,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +col +em +out"
+      }
+    ],
+    "current": 0
+  }
+}

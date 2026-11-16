@@ -44,7 +44,11 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(AppState::InGame), spawn_atmosphere)
         .add_systems(
             Update,
-            (drift_clouds, day_night.after(crate::place::PlaceSet))
+            (
+                drift_clouds,
+                follow_camera,
+                day_night.after(crate::place::PlaceSet),
+            )
                 .run_if(in_state(AppState::InGame)),
         )
         .add_systems(OnEnter(ServerState::Running), start_day);
@@ -203,6 +207,26 @@ struct SkyDome;
 struct Stars;
 #[derive(Component)]
 struct Moon;
+/// Holds the dome, stars, moon and clouds and stays on the camera, so the sky
+/// is all round you wherever you are (the surf course is 4 km east, 900 m up).
+#[derive(Component)]
+struct SkyRoot;
+
+/// Keep the sky centred on the camera.
+fn follow_camera(
+    camera: Query<&GlobalTransform, With<MainCamera>>,
+    mut root: Query<&mut Transform, With<SkyRoot>>,
+) {
+    let Some(cam) = camera.iter().next() else {
+        return;
+    };
+    let at = cam.translation();
+    for mut tf in &mut root {
+        if tf.translation != at {
+            tf.translation = at;
+        }
+    }
+}
 /// The clouds' shared material and its daytime glow.
 #[derive(Resource)]
 struct CloudLook(Handle<StandardMaterial>, LinearRgba);
@@ -553,6 +577,15 @@ fn spawn_atmosphere(
         DespawnOnExit(AppState::InGame),
     ));
 
+    let root = commands
+        .spawn((
+            SkyRoot,
+            Transform::default(),
+            Visibility::default(),
+            crate::areas::Global,
+            DespawnOnExit(AppState::InGame),
+        ))
+        .id();
     // Sky dome: unlit, fogless, shadowless, viewed from inside.
     let sky = exact_material(
         &mut materials,
@@ -570,6 +603,7 @@ fn spawn_atmosphere(
         crate::areas::Global,
         MeshMaterial3d(sky),
         SkyDome,
+        ChildOf(root),
         NotShadowCaster,
         NotShadowReceiver,
         DespawnOnExit(AppState::InGame),
@@ -592,6 +626,7 @@ fn spawn_atmosphere(
         crate::areas::Global,
         MeshMaterial3d(night_sky(&mut materials, AlphaMode::Add)),
         Stars,
+        ChildOf(root),
         Visibility::Hidden,
         NotShadowCaster,
         NotShadowReceiver,
@@ -609,6 +644,7 @@ fn spawn_atmosphere(
         crate::areas::Global,
         MeshMaterial3d(moon),
         Moon,
+        ChildOf(root),
         Transform::from_xyz(0.0, -380.0, 0.0),
         Visibility::Hidden,
         NotShadowCaster,
@@ -648,6 +684,7 @@ fn spawn_atmosphere(
             .spawn((
                 Transform::from_translation(at).with_scale(Vec3::splat(scale)),
                 Visibility::default(),
+                ChildOf(root),
                 Cloud {
                     speed: 0.4 + art::hash(i, 4, 31) * 0.5,
                 },
@@ -674,7 +711,7 @@ fn spawn_atmosphere(
 
 /// UV-sphere-ish dome with a vertical colour gradient baked into vertex colours.
 fn sky_dome() -> Mesh {
-    const RINGS: u32 = 16;
+    const RINGS: u32 = 24;
     const SEGS: u32 = 32;
     let horizon = hdr(horizon_colour());
     let zenith = hdr(ZENITH);
@@ -682,9 +719,11 @@ fn sky_dome() -> Mesh {
     let mut col = Vec::new();
     let mut nrm = Vec::new();
     for ring in 0..=RINGS {
-        // From a little below the horizon (-0.15 rad) up to the zenith.
+        // A whole sphere, straight down to straight up: below the horizon it's the
+        // horizon's colour, so looking down from high up (the surf course) never
+        // shows the clear colour past the dome's edge.
         let v = ring as f32 / RINGS as f32;
-        let elev = -0.15 + v * (std::f32::consts::FRAC_PI_2 + 0.15);
+        let elev = -std::f32::consts::FRAC_PI_2 + v * std::f32::consts::PI;
         let h = elev.sin().max(0.0);
         let mix = h.powf(0.45);
         let c = horizon.mix(&zenith, mix);

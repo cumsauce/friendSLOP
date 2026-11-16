@@ -1,0 +1,114 @@
+{
+  "name": "sf-sign-panel",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 9,
+      "size": 0.15,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#ff2fa0"
+        ],
+        [
+          0.5,
+          "#b040ff"
+        ],
+        [
+          1,
+          "#30e0ff"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "col",
+      "b": 5.0,
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "metallic": 0,
+      "name": "out",
+      "roughness": 0.25,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-sign-panel",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 9,
+              "size": 0.15,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#ff2fa0"
+                ],
+                [
+                  0.5,
+                  "#b040ff"
+                ],
+                [
+                  1,
+                  "#30e0ff"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "col",
+              "b": 5.0,
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0,
+              "name": "out",
+              "roughness": 0.25,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +col +em +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "name": "sf-rt-paint-red",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 5,
+      "size": 0.15,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#b8201a"
+        ],
+        [
+          1,
+          "#d83a2a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "metallic": 0,
+      "name": "out",
+      "roughness": 0.5,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-rt-paint-red",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "material settings"
+      },
+      {
+        "model": {
+          "name": "sf-rt-paint-red",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 5,
+              "size": 0.15,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#b8201a"
+                ],
+                [
+                  1,
+                  "#d83a2a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0,
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "+fn +col +out"
+      }
+    ],
+    "current": 1
+  }
+}

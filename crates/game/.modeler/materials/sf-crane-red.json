@@ -1,0 +1,172 @@
+{
+  "name": "sf-crane-red",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 2.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 31,
+      "size": 0.4,
+      "type": "noise"
+    },
+    {
+      "name": "cn",
+      "octaves": 3,
+      "seed": 32,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.76,
+        0.8
+      ],
+      "input": "cn",
+      "name": "chip",
+      "type": "levels"
+    },
+    {
+      "a": "#c8231c",
+      "b": "#a81a14",
+      "c": "fn",
+      "name": "base",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "base",
+      "b": "#55504a",
+      "c": "chip",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "chip",
+      "b": -0.0006,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": 0.45,
+      "b": 0.7,
+      "c": "chip",
+      "name": "r",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.2,
+      "b": 0.8,
+      "c": "chip",
+      "name": "m",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "metallic": "m",
+      "name": "out",
+      "roughness": "r",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-crane-red",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 2.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 31,
+              "size": 0.4,
+              "type": "noise"
+            },
+            {
+              "name": "cn",
+              "octaves": 3,
+              "seed": 32,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.76,
+                0.8
+              ],
+              "input": "cn",
+              "name": "chip",
+              "type": "levels"
+            },
+            {
+              "a": "#c8231c",
+              "b": "#a81a14",
+              "c": "fn",
+              "name": "base",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "base",
+              "b": "#55504a",
+              "c": "chip",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "chip",
+              "b": -0.0006,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": 0.45,
+              "b": 0.7,
+              "c": "chip",
+              "name": "r",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.2,
+              "b": 0.8,
+              "c": "chip",
+              "name": "m",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "metallic": "m",
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +cn +chip +base +col +h +r +m +out"
+      }
+    ],
+    "current": 0
+  }
+}

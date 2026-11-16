@@ -1,0 +1,172 @@
+{
+  "name": "sf-grate",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "g",
+      "size": [
+        0.1,
+        0.1
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "center": [
+        0,
+        0
+      ],
+      "coords": "g.local",
+      "name": "hole",
+      "size": [
+        0.075,
+        0.075
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "hm",
+      "sdf": "hole",
+      "type": "mask"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 12,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "steel",
+      "stops": [
+        [
+          0,
+          "#6a6e74"
+        ],
+        [
+          1,
+          "#8e9298"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "steel",
+      "b": "#141618",
+      "name": "col",
+      "opacity": "hm",
+      "type": "blend"
+    },
+    {
+      "a": "hm",
+      "b": -0.01,
+      "name": "hh",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "hh",
+      "metallic": 0.8,
+      "name": "out",
+      "roughness": 0.45,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-grate",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.1,
+                0.1
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "center": [
+                0,
+                0
+              ],
+              "coords": "g.local",
+              "name": "hole",
+              "size": [
+                0.075,
+                0.075
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "hm",
+              "sdf": "hole",
+              "type": "mask"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 12,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "steel",
+              "stops": [
+                [
+                  0,
+                  "#6a6e74"
+                ],
+                [
+                  1,
+                  "#8e9298"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "steel",
+              "b": "#141618",
+              "name": "col",
+              "opacity": "hm",
+              "type": "blend"
+            },
+            {
+              "a": "hm",
+              "b": -0.01,
+              "name": "hh",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "hh",
+              "metallic": 0.8,
+              "name": "out",
+              "roughness": 0.45,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+g +hole +hm +fn +steel +col +hh +out"
+      }
+    ],
+    "current": 0
+  }
+}

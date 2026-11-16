@@ -1,0 +1,123 @@
+{
+  "name": "sf-rt-ad",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 17,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#8a2aff"
+        ],
+        [
+          1,
+          "#ff3ab0"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "col",
+      "b": 3.0,
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "metallic": 0,
+      "name": "out",
+      "roughness": 0.35,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-rt-ad",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "material settings"
+      },
+      {
+        "model": {
+          "name": "sf-rt-ad",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 17,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#8a2aff"
+                ],
+                [
+                  1,
+                  "#ff3ab0"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "col",
+              "b": 3.0,
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0,
+              "name": "out",
+              "roughness": 0.35,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "+fn +col +em +out"
+      }
+    ],
+    "current": 1
+  }
+}

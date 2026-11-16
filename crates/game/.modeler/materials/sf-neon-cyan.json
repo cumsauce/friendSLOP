@@ -1,0 +1,255 @@
+{
+  "name": "sf-neon-cyan",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 5,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#10d8ff"
+        ],
+        [
+          1,
+          "#70f0ff"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "col",
+      "b": 6.0,
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "metallic": 0,
+      "name": "out",
+      "roughness": 0.35,
+      "type": "output"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "fn",
+      "name": "r",
+      "to": [
+        0.3,
+        0.4
+      ],
+      "type": "remap"
+    }
+  ],
+  "params": {},
+  "version": 3,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-neon-cyan",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 31,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#20e0ff"
+                ],
+                [
+                  1,
+                  "#80f4ff"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "col",
+              "b": 6.0,
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0,
+              "name": "out",
+              "roughness": 0.3,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+fn +col +em +out"
+      },
+      {
+        "model": {
+          "name": "sf-neon-cyan",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 3,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#20e8ff"
+                ],
+                [
+                  1,
+                  "#70f4ff"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "col",
+              "b": 6,
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0,
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fn",
+              "name": "r",
+              "to": [
+                0.3,
+                0.4
+              ],
+              "type": "remap"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "+r ~fn ~col ~em ~out"
+      },
+      {
+        "model": {
+          "name": "sf-neon-cyan",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 5,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#10d8ff"
+                ],
+                [
+                  1,
+                  "#70f0ff"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "col",
+              "b": 6.0,
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0,
+              "name": "out",
+              "roughness": 0.35,
+              "type": "output"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fn",
+              "name": "r",
+              "to": [
+                0.3,
+                0.4
+              ],
+              "type": "remap"
+            }
+          ],
+          "params": {},
+          "version": 3
+        },
+        "parent": 1,
+        "children": [],
+        "label": "~fn ~col ~em ~out"
+      }
+    ],
+    "current": 2
+  }
+}

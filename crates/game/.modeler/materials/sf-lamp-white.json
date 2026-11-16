@@ -1,0 +1,106 @@
+{
+  "name": "sf-lamp-white",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 64,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 5,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#fff0d8"
+        ],
+        [
+          1,
+          "#ffffff"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "col",
+      "b": 4.0,
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "metallic": 0,
+      "name": "out",
+      "roughness": 0.35,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-lamp-white",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 64,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 5,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#fff0d8"
+                ],
+                [
+                  1,
+                  "#ffffff"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "col",
+              "b": 4.0,
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0,
+              "name": "out",
+              "roughness": 0.35,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +col +em +out"
+      }
+    ],
+    "current": 0
+  }
+}

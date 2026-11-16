@@ -1,0 +1,176 @@
+{
+  "name": "sf-safety-net",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "g",
+      "size": [
+        0.125,
+        0.125
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "center": [
+        0,
+        0
+      ],
+      "coords": "g.local",
+      "name": "hole",
+      "size": [
+        0.1,
+        0.1
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "hm",
+      "sdf": "hole",
+      "type": "mask"
+    },
+    {
+      "a": 1.0,
+      "b": "hm",
+      "name": "op",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 4,
+      "size": 0.2,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#e85a10"
+        ],
+        [
+          1,
+          "#ff8a30"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "col",
+      "b": 0.6,
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "alpha": "mask",
+      "base_color": "col",
+      "emissive": "em",
+      "metallic": 0,
+      "name": "out",
+      "opacity": "op",
+      "roughness": 0.8,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-safety-net",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "g",
+              "size": [
+                0.125,
+                0.125
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "center": [
+                0,
+                0
+              ],
+              "coords": "g.local",
+              "name": "hole",
+              "size": [
+                0.1,
+                0.1
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "hm",
+              "sdf": "hole",
+              "type": "mask"
+            },
+            {
+              "a": 1.0,
+              "b": "hm",
+              "name": "op",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 4,
+              "size": 0.2,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#e85a10"
+                ],
+                [
+                  1,
+                  "#ff8a30"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "col",
+              "b": 0.6,
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "alpha": "mask",
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0,
+              "name": "out",
+              "opacity": "op",
+              "roughness": 0.8,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+g +hole +hm +op +fn +col +em +out"
+      }
+    ],
+    "current": 0
+  }
+}

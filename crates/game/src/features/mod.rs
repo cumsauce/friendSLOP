@@ -175,6 +175,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(clues::plugin);
         app.add_plugins(broadcast::plugin);
         app.add_plugins(surf::plugin);
+        app.add_plugins(surf_props::plugin);
         app.add_plugins(wallet::plugin);
         app.add_plugins(trains::plugin);
         app.add_plugins(vessel::plugin);

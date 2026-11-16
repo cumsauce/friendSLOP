@@ -814,6 +814,7 @@ fn bunting_mesh() -> Mesh {
             col.extend_from_slice(&[string, string, string]);
         }
     }
+    let n = pos.len() as u32;
     let normals = vec![[0.0, 1.0, 0.0]; pos.len()];
     Mesh::new(
         PrimitiveTopology::TriangleList,
@@ -822,6 +823,8 @@ fn bunting_mesh() -> Mesh {
     .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, pos)
     .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
     .with_inserted_attribute(Mesh::ATTRIBUTE_COLOR, col)
+    // Indexed: Bevy's non-indexed GPU draws can overrun a buffer.
+    .with_inserted_indices(bevy::mesh::Indices::U32((0..n).collect()))
 }
 
 /// Give each duelist a body: a rigged cowboy from `assets/models` (drawn and

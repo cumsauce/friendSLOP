@@ -476,6 +476,7 @@ fn tufts_in(min: Vec2, size: f32, density: f32) -> Mesh {
             }
         }
     }
+    let n = pos.len() as u32;
     let normals = vec![[0.0, 1.0, 0.0]; pos.len()];
     Mesh::new(
         PrimitiveTopology::TriangleList,
@@ -484,6 +485,8 @@ fn tufts_in(min: Vec2, size: f32, density: f32) -> Mesh {
     .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, pos)
     .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
     .with_inserted_attribute(Mesh::ATTRIBUTE_COLOR, col)
+    // Indexed: Bevy's non-indexed GPU draws can overrun a buffer.
+    .with_inserted_indices(bevy::mesh::Indices::U32((0..n).collect()))
 }
 
 /// Grass around the commune (the menu backdrop uses this).

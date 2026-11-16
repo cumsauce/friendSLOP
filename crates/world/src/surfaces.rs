@@ -689,7 +689,16 @@ pub fn bake(mesh: &Mesh, scale: Vec3) -> Option<Mesh> {
     out.try_insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs).ok()?;
     let _ = out.try_remove_attribute(Mesh::ATTRIBUTE_TANGENT);
     out.generate_tangents().ok()?;
+    // Duplicating dropped the index buffer; give it a plain one back, since
+    // Bevy's non-indexed GPU draws can overrun a buffer and crash (or draw a
+    // stale frame) when their count changes.
+    out.insert_indices(bevy::mesh::Indices::U32((0..pos_len(&out)).collect()));
     Some(out)
+}
+
+/// How many vertices a mesh has.
+fn pos_len(mesh: &Mesh) -> u32 {
+    mesh.count_vertices() as u32
 }
 
 #[cfg(test)]

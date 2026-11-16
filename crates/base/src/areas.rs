@@ -228,6 +228,8 @@ pub trait AreaApp {
         &mut self,
         systems: impl IntoScheduleConfigs<bevy::ecs::system::ScheduleSystem, M>,
     ) -> &mut Self;
+    /// [`dress_in_area`].
+    fn dress_in_area<C: Component>(&mut self) -> &mut Self;
 }
 
 impl AreaApp for App {
@@ -245,6 +247,147 @@ impl AreaApp for App {
     ) -> &mut Self {
         crate::hud::on_enter_game(self, systems);
         self
+    }
+    fn dress_in_area<C: Component>(&mut self) -> &mut Self {
+        dress_in_area::<C>(self);
+        self
+    }
+}
+
+/// Replicated things with a `C` are drawn only while the area they're in
+/// shows (gameplay state is always kept; its looks are local). Each frame
+/// they get [`Shown`] while the visuals of the area they stand in are loaded
+/// (always, outside every area) and lose it when they aren't; each child
+/// tree under them that holds no collider and isn't replicated (the
+/// dressing) is filed in that area's visuals ([`Dress`] + [`InArea`]), so
+/// it goes when the area unloads and follows the thing between areas.
+///
+/// The feature dresses on `Added<Shown>` (it fires again each time the area
+/// shows again): `Query<(Entity, &Villager), Added<Shown>>`. Keep colliders
+/// out of the dressing: a tree with one is never filed or put away.
+pub fn dress_in_area<C: Component>(app: &mut App) {
+    app.add_systems(
+        PreUpdate,
+        follow::<C>
+            .in_set(AreaSet)
+            .after(own)
+            .run_if(in_state(AppState::InGame)),
+    );
+}
+
+/// On a replicated thing ([`dress_in_area`]): its area's visuals are
+/// loaded, so it's dressed. Dress on `Added<Shown>`.
+#[derive(Component, Debug, Default, Clone, Copy)]
+pub struct Shown;
+
+/// A local child that draws a replicated thing, filed in the visuals of the
+/// area the thing is in.
+#[derive(Component, Debug, Default, Clone, Copy)]
+pub struct Dress;
+
+/// Has `children` a [`Dress`] among them?
+pub fn dressed(children: Option<&Children>, dresses: &Query<(), With<Dress>>) -> bool {
+    children.is_some_and(|c| c.iter().any(|e| dresses.contains(e)))
+}
+
+/// Put a thing's dressing away: its filed children, and the drawing parts
+/// on itself (a rig, a character rig, a mesh, a model), so dressing it again
+/// builds them afresh.
+fn undress(
+    commands: &mut Commands,
+    e: Entity,
+    children: Option<&Children>,
+    filed: &Query<(), With<Dress>>,
+) {
+    for c in children.into_iter().flat_map(|c| c.iter()) {
+        if filed.contains(c) {
+            commands.entity(c).try_despawn();
+        }
+    }
+    let mut thing = commands.entity(e);
+    thing.remove::<(
+        Shown,
+        Dwells,
+        crate::people::Gait,
+        crate::people::CharacterRig,
+        Mesh3d,
+        MeshMaterial3d<StandardMaterial>,
+        bevy::world_serialization::WorldAssetRoot,
+    )>();
+    crate::rigged::forget(&mut thing);
+}
+
+/// Where a [`dress_in_area`] thing was last frame (`None`: outside every area).
+#[derive(Component, Debug, Default, Clone, PartialEq)]
+struct Dwells(Option<String>);
+
+#[allow(clippy::type_complexity)]
+fn follow<C: Component>(
+    mut commands: Commands,
+    loaded: Res<Loaded>,
+    things: Query<
+        (
+            Entity,
+            Option<&GlobalTransform>,
+            Option<&Children>,
+            Has<Shown>,
+            Option<&Dwells>,
+        ),
+        (
+            With<C>,
+            Or<(
+                With<bevy_replicon::prelude::Replicated>,
+                With<bevy_replicon::client::Remote>,
+            )>,
+        ),
+    >,
+    filed: Query<(), With<Dress>>,
+    kids: Query<&Children>,
+    solid: Query<
+        (),
+        Or<(
+            With<avian3d::prelude::Collider>,
+            With<bevy_replicon::prelude::Replicated>,
+            With<bevy_replicon::client::Remote>,
+        )>,
+    >,
+) {
+    for (e, at, children, shown, dwells) in &things {
+        // Not placed yet (dressing places it): dress it, then look again.
+        let area = at.and_then(|t| area_at(t.translation()));
+        let want = area.as_deref().is_none_or(|a| loaded.is(a, Layer::Show));
+        if want && !shown {
+            commands.entity(e).insert(Shown);
+        } else if !want && shown {
+            undress(&mut commands, e, children, &filed);
+            continue;
+        }
+        let moved = dwells.is_none_or(|d| d.0 != area);
+        if moved {
+            commands.entity(e).insert(Dwells(area.clone()));
+        }
+        let Some(children) = children else { continue };
+        for c in children.iter() {
+            let is_filed = filed.contains(c);
+            if is_filed && !moved {
+                continue;
+            }
+            if !is_filed
+                && (solid.contains(c) || kids.iter_descendants(c).any(|d| solid.contains(d)))
+            {
+                continue;
+            }
+            let mut child = commands.entity(c);
+            child.insert(Dress);
+            match &area {
+                Some(a) => {
+                    child.remove::<Global>().insert(InArea::show(a));
+                }
+                None => {
+                    child.remove::<InArea>().insert(Global);
+                }
+            }
+        }
     }
 }
 

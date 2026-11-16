@@ -336,6 +336,8 @@ fn drop_on_leave(
 }
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    friendslop_base::areas::dress_in_area::<Totem>(app);
     friendslop_base::areas::on_show(app, "commune", mark_doors);
     app.init_resource::<SpellLog>()
         .add_observer(hear_spell)
@@ -391,7 +393,7 @@ fn build_vault(mut commands: Commands, assets: Res<AssetServer>) {
 
 fn dress_totems(
     mut commands: Commands,
-    new: Query<(Entity, &Totem), Added<Totem>>,
+    new: Query<(Entity, &Totem), Added<friendslop_base::areas::Shown>>,
     assets: Res<AssetServer>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {

@@ -194,12 +194,15 @@ census "no area" line is zero in the forest, New York and the wastes.
 - One-shot world sounds belong to the visuals of the area they play in (`global` outside
   every area). Loops are global: the feature that starts one stops it.
 
-Not done:
-- **Replicated things' dressing is drawn everywhere.** The villagers, kittens, rats, pets,
-  totems, burgers and similar take about 900 meshes, even from New York. It counts with its
-  replicated owner. Next step: a `Dress` child in the owning area's Show layer, re-dressed
-  when it loads (New York's `area.rs` does this).
-- The bonfire's smoke and sparks are ambience particles, so they are global.
+- **Replicated things' dressing** follows its thing's area: a feature calls
+  `areas::dress_in_area::<C>()` and dresses on `Added<areas::Shown>`. While the area the thing
+  stands in shows, it has `Shown` and its collider-free child trees are filed in that area's
+  visuals (`areas::Dress`). When the area stops showing, they go, and the rig, character rig,
+  mesh and model on the thing itself are taken off. The thing stays. Villagers, kittens, rats,
+  pets, crows, the bear, the goat, fat cats, Abuela, the wife, totems, burgers, the tome, the
+  treasure and the tears use it. Replicated meshes in the forest dropped from 914 to 183
+  (mostly players' bodies), and New York no longer draws the commune's creatures.
+- The bonfire's smoke and sparks are the commune's (`ambience::spawn_bonfire`).
 
 ### Open decisions
 

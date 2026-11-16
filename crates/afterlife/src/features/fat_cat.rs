@@ -490,6 +490,8 @@ fn pet_cat(
 }
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    friendslop_base::areas::dress_in_area::<FatCat>(app);
     app.init_resource::<Stroking>()
         .add_observer(click_cat)
         .add_observer(boom)
@@ -737,7 +739,10 @@ const FUR_MATERIAL: &str = "ct-cat-fur";
 #[derive(Component, Default)]
 struct CatAct(Option<(&'static str, f32)>);
 
-fn dress_cats(mut commands: Commands, new: Query<(Entity, &FatCat), Added<FatCat>>) {
+fn dress_cats(
+    mut commands: Commands,
+    new: Query<(Entity, &FatCat), Added<friendslop_base::areas::Shown>>,
+) {
     for (entity, cat) in &new {
         commands.entity(entity).insert((
             Transform::from_translation(cat.pos)

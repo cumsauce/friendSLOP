@@ -530,3 +530,67 @@ fn nothing_in_the_world_is_in_no_area() {
         assert!(stray.is_empty(), "in no area: {stray:?}");
     }
 }
+
+#[derive(Component)]
+struct Doll;
+
+/// A doll's dressing: one drawn child.
+fn dress_doll(mut commands: Commands, new: Query<Entity, (With<Doll>, Added<areas::Shown>)>) {
+    for e in &new {
+        commands.spawn((Mesh3d::default(), Transform::default(), ChildOf(e)));
+    }
+}
+
+fn dolls_dressing(app: &mut App) -> (usize, usize) {
+    let world = app.world_mut();
+    let mut shown = world.query_filtered::<(), (With<Doll>, With<areas::Shown>)>();
+    let mut drawn = world.query_filtered::<&InArea, With<areas::Dress>>();
+    let s = shown.iter(world).count();
+    let d = drawn.iter(world).filter(|t| t.area == "commune").count();
+    (s, d)
+}
+
+/// `areas::dress_in_area`: a replicated thing in the commune is dressed
+/// while the commune shows, put away (it stays) when you go to New York,
+/// and dressed again when you come back.
+#[test]
+fn a_replicated_thing_is_dressed_again_when_its_area_shows_again() {
+    load_data();
+    let home = Vec3::new(0.0, friendslop::terrain::height_at(0.0, 0.0), 0.0);
+    let mut sim = two_players(home, home);
+    let app = &mut sim.server;
+    areas::dress_in_area::<Doll>(app);
+    app.add_systems(Update, dress_doll);
+    app.world_mut().spawn((
+        Doll,
+        bevy_replicon::prelude::Replicated,
+        Transform::from_translation(home),
+    ));
+    sim.run(0.3);
+    assert_eq!(dolls_dressing(&mut sim.server), (1, 1), "dressed at home");
+
+    let away = Vec3::new(0.0, 0.0, 220.0);
+    sim.server.insert_resource(friendslop::place::Here(away));
+    sim.clients[0].insert_resource(friendslop::place::Here(away));
+    stand(&mut sim, 0, away);
+    stand(&mut sim, 1, away);
+    sim.run(0.3);
+    assert_eq!(
+        dolls_dressing(&mut sim.server),
+        (0, 0),
+        "put away from New York"
+    );
+    let world = sim.server.world_mut();
+    assert_eq!(
+        world.query::<&Doll>().iter(world).count(),
+        1,
+        "the thing stays"
+    );
+
+    sim.server.insert_resource(friendslop::place::Here(home));
+    sim.clients[0].insert_resource(friendslop::place::Here(home));
+    stand(&mut sim, 0, home);
+    stand(&mut sim, 1, home);
+    sim.run(0.3);
+    assert_eq!(dolls_dressing(&mut sim.server), (1, 1), "dressed again");
+}

@@ -392,6 +392,8 @@ fn hold_fooled(
 // ---------------------------------------------------------------- local side
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    friendslop_base::areas::dress_in_area::<Villager>(app);
     app.add_plugins((
         // Navmesh plumbing for the villagers' brains: rerecast builds the mesh
         // from the world's avian colliders, landmass walks agents over it. The
@@ -693,7 +695,10 @@ fn avoid_cover(
 struct Dressed;
 
 /// The same rigged character system as players (people.rs).
-fn dress_villagers(mut commands: Commands, new: Query<(Entity, &Villager), Without<Dressed>>) {
+fn dress_villagers(
+    mut commands: Commands,
+    new: Query<(Entity, &Villager), Added<friendslop_base::areas::Shown>>,
+) {
     for (entity, v) in &new {
         commands.entity(entity).insert((
             Dressed,

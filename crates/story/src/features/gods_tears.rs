@@ -219,6 +219,8 @@ fn use_tear(
 }
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    friendslop_base::areas::dress_in_area::<GodsTear>(app);
     app.add_observer(click_tear)
         .add_hud(spawn_tears_hud)
         .add_systems(
@@ -244,7 +246,7 @@ struct TearKit {
 /// Give every tear (on every peer) a glowing blue teardrop body.
 fn dress_tears(
     mut commands: Commands,
-    new: Query<(Entity, &GodsTear), Added<GodsTear>>,
+    new: Query<(Entity, &GodsTear), Added<friendslop_base::areas::Shown>>,
     assets: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,

@@ -297,6 +297,8 @@ pub fn biggest_pack(points: &[Vec2]) -> usize {
 }
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    friendslop_base::areas::dress_in_area::<Pet>(app);
     app.add_observer(click_pet)
         .add_hud(spawn_pet_hud)
         .add_systems(
@@ -312,7 +314,10 @@ pub fn plugin(app: &mut App) {
         );
 }
 
-fn dress_pets(mut commands: Commands, new: Query<(Entity, &Pet), Added<Pet>>) {
+fn dress_pets(
+    mut commands: Commands,
+    new: Query<(Entity, &Pet), Added<friendslop_base::areas::Shown>>,
+) {
     for (entity, pet) in &new {
         commands.entity(entity).insert((
             Transform::from_translation(crate::terrain::on_ground(pet.at)),

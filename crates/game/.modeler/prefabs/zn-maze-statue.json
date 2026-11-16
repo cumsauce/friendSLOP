@@ -1,15 +1,13 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "zn-maze-statue",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 60923,
   "ops": [
     {
       "primitive": {
-        "kind": "box",
         "name": "plinth_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           1.6,
           0.8,
@@ -19,40 +17,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "plinth_ch",
         "input": "plinth_raw",
         "mode": "chamfer",
-        "name": "plinth_ch",
         "radius": 0.05,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "plinth_ch",
         "name": "plinth",
-        "rotation": null,
-        "scale": null,
+        "input": "plinth_ch",
         "translation": [
           0.0,
           0.4,
           0.0
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "plinth",
-        "metalness": null,
         "name": "plinth",
+        "input": "plinth",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-stonework",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -192,21 +196,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 2.0
-          },
-          "material": "zn-stonework",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "plinth_top_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           1.75,
           0.12,
@@ -216,40 +214,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "plinth_top_ch",
         "input": "plinth_top_raw",
         "mode": "chamfer",
-        "name": "plinth_top_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "plinth_top_ch",
         "name": "plinth_top",
-        "rotation": null,
-        "scale": null,
+        "input": "plinth_top_ch",
         "translation": [
           0.0,
           0.86,
           0.0
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "plinth_top",
-        "metalness": null,
         "name": "plinth_top",
+        "input": "plinth_top",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-stonework",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 2.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wn",
@@ -389,37 +393,31 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 2.0
-          },
-          "material": "zn-stonework",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "column_raw",
         "profile": [
           [
             [
               0.0,
-              0.8
-            ],
-            [
-              0.45,
-              0.8
+              0.92
             ],
             [
               0.45,
               0.92
             ],
             [
+              0.45,
+              1.02
+            ],
+            [
               0.36,
-              0.98
+              1.08
             ],
             [
               0.35,
@@ -439,37 +437,43 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 12,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "transform": {
-        "input": "column_raw",
         "name": "column",
-        "rotation": null,
-        "scale": null,
+        "input": "column_raw",
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "column",
-        "metalness": null,
         "name": "column",
+        "input": "column",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-gold",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "fn",
@@ -514,21 +518,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.5
-          },
-          "material": "zn-gold",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "gem_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.6,
           0.6,
@@ -538,45 +536,51 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "gem_ch",
         "input": "gem_raw",
         "mode": "chamfer",
-        "name": "gem_ch",
         "radius": 0.06,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "gem_ch",
         "name": "gem",
+        "input": "gem_ch",
+        "translation": [
+          0.0,
+          2.5,
+          0.0
+        ],
         "rotation": [
           0.0,
           0.38268346,
           0.0,
           0.9238795
         ],
-        "scale": null,
-        "translation": [
-          0.0,
-          2.5,
-          0.0
-        ]
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "gem",
-        "metalness": null,
         "name": "gem",
+        "input": "gem",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-gold",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
             "nodes": [
               {
                 "name": "fn",
@@ -621,68 +625,65 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 128,
-            "tile": 0.5
-          },
-          "material": "zn-gold",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "visibility": {
-        "input": "plinth_raw",
         "name": "plinth_raw",
+        "input": "plinth_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plinth_top_raw",
         "name": "plinth_top_raw",
+        "input": "plinth_top_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "column_raw",
         "name": "column_raw",
+        "input": "column_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "gem_raw",
         "name": "gem_raw",
+        "input": "gem_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plinth_ch",
         "name": "plinth_ch",
+        "input": "plinth_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plinth_top_ch",
         "name": "plinth_top_ch",
+        "input": "plinth_top_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "gem_ch",
         "name": "gem_ch",
+        "input": "gem_ch",
         "visible": false
       }
     }
   ],
-  "parts": [],
+  "annotations": [],
+  "next_annotation_id": 0,
   "style": {
+    "name": "friendslop",
     "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
     "colors": {
       "bark": "#6b4a2f",
@@ -697,10 +698,9 @@
       "stone_dark": "#5e5a54",
       "wood": "#9a6a3e"
     },
-    "name": "friendslop",
     "numbers": {
       "segments": 12.0
     }
   },
-  "version": 7265
+  "derived_from_ops": true
 }

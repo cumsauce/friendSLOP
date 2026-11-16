@@ -2,45 +2,8 @@
   "format_version": 1,
   "name": "zn-wheelbarrow",
   "parts": [],
-  "version": 63556,
+  "version": 60858,
   "ops": [
-    {
-      "extrude": {
-        "name": "tray",
-        "profile": [
-          [
-            [
-              -0.3,
-              -0.35
-            ],
-            [
-              0.3,
-              -0.35
-            ],
-            [
-              0.3,
-              0.35
-            ],
-            [
-              -0.3,
-              0.35
-            ]
-          ]
-        ],
-        "height": 0.3,
-        "scale_top": [
-          1.25,
-          1.3
-        ],
-        "slices": 0,
-        "translation": [
-          0.0,
-          0.35,
-          0.0
-        ],
-        "rotation": null
-      }
-    },
     {
       "primitive": {
         "name": "wheel",
@@ -58,9 +21,10 @@
         "rotation": [
           0.0,
           0.0,
-          0.70710677,
-          0.70710677
-        ]
+          0.7071068,
+          0.7071068
+        ],
+        "round": 0.03
       }
     },
     {
@@ -74,15 +38,16 @@
         ],
         "translation": [
           -0.25,
-          0.4,
+          0.297,
           -0.15
         ],
         "rotation": [
-          -0.06975647,
+          0.06975647,
           0.0,
           0.0,
           0.9975641
-        ]
+        ],
+        "round": 0.008
       }
     },
     {
@@ -96,15 +61,16 @@
         ],
         "translation": [
           0.25,
-          0.4,
+          0.297,
           -0.15
         ],
         "rotation": [
-          -0.06975647,
+          0.06975647,
           0.0,
           0.0,
           0.9975641
-        ]
+        ],
+        "round": 0.008
       }
     },
     {
@@ -113,15 +79,16 @@
         "kind": "box",
         "size": [
           0.05,
-          0.35,
+          0.32,
           0.05
         ],
         "translation": [
           -0.25,
-          0.17,
+          0.16,
           -0.35
         ],
-        "rotation": null
+        "rotation": null,
+        "round": 0.008
       }
     },
     {
@@ -130,108 +97,16 @@
         "kind": "box",
         "size": [
           0.05,
-          0.35,
+          0.32,
           0.05
         ],
         "translation": [
           0.25,
-          0.17,
+          0.16,
           -0.35
         ],
-        "rotation": null
-      }
-    },
-    {
-      "material": {
-        "name": "tray",
-        "input": "tray",
-        "base_color": null,
-        "roughness": null,
-        "metalness": null,
-        "pbr": {
-          "material": "gunmetal",
-          "scale": 1.0,
-          "graph": {
-            "domain": "object",
-            "tile": 1.0,
-            "resolution": 128,
-            "nodes": [
-              {
-                "name": "p",
-                "of": "position",
-                "type": "input"
-              },
-              {
-                "coords": "p",
-                "mode": "fbm",
-                "name": "n",
-                "octaves": 4,
-                "seed": 12,
-                "size": 0.02,
-                "type": "noise"
-              },
-              {
-                "gain": 1.5,
-                "name": "cv",
-                "radius": 0.004,
-                "type": "mesh_curvature"
-              },
-              {
-                "in": [
-                  0.55,
-                  0.8
-                ],
-                "input": "cv.convex",
-                "name": "wear",
-                "type": "levels"
-              },
-              {
-                "input": "n",
-                "name": "c0",
-                "stops": [
-                  [
-                    0.0,
-                    "#2c2e33"
-                  ],
-                  [
-                    1.0,
-                    "#43464d"
-                  ]
-                ],
-                "type": "ramp"
-              },
-              {
-                "a": "c0",
-                "b": "#8a8d93",
-                "c": "wear",
-                "name": "col",
-                "op": "mix",
-                "type": "math"
-              },
-              {
-                "from": [
-                  0,
-                  1
-                ],
-                "input": "n",
-                "name": "r",
-                "to": [
-                  0.3,
-                  0.5
-                ],
-                "type": "remap"
-              },
-              {
-                "base_color": "col",
-                "metallic": 1.0,
-                "name": "out",
-                "roughness": "r",
-                "type": "output"
-              }
-            ],
-            "params": {}
-          }
-        }
+        "rotation": null,
+        "round": 0.008
       }
     },
     {
@@ -753,6 +628,269 @@
             "params": {}
           }
         }
+      }
+    },
+    {
+      "extrude": {
+        "name": "tray_solid",
+        "profile": [
+          [
+            [
+              -0.3,
+              -0.35
+            ],
+            [
+              0.3,
+              -0.35
+            ],
+            [
+              0.3,
+              0.35
+            ],
+            [
+              -0.3,
+              0.35
+            ]
+          ]
+        ],
+        "height": 0.3,
+        "scale_top": [
+          1.25,
+          1.3
+        ],
+        "slices": 0,
+        "round": 0.04,
+        "translation": [
+          0.0,
+          0.35,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "shell": {
+        "name": "tray",
+        "input": "tray_solid",
+        "thickness": 0.02,
+        "open": [
+          "top"
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "axle",
+        "kind": "cylinder",
+        "size": [
+          0.02,
+          0.6,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.2,
+          0.55
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.7071068,
+          0.7071068
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "tray",
+        "input": "tray",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "gunmetal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 12,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "gain": 1.5,
+                "name": "cv",
+                "radius": 0.004,
+                "type": "mesh_curvature"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.8
+                ],
+                "input": "cv.convex",
+                "name": "wear",
+                "type": "levels"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#2c2e33"
+                  ],
+                  [
+                    1.0,
+                    "#43464d"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#8a8d93",
+                "c": "wear",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "r",
+                "to": [
+                  0.3,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 1.0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "axle",
+        "input": "axle",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "gunmetal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 12,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "gain": 1.5,
+                "name": "cv",
+                "radius": 0.004,
+                "type": "mesh_curvature"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.8
+                ],
+                "input": "cv.convex",
+                "name": "wear",
+                "type": "levels"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#2c2e33"
+                  ],
+                  [
+                    1.0,
+                    "#43464d"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#8a8d93",
+                "c": "wear",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "r",
+                "to": [
+                  0.3,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 1.0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "tray_solid",
+        "input": "tray_solid",
+        "visible": false
       }
     }
   ],

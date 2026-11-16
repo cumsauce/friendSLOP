@@ -97,6 +97,10 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   peers build the same world: generated village houses on six plots, seeded furniture, a seeded
   sewer room graph, and a warehouse plan from `crates/wfc`. Open: furniture in the sewer and
   warehouse; more house types.
+- **Lived-in after the storm.** The commune map dresses the village backyards and the camp's
+  edge with laundry lines, raised vegetable beds and storm repairs in progress (a sawhorse,
+  tarped planks, a wheelbarrow, a rain barrel): `cv-*` modeler prefabs placed on `commune-map`,
+  visual only (no colliders), kept off the villagers' streets.
 - **First-person bodies** (#53, #317). Everyone walks in first person (WASD, mouse, Space jump,
   Shift run); left click uses what's under the crosshair; V swaps to the overview camera; Esc
   opens the pause screen. The host moves bodies with a kinematic controller (slopes, stairs,

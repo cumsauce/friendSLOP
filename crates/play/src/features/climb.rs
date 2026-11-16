@@ -20,6 +20,7 @@ use avian3d::character_controller::move_and_slide::{
 use avian3d::prelude::*;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 
 use crate::AppState;
 use crate::features::duel::Duelist;
@@ -111,7 +112,7 @@ pub fn protocol(_app: &mut App) {}
 
 pub fn plugin(app: &mut App) {
     app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
-    app.add_systems(OnEnter(AppState::InGame), raise_islands)
+    app.spawn_into("commune", raise_islands)
         .add_systems(
             Update,
             climb
@@ -122,7 +123,7 @@ pub fn plugin(app: &mut App) {
                     |trees: Option<Res<avian3d::collider_tree::ColliderTrees>>| trees.is_some(),
                 ),
         )
-        .add_systems(OnEnter(AppState::InGame), climb_help);
+        .add_hud(climb_help);
 }
 
 fn climb_help(mut commands: Commands) {

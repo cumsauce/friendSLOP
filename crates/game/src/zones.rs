@@ -21,6 +21,7 @@
 //! hedgerows come from `assets/models/scenery`) degrade to nothing without LFS
 //! while their colliders and the primitive-built maze and castle walls stay.
 
+use crate::areas::AreaApp as _;
 use avian3d::prelude::*;
 use bevy::prelude::*;
 use std::f32::consts::TAU;
@@ -32,7 +33,7 @@ pub use friendslop_base::zones::*;
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<crate::scenery::KitCache>()
-        .add_systems(OnEnter(AppState::InGame), dress_zones)
+        .spawn_into("commune", dress_zones)
         .add_systems(Update, turn_sails.run_if(in_state(AppState::InGame)));
 }
 

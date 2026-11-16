@@ -414,7 +414,19 @@ pub fn plugin(app: &mut App) {
         (tag_navmesh_exclusions, build_navmesh, attach_agents)
             .chain()
             .run_if(in_state(ServerState::Running))
-            .run_if(in_state(AppState::InGame)),
+            .run_if(in_state(AppState::InGame))
+            // Built from the commune's colliders: only while they're loaded,
+            // and again each time they load (the host may start elsewhere).
+            .run_if(friendslop_base::areas::live(COMMUNE)),
+    )
+    .add_systems(
+        PreUpdate,
+        (forget_navmesh, drop_agents)
+            .after(friendslop_base::areas::AreaSet)
+            .run_if(friendslop_base::areas::unloaded(
+                friendslop_base::areas::Layer::Sim,
+                COMMUNE,
+            )),
     )
     .add_systems(
         Update,
@@ -501,6 +513,19 @@ fn forget_navmesh(
         commands.entity(e).try_despawn();
     }
     commands.remove_resource::<VillageNav>();
+}
+
+/// The area the villagers live in (and their navmesh is built from).
+const COMMUNE: &str = "commune";
+
+/// The commune's colliders went: villagers lose their agents (they get new
+/// ones on the next navmesh).
+fn drop_agents(mut commands: Commands, agents: Query<Entity, (With<Villager>, With<Agent3d>)>) {
+    for e in &agents {
+        commands
+            .entity(e)
+            .remove::<(Agent3d, AgentSettings, ArchipelagoRef3d, AgentTarget3d)>();
+    }
 }
 
 /// Server, once the whole world is in and every collider that stays out of the

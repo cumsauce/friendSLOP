@@ -22,6 +22,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -249,7 +250,7 @@ fn smoke_xp(mut players: Query<&mut Skills, Added<super::smoking::Smoking>>) {
 
 pub fn plugin(app: &mut App) {
     app.add_systems(Update, asleep_context)
-        .add_systems(OnEnter(AppState::InGame), spawn_ui)
+        .add_hud(spawn_ui)
         .add_systems(
             Update,
             (

@@ -13,6 +13,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use super::clues::{Clues, WRITING as CLUE_WRITING};
@@ -67,7 +68,8 @@ pub fn protocol(app: &mut App) {
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), (spawn_tv, spawn_text))
+    app.spawn_into("commune", spawn_tv)
+        .add_hud(spawn_text)
         .add_systems(Update, play.run_if(in_state(AppState::InGame)))
         .add_observer(start);
 }

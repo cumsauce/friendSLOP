@@ -10,6 +10,7 @@
 
 use bevy::prelude::*;
 use bevy::render::view::ColorGrading;
+use friendslop_base::areas::AreaApp as _;
 
 use super::smoking::Smoking;
 use crate::AppState;
@@ -84,7 +85,7 @@ pub fn wobble(level: f32, time: f32, t: &Tuning) -> Quat {
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<High>()
-        .add_systems(OnEnter(AppState::InGame), sober)
+        .add_systems(OnExit(AppState::InGame), sober)
         .add_observer(light_up)
         .add_systems(PreUpdate, unwobble.run_if(in_state(AppState::InGame)))
         .add_systems(

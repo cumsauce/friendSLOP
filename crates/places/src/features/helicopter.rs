@@ -17,6 +17,7 @@
 use bevy::audio::AudioSource;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -271,7 +272,7 @@ fn fly(
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<HeliSounds>()
-        .add_systems(OnEnter(AppState::InGame), spawn_ui)
+        .add_hud(spawn_ui)
         .add_systems(
             Update,
             (

@@ -15,6 +15,7 @@
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -361,7 +362,8 @@ fn smoke(
 pub fn plugin(app: &mut App) {
     app.add_observer(click)
         .add_observer(show_says)
-        .add_systems(OnEnter(AppState::InGame), (spawn_paul, spawn_ui))
+        .spawn_into("commune", spawn_paul)
+        .add_hud(spawn_ui)
         .add_systems(
             Update,
             (

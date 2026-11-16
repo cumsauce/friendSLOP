@@ -157,6 +157,177 @@ pub fn on_show<M>(
     app.add_systems(PreUpdate, at_load(systems, Layer::Show, area));
 }
 
+/// Run `systems` (spawners written for the whole world) whenever either of
+/// `area`'s layers loads, and file what they spawn: each new tree (an entity
+/// and its children) that holds a collider, or nothing drawn at all, goes in
+/// the Sim layer; one that's only drawn (meshes, scenes, lights, sound) in
+/// the Show layer. A tree is kept only if its layer loaded this frame (the
+/// other one is already there), so each runs at most once per load. Replicated
+/// entities are left alone (gameplay state is always kept: don't spawn it here).
+///
+/// A tree with both colliders and meshes stays as long as the colliders do:
+/// split it into two spawners when its looks are heavy.
+pub fn spawn_into<M>(
+    app: &mut App,
+    area: &'static str,
+    systems: impl IntoScheduleConfigs<bevy::ecs::system::ScheduleSystem, M>,
+) {
+    spawn_into_refreshed(app, area, "", systems);
+}
+
+/// [`spawn_into`], also run again (into whichever layers are loaded) on the
+/// frame [`Refresh`] holds `key`: for spawners that rebuild what they made
+/// when something changes (the village on a new world seed: it despawns its
+/// old parts itself).
+pub fn spawn_into_refreshed<M>(
+    app: &mut App,
+    area: &'static str,
+    key: &'static str,
+    systems: impl IntoScheduleConfigs<bevy::ecs::system::ScheduleSystem, M>,
+) {
+    let label = SpawnInto(NEXT_SPAWN.fetch_add(1, std::sync::atomic::Ordering::Relaxed));
+    app.init_resource::<Refresh>();
+    app.add_systems(label, systems);
+    app.add_systems(
+        PreUpdate,
+        (
+            (move |world: &mut World| spawn_and_file(world, label, area, key)).run_if(
+                move |l: Res<Loaded>, r: Res<Refresh>| {
+                    l.loaded(area, Layer::Sim)
+                        || l.loaded(area, Layer::Show)
+                        || (!key.is_empty() && r.0.contains(key) && l.is(area, Layer::Sim))
+                },
+            ),
+            (move |mut r: ResMut<Refresh>| {
+                r.0.remove(key);
+            })
+            .run_if(move |r: Res<Refresh>| r.0.contains(key)),
+        )
+            .chain()
+            .after(AreaSet)
+            .run_if(in_state(AppState::InGame)),
+    );
+}
+
+/// Spawners ([`spawn_into_refreshed`]) to run again this frame, by key.
+/// Insert in `PreUpdate` before [`AreaSet`] (or any time the frame before).
+#[derive(Resource, Default, Debug)]
+pub struct Refresh(pub bevy::platform::collections::HashSet<&'static str>);
+
+/// [`spawn_into`] and the HUD's spawner as `App` methods, so plugins can
+/// chain them: `app.spawn_into("commune", build).add_hud(spawn_text)`.
+pub trait AreaApp {
+    /// [`spawn_into`].
+    fn spawn_into<M>(
+        &mut self,
+        area: &'static str,
+        systems: impl IntoScheduleConfigs<bevy::ecs::system::ScheduleSystem, M>,
+    ) -> &mut Self;
+    /// [`crate::hud::on_enter_game`]: HUD and UI only, never world things.
+    fn add_hud<M>(
+        &mut self,
+        systems: impl IntoScheduleConfigs<bevy::ecs::system::ScheduleSystem, M>,
+    ) -> &mut Self;
+}
+
+impl AreaApp for App {
+    fn spawn_into<M>(
+        &mut self,
+        area: &'static str,
+        systems: impl IntoScheduleConfigs<bevy::ecs::system::ScheduleSystem, M>,
+    ) -> &mut Self {
+        spawn_into(self, area, systems);
+        self
+    }
+    fn add_hud<M>(
+        &mut self,
+        systems: impl IntoScheduleConfigs<bevy::ecs::system::ScheduleSystem, M>,
+    ) -> &mut Self {
+        crate::hud::on_enter_game(self, systems);
+        self
+    }
+}
+
+static NEXT_SPAWN: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+
+#[derive(bevy::ecs::schedule::ScheduleLabel, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+struct SpawnInto(usize);
+
+fn spawn_and_file(world: &mut World, label: SpawnInto, area: &'static str, key: &'static str) {
+    let again = !key.is_empty() && world.resource::<Refresh>().0.contains(key);
+    let (sim, show) = {
+        let l = world.resource::<Loaded>();
+        if again {
+            (l.is(area, Layer::Sim), l.is(area, Layer::Show))
+        } else {
+            (l.loaded(area, Layer::Sim), l.loaded(area, Layer::Show))
+        }
+    };
+    let before: bevy::ecs::entity::EntityHashSet = world.query::<Entity>().iter(world).collect();
+    world.run_schedule(label);
+    let mut new: Vec<Entity> = world
+        .query::<Entity>()
+        .iter(world)
+        .filter(|e| !before.contains(e))
+        .collect();
+    new.sort();
+    let is_new = |e: Entity| !before.contains(&e);
+    for e in new {
+        let parent = world.get::<ChildOf>(e).map(ChildOf::parent);
+        if parent.is_some_and(is_new) {
+            continue; // filed with its tree
+        }
+        if world.get::<bevy_replicon::prelude::Replicated>(e).is_some() {
+            continue;
+        }
+        let (collider, drawn) = contents(world, e);
+        let layer = if collider || !drawn {
+            Layer::Sim
+        } else {
+            Layer::Show
+        };
+        let keep = match layer {
+            Layer::Sim => sim,
+            Layer::Show => show,
+        };
+        let Ok(mut entity) = world.get_entity_mut(e) else {
+            continue;
+        };
+        if keep {
+            entity.insert(InArea {
+                area: area.into(),
+                layer,
+            });
+        } else {
+            entity.despawn();
+        }
+    }
+}
+
+/// Does the tree under `e` hold a collider? Anything drawn or heard?
+fn contents(world: &World, e: Entity) -> (bool, bool) {
+    let mut collider = false;
+    let mut drawn = false;
+    let mut stack = vec![e];
+    while let Some(at) = stack.pop() {
+        let Ok(r) = world.get_entity(at) else {
+            continue;
+        };
+        collider |= r.contains::<avian3d::prelude::Collider>();
+        drawn |= r.contains::<Mesh3d>()
+            || r.contains::<WorldAssetRoot>()
+            || r.contains::<PointLight>()
+            || r.contains::<SpotLight>()
+            || r.contains::<AudioPlayer>()
+            || r.contains::<crate::spatial::Emitter>()
+            || r.contains::<friendslop_world::map::Map>();
+        if let Some(children) = r.get::<Children>() {
+            stack.extend(children.iter());
+        }
+    }
+    (collider, drawn)
+}
+
 fn at_load<M>(
     systems: impl IntoScheduleConfigs<bevy::ecs::system::ScheduleSystem, M>,
     layer: Layer,
@@ -200,6 +371,14 @@ pub const GLOBALS: &[(&str, &str)] = &[
     (
         "crates/village/src/features/morality.rs",
         "replicated morality",
+    ),
+    (
+        "crates/game/src/world.rs",
+        "the main camera and the scoreboard",
+    ),
+    (
+        "crates/side/src/features/sesbian_lex.rs",
+        "the hearts and glow that follow whoever's lexing, anywhere",
     ),
 ];
 
@@ -320,12 +499,26 @@ impl Loaded {
                     .unwrap_or_default()
             };
             let (show, sim) = (get(&self.0, Layer::Show), get(&self.0, Layer::Sim));
-            let me = force.unwrap_or_else(|| area.wanted(show.now, you));
+            // Someone in a place stacked over or under this one (the
+            // tunnels under the commune) is there, not here: they got there
+            // by teleport and come back the same way.
+            let counts = |p: &Vec3| {
+                !list
+                    .areas
+                    .iter()
+                    .any(|o| o.id != area.id && o.heights.is_some() && o.holds(*p))
+            };
+            let me = force.unwrap_or_else(|| area.wanted(show.now, you.filter(counts)));
             let anyone = force.unwrap_or_else(|| {
                 if client {
-                    area.wanted(sim.now, you)
+                    area.wanted(sim.now, you.filter(counts))
                 } else {
-                    area.wanted(sim.now, you.into_iter().chain(players.iter().copied()))
+                    area.wanted(
+                        sim.now,
+                        you.into_iter()
+                            .chain(players.iter().copied())
+                            .filter(counts),
+                    )
                 }
             });
             for (layer, was, now) in [(Layer::Show, show, me), (Layer::Sim, sim, anyone)] {

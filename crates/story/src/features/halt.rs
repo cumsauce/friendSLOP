@@ -24,6 +24,7 @@ use bevy::audio::AudioSource;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy_replicon::prelude::*;
+use friendslop_base::areas::AreaApp as _;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
@@ -159,7 +160,7 @@ fn seethe(
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(AppState::InGame), spawn_halt_ui)
+    app.add_hud(spawn_halt_ui)
         .add_systems(OnExit(AppState::InGame), restore_title)
         .add_systems(
             Update,

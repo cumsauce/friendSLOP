@@ -1904,6 +1904,14 @@ mod tests {
     }
 
     #[test]
+    fn the_station_fits_its_depth_limit() {
+        let (t, _) = data();
+        assert!(t.levels <= crate::rules::nyc::STATION_MAX_LEVELS);
+        let bottom = STATION_TOP_Y - (t.levels - 1) as f32 * STATION_LEVEL_H;
+        assert!(in_station(Vec3::new(0.0, bottom, 200.0)));
+    }
+
+    #[test]
     fn the_data_files_parse_and_have_everything() {
         let (t, set) = data();
         assert!(t.levels >= 10, "an impossible number of levels");

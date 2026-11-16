@@ -430,7 +430,7 @@ fn where_is_everyone(
     walkers: Query<&Walker, With<Player>>,
     mut people: ResMut<crate::sites::People>,
 ) {
-    let at: Vec<Vec2> = walkers.iter().map(|w| w.pos.xz()).collect();
+    let at: Vec<Vec3> = walkers.iter().map(|w| w.pos).collect();
     if people.0 != at {
         people.0 = at;
     }

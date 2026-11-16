@@ -9,12 +9,25 @@
     // its modeler map (`Some("maps/<area>.bsn")` or `None`), how far (m)
     // outside the box it starts loading, and how much further (m) everyone
     // must be before it unloads (so walking along the edge doesn't flicker).
+    // A place stacked over or under another adds `heights: Some((min y, max y))`
+    // (left out, an area is as tall as the world); where two hold you, the
+    // stacked one is where you are. You reach the stacked places below by
+    // teleport (a door, a ladder, dying), so they load only close up.
     areas: [
         // The whole commune map, edge-of-world hills included (one area
         // for now; districts later, maybe).
         (id: "commune", name: "The commune", bounds: ((-110.0, -110.0), (110.0, 110.0)), map: Some("maps/commune.bsn"), load: 40.0, unload: 20.0),
         // New York's city floor, with Penn Station, Fulton St and Miami
         // stacked over and under it.
+        // The warehouse's inside (#130): a map of its own deep under the
+        // meadow, built from the expedition's seed. Its outside is the commune's.
+        (id: "warehouse", name: "Inside the warehouse", bounds: ((-20.0, -20.0), (20.0, 20.0)), map: None, load: 4.0, unload: 4.0, heights: Some((-64.0, -46.0))),
+        // The tunnels under the whole map (#127), between the meadow and the warehouse.
+        (id: "underground", name: "The tunnels", bounds: ((-110.0, -110.0), (110.0, 110.0)), map: None, load: 4.0, unload: 4.0, heights: Some((-38.0, -18.0))),
+        // The hell pit far under the forest (the `hell` spot): the dead cross it.
+        (id: "afterlife", name: "Hell", bounds: ((-80.0, -80.0), (-40.0, -40.0)), map: None, load: 4.0, unload: 4.0, heights: Some((-160.0, -118.0))),
+        // The infinite hallways and stairs, stacked far over the map.
+        (id: "infinite", name: "The sky courses", bounds: ((-120.0, -120.0), (120.0, 120.0)), map: None, load: 4.0, unload: 4.0, heights: Some((330.0, 5000.0))),
         (id: "nyc", name: "New York City", bounds: ((-90.0, 116.0), (90.0, 330.0)), map: Some("maps/nyc.bsn"), load: 40.0, unload: 20.0),
     ],
 )

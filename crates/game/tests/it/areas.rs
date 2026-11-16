@@ -59,13 +59,6 @@ const NOT_YET_IN_AN_AREA: &[&str] = &[
     "crates/village/src/features/organ_currency.rs",
     "crates/village/src/features/punishment.rs",
     "crates/village/src/features/wendys.rs",
-    // Interiors.
-    "crates/places/src/features/underground/visuals.rs",
-    "crates/places/src/features/warehouse/visuals.rs",
-    // Off-map places.
-    "crates/afterlife/src/features/afterlife.rs",
-    "crates/afterlife/src/features/mute_spell.rs",
-    "crates/side/src/features/infinite.rs",
 ];
 
 fn spawns_at_start() -> Vec<String> {
@@ -296,4 +289,140 @@ fn a_host_elsewhere_keeps_new_york_s_colliders_while_a_friend_is_inside() {
     assert!(!has(&sim.server, "nyc", Layer::Sim));
     assert_eq!(colliders_in(&mut sim.server, "nyc"), 0);
     assert_eq!(colliders_in(&mut sim.clients[0], "nyc"), 0);
+}
+
+/// Start a host and one friend in the game, the host at `home` and the
+/// friend at `away` (each peer's "you" and their bodies).
+fn two_players(home: Vec3, away: Vec3) -> super::harness::Sim {
+    let mut sim = super::harness::Sim::new(1);
+    for app in std::iter::once(&mut sim.server).chain(sim.clients.iter_mut()) {
+        app.init_state::<AppState>();
+        app.world_mut()
+            .resource_mut::<NextState<AppState>>()
+            .set(AppState::InGame);
+    }
+    sim.server.insert_resource(friendslop::place::Here(home));
+    sim.clients[0].insert_resource(friendslop::place::Here(away));
+    stand(&mut sim, 0, home);
+    stand(&mut sim, 1, away);
+    sim
+}
+
+/// The per-area checklist's two-player test for a place stacked over or
+/// under the commune: a host up top keeps its colliders (and none of its
+/// visuals) while the friend is in it; the friend has both; once the friend
+/// is back up, neither keeps any of it.
+fn a_host_up_top_keeps_the_colliders_of(
+    area: &str,
+    inside: Vec3,
+    prepare: fn(&mut super::harness::Sim),
+) {
+    load_data();
+    let home = Vec3::new(0.0, friendslop::terrain::height_at(0.0, 0.0), 0.0);
+    let mut sim = two_players(home, inside);
+    prepare(&mut sim);
+    sim.run(0.2);
+    assert!(
+        has(&sim.server, area, Layer::Sim),
+        "the host dropped {area}'s colliders"
+    );
+    assert!(
+        !has(&sim.server, area, Layer::Show),
+        "the host draws {area} from up top"
+    );
+    assert!(
+        colliders_in(&mut sim.server, area) > 0,
+        "no {area} colliders on the host"
+    );
+    let client = &mut sim.clients[0];
+    assert!(has(client, area, Layer::Sim) && has(client, area, Layer::Show));
+    assert!(
+        colliders_in(client, area) > 0,
+        "the friend walks {area} without its walls"
+    );
+
+    sim.clients[0].insert_resource(friendslop::place::Here(home));
+    stand(&mut sim, 1, home);
+    sim.run(0.2);
+    for app in std::iter::once(&mut sim.server).chain(sim.clients.iter_mut()) {
+        assert!(!has(app, area, Layer::Sim) && !has(app, area, Layer::Show));
+        assert_eq!(colliders_in(app, area), 0, "{area} left colliders behind");
+    }
+}
+
+#[test]
+fn a_host_up_top_keeps_the_warehouse_s_colliders_while_a_friend_is_inside() {
+    a_host_up_top_keeps_the_colliders_of(
+        "warehouse",
+        friendslop::features::warehouse::in_spot(0),
+        |sim| {
+            // An expedition is on: everyone builds the same inside.
+            let world = sim.server.world_mut();
+            let mut q = world.query::<&mut friendslop::features::warehouse::Warehouse>();
+            for mut w in q.iter_mut(world) {
+                w.seed = Some(7);
+            }
+        },
+    );
+}
+
+#[test]
+fn a_host_up_top_keeps_the_tunnels_colliders_while_a_friend_is_down() {
+    a_host_up_top_keeps_the_colliders_of(
+        "underground",
+        friendslop::features::underground::down_spot(0),
+        |sim| {
+            for app in std::iter::once(&mut sim.server).chain(sim.clients.iter_mut()) {
+                app.insert_resource(friendslop::features::world_seed::WorldSeed(1));
+            }
+        },
+    );
+}
+
+#[test]
+fn a_host_up_top_keeps_hell_s_colliders_while_a_friend_is_in_it() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("assets")
+        .join(friendslop_data::DataFile::path(
+            &friendslop::features::afterlife::TUNING,
+        ));
+    let Ok(bytes) = std::fs::read(&path) else {
+        panic!("missing {path:?}");
+    };
+    assert!(friendslop_data::DataFile::set_bytes(
+        &friendslop::features::afterlife::TUNING,
+        &bytes
+    ));
+    let Some(stone) = friendslop::features::afterlife::hell_stones()
+        .first()
+        .copied()
+    else {
+        panic!("hell has no stones");
+    };
+    a_host_up_top_keeps_the_colliders_of("afterlife", stone.top, |_| {});
+}
+
+#[test]
+fn a_host_down_here_keeps_the_sky_courses_colliders_while_a_friend_is_up_there() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("assets")
+        .join(friendslop_data::DataFile::path(
+            &friendslop::features::infinite::TUNING,
+        ));
+    let Ok(bytes) = std::fs::read(&path) else {
+        panic!("missing {path:?}");
+    };
+    assert!(friendslop_data::DataFile::set_bytes(
+        &friendslop::features::infinite::TUNING,
+        &bytes
+    ));
+    let plan = friendslop::features::infinite::Plan::seeded(1);
+    let Some(space) = plan.spaces.first() else {
+        panic!("no sky courses");
+    };
+    a_host_up_top_keeps_the_colliders_of("infinite", space.origin, |sim| {
+        for app in std::iter::once(&mut sim.server).chain(sim.clients.iter_mut()) {
+            app.insert_resource(friendslop::features::infinite::Plan::seeded(1));
+        }
+    });
 }

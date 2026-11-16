@@ -117,9 +117,10 @@ pub fn at(id: &str) -> Vec2 {
         .unwrap_or_default()
 }
 
-/// Where every player's feet are (x, z), written each frame (`fps.rs`).
+/// Where every player's feet are, written each frame (`fps.rs`). Sites
+/// look at (x, z); areas at the height too (stacked places).
 #[derive(Resource, Default, Debug, Clone, PartialEq)]
-pub struct People(pub Vec<Vec2>);
+pub struct People(pub Vec<Vec3>);
 
 /// One site's state this frame and last.
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
@@ -234,7 +235,8 @@ pub fn plugin(app: &mut App) {
 }
 
 fn track(here: Option<Res<Here>>, people: Res<People>, mut awake: ResMut<Awake>) {
-    awake.track(&sites(), here.map(|h| h.0.xz()), &people.0);
+    let flat: Vec<Vec2> = people.0.iter().map(|p| p.xz()).collect();
+    awake.track(&sites(), here.map(|h| h.0.xz()), &flat);
 }
 
 #[cfg(test)]

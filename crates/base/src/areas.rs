@@ -675,24 +675,69 @@ pub fn census<'a>(
     out
 }
 
-/// The area `e` belongs to: its own [`InArea`] or [`AreaRoot`], or its
-/// nearest ancestor's.
+/// Not in any area on purpose: a global thing that is everywhere for
+/// whoever it's for (the camera, the sun and clouds, the ambience that
+/// follows you, UI). Put it on the top entity; its children count with it.
+#[derive(Component, Debug, Default, Clone, Copy)]
+pub struct Global;
+
+/// What the census looks at on each entity, to say who owns it.
+#[derive(bevy::ecs::query::QueryData)]
+pub struct Tags {
+    tag: Option<&'static InArea>,
+    root: Option<&'static AreaRoot>,
+    global: Has<Global>,
+    replicated: Has<bevy_replicon::prelude::Replicated>,
+    remote: Has<bevy_replicon::client::Remote>,
+    waste: Has<friendslop_world::wastes::WasteChunk>,
+    placed: Has<Transform>,
+    ui: Has<Node>,
+}
+
+/// The census line for things kept on purpose outside areas ([`Global`],
+/// and UI).
+pub const GLOBAL: &str = "globals";
+/// The census line for replicated gameplay state (always kept: an area's
+/// middle layer) and the local dressing under it, which moves with it.
+pub const REPLICATED: &str = "replicated";
+/// The census line for the wasteland's streamed chunks.
+pub const WASTES: &str = "wastes";
+
+/// Who owns `e`, for the census: its own or nearest ancestor's [`InArea`]
+/// or [`AreaRoot`] (that area), [`Global`] or UI ([`GLOBAL`]), `Replicated`
+/// or `Remote` on a client ([`REPLICATED`]) or a wastes chunk ([`WASTES`]). `Some(None)`: no area,
+/// the progress bar. `None`: not in the world at all (no `Transform`:
+/// observers, resources, systems), not counted.
 pub fn owner<'a>(
     e: Entity,
     parents: &Query<&ChildOf>,
-    tags: &'a Query<(Option<&InArea>, Option<&AreaRoot>)>,
-) -> Option<&'a str> {
+    tags: &'a Query<Tags>,
+) -> Option<Option<&'a str>> {
     let mut at = e;
+    let mut placed = false;
     loop {
-        if let Ok((tag, root)) = tags.get(at) {
-            if let Some(t) = tag {
-                return Some(&t.area);
+        if let Ok(t) = tags.get(at) {
+            placed |= t.placed || t.ui;
+            if let Some(t) = t.tag {
+                return Some(Some(&t.area));
             }
-            if let Some(r) = root {
-                return Some(&r.area);
+            if let Some(r) = t.root {
+                return Some(Some(&r.area));
+            }
+            if t.global || t.ui {
+                return Some(Some(GLOBAL));
+            }
+            if t.replicated || t.remote {
+                return Some(Some(REPLICATED));
+            }
+            if t.waste {
+                return Some(Some(WASTES));
             }
         }
-        at = parents.get(at).ok()?.parent();
+        match parents.get(at) {
+            Ok(p) => at = p.parent(),
+            Err(_) => return placed.then_some(None),
+        }
     }
 }
 

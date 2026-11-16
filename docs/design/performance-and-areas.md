@@ -1,6 +1,6 @@
 # Performance wins and areas (loading and unloading maps)
 
-A plan, not yet built. It has two parts: cheap performance fixes, and a rule that every place in
+A plan; Part 2 (areas) is built, see "What's built" below. It has two parts: cheap performance fixes, and a rule that every place in
 the world loads when someone needs it and unloads when nobody does. They are linked: the largest
 performance win left is not keeping the whole world loaded.
 
@@ -15,7 +15,7 @@ means it showed up in that profile. "Suspected" means it needs a quick check fir
 - **New York and Miami are about 4,500 of those meshes**, none of them visible from the commune.
 - **Only two features put anything away** when you leave a site (pigeons and street people).
   Sites (`data/base/sites.ron`) put mechanics to sleep, but scenery, colliders and lights stay.
-- **The wasteland already streams** in chunks by who is near (`friendslop_world::wastes`, see
+- **The wasteland already streams** (now joined to the areas' layers, see below) in chunks by who is near (`friendslop_world::wastes`, see
   `infinite-world.md`). The pattern exists for generated ground but not for hand-made maps.
 - **High holds 60 fps and no more.** With the GPU at 5.9 ms a frame the game still sits at 60,
   while Low reaches 120. The CPU is the limit on High, and the release build's CPU has not been
@@ -171,6 +171,35 @@ zero.
 - **Leaks the tests miss.** The tests catch spawn-at-start. Something spawned later by a global
   system and never tagged would only show in the census "no area" count, so that number needs
   watching until it reaches zero.
+
+### What's built (November 2026)
+
+All five steps. The ratchet list is empty (only `areas::GLOBALS` spawn at game start) and the
+census "no area" line is zero in the forest, New York and the wastes.
+
+- **Core** (`crates/base/src/areas.rs`): areas, layers, roots, `InArea`, `spawn_into`,
+  `on_sim` / `on_show`, `Cover`, the four guards.
+- **Every hand-made place is an area:** `nyc`, `commune`, `warehouse`, `underground`,
+  `afterlife`, `infinite`.
+- **The wastes** (`friendslop_world::wastes`) stream by chunk with the same "who is near"
+  input: `Viewers { sim, show }` from `sites::People` and `place::Here`. Colliders stream
+  around everyone on the host (only you on a client), meshes only around you. They are one
+  `wastes` census line. `FRIENDSLOP_START=wastes` starts out there.
+- **The census** puts everything in one line: its area; `globals` (`areas::Global`, or UI:
+  camera, sun, clouds, sky, ambience particles, ears, the lexing hearts); `replicated`
+  (replicated gameplay state and the local dressing under it); `wastes`; or "no area".
+  Engine bookkeeping without a `Transform` (observers, resources) isn't counted.
+  `FRIENDSLOP_PERF=2` logs once what "no area" holds. `nothing_in_the_world_is_in_no_area`
+  checks it headless.
+- One-shot world sounds belong to the visuals of the area they play in (`global` outside
+  every area). Loops are global: the feature that starts one stops it.
+
+Not done:
+- **Replicated things' dressing is drawn everywhere.** The villagers, kittens, rats, pets,
+  totems, burgers and similar take about 900 meshes, even from New York. It counts with its
+  replicated owner. Next step: a `Dress` child in the owning area's Show layer, re-dressed
+  when it loads (New York's `area.rs` does this).
+- The bonfire's smoke and sparks are ambience particles, so they are global.
 
 ### Open decisions
 

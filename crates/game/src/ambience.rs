@@ -166,6 +166,9 @@ fn spawn_particle(
             Transform::from_translation(anchor),
             Visibility::default(),
             NotShadowCaster,
+            // Butterflies, motes, leaves and birds drift around you wherever
+            // you are; the bonfire's few smoke puffs and sparks go with them.
+            crate::areas::Global,
             DespawnOnExit(AppState::InGame),
         ))
         .id()

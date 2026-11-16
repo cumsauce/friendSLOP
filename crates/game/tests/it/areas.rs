@@ -56,8 +56,9 @@ fn only_globals_and_the_ratchet_list_spawn_at_game_start() {
 
 fn load_data() {
     let assets = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("assets");
-    let files: [&dyn friendslop_data::DataFile; 4] = [
+    let files: [&dyn friendslop_data::DataFile; 5] = [
         &AREAS,
+        &friendslop_world::wastes::TUNING,
         &friendslop::sites::SITES,
         &friendslop_world::places::COMMUNE,
         &friendslop::features::nyc::MAP,
@@ -438,5 +439,94 @@ fn the_commune_unloads_while_everyone_is_in_the_tunnels() {
     for app in std::iter::once(&mut sim.server).chain(sim.clients.iter_mut()) {
         assert!(!has(app, "commune", Layer::Sim) && !has(app, "commune", Layer::Show));
         assert_eq!(colliders_in(app, "commune"), 0);
+    }
+}
+
+/// The wastes' chunks around the friend: their colliders' (x, z).
+fn waste_colliders(app: &mut App) -> Vec<Vec2> {
+    let world = app.world_mut();
+    let mut q = world
+        .query_filtered::<&Transform, (With<friendslop_world::wastes::WasteChunk>, With<Collider>)>(
+        );
+    q.iter(world).map(|t| t.translation.xz()).collect()
+}
+
+/// The wastes stream like an area's layers: a host at home keeps the
+/// colliders of the chunks around a friend out in the wastes, and lets
+/// them go once the friend is back.
+#[test]
+fn a_host_at_home_keeps_the_wastes_under_a_friend_out_there() {
+    load_data();
+    let home = Vec3::new(0.0, friendslop::terrain::height_at(0.0, 0.0), 0.0);
+    let out = Vec3::new(0.0, friendslop::terrain::height_at(0.0, -900.0), -900.0);
+    let mut sim = two_players(home, out);
+    // (The harness has only the protocol: add the wastes' streaming.)
+    for app in std::iter::once(&mut sim.server).chain(sim.clients.iter_mut()) {
+        bevy::app::Plugin::build(&friendslop_world::wastes::WastesPlugin, app);
+        app.add_systems(
+            Update,
+            friendslop::features::wastes::watch.before(friendslop_world::wastes::StreamSet),
+        );
+    }
+    sim.run(1.0);
+    let near = |v: &Vec2| v.distance(out.xz()) < 200.0;
+    assert!(
+        waste_colliders(&mut sim.server).iter().any(near),
+        "the host dropped the ground under the friend"
+    );
+    assert!(
+        waste_colliders(&mut sim.clients[0]).iter().any(near),
+        "the friend walks the wastes without ground"
+    );
+    sim.clients[0].insert_resource(friendslop::place::Here(home));
+    stand(&mut sim, 1, home);
+    sim.run(0.5);
+    for app in std::iter::once(&mut sim.server).chain(sim.clients.iter_mut()) {
+        assert!(
+            !waste_colliders(app).iter().any(near),
+            "chunks stayed with nobody near"
+        );
+    }
+}
+
+/// The plan's done condition, headless: after a game has run, everything
+/// in the world is in an area, a wastes chunk, replicated, or a global (the
+/// census's "no area" line is empty).
+#[test]
+fn nothing_in_the_world_is_in_no_area() {
+    load_data();
+    let home = Vec3::new(0.0, friendslop::terrain::height_at(0.0, 0.0), 0.0);
+    let mut sim = two_players(home, home);
+    sim.run(1.0);
+    for app in std::iter::once(&mut sim.server).chain(sim.clients.iter_mut()) {
+        let world = app.world_mut();
+        let mut state = bevy::ecs::system::SystemState::<(
+            Query<(Entity, Option<&Name>)>,
+            Query<&ChildOf>,
+            Query<areas::Tags>,
+        )>::new(world);
+        let Ok((all, parents, tags)) = state.get(world) else {
+            panic!("census query")
+        };
+        let stray: Vec<String> = all
+            .iter()
+            .filter(|(e, _)| areas::owner(*e, &parents, &tags) == Some(None))
+            .map(|(e, n)| n.map_or(format!("{e}"), |n| n.to_string()))
+            .collect();
+        let stray: Vec<String> = stray
+            .into_iter()
+            .zip(
+                all.iter()
+                    .filter(|(e, _)| areas::owner(*e, &parents, &tags) == Some(None)),
+            )
+            .map(|(s, (e, _))| {
+                let cs: Vec<String> = world
+                    .inspect_entity(e)
+                    .map(|c| c.map(|c| c.1.name().to_string()).collect())
+                    .unwrap_or_default();
+                format!("{s} {cs:?}")
+            })
+            .collect();
+        assert!(stray.is_empty(), "in no area: {stray:?}");
     }
 }

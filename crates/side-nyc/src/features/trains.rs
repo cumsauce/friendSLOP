@@ -121,7 +121,8 @@ pub struct Tuning {
     pub away_secs: f32,
     /// How far into the tunnel the train goes (m, its middle from the platform).
     pub run_out: f32,
-    /// Where the ride cars hang (x, y, z); one per line and direction, 30 m apart along x.
+    /// Where the ride cars hang (x, y, z); one per line and direction, each
+    /// [`RIDE_GAP`] under the last.
     pub ride_at: (f32, f32, f32),
     /// The announcer's voice: pitch and speed.
     pub voice: (f32, f32),
@@ -218,8 +219,13 @@ pub fn stop_origin(s: &Stop) -> Vec3 {
 
 /// Where the ride car for line `line` heading to stop `to` hangs.
 pub fn ride_origin(t: &Tuning, line: usize, to: usize) -> Vec3 {
-    Vec3::from(t.ride_at) + Vec3::X * 30.0 * (line * 2 + to) as f32
+    Vec3::from(t.ride_at) - Vec3::Y * RIDE_GAP * (line * 2 + to) as f32
 }
+
+/// How far (m) each ride car hangs under the one before: stacked, not side
+/// by side, so no car's passing lights or clouds (40 m either way along it)
+/// or model is ever in sight of another's windows.
+pub const RIDE_GAP: f32 = 60.0;
 
 /// Is `p` (feet) inside a car with this origin and yaw?
 pub fn in_car(origin: Vec3, yaw_deg: f32, p: Vec3) -> bool {
@@ -1209,6 +1215,21 @@ mod tests {
         };
         assert!(TUNING.set_bytes(&bytes), "{path} doesn't parse");
         (*TUNING.get()).clone()
+    }
+
+    #[test]
+    fn ride_cars_cannot_see_each_other() {
+        let t = t();
+        let cars: Vec<Vec3> = (0..t.lines.len())
+            .flat_map(|l| (0..2).map(move |to| (l, to)))
+            .map(|(l, to)| ride_origin(&t, l, to))
+            .collect();
+        for (i, a) in cars.iter().enumerate() {
+            for b in &cars[i + 1..] {
+                assert!((a.y - b.y).abs() >= 40.0, "{a} and {b} are in sight");
+                assert_eq!(dark_at(&t, *b + ABOARD), Some(RIDE_LOOK), "{b} is dark");
+            }
+        }
     }
 
     #[test]

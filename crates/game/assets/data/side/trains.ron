@@ -18,8 +18,9 @@
     away_secs: 4.0,
     // How far into its tunnel the train goes (m, its middle from the platform).
     run_out: 32.0,
-    // Where the ride cars hang (x, y, z), deep under the city: one per line,
-    // 30 m apart along x. Nobody sees them from outside. All six stay inside
+    // Where the ride cars hang (x, y, z), deep under the city: one per line
+    // and direction, each 60 m under the last (trains.rs RIDE_GAP) so none is
+    // in sight of another. Nobody sees them from outside. All six stay inside
     // New York's area (x -90..90, data/base/areas.ron), which loads around
     // you while you ride in.
     ride_at: (-80.0, -300.0, 300.0),

@@ -30,6 +30,12 @@
     spin_degs: 360.0,
     always_run: true,
     routes: {
+        // Just the flight to Miami (boarding at JFK).
+        "flight": [
+            Start("jfk"),
+            Ride(from: "jfk", to: "miami"),
+            Spin(4.0),
+        ],
         // The commune on foot (checks the bot finds its way round the village).
         "commune": [
             Start("bonfire"),

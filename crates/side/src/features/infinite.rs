@@ -412,7 +412,11 @@ impl Haunt {
     }
 }
 
+/// The sky courses' area (`data/base/areas.ron`), stacked far over the map.
+pub const AREA: &str = "infinite";
+
 pub fn protocol(app: &mut App) {
+    crate::areas::on_sim(app, AREA, build_sim);
     app.init_resource::<Plan>()
         .init_resource::<Haunt>()
         .add_systems(
@@ -544,8 +548,8 @@ struct Shown(usize);
 
 pub fn plugin(app: &mut App) {
     app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
+    crate::areas::on_show(app, AREA, build);
     app.init_resource::<Adrift>()
-        .add_systems(OnEnter(AppState::InGame), (build, reset))
         .add_systems(OnExit(AppState::InGame), reset)
         .add_systems(
             Update,
@@ -677,15 +681,52 @@ pub fn blocks(space: &Space) -> (Vec<Block>, Vec<Vec3>) {
     (out, lamps)
 }
 
+/// The host (and anyone up there): every copy's walls and floors.
+fn build_sim(mut commands: Commands, plan: Res<Plan>) {
+    for space in &plan.spaces {
+        for b in blocks(space).0 {
+            let tf = Transform::from_translation(b.centre)
+                .with_rotation(b.rot)
+                .with_scale(b.size);
+            match b.solid {
+                Solid::Wall => {
+                    commands.spawn((
+                        tf,
+                        RigidBody::Static,
+                        Collider::cuboid(1.0, 1.0, 1.0),
+                        avian_rerecast::ExcludeColliderFromNavmesh,
+                        crate::areas::sim(AREA),
+                    ));
+                }
+                Solid::Floor => {
+                    commands.spawn((
+                        tf,
+                        RigidBody::Static,
+                        Collider::cuboid(1.0, 1.0, 1.0),
+                        CollisionLayers::new(WALKABLE, LayerMask::ALL),
+                        avian_rerecast::ExcludeColliderFromNavmesh,
+                        crate::areas::sim(AREA),
+                    ));
+                }
+                Solid::None => {}
+            }
+        }
+    }
+}
+
+/// You, up there: every copy's look (only the one you're in shows).
 fn build(
     mut commands: Commands,
     plan: Res<Plan>,
+    mut adrift: ResMut<Adrift>,
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
 ) {
     let (Some(mut meshes), Some(mut materials)) = (meshes, materials) else {
         return;
     };
+    // The copies start hidden: `darkness` shows the one you're in.
+    adrift.inside = None;
     let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
     let mut mat = |c: Color, glow: f32| {
         materials.add(StandardMaterial {
@@ -706,7 +747,7 @@ fn build(
                 Shown(i),
                 Transform::default(),
                 Visibility::Hidden,
-                DespawnOnExit(AppState::InGame),
+                crate::areas::show(AREA),
             ))
             .id();
         let (pieces, lamps) = blocks(space);
@@ -714,7 +755,6 @@ fn build(
             let tf = Transform::from_translation(b.centre)
                 .with_rotation(b.rot)
                 .with_scale(b.size);
-            let mut e = commands.spawn((tf, ChildOf(root)));
             let look = match b.look {
                 Look::Hidden => None,
                 Look::Wall => Some(&wall),
@@ -724,26 +764,13 @@ fn build(
                 Look::Lamp => Some(&lamp),
             };
             if let Some(m) = look {
-                e.insert((Mesh3d(cube.clone()), MeshMaterial3d(m.clone())));
-                e.insert(NotShadowCaster);
-            }
-            match b.solid {
-                Solid::Wall => {
-                    e.insert((
-                        RigidBody::Static,
-                        Collider::cuboid(1.0, 1.0, 1.0),
-                        avian_rerecast::ExcludeColliderFromNavmesh,
-                    ));
-                }
-                Solid::Floor => {
-                    e.insert((
-                        RigidBody::Static,
-                        Collider::cuboid(1.0, 1.0, 1.0),
-                        CollisionLayers::new(WALKABLE, LayerMask::ALL),
-                        avian_rerecast::ExcludeColliderFromNavmesh,
-                    ));
-                }
-                Solid::None => {}
+                commands.spawn((
+                    tf,
+                    Mesh3d(cube.clone()),
+                    MeshMaterial3d(m.clone()),
+                    NotShadowCaster,
+                    ChildOf(root),
+                ));
             }
         }
         for at in lamps {

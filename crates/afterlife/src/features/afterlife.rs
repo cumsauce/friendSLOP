@@ -33,6 +33,7 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
+use crate::areas;
 use crate::features::abuela::heaven;
 use crate::features::fps::{Walker, spawn_point, teleport};
 use crate::features::interact::{Clickable, Clicked, SERVER_REACH, deny, in_reach, within};
@@ -180,8 +181,12 @@ struct Ledger {
     tome_back_in: f32,
 }
 
+/// Hell's area (`data/base/areas.ron`): the pit far under the forest.
+pub const AREA: &str = "afterlife";
+
 pub fn protocol(app: &mut App) {
     friendslop_world::footprints::claim(lectern_at(), 1.2);
+    areas::on_sim(app, AREA, dig_hell_sim);
     app.replicate::<Dead>()
         .replicate::<Grave>()
         .replicate::<Tome>()
@@ -697,13 +702,30 @@ fn mark_back(remove: On<Remove<Dead>>, mut commands: Commands) {
 }
 
 pub fn plugin(app: &mut App) {
+    areas::on_show(app, AREA, dig_hell);
+    // `FRIENDSLOP_START=hell_pit`: on the first stepping stone.
+    crate::features::start::provide(|| {
+        hell_stones()
+            .first()
+            .map(|s| ("hell_pit".to_string(), s.top))
+            .into_iter()
+            .collect()
+    });
+    areas::on_show(app, "commune", build_lectern);
     app.init_resource::<LastSpoke>()
         .add_observer(click_grave)
         .add_observer(click_tome)
         .add_observer(announce)
+        // The UI is there from the first frame in the game; the lectern
+        // with the commune's visuals and the pit's look with hell's
+        // (its colliders load with the protocol, for the host).
         .add_systems(
-            OnEnter(AppState::InGame),
-            (dig_hell, build_lectern, spawn_hud, afterlife_help),
+            Update,
+            (
+                spawn_hud.run_if(not(any_with_component::<AfterlifeHud>)),
+                afterlife_help.run_if(not(any_with_component::<AfterlifeHelp>)),
+            )
+                .run_if(in_state(AppState::InGame)),
         )
         .add_systems(
             Update,
@@ -963,7 +985,7 @@ fn build_lectern(mut commands: Commands, assets: Option<Res<AssetServer>>) {
     commands.spawn((
         model(&assets, "lectern.gltf"),
         Transform::from_xyz(lectern_at().x, lectern_ground(), lectern_at().y),
-        DespawnOnExit(AppState::InGame),
+        areas::show("commune"),
     ));
 }
 
@@ -978,7 +1000,78 @@ fn glow_exit(time: Res<Time>, mut lights: Query<&mut Transform, With<ExitLight>>
     }
 }
 
-/// Every peer: the hell pit, a closed lava cave with stepping stones.
+/// The pit's solid pieces: its walls and roof (a modeler rock file, its
+/// stretch to fit, where, the collider) and its basalt columns.
+fn hell_solids() -> Vec<(&'static str, Vec3, Transform, Collider)> {
+    let centre = hell_at().extend(lava_y()).xzy();
+    let mut out = Vec::new();
+    // Walls and roof are modeler rock (prefabs `sp-hell-wall`, 4.3 x 28 x 1
+    // with its rough face toward -z, and `sp-hell-roof`, 36 x 1 x 36) stretched
+    // over code colliders, so the pit closes even without the files.
+    let sides = 28;
+    let panel = 2.0 * pit_radius() * (std::f32::consts::PI / sides as f32).tan() + 0.4;
+    let panel_fit = Vec3::new(panel / 4.3, (pit_height() + 2.0) / 28.0, 1.0);
+    for i in 0..sides {
+        let a = i as f32 / sides as f32 * std::f32::consts::TAU;
+        let out_dir = Vec3::new(a.cos(), 0.0, a.sin());
+        out.push((
+            "hell_wall.gltf",
+            panel_fit,
+            Transform::from_translation(
+                centre + out_dir * (pit_radius() + 0.5) + Vec3::Y * (pit_height() / 2.0),
+            )
+            .with_rotation(Quat::from_rotation_y(-a + std::f32::consts::FRAC_PI_2)),
+            Collider::cuboid(panel, pit_height() + 2.0, 1.0),
+        ));
+    }
+    let roof = 2.0 * pit_radius() + 4.0;
+    out.push((
+        "hell_roof.gltf",
+        Vec3::new(roof / 36.0, 1.0, roof / 36.0),
+        Transform::from_translation(centre + Vec3::Y * (pit_height() + 0.5)),
+        Collider::cuboid(roof, 1.0, roof),
+    ));
+    // A basalt column standing up out of the lava: the collider is the
+    // cylinder, the look a modeler-made column (prefabs `by-basalt-column`,
+    // `by-basalt-cluster`: unit radius, 4 m tall, centred) stretched to fit.
+    let basalt = |top: Vec3, radius: f32, turn: f32| {
+        let height = top.y - lava_y() + 1.0;
+        let file = if radius >= 1.5 {
+            "basalt_cluster.gltf"
+        } else {
+            "basalt_column.gltf"
+        };
+        (
+            file,
+            Vec3::new(radius, height / 4.0, radius),
+            Transform::from_translation(top - Vec3::Y * (height / 2.0))
+                .with_rotation(Quat::from_rotation_y(turn)),
+            Collider::cylinder(radius, height),
+        )
+    };
+    // The stepping stones, standing up out of the lava, and the white
+    // light's platform.
+    for (i, stone) in hell_stones().into_iter().enumerate() {
+        out.push(basalt(stone.top, stone.radius, i as f32 * 2.4));
+    }
+    out.push(basalt(hell_exit(), tuning().exit_radius, 0.0));
+    out
+}
+
+/// The host (and anyone down there): the pit's colliders.
+fn dig_hell_sim(mut commands: Commands) {
+    for (_, _, tf, collider) in hell_solids() {
+        commands.spawn((
+            tf,
+            RigidBody::Static,
+            collider,
+            avian_rerecast::ExcludeColliderFromNavmesh,
+            areas::sim(AREA),
+        ));
+    }
+}
+
+/// You, down there: the hell pit, a closed lava cave with stepping stones.
 fn dig_hell(
     mut commands: Commands,
     assets: Option<Res<AssetServer>>,
@@ -1002,100 +1095,33 @@ fn dig_hell(
         ..default()
     });
     let centre = hell_at().extend(lava_y()).xzy();
-    // Walls and roof are modeler rock (prefabs `sp-hell-wall`, 4.3 x 28 x 1
-    // with its rough face toward -z, and `sp-hell-roof`, 36 x 1 x 36) stretched
-    // over code colliders, so the pit closes even without the files.
-    let spawn_solid =
-        |commands: &mut Commands, file: &str, fit: Vec3, tf: Transform, collider: Collider| {
-            let mut solid = commands.spawn((
-                tf,
-                Visibility::default(),
-                RigidBody::Static,
-                collider,
-                avian_rerecast::ExcludeColliderFromNavmesh,
-                DespawnOnExit(AppState::InGame),
-            ));
-            if let Some(assets) = &assets {
-                solid.with_child((model(assets, file), Transform::from_scale(fit)));
-            }
-        };
     // The lava lake (no collider: you sink into it).
     commands.spawn((
         Mesh3d(meshes.add(Cylinder::new(pit_radius(), 0.2))),
         MeshMaterial3d(lava),
         Transform::from_translation(centre),
-        DespawnOnExit(AppState::InGame),
+        areas::show(AREA),
     ));
-    // Walls all round and a ceiling, so it's dark and closed.
-    let sides = 28;
-    let panel = 2.0 * pit_radius() * (std::f32::consts::PI / sides as f32).tan() + 0.4;
-    let panel_fit = Vec3::new(panel / 4.3, (pit_height() + 2.0) / 28.0, 1.0);
-    for i in 0..sides {
-        let a = i as f32 / sides as f32 * std::f32::consts::TAU;
-        let out = Vec3::new(a.cos(), 0.0, a.sin());
-        spawn_solid(
-            &mut commands,
-            "hell_wall.gltf",
-            panel_fit,
-            Transform::from_translation(
-                centre + out * (pit_radius() + 0.5) + Vec3::Y * (pit_height() / 2.0),
-            )
-            .with_rotation(Quat::from_rotation_y(-a + std::f32::consts::FRAC_PI_2)),
-            Collider::cuboid(panel, pit_height() + 2.0, 1.0),
-        );
-    }
-    let roof = 2.0 * pit_radius() + 4.0;
-    spawn_solid(
-        &mut commands,
-        "hell_roof.gltf",
-        Vec3::new(roof / 36.0, 1.0, roof / 36.0),
-        Transform::from_translation(centre + Vec3::Y * (pit_height() + 0.5)),
-        Collider::cuboid(roof, 1.0, roof),
-    );
-    // A basalt column standing up out of the lava: the collider is the
-    // cylinder, the look a modeler-made column (prefabs `by-basalt-column`,
-    // `by-basalt-cluster`: unit radius, 4 m tall, centred) stretched to fit.
-    let spawn_basalt =
-        |commands: &mut Commands, top: Vec3, radius: f32, turn: f32| {
-            let height = top.y - lava_y() + 1.0;
-            let mut rock = commands.spawn((
-                Transform::from_translation(top - Vec3::Y * (height / 2.0)),
-                Visibility::default(),
-                RigidBody::Static,
-                Collider::cylinder(radius, height),
-                avian_rerecast::ExcludeColliderFromNavmesh,
-                DespawnOnExit(AppState::InGame),
+    // Walls, roof and columns: the rock over the colliders.
+    if let Some(assets) = &assets {
+        for (file, fit, tf, _) in hell_solids() {
+            commands.spawn((
+                model(assets, file),
+                tf * Transform::from_scale(fit),
+                areas::show(AREA),
             ));
-            if let Some(assets) = &assets {
-                let file = if radius >= 1.5 {
-                    "basalt_cluster.gltf"
-                } else {
-                    "basalt_column.gltf"
-                };
-                rock.with_children(|p| {
-                    p.spawn((
-                        model(assets, file),
-                        Transform::from_rotation(Quat::from_rotation_y(turn))
-                            .with_scale(Vec3::new(radius, height / 4.0, radius)),
-                    ));
-                });
-            }
-        };
-    // The stepping stones, standing up out of the lava.
-    for (i, stone) in hell_stones().into_iter().enumerate() {
-        spawn_basalt(&mut commands, stone.top, stone.radius, i as f32 * 2.4);
+        }
     }
-    // The white light's platform and its beam.
     let exit = hell_exit();
-    spawn_basalt(&mut commands, exit, tuning().exit_radius, 0.0);
     // The way out, marked like every other way out.
-    crate::features::doorway::spawn(
+    let way = crate::features::doorway::spawn(
         &mut commands,
         exit,
         0.0,
         crate::features::doorway::Doorway::way_out("back to your spawn")
             .hatch(tuning().exit_reach * 1.4),
     );
+    commands.entity(way).insert(areas::InArea::show(AREA));
     let beam = pit_height() - (exit.y - lava_y());
     commands.spawn((
         Mesh3d(meshes.add(Cylinder::new(tuning().exit_reach * 0.7, beam))),
@@ -1103,7 +1129,7 @@ fn dig_hell(
         Transform::from_translation(exit + Vec3::Y * (beam / 2.0)),
         ExitLight,
         bevy::light::NotShadowCaster,
-        DespawnOnExit(AppState::InGame),
+        areas::show(AREA),
     ));
     // Red glow from the lava, and white from the way out.
     for i in 0..4 {
@@ -1116,7 +1142,7 @@ fn dig_hell(
                 ..default()
             },
             Transform::from_translation(centre + Vec3::new(a.cos() * 8.0, 3.0, a.sin() * 8.0)),
-            DespawnOnExit(AppState::InGame),
+            areas::show(AREA),
         ));
     }
     commands.spawn((
@@ -1127,9 +1153,12 @@ fn dig_hell(
             ..default()
         },
         Transform::from_translation(exit + Vec3::Y * 3.0),
-        DespawnOnExit(AppState::InGame),
+        areas::show(AREA),
     ));
 }
+
+#[derive(Component)]
+struct AfterlifeHelp;
 
 fn afterlife_help(mut commands: Commands) {
     commands.spawn((
@@ -1137,6 +1166,7 @@ fn afterlife_help(mut commands: Commands) {
             "dying: you go to heaven. Friends click your grave to beg (out loud counts double), \
              or read the Tome of Uncancelling (lectern by the spawn) over it.",
         ),
+        AfterlifeHelp,
         crate::hud::slot(crate::hud::HudSlot::Help),
         DespawnOnExit(AppState::InGame),
     ));

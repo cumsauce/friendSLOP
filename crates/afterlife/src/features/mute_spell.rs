@@ -345,7 +345,13 @@ pub fn plugin(app: &mut App) {
     app.init_resource::<LastSpoke>()
         .add_observer(announce_cast)
         .add_observer(boom)
-        .add_systems(OnEnter(AppState::InGame), spawn_hud)
+        // Its HUD line is there from the first frame in the game.
+        .add_systems(
+            Update,
+            spawn_hud
+                .run_if(not(any_with_component::<MuteHud>))
+                .run_if(in_state(AppState::InGame)),
+        )
         .add_systems(
             Update,
             gag_my_mic
@@ -534,6 +540,7 @@ fn carry_rpgs(
     mut commands: Commands,
     me: Option<Res<LocalPlayer>>,
     assets: Option<Res<AssetServer>>,
+    loaded: Option<Res<crate::areas::Loaded>>,
     muted: Query<(&Player, &Walker), With<Silenced>>,
     mut tubes: Query<(Entity, &RpgTube, &mut Transform)>,
 ) {
@@ -555,6 +562,16 @@ fn carry_rpgs(
         if Some(p.id) == me || tubes.iter().any(|(_, t, _)| t.0 == p.id) {
             continue;
         }
+        // Drawn in the area its carrier is in, while you can see it.
+        let Some(area) = crate::areas::nearest_area(w.pos) else {
+            continue;
+        };
+        if loaded
+            .as_ref()
+            .is_some_and(|l| !l.is(&area, crate::areas::Layer::Show))
+        {
+            continue;
+        }
         let yaw = Quat::from_rotation_y(w.yaw);
         commands.spawn((
             RpgTube(p.id),
@@ -564,7 +581,7 @@ fn carry_rpgs(
             ),
             Transform::from_translation(w.pos + yaw * Vec3::new(0.3, 1.45, 0.0))
                 .with_rotation(yaw * Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
-            DespawnOnExit(AppState::InGame),
+            crate::areas::show(&area),
         ));
     }
 }
@@ -623,6 +640,7 @@ fn boom(
             })),
             Transform::from_translation(ev.at).with_scale(Vec3::splat(0.3)),
             DespawnOnExit(AppState::InGame),
+            crate::areas::InArea::show(&crate::areas::nearest_area(ev.at).unwrap_or_default()),
         ));
     }
     if audio.is_some() {

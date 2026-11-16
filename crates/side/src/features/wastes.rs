@@ -25,7 +25,7 @@ fn watch(
     mut viewers: ResMut<Viewers>,
 ) {
     viewers.0.clear();
-    viewers.0.extend(people.0.iter().copied());
+    viewers.0.extend(people.0.iter().map(|p| p.xz()));
     viewers
         .0
         .extend(camera.iter().map(|t| t.translation().xz()));

@@ -64,26 +64,32 @@ pub struct Area {
     pub load: f32,
     /// How much further (m) everyone must be before it unloads again.
     pub unload: f32,
+    /// Its floor and ceiling (min y, max y), for a place stacked over or
+    /// under another (the warehouse's inside, the tunnels, hell, the sky
+    /// courses); `None` (left out) is as tall as the world.
+    #[serde(default)]
+    pub heights: Option<(f32, f32)>,
 }
 
 impl Area {
     /// How far outside the bounds is `p`? 0 inside.
-    pub fn gap(&self, p: Vec2) -> f32 {
+    pub fn gap(&self, p: Vec3) -> f32 {
         let ((x0, z0), (x1, z1)) = self.bounds;
-        let below = Vec2::new(x0, z0) - p;
-        let above = p - Vec2::new(x1, z1);
-        below.max(above).max(Vec2::ZERO).length()
+        let (y0, y1) = self.heights.unwrap_or((f32::MIN, f32::MAX));
+        let below = Vec3::new(x0, y0, z0) - p;
+        let above = p - Vec3::new(x1, y1, z1);
+        below.max(above).max(Vec3::ZERO).length()
     }
 
     /// Should it be loaded for people at `people`? One that `was` loaded
     /// stays until they're all past `load + unload`.
-    pub fn wanted(&self, was: bool, people: impl IntoIterator<Item = Vec2>) -> bool {
+    pub fn wanted(&self, was: bool, people: impl IntoIterator<Item = Vec3>) -> bool {
         let reach = self.load + if was { self.unload } else { 0.0 };
         people.into_iter().any(|p| self.gap(p) <= reach)
     }
 
     /// Does it hold `p` (inside its bounds)?
-    pub fn holds(&self, p: Vec2) -> bool {
+    pub fn holds(&self, p: Vec3) -> bool {
         self.gap(p) == 0.0
     }
 }
@@ -95,24 +101,72 @@ pub fn areas() -> std::sync::Arc<Areas> {
     AREAS.get()
 }
 
-/// The id of the first area holding `p` (x, z), if any.
-pub fn area_at(p: Vec2) -> Option<String> {
+/// The id of the area holding `p`, if any: one with [`Area::heights`]
+/// (stacked over or under another) before one as tall as the world.
+pub fn area_at(p: Vec3) -> Option<String> {
+    let list = areas();
+    let mut holding: Vec<&Area> = list.areas.iter().filter(|a| a.holds(p)).collect();
+    holding.sort_by_key(|a| a.heights.is_none());
+    holding.first().map(|a| a.id.clone())
+}
+
+/// The area nearest `p`: the one holding it (a stacked one first, like
+/// [`area_at`]), else the closest by [`Area::gap`]. For things that move
+/// between areas (a walker on a route, a drone): they belong to wherever
+/// they are now.
+pub fn nearest_area(p: Vec3) -> Option<String> {
     areas()
         .areas
         .iter()
-        .find(|a| a.holds(p))
+        .min_by(|a, b| {
+            a.gap(p)
+                .total_cmp(&b.gap(p))
+                .then(a.heights.is_none().cmp(&b.heights.is_none()))
+        })
         .map(|a| a.id.clone())
 }
 
-/// The area nearest `p` (x, z): the one holding it, else the closest by
-/// [`Area::gap`]. For things that move between areas (a walker on a route,
-/// a drone): they belong to wherever they are now.
-pub fn nearest_area(p: Vec2) -> Option<String> {
-    areas()
-        .areas
-        .iter()
-        .min_by(|a, b| a.gap(p).total_cmp(&b.gap(p)))
-        .map(|a| a.id.clone())
+/// In `area`'s colliders and simulation layer (gone when it unloads, and
+/// when the game ends).
+pub fn sim(area: &str) -> impl Bundle {
+    (DespawnOnExit(AppState::InGame), InArea::sim(area))
+}
+
+/// In `area`'s visuals layer (gone when you leave it, and when the game ends).
+pub fn show(area: &str) -> impl Bundle {
+    (DespawnOnExit(AppState::InGame), InArea::show(area))
+}
+
+/// Run `systems` on the frame `area`'s colliders load (in `PreUpdate`,
+/// after [`AreaSet`], so they're there before the frame's physics: a
+/// teleport never lands on missing ground).
+pub fn on_sim<M>(
+    app: &mut App,
+    area: &'static str,
+    systems: impl IntoScheduleConfigs<bevy::ecs::system::ScheduleSystem, M>,
+) {
+    app.add_systems(PreUpdate, at_load(systems, Layer::Sim, area));
+}
+
+/// Run `systems` on the frame `area`'s visuals load (see [`on_sim`]).
+pub fn on_show<M>(
+    app: &mut App,
+    area: &'static str,
+    systems: impl IntoScheduleConfigs<bevy::ecs::system::ScheduleSystem, M>,
+) {
+    app.add_systems(PreUpdate, at_load(systems, Layer::Show, area));
+}
+
+fn at_load<M>(
+    systems: impl IntoScheduleConfigs<bevy::ecs::system::ScheduleSystem, M>,
+    layer: Layer,
+    area: &'static str,
+) -> bevy::ecs::schedule::ScheduleConfigs<bevy::ecs::system::ScheduleSystem> {
+    systems
+        .into_configs()
+        .after(AreaSet)
+        .run_if(in_state(AppState::InGame))
+        .run_if(loaded(layer, area))
 }
 
 /// The globals: the only files that may spawn into the world on entering
@@ -254,8 +308,8 @@ impl Loaded {
         list: &Areas,
         force: Option<bool>,
         client: bool,
-        you: Option<Vec2>,
-        players: &[Vec2],
+        you: Option<Vec3>,
+        players: &[Vec3],
     ) {
         self.0
             .retain(|(id, _), _| list.areas.iter().any(|a| a.id == *id));
@@ -343,7 +397,7 @@ fn track(
     mut loaded: ResMut<Loaded>,
 ) {
     let client = client.is_some_and(|c| *c.get() == ClientState::Connected);
-    loaded.track(&areas(), force.0, client, here.map(|h| h.0.xz()), &people.0);
+    loaded.track(&areas(), force.0, client, here.map(|h| h.0), &people.0);
 }
 
 /// Spawn the roots of layers that loaded; despawn what unloaded.
@@ -391,7 +445,7 @@ fn cover_arrivals(here: Option<Res<Here>>, loaded: Res<Loaded>, mut cover: Messa
     if areas()
         .areas
         .iter()
-        .any(|a| loaded.loaded(&a.id, Layer::Show) && a.holds(here.0.xz()))
+        .any(|a| loaded.loaded(&a.id, Layer::Show) && a.holds(here.0))
     {
         cover.write(Cover);
     }
@@ -461,6 +515,7 @@ mod tests {
             map: None,
             load: 20.0,
             unload: 10.0,
+            heights: None,
         }
     }
 
@@ -493,35 +548,50 @@ mod tests {
     }
 
     #[test]
+    fn a_stacked_area_has_a_floor_and_a_ceiling_and_wins_where_it_is() {
+        let mut under = area();
+        under.id = "cellar".into();
+        under.heights = Some((-40.0, -20.0));
+        assert_eq!(under.gap(Vec3::new(5.0, -30.0, 5.0)), 0.0);
+        assert_eq!(under.gap(Vec3::new(5.0, 0.0, 5.0)), 20.0);
+        assert!(!under.holds(Vec3::new(5.0, 0.0, 5.0)));
+        // As tall as the world, the other holds both; the cellar wins below.
+        assert!(area().holds(Vec3::new(5.0, -30.0, 5.0)));
+    }
+
+    #[test]
     fn an_area_loads_near_and_unloads_further_out() {
         let a = area();
-        assert_eq!(a.gap(Vec2::new(5.0, 5.0)), 0.0);
-        assert_eq!(a.gap(Vec2::new(25.0, 5.0)), 15.0);
-        assert!(a.wanted(false, [Vec2::new(25.0, 5.0)]));
+        assert_eq!(a.gap(Vec3::new(5.0, 0.0, 5.0)), 0.0);
+        assert_eq!(a.gap(Vec3::new(25.0, 0.0, 5.0)), 15.0);
+        assert!(a.wanted(false, [Vec3::new(25.0, 0.0, 5.0)]));
         // 25 m out: past `load`, inside `load + unload`.
-        let edge = [Vec2::new(35.0, 5.0)];
+        let edge = [Vec3::new(35.0, 0.0, 5.0)];
         assert!(!a.wanted(false, edge));
         assert!(a.wanted(true, edge));
-        assert!(!a.wanted(true, [Vec2::new(45.0, 5.0)]));
+        assert!(!a.wanted(true, [Vec3::new(45.0, 0.0, 5.0)]));
     }
 
     #[test]
     fn the_host_simulates_for_a_friend_but_only_shows_you() {
         let mut l = Loaded::default();
-        let far = Some(Vec2::new(500.0, 0.0));
-        l.track(&list(), None, false, far, &[Vec2::new(5.0, 5.0)]);
+        let far = Some(Vec3::new(500.0, 0.0, 0.0));
+        l.track(&list(), None, false, far, &[Vec3::new(5.0, 0.0, 5.0)]);
         assert!(l.is("nyc", Layer::Sim) && !l.is("nyc", Layer::Show));
         assert!(l.loaded("nyc", Layer::Sim));
         // A client away from it doesn't simulate it.
         let mut c = Loaded::default();
-        c.track(&list(), None, true, far, &[Vec2::new(5.0, 5.0)]);
+        c.track(&list(), None, true, far, &[Vec3::new(5.0, 0.0, 5.0)]);
         assert!(!c.is("nyc", Layer::Sim));
     }
 
     #[test]
     fn layers_load_and_unload_once() {
         let mut l = Loaded::default();
-        let (there, away) = (Some(Vec2::new(5.0, 5.0)), Some(Vec2::new(500.0, 0.0)));
+        let (there, away) = (
+            Some(Vec3::new(5.0, 0.0, 5.0)),
+            Some(Vec3::new(500.0, 0.0, 0.0)),
+        );
         l.track(&list(), None, false, there, &[]);
         assert!(l.loaded("nyc", Layer::Show));
         l.track(&list(), None, false, there, &[]);

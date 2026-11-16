@@ -352,6 +352,16 @@ with the screen, so frame times snap to its refresh (8.3, 16.7, 25 ms): read GPU
 Dev builds switch off objc2's debug assertions (`Cargo.toml`): with them every Metal call is
 type-checked at run time, which was most of the render thread.
 
+**The profiling bot.** `FRIENDSLOP_BOT=<route> FRIENDSLOP_PERF=1 cargo run -- host` drives your
+own body through a route from `assets/data/game/bot.ron` (`Start` a place, `Walk`/`Run`/`WalkTo`,
+`Ride` a train or the plane, `Wait`, `Spin`, `Look`, `Click`, `Repeat`; `tour` visits everywhere,
+`borders` hops in and out of areas), then logs each step's median, p95 and worst frame and the
+five worst hitches, and quits. Every frame over 25 ms logs a `perf hitch:` line with where, which
+area and the bot's step; `FRIENDSLOP_PERF_OUT=run.csv` writes the reports and hitches to a CSV.
+Keep the window visible: macOS holds a hidden window's frames for about a second, which reads as
+hitches. `FRIENDSLOP_BRP=1` serves the Bevy Remote Protocol on localhost:15702 (desktop), so a
+script can query the running game (`bevy/query`, `bevy/get_resources` on `bot::PerfMark`).
+
 ### Actions and button hints
 
 Every input is an action in `assets/data/base/bindings.ron` (id, label, keys, pad button,

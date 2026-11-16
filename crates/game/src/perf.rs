@@ -4,6 +4,10 @@
 //! the meshes and lights; `=3` repeats that breakdown every 30 s (S9). The
 //! first report logs the graphics preset, resolution and WGPU backend. `=3`
 //! also logs each render pass's GPU time and each render phase's draws.
+//! Every frame over 25 ms logs a `perf hitch:` line with where the camera was,
+//! its area and what the bot was doing (`bot.rs`, `FRIENDSLOP_BOT`).
+//! `FRIENDSLOP_PERF_OUT=<file.csv>` also writes the reports and hitches to a
+//! CSV (desktop only), one row each.
 
 use bevy::camera::visibility::ViewVisibility;
 use bevy::core_pipeline::core_3d::{AlphaMask3d, Opaque3d, Transparent3d};
@@ -60,7 +64,8 @@ impl Plugin for PerfPlugin {
         app.insert_resource(counts.clone())
             .init_resource::<Churn>()
             .add_systems(PostUpdate, count_churn.after(TransformSystems::Propagate))
-            .add_systems(Last, (report, breakdown, moved_breakdown, census, strays));
+            .add_systems(Last, (report, breakdown, moved_breakdown, census, strays))
+            .add_systems(Last, hitch);
         if std::env::var("FRIENDSLOP_PERF").is_ok_and(|v| v == "3") {
             app.add_plugins(bevy::render::diagnostic::RenderDiagnosticsPlugin)
                 .add_systems(Last, gpu_passes);
@@ -207,6 +212,7 @@ fn report(
     window: Query<&Window, With<PrimaryWindow>>,
     awake: Res<crate::sites::Awake>,
     mut churn: ResMut<Churn>,
+    mark: Option<Res<crate::bot::PerfMark>>,
 ) {
     let now = time.elapsed_secs();
     if now - *last < 5.0 {
@@ -266,8 +272,17 @@ fn report(
         .next()
         .map(|g| g.translation())
         .unwrap_or_default();
+    let step = mark.as_deref().map_or("", |m| m.0.as_str());
+    csv_row(&format!(
+        "{now:.1},report,{p50:.1},{p95:.1},{worst:.1},{},{:.1},{:.1},{:.1},{},\"{step}\"",
+        churn.hitches,
+        at.x,
+        at.y,
+        at.z,
+        crate::areas::area_at(at).unwrap_or_default()
+    ));
     info!(
-        "perf: {fps:.0} fps {ms:.1} ms (median {p50:.1} p95 {p95:.1} worst {worst:.0} ms) | entities {} | meshes {total} ({seen} visible) | draw calls {draws}{note} | tex {vram_mb:.0} MB | point/spot lights {} | camera {at:.0} | materials changed {:.0}/s | transforms changed {:.0}/frame | hitches {} | sites awake: {}",
+        "perf: {fps:.0} fps {ms:.1} ms (median {p50:.1} p95 {p95:.1} worst {worst:.0} ms) | entities {} | meshes {total} ({seen} visible) | draw calls {draws}{note} | tex {vram_mb:.0} MB | point/spot lights {} | camera {at:.0} | materials changed {:.0}/s | transforms changed {:.0}/frame | hitches {} | sites awake: {} | bot: {step}",
         entities.iter().count(),
         lights.iter().count(),
         churn.materials as f32 / secs,
@@ -276,6 +291,62 @@ fn report(
         awake.ids().join(", ")
     );
 }
+
+/// Every frame over 25 ms: when, how long, where the camera was, its area and
+/// the bot's step, to the log and the CSV.
+fn hitch(
+    time: Res<Time<Real>>,
+    cam: Query<&GlobalTransform, With<Camera3d>>,
+    mark: Option<Res<crate::bot::PerfMark>>,
+) {
+    let ms = time.delta_secs() * 1000.0;
+    if ms <= 25.0 {
+        return;
+    }
+    let at = cam
+        .iter()
+        .next()
+        .map(|g| g.translation())
+        .unwrap_or_default();
+    let area = crate::areas::area_at(at).unwrap_or_else(|| "no area".into());
+    let step = mark.as_deref().map_or("", |m| m.0.as_str());
+    let now = time.elapsed_secs();
+    info!("perf hitch: {ms:.0} ms at {at:.0} in {area} | {step}");
+    csv_row(&format!(
+        "{now:.2},hitch,{ms:.1},,,,{:.1},{:.1},{:.1},{area},\"{step}\"",
+        at.x, at.y, at.z
+    ));
+}
+
+/// Append a row to `FRIENDSLOP_PERF_OUT` (a header first time); desktop only.
+#[cfg(not(target_arch = "wasm32"))]
+fn csv_row(row: &str) {
+    use std::io::Write;
+    static FILE: std::sync::Mutex<Option<std::fs::File>> = std::sync::Mutex::new(None);
+    let Ok(path) = std::env::var("FRIENDSLOP_PERF_OUT") else {
+        return;
+    };
+    let Ok(mut file) = FILE.lock() else {
+        return;
+    };
+    if file.is_none() {
+        let Ok(mut f) = std::fs::File::create(&path) else {
+            warn!("perf: can't write {path}");
+            return;
+        };
+        let _ = writeln!(
+            f,
+            "secs,kind,ms_or_median,p95,worst,hitches,x,y,z,area,step"
+        );
+        *file = Some(f);
+    }
+    if let Some(f) = file.as_mut() {
+        let _ = writeln!(f, "{row}");
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn csv_row(_row: &str) {}
 
 /// Every 5 s, entities, meshes and colliders per area, and the count that
 /// belongs to no area (`areas.rs`; that last line is the migration's

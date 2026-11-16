@@ -75,6 +75,9 @@ chrono = { version = "0.4", default-features = false, features = ["clock"] }
 # No clipboard crate for Android (#354, net.rs).
 [target.'cfg(not(any(target_arch = "wasm32", target_os = "android")))'.dependencies]
 arboard.workspace = true
+# FRIENDSLOP_BRP=1: the Bevy Remote Protocol on localhost (bot.rs), for
+# poking at a running game from a script.
+bevy_remote = "=0.20.0"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 web-sys = { version = "0.3", features = [

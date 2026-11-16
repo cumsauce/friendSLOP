@@ -1,13 +1,11 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "sp-fence-post",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 54259,
   "ops": [
     {
       "revolve": {
-        "degrees": 360.0,
         "name": "post",
         "profile": [
           [
@@ -37,29 +35,36 @@
             ]
           ]
         ],
-        "rotation": null,
+        "degrees": 360.0,
         "segments": 7,
+        "round": 0.008,
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "material": {
+        "name": "post",
+        "input": "post",
         "base_color": [
           0.6,
           0.55,
           0.55,
           1.0
         ],
-        "input": "post",
+        "roughness": null,
         "metalness": null,
-        "name": "post",
         "pbr": {
+          "material": "sp-wood-v",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "rot",
@@ -206,17 +211,13 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "sp-wood-v",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     }
   ],
-  "parts": [],
-  "version": 7320
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
 }

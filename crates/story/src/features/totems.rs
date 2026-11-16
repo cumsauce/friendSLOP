@@ -378,6 +378,8 @@ fn build_vault(mut commands: Commands, assets: Res<AssetServer>) {
             // Walls are solid: the vault is more than a picture of one.
             RigidBody::Static,
             Collider::cuboid(size.x, 1.6, size.y),
+            // In the navmesh even where it's a short stub: paths go round.
+            friendslop_base::nav::NavSolid,
             Transform::from_xyz(vault_at().x + off.x, 0.8, vault_at().y + off.y),
             DespawnOnExit(AppState::InGame),
         ));
@@ -488,6 +490,9 @@ fn dress_doors(
                 // clears the gap and a closed one blocks it.
                 RigidBody::Static,
                 Collider::cuboid(0.15, 1.4, 1.2),
+                // A closed door is a wall to a path (the mesh is built once,
+                // with the doors shut).
+                friendslop_base::nav::NavSolid,
                 Transform::from_xyz(door.at.x, 0.7, door.at.y),
                 Clickable::at_height(0.0).labelled("open the door"),
                 Visibility::default(),

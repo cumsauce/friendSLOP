@@ -137,6 +137,11 @@ pub fn spawn_island(
     )
 }
 
+/// Always part of the navmesh, whatever its size: walls and closed doors a
+/// path must go round (the commune's mesh leaves small props out).
+#[derive(Component, Default, Clone, Copy, Debug)]
+pub struct NavSolid;
+
 /// One area's navigation.
 #[derive(Debug)]
 pub struct AreaNav {

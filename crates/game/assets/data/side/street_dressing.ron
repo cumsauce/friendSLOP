@@ -1,0 +1,35 @@
+// New York's street dressing (crates/side-nyc/src/features/street_dressing.rs).
+// Small sidewalk clutter scattered between the street lamps on every curb, the
+// same on every peer (seeded). Only gaps between two lamps on one curb get
+// clutter, so crossings and the cab lanes stay clear. Look only: no colliders.
+// Edit and save: it is placed again the next time New York loads.
+(
+    // Changes every pick.
+    seed: 283,
+    // Two lamps on one curb further apart than this (m) have a crossing between them: skip.
+    max_gap: 20.0,
+    // How many things go in each gap between lamps (min, max).
+    per_gap: (1, 3),
+    // Keep this far (m) from anything the map already placed (lamps, meters, benches, shops).
+    clearance: 1.6,
+    // Keep this far (m) from the end lamps of a gap.
+    lamp_margin: 2.0,
+    // Beyond this distance from the camera (m) the clutter isn't drawn.
+    draw_distance: 70.0,
+    // What can go there: model, how often (weight), how far back from the curb line
+    // (m, towards the buildings; negative leans into the gutter), and turn (degrees,
+    // added to facing the street).
+    kinds: [
+        (model: "models/prefabs/nyc-kit-hydrant.gltf", weight: 2.0, back: 0.3, turn: 0.0),
+        (model: "models/prefabs/nyc-kit-trash-bags-a.gltf", weight: 3.0, back: 0.2, turn: 0.0),
+        (model: "models/prefabs/nyc-kit-trash-bags-b.gltf", weight: 3.0, back: 0.2, turn: 90.0),
+        (model: "models/prefabs/nyc-kit-trash-can.gltf", weight: 1.5, back: 0.4, turn: 0.0),
+        (model: "models/prefabs/nyc-kit-news-box.gltf", weight: 2.0, back: 1.6, turn: 180.0),
+        (model: "models/prefabs/nyc-kit-mailbox.gltf", weight: 1.0, back: 1.6, turn: 180.0),
+        (model: "models/prefabs/nyc-kit-bike-rack.gltf", weight: 1.0, back: 0.8, turn: 90.0),
+        (model: "models/prefabs/nyc-kit-sign-pole.gltf", weight: 1.5, back: 0.25, turn: 0.0),
+        (model: "models/prefabs/nyc-kit-fire-alarm.gltf", weight: 0.5, back: 0.3, turn: 0.0),
+        (model: "models/prefabs/nyc-kit-planter.gltf", weight: 0.8, back: 1.8, turn: 0.0),
+        (model: "models/prefabs/nyc-kit-cone.gltf", weight: 0.5, back: -0.2, turn: 0.0),
+    ],
+)

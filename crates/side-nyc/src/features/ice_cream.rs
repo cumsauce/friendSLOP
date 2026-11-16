@@ -34,6 +34,9 @@ pub struct Tuning {
     /// Where the machine stands on the deck (x, z, from the deck's middle) and its turn (degrees).
     pub machine: (f32, f32),
     pub machine_yaw: f32,
+    /// A red sports car parked on the deck too: (x, z) from the deck's
+    /// middle and its turn (degrees). Just there to look at.
+    pub sports_car: (f32, f32, f32),
     pub parts: Vec<Part>,
     /// Clicking it while broken ({missing}: the parts still out there).
     pub broken_line: String,
@@ -283,6 +286,15 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
                 assets.load(GltfAssetLabel::Scene(0).from_asset("models/out-of-order.gltf")),
             ),
             Transform::from_translation(at).with_rotation(turn),
+            crate::area::show(),
+        ));
+        let (cx, cz, cyaw) = t.sports_car;
+        commands.spawn((
+            WorldAssetRoot(
+                assets.load(GltfAssetLabel::Scene(0).from_asset("models/sports-car.gltf")),
+            ),
+            Transform::from_translation(super::high_places::deck(foot) + Vec3::new(cx, 0.0, cz))
+                .with_rotation(Quat::from_rotation_y(cyaw.to_radians())),
             crate::area::show(),
         ));
         commands.spawn((

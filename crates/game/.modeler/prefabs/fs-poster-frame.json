@@ -1,0 +1,256 @@
+{
+  "format_version": 1,
+  "name": "fs-poster-frame",
+  "parts": [],
+  "version": 65703,
+  "ops": [
+    {
+      "primitive": {
+        "name": "frame",
+        "kind": "box",
+        "size": [
+          1.2,
+          1.6,
+          0.05
+        ],
+        "translation": [
+          0.0,
+          1.5,
+          0.025
+        ],
+        "rotation": null,
+        "round": 0.01
+      }
+    },
+    {
+      "primitive": {
+        "name": "poster",
+        "kind": "box",
+        "size": [
+          1.08,
+          1.48,
+          0.01
+        ],
+        "translation": [
+          0.0,
+          1.5,
+          0.052
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "tear",
+        "kind": "wedge",
+        "size": [
+          0.4,
+          0.3,
+          0.012
+        ],
+        "translation": [
+          0.35,
+          0.95,
+          0.06
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          1.0,
+          -4.371139e-8
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "frame",
+        "input": "frame",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "poster",
+        "input": "poster",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-poster",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 2,
+                "seed": 107,
+                "size": 0.35,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#2a5a9a"
+                  ],
+                  [
+                    0.4,
+                    "#d8d0b0"
+                  ],
+                  [
+                    0.6,
+                    "#c83a2a"
+                  ],
+                  [
+                    1,
+                    "#e8c040"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.7,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tear",
+        "input": "tear",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-paper",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 51,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#a49c88"
+                  ],
+                  [
+                    1,
+                    "#d2cbb8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.9,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "collider": {
+        "name": "n",
+        "parts": [
+          "*"
+        ],
+        "shape": "none",
+        "body": "static",
+        "sensor": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

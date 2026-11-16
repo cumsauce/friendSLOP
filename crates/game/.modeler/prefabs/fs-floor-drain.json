@@ -1,0 +1,307 @@
+{
+  "format_version": 1,
+  "name": "fs-floor-drain",
+  "parts": [],
+  "version": 66245,
+  "ops": [
+    {
+      "primitive": {
+        "name": "frame",
+        "kind": "box",
+        "size": [
+          0.6,
+          0.012,
+          0.6
+        ],
+        "translation": [
+          0.0,
+          0.006,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "hole",
+        "kind": "box",
+        "size": [
+          0.5,
+          0.1,
+          0.5
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "boolean": {
+        "name": "rim",
+        "op": "difference",
+        "a": "frame",
+        "b": "hole"
+      }
+    },
+    {
+      "primitive": {
+        "name": "pit",
+        "kind": "box",
+        "size": [
+          0.5,
+          0.004,
+          0.5
+        ],
+        "translation": [
+          0.0,
+          -0.15,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "bar",
+        "kind": "box",
+        "size": [
+          0.025,
+          0.012,
+          0.5
+        ],
+        "translation": [
+          -0.225,
+          0.006,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "linear_array": {
+        "name": "bars",
+        "input": "bar",
+        "count": 10,
+        "offset": [
+          0.05,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "rim",
+        "input": "rim",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 10,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#151617"
+                  ],
+                  [
+                    1,
+                    "#2a2b2d"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.5,
+                  0.75
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.6,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pit",
+        "input": "pit",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-water",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 61,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0.0,
+                    "#1f2a24"
+                  ],
+                  [
+                    1.0,
+                    "#34443a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.08,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bar",
+        "input": "bar",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-iron",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 10,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#151617"
+                  ],
+                  [
+                    1,
+                    "#2a2b2d"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.5,
+                  0.75
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.6,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "collider": {
+        "name": "n",
+        "parts": [
+          "*"
+        ],
+        "shape": "none",
+        "body": "static",
+        "sensor": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "frame",
+        "input": "frame",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "hole",
+        "input": "hole",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

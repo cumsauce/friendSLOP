@@ -1,0 +1,361 @@
+{
+  "format_version": 1,
+  "name": "fs-wall-grille",
+  "parts": [],
+  "version": 66261,
+  "ops": [
+    {
+      "primitive": {
+        "name": "frame",
+        "kind": "box",
+        "size": [
+          0.8,
+          0.5,
+          0.04
+        ],
+        "translation": [
+          0.0,
+          0.5,
+          0.02
+        ],
+        "rotation": null,
+        "round": 0.008
+      }
+    },
+    {
+      "primitive": {
+        "name": "recess",
+        "kind": "box",
+        "size": [
+          0.7,
+          0.4,
+          0.06
+        ],
+        "translation": [
+          0.0,
+          0.5,
+          0.04
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "boolean": {
+        "name": "rim",
+        "op": "difference",
+        "a": "frame",
+        "b": "recess"
+      }
+    },
+    {
+      "primitive": {
+        "name": "back",
+        "kind": "box",
+        "size": [
+          0.7,
+          0.4,
+          0.005
+        ],
+        "translation": [
+          0.0,
+          0.5,
+          0.003
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "louvre",
+        "kind": "box",
+        "size": [
+          0.7,
+          0.05,
+          0.006
+        ],
+        "translation": [
+          0.0,
+          0.35,
+          0.022
+        ],
+        "rotation": [
+          -0.34202012,
+          0.0,
+          0.0,
+          0.9396926
+        ]
+      }
+    },
+    {
+      "linear_array": {
+        "name": "louvres",
+        "input": "louvre",
+        "count": 7,
+        "offset": [
+          0.0,
+          0.05,
+          0.0
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "rim",
+        "input": "rim",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-galvanized",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 77,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "name": "dn",
+                "octaves": 3,
+                "seed": 78,
+                "size": 0.6,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "dn",
+                "name": "grime",
+                "type": "levels"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#7c8086"
+                  ],
+                  [
+                    0.5,
+                    "#9da2a8"
+                  ],
+                  [
+                    1,
+                    "#878b90"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#3a352e",
+                "c": "grime",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.35,
+                  0.6
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.8,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "back",
+        "input": "back",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-plastic-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 104,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1e2022"
+                  ],
+                  [
+                    1,
+                    "#2c2e30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "louvre",
+        "input": "louvre",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-galvanized",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 77,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "name": "dn",
+                "octaves": 3,
+                "seed": 78,
+                "size": 0.6,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "dn",
+                "name": "grime",
+                "type": "levels"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#7c8086"
+                  ],
+                  [
+                    0.5,
+                    "#9da2a8"
+                  ],
+                  [
+                    1,
+                    "#878b90"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#3a352e",
+                "c": "grime",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.35,
+                  0.6
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.8,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "collider": {
+        "name": "n",
+        "parts": [
+          "*"
+        ],
+        "shape": "none",
+        "body": "static",
+        "sensor": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "frame",
+        "input": "frame",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "recess",
+        "input": "recess",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

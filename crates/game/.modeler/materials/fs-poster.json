@@ -1,0 +1,104 @@
+{
+  "name": "fs-poster",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 2,
+      "seed": 107,
+      "size": 0.35,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#2a5a9a"
+        ],
+        [
+          0.4,
+          "#d8d0b0"
+        ],
+        [
+          0.6,
+          "#c83a2a"
+        ],
+        [
+          1,
+          "#e8c040"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.7,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "fs-poster",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 2,
+              "seed": 107,
+              "size": 0.35,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#2a5a9a"
+                ],
+                [
+                  0.4,
+                  "#d8d0b0"
+                ],
+                [
+                  0.6,
+                  "#c83a2a"
+                ],
+                [
+                  1,
+                  "#e8c040"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.7,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

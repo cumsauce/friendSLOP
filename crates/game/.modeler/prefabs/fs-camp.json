@@ -1,0 +1,702 @@
+{
+  "format_version": 1,
+  "name": "fs-camp",
+  "parts": [],
+  "version": 65999,
+  "ops": [
+    {
+      "primitive": {
+        "name": "mat_a",
+        "kind": "box",
+        "size": [
+          1.0,
+          0.012,
+          0.8
+        ],
+        "translation": [
+          -0.45,
+          0.006,
+          0.6
+        ],
+        "rotation": [
+          0.0,
+          0.034899496,
+          0.0,
+          0.99939084
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "mat_b",
+        "kind": "box",
+        "size": [
+          1.0,
+          0.012,
+          0.75
+        ],
+        "translation": [
+          0.5,
+          0.008,
+          0.62
+        ],
+        "rotation": [
+          0.0,
+          -0.05233596,
+          0.0,
+          0.9986295
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "tarp",
+        "kind": "box",
+        "size": [
+          2.2,
+          0.015,
+          1.65
+        ],
+        "translation": [
+          0.0,
+          0.62,
+          0.65
+        ],
+        "rotation": [
+          0.40673664,
+          0.0,
+          0.0,
+          0.9135454
+        ]
+      }
+    },
+    {
+      "sdf": {
+        "name": "bag",
+        "shapes": [
+          {
+            "shape": "capsule",
+            "radius": [
+              0.24,
+              0.2
+            ],
+            "from": [
+              -0.75,
+              0.1,
+              0.6
+            ],
+            "to": [
+              0.6,
+              0.1,
+              0.65
+            ]
+          },
+          {
+            "shape": "box",
+            "op": "subtract",
+            "blend": 0.04,
+            "at": [
+              0.0,
+              -0.48,
+              0.0
+            ],
+            "size": [
+              4.0,
+              1.0,
+              4.0
+            ]
+          }
+        ],
+        "warps": [
+          {
+            "mode": "displace",
+            "amount": 0.03,
+            "scale": 0.25,
+            "seed": 2
+          }
+        ],
+        "resolution": 0.025
+      }
+    },
+    {
+      "decimate": {
+        "name": "bag_lo",
+        "input": "bag",
+        "tris": 800
+      }
+    },
+    {
+      "sdf": {
+        "name": "pillow",
+        "shapes": [
+          {
+            "shape": "ellipsoid",
+            "at": [
+              -0.85,
+              0.12,
+              0.6
+            ],
+            "size": [
+              0.22,
+              0.09,
+              0.16
+            ]
+          }
+        ],
+        "warps": [
+          {
+            "mode": "displace",
+            "amount": 0.02,
+            "scale": 0.1,
+            "seed": 6
+          }
+        ],
+        "resolution": 0.015
+      }
+    },
+    {
+      "decimate": {
+        "name": "pillow_lo",
+        "input": "pillow",
+        "tris": 300
+      }
+    },
+    {
+      "prefab": {
+        "name": "sack",
+        "prefab": "fs-trash-bag",
+        "translation": [
+          0.95,
+          0.0,
+          0.25
+        ],
+        "rotation": null,
+        "scale": [
+          0.7,
+          0.7,
+          0.7
+        ],
+        "parts": [
+          "bag_lo"
+        ],
+        "digest": 18037952095039748131
+      }
+    },
+    {
+      "prefab": {
+        "name": "lit",
+        "prefab": "fs-trash-litter",
+        "translation": [
+          0.3,
+          0.0,
+          1.55
+        ],
+        "rotation": null,
+        "scale": [
+          0.6,
+          1.0,
+          0.5
+        ],
+        "parts": [
+          "can_a",
+          "can_b",
+          "can_c",
+          "cup",
+          "paper_a",
+          "paper_b",
+          "paper_c",
+          "box_flat",
+          "wad_a_lo",
+          "wad_b_lo"
+        ],
+        "digest": 14199237527936136671
+      }
+    },
+    {
+      "material": {
+        "name": "mat_a",
+        "input": "mat_a",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wh-cardboard",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 401,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "name": "bn",
+                "octaves": 3,
+                "seed": 402,
+                "size": 0.35,
+                "type": "noise"
+              },
+              {
+                "name": "sn",
+                "octaves": 2,
+                "seed": 403,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.8
+                ],
+                "input": "bn",
+                "name": "grime",
+                "type": "levels"
+              },
+              {
+                "in": [
+                  0.62,
+                  0.7
+                ],
+                "input": "sn",
+                "name": "spot",
+                "type": "levels"
+              },
+              {
+                "a": "grime",
+                "b": 0.55,
+                "name": "gm0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "spot",
+                "b": 0.25,
+                "name": "sp",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": "sp",
+                "name": "gm",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "fn",
+                "name": "col0",
+                "stops": [
+                  [
+                    0,
+                    "#73593b"
+                  ],
+                  [
+                    1,
+                    "#8f714e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "col0",
+                "b": "#2a2119",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "mat_b",
+        "input": "mat_b",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "wh-cardboard",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 3,
+                "seed": 401,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "name": "bn",
+                "octaves": 3,
+                "seed": 402,
+                "size": 0.35,
+                "type": "noise"
+              },
+              {
+                "name": "sn",
+                "octaves": 2,
+                "seed": 403,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.8
+                ],
+                "input": "bn",
+                "name": "grime",
+                "type": "levels"
+              },
+              {
+                "in": [
+                  0.62,
+                  0.7
+                ],
+                "input": "sn",
+                "name": "spot",
+                "type": "levels"
+              },
+              {
+                "a": "grime",
+                "b": 0.55,
+                "name": "gm0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "spot",
+                "b": 0.25,
+                "name": "sp",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": "sp",
+                "name": "gm",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "input": "fn",
+                "name": "col0",
+                "stops": [
+                  [
+                    0,
+                    "#73593b"
+                  ],
+                  [
+                    1,
+                    "#8f714e"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "col0",
+                "b": "#2a2119",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "fn",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tarp",
+        "input": "tarp",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-tarp",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 103,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1c3c78"
+                  ],
+                  [
+                    1,
+                    "#2c5498"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bag_lo",
+        "input": "bag_lo",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-pipe-green",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 5,
+                "seed": 93,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "name": "rn",
+                "octaves": 4,
+                "seed": 94,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.62,
+                  0.82
+                ],
+                "input": "rn",
+                "name": "rust",
+                "type": "levels"
+              },
+              {
+                "input": "fn",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#2c4a34"
+                  ],
+                  [
+                    1,
+                    "#3a5c42"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#4a2a18",
+                "c": "rust",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "rust",
+                "name": "r",
+                "to": [
+                  0.45,
+                  0.85
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 0.2,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pillow_lo",
+        "input": "pillow_lo",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-cloth",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 12,
+                "size": 0.01,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#dcdcd6"
+                  ],
+                  [
+                    1,
+                    "#f4f4ee"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "fn",
+                "name": "r",
+                "to": [
+                  0.85,
+                  0.95
+                ],
+                "type": "remap"
+              },
+              {
+                "a": "fn",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "collider": {
+        "name": "c",
+        "parts": [
+          "tarp"
+        ],
+        "shape": "box",
+        "body": "static",
+        "sensor": false
+      }
+    },
+    {
+      "collider": {
+        "name": "n",
+        "parts": [
+          "mat_*",
+          "bag_lo",
+          "pillow_lo",
+          "sack.*",
+          "lit.*"
+        ],
+        "shape": "none",
+        "body": "static",
+        "sensor": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bag",
+        "input": "bag",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "pillow",
+        "input": "pillow",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

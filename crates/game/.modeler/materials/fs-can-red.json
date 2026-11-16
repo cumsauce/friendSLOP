@@ -1,0 +1,90 @@
+{
+  "name": "fs-can-red",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 3,
+      "seed": 52,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#8a1a18"
+        ],
+        [
+          1,
+          "#b02a24"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "metallic": 0.7,
+      "name": "out",
+      "roughness": 0.35,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "fs-can-red",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 3,
+              "seed": 52,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#8a1a18"
+                ],
+                [
+                  1,
+                  "#b02a24"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0.7,
+              "name": "out",
+              "roughness": 0.35,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

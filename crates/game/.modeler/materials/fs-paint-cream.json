@@ -1,0 +1,138 @@
+{
+  "name": "fs-paint-cream",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 5,
+      "seed": 105,
+      "size": 0.15,
+      "type": "noise"
+    },
+    {
+      "name": "dn",
+      "octaves": 3,
+      "seed": 106,
+      "size": 0.5,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.6,
+        0.85
+      ],
+      "input": "dn",
+      "name": "grime",
+      "type": "levels"
+    },
+    {
+      "input": "fn",
+      "name": "c0",
+      "stops": [
+        [
+          0,
+          "#b8b090"
+        ],
+        [
+          1,
+          "#d0c8a8"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "c0",
+      "b": "#4a3e2e",
+      "c": "grime",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "metallic": 0.3,
+      "name": "out",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "fs-paint-cream",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 5,
+              "seed": 105,
+              "size": 0.15,
+              "type": "noise"
+            },
+            {
+              "name": "dn",
+              "octaves": 3,
+              "seed": 106,
+              "size": 0.5,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.6,
+                0.85
+              ],
+              "input": "dn",
+              "name": "grime",
+              "type": "levels"
+            },
+            {
+              "input": "fn",
+              "name": "c0",
+              "stops": [
+                [
+                  0,
+                  "#b8b090"
+                ],
+                [
+                  1,
+                  "#d0c8a8"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c0",
+              "b": "#4a3e2e",
+              "c": "grime",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0.3,
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +dn +grime +c0 +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

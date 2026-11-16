@@ -1,0 +1,236 @@
+{
+  "format_version": 1,
+  "name": "fs-puddle",
+  "parts": [],
+  "version": 65945,
+  "ops": [
+    {
+      "extrude": {
+        "name": "puddle",
+        "profile": [
+          [
+            [
+              -0.9,
+              -0.2
+            ],
+            [
+              -0.6,
+              -0.55
+            ],
+            [
+              -0.1,
+              -0.5
+            ],
+            [
+              0.3,
+              -0.7
+            ],
+            [
+              0.85,
+              -0.4
+            ],
+            [
+              0.9,
+              0.1
+            ],
+            [
+              0.5,
+              0.45
+            ],
+            [
+              0.0,
+              0.35
+            ],
+            [
+              -0.4,
+              0.6
+            ],
+            [
+              -0.85,
+              0.3
+            ]
+          ]
+        ],
+        "height": 0.006,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "round": 0.15,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "extrude": {
+        "name": "puddle_small",
+        "profile": [
+          [
+            [
+              1.0,
+              0.3
+            ],
+            [
+              1.3,
+              0.25
+            ],
+            [
+              1.35,
+              0.5
+            ],
+            [
+              1.1,
+              0.6
+            ]
+          ]
+        ],
+        "height": 0.005,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "round": 0.08,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "puddle",
+        "input": "puddle",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-water",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 61,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0.0,
+                    "#1f2a24"
+                  ],
+                  [
+                    1.0,
+                    "#34443a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.08,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "puddle_small",
+        "input": "puddle_small",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "de-water",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 61,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0.0,
+                    "#1f2a24"
+                  ],
+                  [
+                    1.0,
+                    "#34443a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.08,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "collider": {
+        "name": "n",
+        "parts": [
+          "*"
+        ],
+        "shape": "none",
+        "body": "static",
+        "sensor": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

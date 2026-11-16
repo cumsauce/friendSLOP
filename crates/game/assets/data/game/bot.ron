@@ -30,6 +30,22 @@
     spin_degs: 360.0,
     always_run: true,
     routes: {
+        // The tour's hitch spots twice over: hitches only the first time
+        // round are first-time loads (shaders, textures, models).
+        "twice": [
+            Repeat(2, [
+                Start("bonfire"),
+                Spin(4.0),
+                WalkTo("village"),
+                WalkTo("lake"),
+                WalkTo("warehouse"),
+                Spin(4.0),
+                Start("chambers_st"),
+                Ride(from: "chambers_st", to: "penn_station"),
+                Start("vessel"),
+                Spin(4.0),
+            ]),
+        ],
         // The tour's last stretch: the 1 train, then the flight.
         "tail": [
             Start("chambers_st"),

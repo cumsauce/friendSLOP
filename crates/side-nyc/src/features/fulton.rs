@@ -1521,10 +1521,26 @@ fn build_sim(mut commands: Commands, station: Option<Res<Station>>) {
     }
 }
 
-/// `FRIENDSLOP_START=fulton` starts you on the top level.
+/// `FRIENDSLOP_START=fulton` starts you on the top level. Every lookup of
+/// any start asks this, and planning all the levels takes most of a second,
+/// so the answer is worked out once and kept.
 fn starts() -> Vec<(String, Vec3)> {
+    static AT: std::sync::Mutex<Option<Vec3>> = std::sync::Mutex::new(None);
+    if let Ok(at) = AT.lock()
+        && let Some(at) = *at
+    {
+        return vec![("fulton".into(), at)];
+    }
     let t = tuning();
-    vec![("fulton".into(), start_at(&t, &generate(&t, &TILES.get())))]
+    let levels = generate(&t, &TILES.get());
+    let at = start_at(&t, &levels);
+    // Only keep a real plan (not one made before the data files loaded).
+    if !levels.is_empty()
+        && let Ok(mut kept) = AT.lock()
+    {
+        *kept = Some(at);
+    }
+    vec![("fulton".into(), at)]
 }
 
 fn camera_at(camera: &Query<&GlobalTransform, With<crate::world::MainCamera>>) -> Option<Vec3> {

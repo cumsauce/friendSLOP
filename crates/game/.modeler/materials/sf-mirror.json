@@ -1,0 +1,236 @@
+{
+  "name": "sf-mirror",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 2.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "base_color": "v",
+      "height": "h",
+      "metallic": "met",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    },
+    {
+      "name": "g",
+      "size": [
+        0.25,
+        0.25
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "in": [
+        0.01,
+        0.03
+      ],
+      "input": "g.edge",
+      "name": "grout",
+      "type": "levels"
+    },
+    {
+      "id": "g.id",
+      "max": 1.0,
+      "min": 0.7,
+      "name": "tone",
+      "seed": 7,
+      "type": "random"
+    },
+    {
+      "id": "g.id",
+      "max": 0.12,
+      "min": 0.02,
+      "name": "rt",
+      "seed": 9,
+      "type": "random"
+    },
+    {
+      "a": 0.08,
+      "b": "tone",
+      "c": "grout",
+      "name": "v",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.7,
+      "b": "rt",
+      "c": "grout",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.0,
+      "b": 1.0,
+      "c": "grout",
+      "name": "met",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "grout",
+      "b": 0.01,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-mirror",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 3,
+              "size": 0.1,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#d8dce4"
+                ],
+                [
+                  1,
+                  "#ffffff"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fn",
+              "name": "r",
+              "to": [
+                0.02,
+                0.08
+              ],
+              "type": "remap"
+            },
+            {
+              "base_color": "col",
+              "metallic": 1.0,
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+fn +col +r +out"
+      },
+      {
+        "model": {
+          "name": "sf-mirror",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 2.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "base_color": "v",
+              "height": "h",
+              "metallic": "met",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            },
+            {
+              "name": "g",
+              "size": [
+                0.25,
+                0.25
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.01,
+                0.03
+              ],
+              "input": "g.edge",
+              "name": "grout",
+              "type": "levels"
+            },
+            {
+              "id": "g.id",
+              "max": 1.0,
+              "min": 0.7,
+              "name": "tone",
+              "seed": 7,
+              "type": "random"
+            },
+            {
+              "id": "g.id",
+              "max": 0.12,
+              "min": 0.02,
+              "name": "rt",
+              "seed": 9,
+              "type": "random"
+            },
+            {
+              "a": 0.08,
+              "b": "tone",
+              "c": "grout",
+              "name": "v",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.7,
+              "b": "rt",
+              "c": "grout",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.0,
+              "b": 1.0,
+              "c": "grout",
+              "name": "met",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "grout",
+              "b": 0.01,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "+g +grout +tone +rt +v +rough +met +h ~out -fn -col -r"
+      }
+    ],
+    "current": 1
+  }
+}

@@ -1,0 +1,383 @@
+{
+  "name": "sf-rt-smiley",
+  "format_version": 1,
+  "domain": "decal",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "coords": "p1",
+      "name": "e1c",
+      "radius": 0.065,
+      "type": "circle"
+    },
+    {
+      "name": "uv",
+      "type": "input"
+    },
+    {
+      "input": "uv",
+      "name": "p1",
+      "offset": [
+        -0.35,
+        -0.36
+      ],
+      "type": "transform"
+    },
+    {
+      "input": "uv",
+      "name": "p2",
+      "offset": [
+        -0.65,
+        -0.36
+      ],
+      "type": "transform"
+    },
+    {
+      "coords": "p2",
+      "name": "e2c",
+      "radius": 0.065,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.5,
+        0.48
+      ],
+      "from": 25,
+      "name": "mouth",
+      "radius": 0.24,
+      "to": 155,
+      "type": "arc",
+      "width": 0.05
+    },
+    {
+      "a": "ring",
+      "b": "mouth",
+      "name": "u1",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "u1",
+      "b": "e1c",
+      "name": "u2",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "u2",
+      "b": "e2c",
+      "name": "u3",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "mode": "fill",
+      "name": "m",
+      "sdf": "u3",
+      "type": "mask"
+    },
+    {
+      "a": "m",
+      "b": [
+        6.0,
+        4.8,
+        0.4
+      ],
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "#ffe030",
+      "emissive": "em",
+      "metallic": 0,
+      "name": "out",
+      "opacity": "m",
+      "roughness": 0.4,
+      "type": "output"
+    },
+    {
+      "input": "uv",
+      "name": "p0",
+      "offset": [
+        -0.5,
+        -0.5
+      ],
+      "type": "transform"
+    },
+    {
+      "coords": "p0",
+      "name": "rc",
+      "radius": 0.43,
+      "type": "circle"
+    },
+    {
+      "input": "rc",
+      "name": "ring",
+      "thickness": 0.028,
+      "type": "onion"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-rt-smiley",
+          "format_version": 1,
+          "domain": "decal",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "from": 0,
+              "name": "ring",
+              "radius": 0.43,
+              "to": 360,
+              "type": "arc",
+              "width": 0.05
+            },
+            {
+              "coords": "p1",
+              "name": "e1c",
+              "radius": 0.065,
+              "type": "circle"
+            },
+            {
+              "name": "uv",
+              "type": "input"
+            },
+            {
+              "input": "uv",
+              "name": "p1",
+              "offset": [
+                -0.35,
+                -0.36
+              ],
+              "type": "transform"
+            },
+            {
+              "input": "uv",
+              "name": "p2",
+              "offset": [
+                -0.65,
+                -0.36
+              ],
+              "type": "transform"
+            },
+            {
+              "coords": "p2",
+              "name": "e2c",
+              "radius": 0.065,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.5,
+                0.48
+              ],
+              "from": 25,
+              "name": "mouth",
+              "radius": 0.24,
+              "to": 155,
+              "type": "arc",
+              "width": 0.05
+            },
+            {
+              "a": "ring",
+              "b": "mouth",
+              "name": "u1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "u1",
+              "b": "e1c",
+              "name": "u2",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "u2",
+              "b": "e2c",
+              "name": "u3",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "mode": "fill",
+              "name": "m",
+              "sdf": "u3",
+              "type": "mask"
+            },
+            {
+              "a": "m",
+              "b": [
+                6.0,
+                4.8,
+                0.4
+              ],
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "#ffe030",
+              "emissive": "em",
+              "metallic": 0,
+              "name": "out",
+              "opacity": "m",
+              "roughness": 0.4,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+ring +e1c +uv +p1 +p2 +e2c +mouth +u1 +u2 +u3 +m +em +out"
+      },
+      {
+        "model": {
+          "name": "sf-rt-smiley",
+          "format_version": 1,
+          "domain": "decal",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "coords": "p1",
+              "name": "e1c",
+              "radius": 0.065,
+              "type": "circle"
+            },
+            {
+              "name": "uv",
+              "type": "input"
+            },
+            {
+              "input": "uv",
+              "name": "p1",
+              "offset": [
+                -0.35,
+                -0.36
+              ],
+              "type": "transform"
+            },
+            {
+              "input": "uv",
+              "name": "p2",
+              "offset": [
+                -0.65,
+                -0.36
+              ],
+              "type": "transform"
+            },
+            {
+              "coords": "p2",
+              "name": "e2c",
+              "radius": 0.065,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.5,
+                0.48
+              ],
+              "from": 25,
+              "name": "mouth",
+              "radius": 0.24,
+              "to": 155,
+              "type": "arc",
+              "width": 0.05
+            },
+            {
+              "a": "ring",
+              "b": "mouth",
+              "name": "u1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "u1",
+              "b": "e1c",
+              "name": "u2",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "u2",
+              "b": "e2c",
+              "name": "u3",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "mode": "fill",
+              "name": "m",
+              "sdf": "u3",
+              "type": "mask"
+            },
+            {
+              "a": "m",
+              "b": [
+                6.0,
+                4.8,
+                0.4
+              ],
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "#ffe030",
+              "emissive": "em",
+              "metallic": 0,
+              "name": "out",
+              "opacity": "m",
+              "roughness": 0.4,
+              "type": "output"
+            },
+            {
+              "input": "uv",
+              "name": "p0",
+              "offset": [
+                -0.5,
+                -0.5
+              ],
+              "type": "transform"
+            },
+            {
+              "coords": "p0",
+              "name": "rc",
+              "radius": 0.43,
+              "type": "circle"
+            },
+            {
+              "input": "rc",
+              "name": "ring",
+              "thickness": 0.028,
+              "type": "onion"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "+p0 +rc +ring -ring"
+      }
+    ],
+    "current": 1
+  }
+}

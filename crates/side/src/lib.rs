@@ -41,6 +41,7 @@ pub mod features {
     pub mod sesbian_lex;
     pub mod shipwreck;
     pub mod surf;
+    pub mod surf_props;
     pub mod wastes;
     pub mod watcher;
 }
@@ -56,6 +57,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &fusion::inst::INSTRUMENTS,
         &features::affair::TUNING,
         &features::surf::DRESSING,
+        &features::surf_props::PROPS,
         &features::ambience::TUNING,
         &features::discord_friends::TUNING,
         &features::gaslighting::TUNING,

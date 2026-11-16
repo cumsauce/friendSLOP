@@ -1,0 +1,72 @@
+// Big set pieces around the surf course (crates/side/src/features/surf_props.rs).
+// Edit and save: the game reads it when the course next loads.
+(
+    // Change it for a different set of props.
+    seed: 306,
+    // An arch straddles a ramp every this many metres of ridge, none this
+    // close to a pad.
+    arch_every: 140.0,
+    arch_pad_clear: 40.0,
+    // The arches, used in turn along each ramp, each lifted this far (m)
+    // above the ridge (the rings float high enough to clear the faces).
+    arches: [
+        ("surf_arch_neon.gltf", 0.0),
+        ("surf_ring_gate.gltf", 8.0),
+        ("surf_arch_truss.gltf", 0.0),
+        ("surf_ring_gate.gltf", 8.0),
+    ],
+    // Chance a glass tower's roof gets something on it.
+    roof_chance: 0.55,
+    // Roof props: model, height (m), reach from the roof's middle (m),
+    // odds, and the solid box a surfer bumps into (centre, size).
+    roofs: [
+        (model: "surf_water_tower.gltf", height: 10.0, reach: 4.0, weight: 1.0,
+            solid: Some(((0.0, 5.0, 0.0), (5.2, 10.0, 5.2)))),
+        (model: "surf_billboard.gltf", height: 14.0, reach: 11.0, weight: 1.0,
+            solid: Some(((0.0, 9.5, 1.2), (22.4, 9.6, 0.6)))),
+        (model: "surf_helipad.gltf", height: 2.0, reach: 8.0, weight: 0.6,
+            solid: Some(((0.0, 0.6, 0.0), (16.0, 1.2, 16.0)))),
+        (model: "surf_antenna_mast.gltf", height: 35.0, reach: 3.0, weight: 0.7,
+            solid: Some(((0.0, 17.5, 0.0), (1.5, 35.0, 1.5)))),
+        (model: "surf_rooftop_pool.gltf", height: 3.0, reach: 6.5, weight: 0.6,
+            solid: Some(((0.0, 0.5, 0.0), (12.0, 1.0, 10.0)))),
+        (model: "surf_ac_cluster.gltf", height: 3.0, reach: 5.0, weight: 1.0,
+            solid: Some(((0.0, 1.5, 0.0), (8.0, 3.0, 6.0)))),
+        (model: "surf_tower_crane.gltf", height: 57.0, reach: 47.0, weight: 0.8,
+            solid: Some(((0.0, 22.5, 0.0), (2.2, 45.0, 2.2)))),
+        (model: "surf_luffing_crane.gltf", height: 73.0, reach: 22.0, weight: 0.5,
+            solid: Some(((0.0, 17.5, 0.0), (2.2, 35.0, 2.2)))),
+    ],
+    // Sky bridges: at most this many, spanning a gap of (min, max) metres
+    // between towers, running this far under the lower roof.
+    bridges: 14,
+    bridge_gap: (15.0, 60.0),
+    bridge_drop: 8.0,
+    // Bridge kinds: segment model (10 m long, tiling), end collar, deck
+    // half width and thickness.
+    bridge_kinds: [
+        (segment: "surf_skybridge_segment.gltf", end: Some("surf_skybridge_end.gltf"), width: 3.0, deck: 0.5),
+        (segment: "surf_truss_bridge_segment.gltf", end: None, width: 2.0, deck: 0.3),
+        (segment: "surf_catwalk_segment.gltf", end: None, width: 0.8, deck: 0.2),
+    ],
+    // Floating beside the course: model, how many, size (radius m), bobs,
+    // spins, solid box (centre, size).
+    floaters: [
+        (model: "surf_blimp.gltf", count: 3, radius: 30.0, bobs: true, spins: false, solid: None),
+        (model: "surf_hot_air_balloon.gltf", count: 8, radius: 12.0, bobs: true, spins: false, solid: None),
+        (model: "surf_giant_arrow.gltf", count: 6, radius: 11.0, bobs: true, spins: false, solid: None),
+        (model: "surf_disco_ball.gltf", count: 2, radius: 7.0, bobs: false, spins: true, solid: None),
+        (model: "surf_sky_platform.gltf", count: 4, radius: 8.0, bobs: false, spins: false,
+            solid: Some(((0.0, -0.75, 0.0), (14.0, 1.5, 14.0)))),
+    ],
+    // Floaters keep this far sideways from a ramp (min, max m) and this high
+    // above it (min, max m).
+    float_off: (35.0, 140.0),
+    float_up: (-20.0, 60.0),
+    // Every piece keeps this far (m) from a ramp's body.
+    margin: 4.0,
+    // Floaters bob this far (m) this fast (cycles a second); spinning
+    // things turn this fast (radians a second).
+    bob: (1.5, 0.08),
+    spin: 0.25,
+)

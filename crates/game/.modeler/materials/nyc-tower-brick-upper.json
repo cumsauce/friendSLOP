@@ -1,0 +1,502 @@
+{
+  "name": "nyc-tower-brick-upper",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        16,
+        10.5
+      ],
+      "type": "transform"
+    },
+    {
+      "name": "bn",
+      "octaves": 4,
+      "seed": 13,
+      "size": 0.6,
+      "type": "noise"
+    },
+    {
+      "input": "bn",
+      "name": "brick",
+      "stops": [
+        [
+          0,
+          "#7d3729"
+        ],
+        [
+          0.5,
+          "#8f4231"
+        ],
+        [
+          1,
+          "#9e4c37"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "coords": "c",
+      "name": "g",
+      "size": [
+        3.2,
+        3.5
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "center": [
+        0,
+        0
+      ],
+      "coords": "g.local",
+      "name": "fr",
+      "size": [
+        1.42,
+        2.12
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0,
+        0
+      ],
+      "coords": "g.local",
+      "name": "gl",
+      "size": [
+        1.3,
+        2
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0,
+        0
+      ],
+      "coords": "g.local",
+      "name": "mid",
+      "size": [
+        1.3,
+        0.05
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0,
+        1.11
+      ],
+      "coords": "g.local",
+      "name": "sill",
+      "size": [
+        1.6,
+        0.12
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0,
+        -1.15
+      ],
+      "coords": "g.local",
+      "name": "lin",
+      "size": [
+        1.6,
+        0.18
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "frm",
+      "sdf": "fr",
+      "type": "mask"
+    },
+    {
+      "name": "glm0",
+      "sdf": "gl",
+      "type": "mask"
+    },
+    {
+      "name": "midm",
+      "sdf": "mid",
+      "type": "mask"
+    },
+    {
+      "name": "sillm",
+      "sdf": "sill",
+      "type": "mask"
+    },
+    {
+      "name": "linm",
+      "sdf": "lin",
+      "type": "mask"
+    },
+    {
+      "a": "glm0",
+      "b": "midm",
+      "name": "glm",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "a": "sillm",
+      "b": "linm",
+      "name": "stone",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "name": "gn",
+      "octaves": 2,
+      "seed": 86,
+      "size": 1.5,
+      "type": "noise"
+    },
+    {
+      "input": "gn",
+      "name": "glc",
+      "stops": [
+        [
+          0,
+          "#1a232c"
+        ],
+        [
+          1,
+          "#3c4d5c"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "brick",
+      "b": "#d6cfbd",
+      "c": "stone",
+      "name": "c1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "#e4ddcd",
+      "c": "frm",
+      "name": "c2",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c2",
+      "b": "glc",
+      "c": "glm",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.9,
+      "b": 0.12,
+      "c": "glm",
+      "name": "rr",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "frm",
+      "b": -0.012,
+      "name": "hg",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "stone",
+      "b": 0.008,
+      "name": "hs",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "hg",
+      "b": "hs",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": "rr",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "nyc-tower-brick-upper",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                16,
+                10.5
+              ],
+              "type": "transform"
+            },
+            {
+              "name": "bn",
+              "octaves": 4,
+              "seed": 13,
+              "size": 0.6,
+              "type": "noise"
+            },
+            {
+              "input": "bn",
+              "name": "brick",
+              "stops": [
+                [
+                  0,
+                  "#7d3729"
+                ],
+                [
+                  0.5,
+                  "#8f4231"
+                ],
+                [
+                  1,
+                  "#9e4c37"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "coords": "c",
+              "name": "g",
+              "size": [
+                3.2,
+                3.5
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "center": [
+                0,
+                0
+              ],
+              "coords": "g.local",
+              "name": "fr",
+              "size": [
+                1.42,
+                2.12
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0,
+                0
+              ],
+              "coords": "g.local",
+              "name": "gl",
+              "size": [
+                1.3,
+                2
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0,
+                0
+              ],
+              "coords": "g.local",
+              "name": "mid",
+              "size": [
+                1.3,
+                0.05
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0,
+                1.11
+              ],
+              "coords": "g.local",
+              "name": "sill",
+              "size": [
+                1.6,
+                0.12
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0,
+                -1.15
+              ],
+              "coords": "g.local",
+              "name": "lin",
+              "size": [
+                1.6,
+                0.18
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "frm",
+              "sdf": "fr",
+              "type": "mask"
+            },
+            {
+              "name": "glm0",
+              "sdf": "gl",
+              "type": "mask"
+            },
+            {
+              "name": "midm",
+              "sdf": "mid",
+              "type": "mask"
+            },
+            {
+              "name": "sillm",
+              "sdf": "sill",
+              "type": "mask"
+            },
+            {
+              "name": "linm",
+              "sdf": "lin",
+              "type": "mask"
+            },
+            {
+              "a": "glm0",
+              "b": "midm",
+              "name": "glm",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "a": "sillm",
+              "b": "linm",
+              "name": "stone",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "name": "gn",
+              "octaves": 2,
+              "seed": 86,
+              "size": 1.5,
+              "type": "noise"
+            },
+            {
+              "input": "gn",
+              "name": "glc",
+              "stops": [
+                [
+                  0,
+                  "#1a232c"
+                ],
+                [
+                  1,
+                  "#3c4d5c"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "brick",
+              "b": "#d6cfbd",
+              "c": "stone",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#e4ddcd",
+              "c": "frm",
+              "name": "c2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "glc",
+              "c": "glm",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.9,
+              "b": 0.12,
+              "c": "glm",
+              "name": "rr",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "frm",
+              "b": -0.012,
+              "name": "hg",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "stone",
+              "b": 0.008,
+              "name": "hs",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hg",
+              "b": "hs",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": "rr",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +bn +brick +g +fr +gl +mid +sill +lin +frm +glm0 +midm +sillm +linm +glm +stone +gn +glc +c1 +c2 +col +rr +hg +hs +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

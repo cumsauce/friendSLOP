@@ -1,0 +1,550 @@
+{
+  "name": "nyc-door",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        1.2,
+        2.6
+      ],
+      "type": "transform"
+    },
+    {
+      "name": "wn",
+      "octaves": 3,
+      "seed": 7,
+      "size": 0.15,
+      "type": "noise"
+    },
+    {
+      "input": "wn",
+      "name": "wood",
+      "stops": [
+        [
+          0,
+          "#4b2a17"
+        ],
+        [
+          1,
+          "#6a3c22"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "center": [
+        0.32,
+        0.85
+      ],
+      "coords": "c",
+      "name": "pul",
+      "size": [
+        0.4,
+        1.1
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.88,
+        0.85
+      ],
+      "coords": "c",
+      "name": "pur",
+      "size": [
+        0.4,
+        1.1
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.32,
+        1.95
+      ],
+      "coords": "c",
+      "name": "pll",
+      "size": [
+        0.4,
+        0.75
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.88,
+        1.95
+      ],
+      "coords": "c",
+      "name": "plr",
+      "size": [
+        0.4,
+        0.75
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.6,
+        1.3
+      ],
+      "coords": "c",
+      "name": "split",
+      "size": [
+        0.02,
+        2.6
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.53,
+        1.35
+      ],
+      "coords": "c",
+      "name": "knob_l",
+      "radius": 0.035,
+      "type": "circle"
+    },
+    {
+      "center": [
+        0.67,
+        1.35
+      ],
+      "coords": "c",
+      "name": "knob_r",
+      "radius": 0.035,
+      "type": "circle"
+    },
+    {
+      "mode": "fill",
+      "name": "m1",
+      "sdf": "pul",
+      "type": "mask"
+    },
+    {
+      "mode": "fill",
+      "name": "m2",
+      "sdf": "pur",
+      "type": "mask"
+    },
+    {
+      "mode": "fill",
+      "name": "m3",
+      "sdf": "pll",
+      "type": "mask"
+    },
+    {
+      "mode": "fill",
+      "name": "m4",
+      "sdf": "plr",
+      "type": "mask"
+    },
+    {
+      "mode": "fill",
+      "name": "ms",
+      "sdf": "split",
+      "type": "mask"
+    },
+    {
+      "mode": "fill",
+      "name": "k1",
+      "sdf": "knob_l",
+      "type": "mask"
+    },
+    {
+      "mode": "fill",
+      "name": "k2",
+      "sdf": "knob_r",
+      "type": "mask"
+    },
+    {
+      "a": "m1",
+      "b": "m2",
+      "name": "pa",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "m3",
+      "b": "m4",
+      "name": "pb",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "pa",
+      "b": "pb",
+      "name": "pan",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "k1",
+      "b": "k2",
+      "name": "kn",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "wood",
+      "b": "#3a1f10",
+      "c": "pan",
+      "name": "c0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c0",
+      "b": "#20120a",
+      "c": "ms",
+      "name": "c1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "#c9a24a",
+      "c": "kn",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "pan",
+      "b": -0.012,
+      "name": "h0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "kn",
+      "b": 0.015,
+      "name": "h1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "h0",
+      "b": "h1",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "kn",
+      "b": 0.9,
+      "name": "met",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": 0.55,
+      "b": 0.3,
+      "c": "kn",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "metallic": "met",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "nyc-door",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1.2,
+                2.6
+              ],
+              "type": "transform"
+            },
+            {
+              "name": "wn",
+              "octaves": 3,
+              "seed": 7,
+              "size": 0.15,
+              "type": "noise"
+            },
+            {
+              "input": "wn",
+              "name": "wood",
+              "stops": [
+                [
+                  0,
+                  "#4b2a17"
+                ],
+                [
+                  1,
+                  "#6a3c22"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "center": [
+                0.32,
+                0.85
+              ],
+              "coords": "c",
+              "name": "pul",
+              "size": [
+                0.4,
+                1.1
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.88,
+                0.85
+              ],
+              "coords": "c",
+              "name": "pur",
+              "size": [
+                0.4,
+                1.1
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.32,
+                1.95
+              ],
+              "coords": "c",
+              "name": "pll",
+              "size": [
+                0.4,
+                0.75
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.88,
+                1.95
+              ],
+              "coords": "c",
+              "name": "plr",
+              "size": [
+                0.4,
+                0.75
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.6,
+                1.3
+              ],
+              "coords": "c",
+              "name": "split",
+              "size": [
+                0.02,
+                2.6
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.53,
+                1.35
+              ],
+              "coords": "c",
+              "name": "knob_l",
+              "radius": 0.035,
+              "type": "circle"
+            },
+            {
+              "center": [
+                0.67,
+                1.35
+              ],
+              "coords": "c",
+              "name": "knob_r",
+              "radius": 0.035,
+              "type": "circle"
+            },
+            {
+              "mode": "fill",
+              "name": "m1",
+              "sdf": "pul",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "m2",
+              "sdf": "pur",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "m3",
+              "sdf": "pll",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "m4",
+              "sdf": "plr",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "ms",
+              "sdf": "split",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "k1",
+              "sdf": "knob_l",
+              "type": "mask"
+            },
+            {
+              "mode": "fill",
+              "name": "k2",
+              "sdf": "knob_r",
+              "type": "mask"
+            },
+            {
+              "a": "m1",
+              "b": "m2",
+              "name": "pa",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "m3",
+              "b": "m4",
+              "name": "pb",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "pa",
+              "b": "pb",
+              "name": "pan",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "k1",
+              "b": "k2",
+              "name": "kn",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "wood",
+              "b": "#3a1f10",
+              "c": "pan",
+              "name": "c0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "#20120a",
+              "c": "ms",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#c9a24a",
+              "c": "kn",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "pan",
+              "b": -0.012,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "kn",
+              "b": 0.015,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "kn",
+              "b": 0.9,
+              "name": "met",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": 0.55,
+              "b": 0.3,
+              "c": "kn",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "metallic": "met",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +wn +wood +pul +pur +pll +plr +split +knob_l +knob_r +m1 +m2 +m3 +m4 +ms +k1 +k2 +pa +pb +pan +kn +c0 +c1 +col +h0 +h1 +h +met +rough +out"
+      }
+    ],
+    "current": 0
+  }
+}

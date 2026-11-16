@@ -1638,6 +1638,12 @@ pub struct BusMix {
     pub autopan: Option<(f32, f32)>,
     /// Chorus: (rate Hz, centre ms, depth ms, mix).
     pub chorus: Option<(f32, f32, f32, f32)>,
+    /// Stereo width: (width 0 mono..1 as is..2 wide, mono below Hz; 0 = off).
+    #[serde(default)]
+    pub width: Option<(f32, f32)>,
+    /// Resonant bus filter: (Lp or Hp, cutoff Hz, q).
+    #[serde(default)]
+    pub filter: Option<(crate::fx::filter::FilterKind, f32, f32)>,
 }
 
 pub static MIX: friendslop_data::Data<Mix> = friendslop_data::Data::ron("data/music/mix.ron");
@@ -1650,6 +1656,8 @@ struct BusFx {
     eq: Vec<StereoEq>,
     autopan: Vec<Option<AutoPan>>,
     chorus: Vec<Option<Chorus>>,
+    width: Vec<Option<crate::fx::width::Width>>,
+    filter: Vec<Option<crate::fx::filter::BusFilter>>,
     trim: [f32; BUSES],
     pump: [f32; BUSES],
 }
@@ -1685,6 +1693,20 @@ impl BusFx {
                     bus(b)
                         .and_then(|m| m.chorus)
                         .map(|(r, c, d, x)| Chorus::new(r, c, d, x))
+                })
+                .collect(),
+            width: (0..BUSES)
+                .map(|b| {
+                    bus(b)
+                        .and_then(|m| m.width)
+                        .map(|(w, f)| crate::fx::width::Width::new(w, f))
+                })
+                .collect(),
+            filter: (0..BUSES)
+                .map(|b| {
+                    bus(b)
+                        .and_then(|m| m.filter)
+                        .map(|(k, f, q)| crate::fx::filter::BusFilter::new(k, f, q))
                 })
                 .collect(),
             trim: std::array::from_fn(|b| bus(b).map_or(1.0, |m| m.trim)),
@@ -2270,6 +2292,12 @@ impl Band {
             }
             if let Some(c) = &mut fx.chorus[b] {
                 c.process(l, r);
+            }
+            if let Some(f) = &mut fx.filter[b] {
+                f.process(l, r);
+            }
+            if let Some(w) = &mut fx.width[b] {
+                w.process(l, r);
             }
         }
         // Sum the buses into the first one, add the echo.

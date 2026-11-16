@@ -11,4 +11,8 @@
     max_climb: 0.5,
     // Steeper than this and the mesh ends (the quarry walls stay out of reach).
     max_slope_degs: 40.0,
+    // Props smaller than this across (m) stay out of the navmesh (trees,
+    // rocks, logs, crates: villagers veer round them); anything bigger (the
+    // map's walls, the landlord's yard, the maze) is in it, so paths go round.
+    nav_keep_size: 2.0,
 )

@@ -1,0 +1,51 @@
+// Miami and JFK set dressing (crates/side-nyc/src/features/miami_dressing.rs).
+// Visual only: no colliders. Kinds: Palm, Umbrella, Towel, Cooler, Neon,
+// Truss, Seats, Board, Suitcase. `hue` (0..360) colours what comes in colours.
+// Edit and save: picked up the next time New York loads.
+(
+    // How bright the neon, stage lights and departure board glow.
+    neon_glow: 6.0,
+    // From Miami's ground middle (x, z). The island is x -60..60, z -45..45;
+    // Factory Town is x -8..28, z 7..33 (open front at z 7, door x 3..17);
+    // the gate is at about (-40, -36).
+    miami: [
+        // Palms along the sea wall and the street.
+        (kind: Palm, at: (-55.0, -40.0)), (kind: Palm, at: (-55.0, -20.0), yaw: 30.0),
+        (kind: Palm, at: (-55.0, 0.0), yaw: 60.0), (kind: Palm, at: (-55.0, 20.0), yaw: 15.0),
+        (kind: Palm, at: (-55.0, 40.0), yaw: 45.0), (kind: Palm, at: (55.0, -40.0), yaw: 20.0),
+        (kind: Palm, at: (55.0, -15.0), yaw: 70.0), (kind: Palm, at: (55.0, 10.0)),
+        (kind: Palm, at: (55.0, 35.0), yaw: 40.0), (kind: Palm, at: (-20.0, 2.0), yaw: 10.0),
+        (kind: Palm, at: (0.0, 2.0), yaw: 50.0), (kind: Palm, at: (20.0, 2.0), yaw: 80.0),
+        (kind: Palm, at: (-25.0, -40.0), yaw: 25.0), (kind: Palm, at: (25.0, -40.0), yaw: 65.0),
+        // The beach along the south edge: umbrellas, towels, coolers.
+        (kind: Umbrella, at: (-30.0, -32.0), hue: 0.0), (kind: Towel, at: (-31.5, -33.0), yaw: 10.0, hue: 190.0),
+        (kind: Cooler, at: (-29.0, -30.8), yaw: 20.0, hue: 200.0),
+        (kind: Umbrella, at: (-14.0, -34.0), hue: 50.0), (kind: Towel, at: (-15.5, -35.0), yaw: -15.0, hue: 320.0),
+        (kind: Towel, at: (-12.5, -35.2), yaw: 5.0, hue: 60.0),
+        (kind: Umbrella, at: (4.0, -31.0), hue: 300.0), (kind: Towel, at: (2.5, -32.0), yaw: 25.0, hue: 170.0),
+        (kind: Cooler, at: (5.5, -30.0), yaw: -30.0, hue: 0.0),
+        (kind: Umbrella, at: (22.0, -34.0), hue: 180.0), (kind: Towel, at: (20.5, -35.0), yaw: -5.0, hue: 30.0),
+        (kind: Umbrella, at: (40.0, -32.0), hue: 120.0), (kind: Towel, at: (38.5, -33.0), yaw: 12.0, hue: 280.0),
+        (kind: Cooler, at: (41.5, -30.5), yaw: 45.0, hue: 210.0),
+        // Coolers by Factory Town's door.
+        (kind: Cooler, at: (1.0, 5.0), yaw: 10.0, hue: 195.0), (kind: Cooler, at: (19.0, 5.2), yaw: -12.0, hue: 0.0),
+        // Neon signs on the street in front of the club.
+        (kind: Neon, at: (-4.0, 4.5), hue: 300.0), (kind: Neon, at: (24.0, 4.5), hue: 180.0),
+        (kind: Neon, at: (-35.0, -10.0), yaw: 90.0, hue: 330.0), (kind: Neon, at: (40.0, -5.0), yaw: 90.0, hue: 200.0),
+        // Lighting truss over the stage at the back of the club.
+        (kind: Truss, at: (10.0, 29.0), hue: 270.0),
+    ],
+    // JFK's gate, in the stop's frame: x along the track (-10..9.5),
+    // z across (the platform is z 1.45..5.05, the car's doors on its edge).
+    jfk: [
+        // Rows of gate seats along the platform's back, facing the plane.
+        (kind: Seats, at: (-6.0, 4.6), hue: 215.0), (kind: Seats, at: (-2.0, 4.6), hue: 215.0),
+        (kind: Seats, at: (6.0, 4.6), hue: 215.0),
+        // The departure board at the platform's far end.
+        (kind: Board, at: (-9.4, 3.3), yaw: 90.0),
+        // Luggage people left by their seats.
+        (kind: Suitcase, at: (-7.5, 3.9), yaw: 20.0, hue: 0.0), (kind: Suitcase, at: (-1.0, 3.8), yaw: -15.0, hue: 280.0),
+        (kind: Suitcase, at: (-0.5, 4.0), yaw: 40.0, hue: 30.0), (kind: Suitcase, at: (7.2, 3.9), yaw: 5.0, hue: 140.0),
+        (kind: Suitcase, at: (2.0, 4.6), yaw: 80.0, hue: 210.0),
+    ],
+)

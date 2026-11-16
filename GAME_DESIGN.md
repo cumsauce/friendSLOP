@@ -97,6 +97,10 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   peers build the same world: generated village houses on six plots, seeded furniture, a seeded
   sewer room graph, and a warehouse plan from `crates/wfc`. Open: furniture in the sewer and
   warehouse; more house types.
+- **Lived-in after the storm.** The commune map dresses the village backyards and the camp's
+  edge with laundry lines, raised vegetable beds and storm repairs in progress (a sawhorse,
+  tarped planks, a wheelbarrow, a rain barrel): `cv-*` modeler prefabs placed on `commune-map`,
+  visual only (no colliders), kept off the villagers' streets.
 - **First-person bodies** (#53, #317). Everyone walks in first person (WASD, mouse, Space jump,
   Shift run); left click uses what's under the crosshair; V swaps to the overview camera; Esc
   opens the pause screen. The host moves bodies with a kinematic controller (slopes, stairs,
@@ -233,7 +237,7 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   music, dancers, and a dealer for a short ketamine trip (only you feel it). Planes are train
   lines. `data/side/miami.ron` (`features/miami.rs`).
 - **Surf map** (#306). A brownstone's neon-signed door leads to a sky surf course with five
-  stages, checkpoints, strong air control and a best-time timer. `data/side/surf.ron`,
+  stages, checkpoints, strong air control and a best-time timer. Each stage has its own neon colour (pad edge strips, a light, a marker post with one block per stage number, lane lights floating beside the ramps) and a gold arch stands over the finish (`data/side/surf_dressing.ron`, no colliders). `data/side/surf.ron`,
   `rules/surf.rs` (`features/surf.rs`).
 - **Ragdolling** (#320). A cab hit punts you and you tumble as a physics body for a moment before
   getting up. `data/play/ragdoll.ron` (`crates/play/src/features/ragdoll.rs`).
@@ -295,7 +299,9 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   junction chamber, cellar, torch-lit secret passage. Four ways in (two manholes, the east village
   cottage cellar, a secret floorboard in the woodcutter's hut); click any ladder to climb out
   anywhere. Local fog, own music, the helicopter loses you, and a line shows the nearest ladder
-  (`features/underground`).
+  (`features/underground`). Seeded wall clutter (looks only): fallen bricks, moss and leak streaks
+  in the sewers, faintly glowing mushrooms, crates, cobwebs and candle stubs in the passage and
+  cellar (odds in `data/places/underground.ron`).
 - **Wendy's** (#117, Kori.exe). A walk-in burger restaurant east of the commune with a dining
   room, counter, kitchen, butcher's backroom and attic. Click a human meat burger on the counter
   to pocket it; it respawns later. Nothing else uses them yet (`features/wendys.rs`).

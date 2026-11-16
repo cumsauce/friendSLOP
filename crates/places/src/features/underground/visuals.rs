@@ -683,6 +683,10 @@ fn build_tunnels(
         10.0,
     );
 
+    // Clutter along the walls (`dressing.rs`): bricks, moss, leaks,
+    // mushrooms, crates, cobwebs, candles. Looks only.
+    clutter(&mut commands, &m, &mut materials, &tunnels.0, show);
+
     // A ladder under every way in, and the hatch seen from below.
     let hatch_glow = glow(&mut materials, Color::srgb(1.0, 0.88, 0.45), 4.0);
     for (i, e) in entrances().iter().enumerate() {
@@ -814,6 +818,76 @@ fn darkness(
         let text = format!("{text}. Click a lit ladder to climb out");
         if let Some(mut toast) = toast {
             toast.show(text);
+        }
+    }
+}
+
+/// The tunnels' clutter, from [`super::dressing::dress`]: one box each, a
+/// material per kind, and a dim glow over a few of the mushroom clumps.
+fn clutter(
+    commands: &mut Commands,
+    m: &Mats,
+    materials: &mut Assets<StandardMaterial>,
+    l: &Layout,
+    show: Visibility,
+) {
+    use super::dressing::{Bit, TUNING, dress};
+    let t = TUNING.get();
+    let mut mats: HashMap<Bit, Handle<StandardMaterial>> = HashMap::new();
+    let mut glows = 0;
+    let mut last_glow: Option<Vec3> = None;
+    for p in dress(l, SEED_SALT ^ l.cells.len() as u32, &t) {
+        let handle = mats
+            .entry(p.bit)
+            .or_insert_with(|| match p.bit {
+                Bit::Brick => mat(materials, Color::srgb(0.36, 0.2, 0.15), 0.95),
+                Bit::Moss => mat(materials, Color::srgb(0.16, 0.26, 0.1), 1.0),
+                Bit::Streak => materials.add(StandardMaterial {
+                    base_color: Color::srgb(0.07, 0.08, 0.06),
+                    perceptual_roughness: 0.2,
+                    reflectance: 0.6,
+                    ..default()
+                }),
+                Bit::Mushroom => glow(materials, Color::srgb(0.45, 0.95, 0.8), 1.5),
+                Bit::Crate => mat(materials, Color::srgb(0.33, 0.24, 0.15), 0.9),
+                Bit::Web => materials.add(StandardMaterial {
+                    base_color: Color::srgba(0.85, 0.85, 0.8, 0.35),
+                    alpha_mode: AlphaMode::Blend,
+                    double_sided: true,
+                    cull_mode: None,
+                    unlit: true,
+                    ..default()
+                }),
+                Bit::Candle => mat(materials, Color::srgb(0.9, 0.86, 0.72), 0.7),
+                Bit::Flame => glow(materials, Color::srgb(1.0, 0.65, 0.25), 6.0),
+            })
+            .clone();
+        commands.spawn((
+            Deep,
+            Tunnel,
+            NotShadowCaster,
+            show,
+            Mesh3d(m.cube.clone()),
+            MeshMaterial3d(handle),
+            Transform::from_translation(p.at)
+                .with_rotation(Quat::from_rotation_y(p.yaw))
+                .with_scale(p.size),
+            areas::show(AREA),
+        ));
+        // One light per clump (its pieces come together), a few clumps only.
+        if p.bit == Bit::Mushroom
+            && glows < t.mushroom_lights
+            && last_glow.is_none_or(|g| g.distance(p.at) > 1.0)
+        {
+            glows += 1;
+            last_glow = Some(p.at);
+            light(
+                commands,
+                p.at + Vec3::Y * 0.3,
+                Color::srgb(0.4, 1.0, 0.8),
+                1_500.0,
+                3.0,
+            );
         }
     }
 }

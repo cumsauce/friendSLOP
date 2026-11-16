@@ -1,0 +1,21 @@
+// Dressing for the tunnels (crates/places/src/features/underground/dressing.rs):
+// odds per tunnel wall of each bit of clutter. Edit and save: the running
+// game picks it up within a second.
+(
+    // Fallen bricks heaped against a wall (sewers and passage).
+    rubble: 0.18,
+    // Green moss creeping up the foot of a wall (sewers).
+    moss: 0.3,
+    // Dark wet streaks running down a wall from a leak (sewers and hub).
+    streaks: 0.22,
+    // Clumps of faintly glowing mushrooms at a wall's foot (sewers).
+    mushrooms: 0.07,
+    // At most this many mushroom clumps get a little light of their own.
+    mushroom_lights: 6,
+    // Old crates stacked against a wall (cellar and passage).
+    crates: 0.25,
+    // Cobwebs in the ceiling corners (passage and cellar).
+    cobwebs: 0.35,
+    // Melted candle stubs on the floor by a wall (passage).
+    candles: 0.12,
+)

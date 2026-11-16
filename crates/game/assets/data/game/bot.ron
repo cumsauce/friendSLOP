@@ -30,6 +30,15 @@
     spin_degs: 360.0,
     always_run: true,
     routes: {
+        // The tour's last stretch: the 1 train, then the flight.
+        "tail": [
+            Start("chambers_st"),
+            Ride(from: "chambers_st", to: "penn_station"),
+            Spin(4.0),
+            Start("jfk"),
+            Ride(from: "jfk", to: "miami"),
+            Spin(4.0),
+        ],
         // Just the flight to Miami (boarding at JFK).
         "flight": [
             Start("jfk"),

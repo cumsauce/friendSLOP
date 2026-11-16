@@ -1,0 +1,218 @@
+{
+  "format_version": 1,
+  "name": "cfm-partition",
+  "parts": [],
+  "version": 88122,
+  "ops": [
+    {
+      "primitive": {
+        "name": "wall",
+        "kind": "box",
+        "size": [
+          1.0,
+          4.35,
+          0.3
+        ],
+        "translation": [
+          0.0,
+          2.295,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "skirting",
+        "kind": "box",
+        "size": [
+          1.0,
+          0.12,
+          0.32
+        ],
+        "translation": [
+          0.0,
+          0.06,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "cap",
+        "kind": "box",
+        "size": [
+          1.0,
+          0.03,
+          0.32
+        ],
+        "translation": [
+          0.0,
+          4.485,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "wall",
+        "input": "wall",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-gallery-wall",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 11,
+                "size": 0.4,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#3e4a5c"
+                  ],
+                  [
+                    1,
+                    "#465366"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.85,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "skirting",
+        "input": "skirting",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-matte-black",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141414"
+                  ],
+                  [
+                    1,
+                    "#222222"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "cap",
+        "input": "cap",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-gold",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#b8862b"
+                  ],
+                  [
+                    1,
+                    "#e0b850"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": [
+                  1,
+                  0.78,
+                  0.34
+                ],
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.25,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

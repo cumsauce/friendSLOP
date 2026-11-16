@@ -1,0 +1,148 @@
+{
+  "name": "cfm-gold",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 3,
+      "seed": 5,
+      "size": 0.1,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "c",
+      "stops": [
+        [
+          0,
+          "#b8862b"
+        ],
+        [
+          1,
+          "#e0b850"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": [
+        1,
+        0.78,
+        0.34
+      ],
+      "metallic": 1,
+      "name": "out",
+      "roughness": 0.25,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-gold",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 3,
+              "seed": 5,
+              "size": 0.1,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#b8862b"
+                ],
+                [
+                  1,
+                  "#e0b850"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "c",
+              "metallic": 1,
+              "name": "out",
+              "roughness": 0.3,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+n +c +out"
+      },
+      {
+        "model": {
+          "name": "cfm-gold",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 3,
+              "seed": 5,
+              "size": 0.1,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#b8862b"
+                ],
+                [
+                  1,
+                  "#e0b850"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": [
+                1,
+                0.78,
+                0.34
+              ],
+              "metallic": 1,
+              "name": "out",
+              "roughness": 0.25,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~out"
+      }
+    ],
+    "current": 1
+  }
+}

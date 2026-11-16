@@ -34,6 +34,8 @@ impl Plugin for MapPlugin {
             .register_type::<Block>()
             .register_type::<Entrance>()
             .register_type::<Hole>()
+            .register_type::<Spin>()
+            .register_type::<Lamp>()
             .add_systems(Update, (spawn_maps, load_gltf_sources).chain());
     }
 }
@@ -144,6 +146,22 @@ pub struct Hole {
 pub struct Block {
     pub round: bool,
     pub on: String,
+}
+
+/// Turns about its own up axis, `rpm` turns a minute (a fan's rotor). The
+/// feature that owns the map decides when things spin.
+#[derive(Component, Reflect, Clone, Copy, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Spin {
+    pub rpm: f32,
+}
+
+/// A point light at the marker: brightness in lumens and reach in metres.
+#[derive(Component, Reflect, Clone, Copy, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Lamp {
+    pub lumens: f32,
+    pub range: f32,
 }
 
 /// A `.bsn` file's text.

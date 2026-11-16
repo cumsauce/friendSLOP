@@ -1,0 +1,389 @@
+{
+  "name": "cfm-sign-history",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        2.4,
+        0.6
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        1.2,
+        0.3
+      ],
+      "coords": "c",
+      "name": "bo",
+      "size": [
+        2.32,
+        0.52
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        1.2,
+        0.3
+      ],
+      "coords": "c",
+      "name": "bi",
+      "size": [
+        2.27,
+        0.47
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "mbo",
+      "sdf": "bo",
+      "type": "mask"
+    },
+    {
+      "name": "mbi",
+      "sdf": "bi",
+      "type": "mask"
+    },
+    {
+      "a": "mbo",
+      "b": "mbi",
+      "name": "border",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "center": [
+        1.2,
+        0.3
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t1",
+      "size": 0.095,
+      "text": "A BRIEF HISTORY OF MOVING AIR",
+      "type": "text"
+    },
+    {
+      "name": "mt",
+      "sdf": "t1",
+      "type": "mask"
+    },
+    {
+      "a": "border",
+      "b": "mt",
+      "name": "gold",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "#1a2440",
+      "b": "#e8c46a",
+      "c": "gold",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "#000000",
+      "b": "#7a5e18",
+      "c": "mt",
+      "name": "em",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.05,
+      "b": 0.8,
+      "c": "gold",
+      "name": "met",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "metallic": "met",
+      "name": "out",
+      "roughness": 0.5,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-sign-history",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                2.4,
+                0.6
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                1.2,
+                0.3
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                2.32,
+                0.52
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                1.2,
+                0.3
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                2.27,
+                0.47
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                1.2,
+                0.3
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.11,
+              "text": "A BRIEF HISTORY OF MOVING AIR",
+              "type": "text"
+            },
+            {
+              "name": "mt",
+              "sdf": "t1",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#1a2440",
+              "b": "#e8c46a",
+              "c": "gold",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#000000",
+              "b": "#7a5e18",
+              "c": "mt",
+              "name": "em",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.05,
+              "b": 0.8,
+              "c": "gold",
+              "name": "met",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": "met",
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+uv +c +bo +bi +mbo +mbi +border +t1 +mt +gold +col +em +met +out"
+      },
+      {
+        "model": {
+          "name": "cfm-sign-history",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                2.4,
+                0.6
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                1.2,
+                0.3
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                2.32,
+                0.52
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                1.2,
+                0.3
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                2.27,
+                0.47
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                1.2,
+                0.3
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.095,
+              "text": "A BRIEF HISTORY OF MOVING AIR",
+              "type": "text"
+            },
+            {
+              "name": "mt",
+              "sdf": "t1",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#1a2440",
+              "b": "#e8c46a",
+              "c": "gold",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#000000",
+              "b": "#7a5e18",
+              "c": "mt",
+              "name": "em",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.05,
+              "b": 0.8,
+              "c": "gold",
+              "name": "met",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": "met",
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~t1"
+      }
+    ],
+    "current": 1
+  }
+}

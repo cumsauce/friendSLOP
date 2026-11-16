@@ -1,0 +1,526 @@
+{
+  "name": "cfm-giant-plaque",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        2.4,
+        0.8
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        1.2,
+        0.4
+      ],
+      "coords": "c",
+      "name": "bo",
+      "size": [
+        2.3,
+        0.7
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        1.2,
+        0.4
+      ],
+      "coords": "c",
+      "name": "bi",
+      "size": [
+        2.24,
+        0.64
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "mbo",
+      "sdf": "bo",
+      "type": "mask"
+    },
+    {
+      "name": "mbi",
+      "sdf": "bi",
+      "type": "mask"
+    },
+    {
+      "a": "mbo",
+      "b": "mbi",
+      "name": "border",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "center": [
+        1.2,
+        0.36
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t1",
+      "size": 0.2,
+      "text": "THE GRATE ONE",
+      "type": "text"
+    },
+    {
+      "center": [
+        1.2,
+        0.6
+      ],
+      "coords": "c",
+      "font": "sans",
+      "name": "t2",
+      "size": 0.07,
+      "text": "KEEP FINGERS BEHIND THE GRATE",
+      "type": "text"
+    },
+    {
+      "a": "t1",
+      "b": "t2",
+      "name": "ta",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mt",
+      "sdf": "ta",
+      "type": "mask"
+    },
+    {
+      "a": "border",
+      "b": "mt",
+      "name": "ink",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "#2a2f33",
+      "b": "#e8d9a8",
+      "c": "ink",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "metallic": 0.6,
+      "name": "out",
+      "roughness": 0.45,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 3,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-giant-plaque",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                2.4,
+                0.8
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                1.2,
+                0.4
+              ],
+              "name": "bo",
+              "size": [
+                2.3,
+                0.7
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                1.2,
+                0.4
+              ],
+              "name": "bi",
+              "size": [
+                2.24,
+                0.64
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                1.2,
+                0.36
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.26,
+              "text": "THE GRATE ONE",
+              "type": "text"
+            },
+            {
+              "center": [
+                1.2,
+                0.6
+              ],
+              "coords": "c",
+              "font": "sans",
+              "name": "t2",
+              "size": 0.07,
+              "text": "KEEP FINGERS BEHIND THE GRATE",
+              "type": "text"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "ta",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "ta",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "ink",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#2a2f33",
+              "b": "#e8d9a8",
+              "c": "ink",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0.6,
+              "name": "out",
+              "roughness": 0.45,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+uv +c +bo +bi +mbo +mbi +border +t1 +t2 +ta +mt +ink +col +out"
+      },
+      {
+        "model": {
+          "name": "cfm-giant-plaque",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                2.4,
+                0.8
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                1.2,
+                0.4
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                2.3,
+                0.7
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                1.2,
+                0.4
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                2.24,
+                0.64
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                1.2,
+                0.36
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.26,
+              "text": "THE GRATE ONE",
+              "type": "text"
+            },
+            {
+              "center": [
+                1.2,
+                0.6
+              ],
+              "coords": "c",
+              "font": "sans",
+              "name": "t2",
+              "size": 0.07,
+              "text": "KEEP FINGERS BEHIND THE GRATE",
+              "type": "text"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "ta",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "ta",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "ink",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#2a2f33",
+              "b": "#e8d9a8",
+              "c": "ink",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0.6,
+              "name": "out",
+              "roughness": 0.45,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "~bo ~bi"
+      },
+      {
+        "model": {
+          "name": "cfm-giant-plaque",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                2.4,
+                0.8
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                1.2,
+                0.4
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                2.3,
+                0.7
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                1.2,
+                0.4
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                2.24,
+                0.64
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                1.2,
+                0.36
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.2,
+              "text": "THE GRATE ONE",
+              "type": "text"
+            },
+            {
+              "center": [
+                1.2,
+                0.6
+              ],
+              "coords": "c",
+              "font": "sans",
+              "name": "t2",
+              "size": 0.07,
+              "text": "KEEP FINGERS BEHIND THE GRATE",
+              "type": "text"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "ta",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "ta",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "ink",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#2a2f33",
+              "b": "#e8d9a8",
+              "c": "ink",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0.6,
+              "name": "out",
+              "roughness": 0.45,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 3
+        },
+        "parent": 1,
+        "children": [],
+        "label": "~t1"
+      }
+    ],
+    "current": 2
+  }
+}

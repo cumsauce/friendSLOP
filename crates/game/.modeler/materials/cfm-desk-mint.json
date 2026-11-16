@@ -1,0 +1,92 @@
+{
+  "name": "cfm-desk-mint",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.5,
+  "resolution": 128,
+  "nodes": [
+    {
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 3,
+      "seed": 3,
+      "size": 0.2,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "c",
+      "stops": [
+        [
+          0,
+          "#5fb8a4"
+        ],
+        [
+          1,
+          "#7fd0bc"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "c",
+      "metallic": 0,
+      "name": "out",
+      "roughness": 0.35,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-desk-mint",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 128,
+          "nodes": [
+            {
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 3,
+              "seed": 3,
+              "size": 0.2,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#5fb8a4"
+                ],
+                [
+                  1,
+                  "#7fd0bc"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "c",
+              "metallic": 0,
+              "name": "out",
+              "roughness": 0.35,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +c +out"
+      }
+    ],
+    "current": 0
+  }
+}

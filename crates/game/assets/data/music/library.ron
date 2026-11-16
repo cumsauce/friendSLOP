@@ -569,6 +569,26 @@
             approach: 0.0, bebop_pass: 0.0,
             calm: 0.0, restate: 1.0, rest: (0.35, 0.1),
         ),
+        // Liquid (drum and bass): few, long notes on chord tones, small steps, a
+        // short motif restated, plenty of air between phrases.
+        "liquid": (
+            cells: [
+                [(0, 6), (8, 6)],
+                [(0, 3), (4, 3), (8, 8)],
+                [(2, 6), (10, 6)],
+                [(0, 12)],
+            ],
+            arc: [79, 79, 81, 79, 79, 79, 82, 79],
+            shape: [0.8, 0.75, 0.85, 0.75, 0.8, 0.75, 0.9, 0.75],
+            leaps: [1, 1, 1, 2],
+            rise: 0.5, fall: 0.5, contour: (-1, 2), min_span: 1,
+            range: (74, 86),
+            trade: {}, glides: [], glide: 0.0,
+            solo_run: (0.0, 0.0), solo_bebop: 0.0, solo_shift: 0.0, solo_invert: 0.0,
+            dev_run: 0.0, climb_run: 0.0, cadence_run: (0.0, 0.0),
+            approach: 0.0, bebop_pass: 0.0,
+            calm: 0.0, restate: 1.0, rest: (0.45, 0.2),
+        ),
         // Mariachi (3/4): a diatonic sung line in 12-step bars, long on the downbeat.
         // Pair it with a Harmony part for the second trumpet in thirds.
         "mariachi": (
@@ -763,6 +783,42 @@
                 A: [(to: Hook)],
                 Hook: [(to: B, chance: 0.5), (to: A)],
                 B: [(to: Breakdown, when: (below: 0.35)), (to: Hook)],
+            },
+            // The victory cadence: IV - V7 - I.
+            victory: [(5, Maj, 2), (7, Dom7, 2), (0, Maj, 4)],
+            victory_bars: 2,
+            // Into a new chord: its plain V7 (a minor chord's with the minor key's b9).
+            approach: (minor: [(7, Dom7Phryg)], other: [(7, Dom7)]),
+            lift: [0, 2, 4, 5, 7],
+            modulate_half: 0.5, modulate_top: 4,
+            variants: 3, new_song: 0.6,
+            hold: (
+                tempo: 0.9,
+                layers: [("pad", 1.0), ("perc", 0.6)],
+                every: 2, len: 2.2, vel: 0.6,
+                bell: Chime, bell_every: 4, bell_bar: 1, bell_from: 84, bell_up: 2, bell_max: 100, bell_vel: 0.35,
+            ),
+        ),
+        // Drum and bass: an intro, a build, a sixteen-bar drop, a rolling B, then
+        // mostly a breakdown that drops again (else back to the build).
+        "dnb": (
+            sections: {
+                Intro: (bars: 8, prog: [A]),
+                A: (bars: 8, prog: [A]),
+                Hook: (bars: 16, prog: [Hook]),
+                B: (bars: 8, prog: [B]),
+                Breakdown: (bars: 8, prog: [B]),
+                Still: (bars: 2, prog: [A]),
+            },
+            start: [(to: Intro, when: (urgent: false)), (to: A)],
+            next: {
+                Intro: [(to: A)],
+                Breakdown: [(to: Hook)],
+                Victory: [(to: A)],
+                Still: [(to: A)],
+                A: [(to: Hook)],
+                Hook: [(to: B)],
+                B: [(to: Breakdown, chance: 0.65), (to: A)],
             },
             // The victory cadence: IV - V7 - I.
             victory: [(5, Maj, 2), (7, Dom7, 2), (0, Maj, 4)],

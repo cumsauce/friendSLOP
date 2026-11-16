@@ -149,6 +149,7 @@ pub const PLACES: &[&str] = &[
     "forest_clearing",
     "ruins_tower",
     "village",
+    "fan_museum",
 ];
 
 /// Where a place is: its spot on the commune map. A missing spot (the map
@@ -544,6 +545,11 @@ pub fn forest_clearing_at() -> Vec2 {
 /// The ruins' collapsed tower.
 pub fn ruins_tower_at() -> Vec2 {
     placed(25)
+}
+
+/// The `fan_museum` spot on the commune map: the Ceiling Fan Museum's floor centre.
+pub fn fan_museum_at() -> Vec2 {
+    placed(27)
 }
 
 /// A spot's sizes (its `Feature` and box); zero for an unknown spot.

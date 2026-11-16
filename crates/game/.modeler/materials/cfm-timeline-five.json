@@ -1,0 +1,378 @@
+{
+  "name": "cfm-timeline-five",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        1.4,
+        1
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.7,
+        0.5
+      ],
+      "coords": "c",
+      "name": "bo",
+      "size": [
+        1.32,
+        0.92
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.7,
+        0.5
+      ],
+      "coords": "c",
+      "name": "bi",
+      "size": [
+        1.29,
+        0.89
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "mbo",
+      "sdf": "bo",
+      "type": "mask"
+    },
+    {
+      "name": "mbi",
+      "sdf": "bi",
+      "type": "mask"
+    },
+    {
+      "a": "mbo",
+      "b": "mbi",
+      "name": "border",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.7,
+        0.27
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "ty",
+      "size": 0.26,
+      "text": "1889",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.7,
+        0.56
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "tt",
+      "size": 0.1,
+      "text": "THE VICTORIAN",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.7,
+        0.76
+      ],
+      "coords": "c",
+      "font": "sans",
+      "name": "tl",
+      "size": 0.052,
+      "text": "Walnut, brass, and a butler to dust it.",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.7,
+        0.46
+      ],
+      "coords": "c",
+      "name": "rl",
+      "size": [
+        0.6,
+        0.006
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "my",
+      "sdf": "ty",
+      "type": "mask"
+    },
+    {
+      "a": "tt",
+      "b": "tl",
+      "name": "ink",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mink",
+      "sdf": "ink",
+      "type": "mask"
+    },
+    {
+      "name": "mrl",
+      "sdf": "rl",
+      "type": "mask"
+    },
+    {
+      "a": "border",
+      "b": "my",
+      "name": "g1",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "g1",
+      "b": "mrl",
+      "name": "gold",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "#efe6cf",
+      "b": "#b8902e",
+      "c": "gold",
+      "name": "c1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "#1c2433",
+      "c": "mink",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0,
+      "b": 0.8,
+      "c": "gold",
+      "name": "met",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "metallic": "met",
+      "name": "out",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-timeline-five",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1.4,
+                1
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.7,
+                0.5
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                1.32,
+                0.92
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.7,
+                0.5
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                1.29,
+                0.89
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.7,
+                0.27
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "ty",
+              "size": 0.26,
+              "text": "1889",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.7,
+                0.56
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "tt",
+              "size": 0.1,
+              "text": "THE VICTORIAN",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.7,
+                0.76
+              ],
+              "coords": "c",
+              "font": "sans",
+              "name": "tl",
+              "size": 0.052,
+              "text": "Walnut, brass, and a butler to dust it.",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.7,
+                0.46
+              ],
+              "coords": "c",
+              "name": "rl",
+              "size": [
+                0.6,
+                0.006
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "my",
+              "sdf": "ty",
+              "type": "mask"
+            },
+            {
+              "a": "tt",
+              "b": "tl",
+              "name": "ink",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mink",
+              "sdf": "ink",
+              "type": "mask"
+            },
+            {
+              "name": "mrl",
+              "sdf": "rl",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "my",
+              "name": "g1",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "g1",
+              "b": "mrl",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#efe6cf",
+              "b": "#b8902e",
+              "c": "gold",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#1c2433",
+              "c": "mink",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0,
+              "b": 0.8,
+              "c": "gold",
+              "name": "met",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "metallic": "met",
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +bo +bi +mbo +mbi +border +ty +tt +tl +rl +my +ink +mink +mrl +g1 +gold +c1 +col +met +out"
+      }
+    ],
+    "current": 0
+  }
+}

@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "commune-map",
   "parts": [],
-  "version": 67108,
+  "version": 92269,
   "ops": [
     {
       "terrain": {
@@ -100,6 +100,32 @@
             "radius": 3.0,
             "height": -5.0,
             "falloff": 10.0
+          },
+          {
+            "at": [
+              62.0,
+              -62.0
+            ],
+            "radius": 0.0,
+            "size": [
+              48.0,
+              48.0
+            ],
+            "height": 0.0,
+            "falloff": 8.0
+          },
+          {
+            "at": [
+              26.0,
+              -56.0
+            ],
+            "radius": 0.0,
+            "size": [
+              34.0,
+              34.0
+            ],
+            "height": 0.0,
+            "falloff": 8.0
           }
         ],
         "translation": [
@@ -2768,6 +2794,362 @@
           }
         }
       }
+    },
+    {
+      "marker": {
+        "name": "fan_museum",
+        "kind": "spot",
+        "translation": [
+          62.0,
+          0.0,
+          -56.0
+        ],
+        "size": [
+          40.0,
+          9.0,
+          28.0
+        ],
+        "preview": "cfm-building",
+        "components": {
+          "Clear": {
+            "radius": 34
+          },
+          "Spot": {
+            "name": "fan_museum"
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "fan_museum_annex_clear",
+        "kind": "clear",
+        "translation": [
+          27.0,
+          0.0,
+          -56.0
+        ],
+        "components": {
+          "Clear": {
+            "radius": 20
+          }
+        }
+      }
+    },
+    {
+      "prefab": {
+        "name": "fan_museum_outside",
+        "prefab": "cfm-museum-exterior",
+        "translation": [
+          62.0,
+          0.0,
+          -56.0
+        ],
+        "rotation": null,
+        "scale": null,
+        "parts": [
+          "m_front_top",
+          "m_front_pier_l",
+          "m_front_pier_r",
+          "m_back",
+          "m_east",
+          "m_roof",
+          "m_parapet_f",
+          "m_parapet_b",
+          "m_parapet_e",
+          "a_front",
+          "a_back",
+          "a_west",
+          "a_east_upper",
+          "a_roof",
+          "a_parapet_f",
+          "a_parapet_b",
+          "a_parapet_w",
+          "a_parapet_e",
+          "glass_l",
+          "glass_r",
+          "mullion_0",
+          "mullion_1",
+          "mullion_2",
+          "mullion_3",
+          "mullion_4",
+          "mullion_5",
+          "mullion_6",
+          "mullion_7",
+          "transom_l",
+          "transom_r",
+          "sill_l",
+          "sill_r",
+          "door_leaf_l",
+          "door_leaf_r",
+          "door_jamb_l",
+          "door_jamb_r",
+          "door_header",
+          "door_stile",
+          "handle_l",
+          "handle_r",
+          "open_sticker",
+          "canopy",
+          "canopy_post_l",
+          "canopy_post_r",
+          "bollard_0",
+          "bollard_1",
+          "bollard_2",
+          "bollard_3",
+          "sign_board",
+          "sign_text",
+          "logo_disc",
+          "logo_ring",
+          "logo_hub",
+          "logo_blade",
+          "lot",
+          "bay_m18",
+          "bay_m15",
+          "bay_m12",
+          "bay_m9",
+          "bay_m6",
+          "bay_6",
+          "bay_9",
+          "bay_12",
+          "bay_15",
+          "bay_18",
+          "bay_back",
+          "lamp_pole_l",
+          "lamp_arm_l",
+          "lamp_head_l",
+          "lamp_pole_r",
+          "lamp_arm_r",
+          "lamp_head_r",
+          "ac_0",
+          "ac_fan_0",
+          "ac_1",
+          "ac_fan_1",
+          "ac_2",
+          "ac_fan_2",
+          "service_door",
+          "service_lintel",
+          "downpipe_e0",
+          "downpipe_e1",
+          "downpipe_b0",
+          "downpipe_aw",
+          "downpipe_ab",
+          "logo_blades_1",
+          "logo_blades_2",
+          "logo_blades_3",
+          "logo_blades_4"
+        ],
+        "digest": 18179509135687124624
+      }
+    },
+    {
+      "marker": {
+        "name": "fan_museum_block",
+        "kind": "block",
+        "translation": [
+          62.0,
+          4.5,
+          -56.0
+        ],
+        "size": [
+          40.0,
+          9.0,
+          28.0
+        ],
+        "components": {
+          "Block": {
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "fan_museum_annex_block",
+        "kind": "block",
+        "translation": [
+          27.0,
+          7.0,
+          -56.0
+        ],
+        "size": [
+          30.0,
+          14.0,
+          28.0
+        ],
+        "components": {
+          "Block": {
+            "round": false
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "fan_museum_bollard_(-5)",
+        "kind": "block",
+        "translation": [
+          57.0,
+          0.45,
+          -73.0
+        ],
+        "size": [
+          0.24,
+          0.9,
+          0.24
+        ],
+        "components": {
+          "Block": {
+            "round": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "fan_museum_bollard_(-3.6)",
+        "kind": "block",
+        "translation": [
+          58.4,
+          0.45,
+          -73.0
+        ],
+        "size": [
+          0.24,
+          0.9,
+          0.24
+        ],
+        "components": {
+          "Block": {
+            "round": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "fan_museum_bollard_3.6",
+        "kind": "block",
+        "translation": [
+          65.6,
+          0.45,
+          -73.0
+        ],
+        "size": [
+          0.24,
+          0.9,
+          0.24
+        ],
+        "components": {
+          "Block": {
+            "round": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "fan_museum_bollard_5",
+        "kind": "block",
+        "translation": [
+          67.0,
+          0.45,
+          -73.0
+        ],
+        "size": [
+          0.24,
+          0.9,
+          0.24
+        ],
+        "components": {
+          "Block": {
+            "round": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "fan_museum_lamp_(-12)",
+        "kind": "block",
+        "translation": [
+          50.0,
+          3.5,
+          -81.6
+        ],
+        "size": [
+          0.24,
+          7.0,
+          0.24
+        ],
+        "components": {
+          "Block": {
+            "round": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "fan_museum_lamp_12",
+        "kind": "block",
+        "translation": [
+          74.0,
+          3.5,
+          -81.6
+        ],
+        "size": [
+          0.24,
+          7.0,
+          0.24
+        ],
+        "components": {
+          "Block": {
+            "round": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "fan_museum_canopy_(-2.8)",
+        "kind": "block",
+        "translation": [
+          59.2,
+          1.9,
+          -71.85
+        ],
+        "size": [
+          0.16,
+          3.8,
+          0.16
+        ],
+        "components": {
+          "Block": {
+            "round": true
+          }
+        }
+      }
+    },
+    {
+      "marker": {
+        "name": "fan_museum_canopy_2.8",
+        "kind": "block",
+        "translation": [
+          64.8,
+          1.9,
+          -71.85
+        ],
+        "size": [
+          0.16,
+          3.8,
+          0.16
+        ],
+        "components": {
+          "Block": {
+            "round": true
+          }
+        }
+      }
     }
   ],
   "annotations": [],
@@ -2775,6 +3157,7 @@
   "templates": {
     "terrain:ground": {
       "base": -8,
+      "edge_falloff": 0,
       "flatten": [
         {
           "at": [
@@ -2849,13 +3232,37 @@
           "falloff": 10,
           "height": -5,
           "radius": 3
+        },
+        {
+          "at": [
+            62,
+            -62
+          ],
+          "falloff": 8,
+          "height": 0,
+          "size": [
+            48,
+            48
+          ]
+        },
+        {
+          "at": [
+            26,
+            -56
+          ],
+          "falloff": 8,
+          "height": 0,
+          "size": [
+            34,
+            34
+          ]
         }
       ],
       "gain": 0.45,
       "height": 2.4,
       "name": "ground",
       "octaves": 4,
-      "resolution": 1.0,
+      "resolution": 1,
       "scale": 32,
       "seed": 11,
       "size": [
@@ -2863,7 +3270,14 @@
         220
       ],
       "style": "hills",
-      "type": "terrain"
+      "terraces": 5,
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "type": "terrain",
+      "wind": 0
     }
   },
   "derived_from_ops": true

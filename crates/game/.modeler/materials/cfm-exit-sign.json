@@ -1,0 +1,156 @@
+{
+  "name": "cfm-exit-sign",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        1.2,
+        0.4
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.6,
+        0.2
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t",
+      "size": 0.24,
+      "text": "EXIT",
+      "type": "text"
+    },
+    {
+      "name": "m",
+      "sdf": "t",
+      "type": "mask"
+    },
+    {
+      "a": "#14301c",
+      "b": "#f4fff6",
+      "c": "m",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": [
+        0.05,
+        0.6,
+        0.15
+      ],
+      "b": [
+        3,
+        4,
+        3
+      ],
+      "c": "m",
+      "name": "em",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "name": "out",
+      "roughness": 0.4,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-exit-sign",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1.2,
+                0.4
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.6,
+                0.2
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t",
+              "size": 0.24,
+              "text": "EXIT",
+              "type": "text"
+            },
+            {
+              "name": "m",
+              "sdf": "t",
+              "type": "mask"
+            },
+            {
+              "a": "#14301c",
+              "b": "#f4fff6",
+              "c": "m",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": [
+                0.05,
+                0.6,
+                0.15
+              ],
+              "b": [
+                3,
+                4,
+                3
+              ],
+              "c": "m",
+              "name": "em",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "name": "out",
+              "roughness": 0.4,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +t +m +col +em +out"
+      }
+    ],
+    "current": 0
+  }
+}

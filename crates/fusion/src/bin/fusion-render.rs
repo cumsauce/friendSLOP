@@ -15,6 +15,7 @@ const HELP: &str = "fusion-render: audition friendSLOP's music without building 
 
   fusion-render tour  [out.wav]             the ~100 s tour of every mood
   fusion-render mood  <mood> [secs] [out.wav] [--intensity 0..1] [--victory <sec>]
+                                            [--live <signal>=<0..1 | ~secs>] (~4: on and off every 4 s)
   fusion-render climb <mood> [out.wav] [--per <secs>]  walk up the storeys and back
   fusion-render inst  <instrument> [out.wav]  one instrument alone
   fusion-render stems                       tour spectrum per bus vs a reference mix
@@ -31,6 +32,7 @@ fn main() {
     let mut intensity: Option<f32> = None;
     let mut victory: Option<f32> = None;
     let mut per = 8.0f32;
+    let mut live: Vec<(String, String)> = Vec::new();
     let mut it = args.iter();
     while let Some(a) = it.next() {
         let mut val = || it.next().map(String::as_str).unwrap_or("");
@@ -39,6 +41,10 @@ fn main() {
             "--intensity" => intensity = val().parse().ok(),
             "--victory" => victory = val().parse().ok(),
             "--per" => per = val().parse().unwrap_or(per),
+            "--live" => match val().split_once('=') {
+                Some((k, v)) => live.push((k.to_owned(), v.to_owned())),
+                None => return fail("--live wants <signal>=<value or ~secs>"),
+            },
             "--solo" => match bus_by_name(val()) {
                 Some(b) => mute = !(1u8 << b),
                 None => return fail("unknown bus"),
@@ -66,12 +72,35 @@ fn main() {
             let secs: f32 = pos.get(2).and_then(|s| s.parse().ok()).unwrap_or(30.0);
             let out = pos.get(3).copied().unwrap_or("fusion_mood.wav");
             let i = intensity.unwrap_or(mood.base_intensity());
-            let (audio, log) = render_score(seed, secs, mute, |s| Cue {
-                mood,
-                intensity: i,
-                victories: u32::from(victory.is_some_and(|v| s >= v)),
-                ..Cue::default()
-            });
+            let names = fusion::live::names();
+            let lanes: Vec<(usize, String)> = live
+                .iter()
+                .filter_map(|(k, v)| names.iter().position(|n| n == k).map(|i| (i, v.clone())))
+                .collect();
+            let (audio, log) = fusion::render::render_score_live(
+                seed,
+                secs,
+                mute,
+                |s| Cue {
+                    mood,
+                    intensity: i,
+                    victories: u32::from(victory.is_some_and(|v| s >= v)),
+                    ..Cue::default()
+                },
+                |s| {
+                    let mut out = [0.0; fusion::live::LIVE];
+                    for (i, v) in &lanes {
+                        out[*i] = match v.strip_prefix('~') {
+                            Some(p) => {
+                                let p = p.parse::<f32>().unwrap_or(4.0).max(0.1);
+                                f32::from(u8::from((s / p) as u32 % 2 == 1))
+                            }
+                            None => v.parse().unwrap_or(0.0),
+                        };
+                    }
+                    out
+                },
+            );
             for (s, what) in log {
                 println!("{s:7.2} s  {what}");
             }

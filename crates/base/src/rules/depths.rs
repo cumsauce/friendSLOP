@@ -22,10 +22,11 @@ pub fn below_y(y: f32) -> bool {
 /// Where the inside is: the floor of a map of its own, far under the meadow.
 pub const INSIDE_Y: f32 = -60.0;
 
-/// Is a body with feet at `feet` inside the warehouse?
+/// Is a body with feet at `feet` inside the warehouse? Whichever area holds
+/// it says so (`data/base/areas.ron`), not how deep it is: other places sit
+/// far under the meadow too (Fulton St, the Ceiling Fan Museum's inside).
 pub fn inside(feet: Vec3) -> bool {
-    // Fulton St station is down here too, under New York City.
-    feet.y < INSIDE_Y + 20.0 && !super::nyc::in_city(feet.x, feet.z)
+    crate::areas::area_at(feet).as_deref() == Some("warehouse")
 }
 
 /// The ground under a body (for the headless walk, which has no colliders).

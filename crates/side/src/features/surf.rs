@@ -177,14 +177,28 @@ pub fn plugin(app: &mut App) {
 }
 
 /// For the music: the camera's in the surf hall (`surf`), so the liquid DnB plays.
+/// And `airborne` while your own body is in the hall and not standing on
+/// anything (in the air or sliding a ramp): the arp follows it.
 fn music_signals(
     camera: Query<&GlobalTransform, With<Camera3d>>,
+    me: Option<Res<LocalPlayer>>,
+    walkers: Query<(&Player, &Walker)>,
     signals: Option<ResMut<crate::music::MusicSignals>>,
 ) {
     let Some(mut signals) = signals else { return };
     let t = tuning();
     let at = crate::music::camera_at(&camera);
     signals.flag("surf", at.is_some_and(|p| in_hall(&t, p).is_some()));
+    let feet = me.and_then(|me| {
+        walkers
+            .iter()
+            .find(|(p, _)| p.id == me.0)
+            .map(|(_, w)| w.pos)
+    });
+    let airborne = feet
+        .and_then(|f| in_hall(&t, f))
+        .is_some_and(|local| !standing(&t, local));
+    signals.flag("airborne", airborne);
 }
 
 #[derive(Component)]
@@ -1046,6 +1060,16 @@ mod tests {
         }
         // The same city every time (every peer builds its own).
         assert_eq!(city(&t).len(), c.len());
+    }
+
+    #[test]
+    fn you_stand_on_pads_and_fly_everywhere_else() {
+        let t = t();
+        let (c, s) = start_pad(&t);
+        let top = c + Vec3::Y * (s.y / 2.0);
+        assert!(standing(&t, top));
+        assert!(!standing(&t, top + Vec3::Y * 1.5));
+        assert!(!standing(&t, top + Vec3::new(s.x, 0.0, 0.0)));
     }
 
     #[test]

@@ -1,0 +1,1007 @@
+{
+  "name": "cfm-poster-breezeway",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        0.8,
+        1.2
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.4,
+        0.6
+      ],
+      "coords": "c",
+      "name": "sun",
+      "radius": 0.3,
+      "type": "circle"
+    },
+    {
+      "name": "msun",
+      "sdf": "sun",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.4,
+        1.03
+      ],
+      "coords": "c",
+      "name": "band",
+      "size": [
+        0.8,
+        0.26
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "mband",
+      "sdf": "band",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.4,
+        0.6
+      ],
+      "coords": "c",
+      "name": "hub",
+      "radius": 0.05,
+      "type": "circle"
+    },
+    {
+      "coords": "c",
+      "name": "bl0",
+      "points": [
+        [
+          0.4217,
+          0.5504
+        ],
+        [
+          0.4682,
+          0.414
+        ],
+        [
+          0.4124,
+          0.3706
+        ],
+        [
+          0.3504,
+          0.3954
+        ],
+        [
+          0.3783,
+          0.5504
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "a": "hub",
+      "b": "bl0",
+      "name": "fu0",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "coords": "c",
+      "name": "bl1",
+      "points": [
+        [
+          0.3462,
+          0.606
+        ],
+        [
+          0.2048,
+          0.6339
+        ],
+        [
+          0.1951,
+          0.704
+        ],
+        [
+          0.2476,
+          0.7453
+        ],
+        [
+          0.3679,
+          0.6436
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "a": "fu0",
+      "b": "bl1",
+      "name": "fu1",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "coords": "c",
+      "name": "bl2",
+      "points": [
+        [
+          0.4321,
+          0.6436
+        ],
+        [
+          0.527,
+          0.7521
+        ],
+        [
+          0.5925,
+          0.7254
+        ],
+        [
+          0.602,
+          0.6593
+        ],
+        [
+          0.4538,
+          0.606
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "a": "fu1",
+      "b": "bl2",
+      "name": "fu2",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mfan",
+      "sdf": "fu2",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.4,
+        0.15
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "ht0",
+      "size": 0.09,
+      "text": "BREEZEWAY",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.4,
+        0.27
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "ht1",
+      "size": 0.09,
+      "text": "FANS",
+      "type": "text"
+    },
+    {
+      "a": "ht0",
+      "b": "ht1",
+      "name": "htu1",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mht",
+      "sdf": "htu1",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.4,
+        0.97
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "bt0",
+      "size": 0.075,
+      "text": "COOL AS A",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.4,
+        1.08
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "bt1",
+      "size": 0.09,
+      "text": "CUCUMBER!",
+      "type": "text"
+    },
+    {
+      "a": "bt0",
+      "b": "bt1",
+      "name": "btu1",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mbt",
+      "sdf": "btu1",
+      "type": "mask"
+    },
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 9,
+      "size": 0.02,
+      "type": "noise"
+    },
+    {
+      "a": "#9fd8c4",
+      "b": "#f3e6b8",
+      "c": "msun",
+      "name": "c1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "#1d3b33",
+      "c": "mfan",
+      "name": "c2",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c2",
+      "b": "#1d3b33",
+      "c": "mht",
+      "name": "c3",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c3",
+      "b": "#c8372d",
+      "c": "mband",
+      "name": "c4",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c4",
+      "b": "#f6ecd0",
+      "c": "mbt",
+      "name": "c5",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "in": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "grain",
+      "type": "levels"
+    },
+    {
+      "a": "grain",
+      "b": 0.12,
+      "name": "g2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "g2",
+      "b": 0.88,
+      "name": "g3",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "c5",
+      "b": "g3",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 2,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-poster-breezeway",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                0.8,
+                1.2
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.4,
+                0.6
+              ],
+              "coords": "c",
+              "name": "sun",
+              "radius": 0.3,
+              "type": "circle"
+            },
+            {
+              "name": "msun",
+              "sdf": "sun",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                1.03
+              ],
+              "coords": "c",
+              "name": "band",
+              "size": [
+                0.8,
+                0.26
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mband",
+              "sdf": "band",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                0.6
+              ],
+              "coords": "c",
+              "name": "hub",
+              "radius": 0.05,
+              "type": "circle"
+            },
+            {
+              "coords": "c",
+              "name": "bl0",
+              "points": [
+                [
+                  0.4217,
+                  0.5504
+                ],
+                [
+                  0.4682,
+                  0.414
+                ],
+                [
+                  0.4124,
+                  0.3706
+                ],
+                [
+                  0.3504,
+                  0.3954
+                ],
+                [
+                  0.3783,
+                  0.5504
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "hub",
+              "b": "bl0",
+              "name": "fu0",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "coords": "c",
+              "name": "bl1",
+              "points": [
+                [
+                  0.3462,
+                  0.606
+                ],
+                [
+                  0.2048,
+                  0.6339
+                ],
+                [
+                  0.1951,
+                  0.704
+                ],
+                [
+                  0.2476,
+                  0.7453
+                ],
+                [
+                  0.3679,
+                  0.6436
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "fu0",
+              "b": "bl1",
+              "name": "fu1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "coords": "c",
+              "name": "bl2",
+              "points": [
+                [
+                  0.4321,
+                  0.6436
+                ],
+                [
+                  0.527,
+                  0.7521
+                ],
+                [
+                  0.5925,
+                  0.7254
+                ],
+                [
+                  0.602,
+                  0.6593
+                ],
+                [
+                  0.4538,
+                  0.606
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "fu1",
+              "b": "bl2",
+              "name": "fu2",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mfan",
+              "sdf": "fu2",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                0.15
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "ht0",
+              "size": 0.115,
+              "text": "BREEZEWAY",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.4,
+                0.27
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "ht1",
+              "size": 0.09,
+              "text": "FANS",
+              "type": "text"
+            },
+            {
+              "a": "ht0",
+              "b": "ht1",
+              "name": "htu1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mht",
+              "sdf": "htu1",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                0.97
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "bt0",
+              "size": 0.075,
+              "text": "COOL AS A",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.4,
+                1.08
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "bt1",
+              "size": 0.09,
+              "text": "CUCUMBER!",
+              "type": "text"
+            },
+            {
+              "a": "bt0",
+              "b": "bt1",
+              "name": "btu1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mbt",
+              "sdf": "btu1",
+              "type": "mask"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 9,
+              "size": 0.02,
+              "type": "noise"
+            },
+            {
+              "a": "#9fd8c4",
+              "b": "#f3e6b8",
+              "c": "msun",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#1d3b33",
+              "c": "mfan",
+              "name": "c2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#1d3b33",
+              "c": "mht",
+              "name": "c3",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#c8372d",
+              "c": "mband",
+              "name": "c4",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c4",
+              "b": "#f6ecd0",
+              "c": "mbt",
+              "name": "c5",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "in": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "grain",
+              "type": "levels"
+            },
+            {
+              "a": "grain",
+              "b": 0.12,
+              "name": "g2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "g2",
+              "b": 0.88,
+              "name": "g3",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "c5",
+              "b": "g3",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+uv +c +sun +msun +band +mband +hub +bl0 +fu0 +bl1 +fu1 +bl2 +fu2 +mfan +ht0 +ht1 +htu1 +mht +bt0 +bt1 +btu1 +mbt +n +c1 +c2 +c3 +c4 +c5 +grain +g2 +g3 +col +out"
+      },
+      {
+        "model": {
+          "name": "cfm-poster-breezeway",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                0.8,
+                1.2
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.4,
+                0.6
+              ],
+              "coords": "c",
+              "name": "sun",
+              "radius": 0.3,
+              "type": "circle"
+            },
+            {
+              "name": "msun",
+              "sdf": "sun",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                1.03
+              ],
+              "coords": "c",
+              "name": "band",
+              "size": [
+                0.8,
+                0.26
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mband",
+              "sdf": "band",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                0.6
+              ],
+              "coords": "c",
+              "name": "hub",
+              "radius": 0.05,
+              "type": "circle"
+            },
+            {
+              "coords": "c",
+              "name": "bl0",
+              "points": [
+                [
+                  0.4217,
+                  0.5504
+                ],
+                [
+                  0.4682,
+                  0.414
+                ],
+                [
+                  0.4124,
+                  0.3706
+                ],
+                [
+                  0.3504,
+                  0.3954
+                ],
+                [
+                  0.3783,
+                  0.5504
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "hub",
+              "b": "bl0",
+              "name": "fu0",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "coords": "c",
+              "name": "bl1",
+              "points": [
+                [
+                  0.3462,
+                  0.606
+                ],
+                [
+                  0.2048,
+                  0.6339
+                ],
+                [
+                  0.1951,
+                  0.704
+                ],
+                [
+                  0.2476,
+                  0.7453
+                ],
+                [
+                  0.3679,
+                  0.6436
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "fu0",
+              "b": "bl1",
+              "name": "fu1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "coords": "c",
+              "name": "bl2",
+              "points": [
+                [
+                  0.4321,
+                  0.6436
+                ],
+                [
+                  0.527,
+                  0.7521
+                ],
+                [
+                  0.5925,
+                  0.7254
+                ],
+                [
+                  0.602,
+                  0.6593
+                ],
+                [
+                  0.4538,
+                  0.606
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "fu1",
+              "b": "bl2",
+              "name": "fu2",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mfan",
+              "sdf": "fu2",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                0.15
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "ht0",
+              "size": 0.09,
+              "text": "BREEZEWAY",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.4,
+                0.27
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "ht1",
+              "size": 0.09,
+              "text": "FANS",
+              "type": "text"
+            },
+            {
+              "a": "ht0",
+              "b": "ht1",
+              "name": "htu1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mht",
+              "sdf": "htu1",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                0.97
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "bt0",
+              "size": 0.075,
+              "text": "COOL AS A",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.4,
+                1.08
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "bt1",
+              "size": 0.09,
+              "text": "CUCUMBER!",
+              "type": "text"
+            },
+            {
+              "a": "bt0",
+              "b": "bt1",
+              "name": "btu1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mbt",
+              "sdf": "btu1",
+              "type": "mask"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 9,
+              "size": 0.02,
+              "type": "noise"
+            },
+            {
+              "a": "#9fd8c4",
+              "b": "#f3e6b8",
+              "c": "msun",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#1d3b33",
+              "c": "mfan",
+              "name": "c2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#1d3b33",
+              "c": "mht",
+              "name": "c3",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#c8372d",
+              "c": "mband",
+              "name": "c4",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c4",
+              "b": "#f6ecd0",
+              "c": "mbt",
+              "name": "c5",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "in": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "grain",
+              "type": "levels"
+            },
+            {
+              "a": "grain",
+              "b": 0.12,
+              "name": "g2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "g2",
+              "b": 0.88,
+              "name": "g3",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "c5",
+              "b": "g3",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [],
+        "label": "~ht0"
+      }
+    ],
+    "current": 1
+  }
+}

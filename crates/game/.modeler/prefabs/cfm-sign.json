@@ -1,0 +1,1204 @@
+{
+  "format_version": 1,
+  "name": "cfm-sign",
+  "parts": [],
+  "version": 91129,
+  "ops": [
+    {
+      "primitive": {
+        "name": "board",
+        "kind": "box",
+        "size": [
+          2.4,
+          0.6,
+          0.06
+        ],
+        "translation": [
+          0.0,
+          -2.6,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "face_front",
+        "kind": "box",
+        "size": [
+          2.36,
+          0.56,
+          0.006
+        ],
+        "translation": [
+          0.0,
+          -2.6,
+          0.032
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "face_back",
+        "kind": "box",
+        "size": [
+          2.36,
+          0.56,
+          0.006
+        ],
+        "translation": [
+          0.0,
+          -2.6,
+          -0.032
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "chain_l",
+        "kind": "cylinder",
+        "size": [
+          0.008,
+          2.3,
+          0.0
+        ],
+        "translation": [
+          -0.9,
+          -1.15,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "chain_r",
+        "kind": "cylinder",
+        "size": [
+          0.008,
+          2.3,
+          0.0
+        ],
+        "translation": [
+          0.9,
+          -1.15,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "board",
+        "input": "board",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-gold",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#b8862b"
+                  ],
+                  [
+                    1,
+                    "#e0b850"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": [
+                  1,
+                  0.78,
+                  0.34
+                ],
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.25,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "chain_l",
+        "input": "chain_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-gold",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#b8862b"
+                  ],
+                  [
+                    1,
+                    "#e0b850"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": [
+                  1,
+                  0.78,
+                  0.34
+                ],
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.25,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "chain_r",
+        "input": "chain_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-gold",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#b8862b"
+                  ],
+                  [
+                    1,
+                    "#e0b850"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": [
+                  1,
+                  0.78,
+                  0.34
+                ],
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.25,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "face_front",
+        "input": "face_front",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-sign-start",
+          "scale": 1.0,
+          "graph": {
+            "domain": "card",
+            "tile": 1.0,
+            "resolution": 1024,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "coords": "uv",
+                "name": "c",
+                "scale": [
+                  2.4,
+                  0.6
+                ],
+                "type": "transform"
+              },
+              {
+                "center": [
+                  1.2,
+                  0.3
+                ],
+                "coords": "c",
+                "name": "bo",
+                "size": [
+                  2.32,
+                  0.52
+                ],
+                "type": "rect"
+              },
+              {
+                "center": [
+                  1.2,
+                  0.3
+                ],
+                "coords": "c",
+                "name": "bi",
+                "size": [
+                  2.27,
+                  0.47
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "mbo",
+                "sdf": "bo",
+                "type": "mask"
+              },
+              {
+                "name": "mbi",
+                "sdf": "bi",
+                "type": "mask"
+              },
+              {
+                "a": "mbo",
+                "b": "mbi",
+                "name": "border",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "center": [
+                  1.2,
+                  0.3
+                ],
+                "coords": "c",
+                "font": "bold",
+                "name": "t1",
+                "size": 0.22,
+                "text": "START HERE  →",
+                "type": "text"
+              },
+              {
+                "name": "mt",
+                "sdf": "t1",
+                "type": "mask"
+              },
+              {
+                "a": "border",
+                "b": "mt",
+                "name": "gold",
+                "op": "max",
+                "type": "math"
+              },
+              {
+                "a": "#1a2440",
+                "b": "#e8c46a",
+                "c": "gold",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "#000000",
+                "b": "#7a5e18",
+                "c": "mt",
+                "name": "em",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.05,
+                "b": 0.8,
+                "c": "gold",
+                "name": "met",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "metallic": "met",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "face_back",
+        "input": "face_back",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-sign-start",
+          "scale": 1.0,
+          "graph": {
+            "domain": "card",
+            "tile": 1.0,
+            "resolution": 1024,
+            "nodes": [
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "coords": "uv",
+                "name": "c",
+                "scale": [
+                  2.4,
+                  0.6
+                ],
+                "type": "transform"
+              },
+              {
+                "center": [
+                  1.2,
+                  0.3
+                ],
+                "coords": "c",
+                "name": "bo",
+                "size": [
+                  2.32,
+                  0.52
+                ],
+                "type": "rect"
+              },
+              {
+                "center": [
+                  1.2,
+                  0.3
+                ],
+                "coords": "c",
+                "name": "bi",
+                "size": [
+                  2.27,
+                  0.47
+                ],
+                "type": "rect"
+              },
+              {
+                "name": "mbo",
+                "sdf": "bo",
+                "type": "mask"
+              },
+              {
+                "name": "mbi",
+                "sdf": "bi",
+                "type": "mask"
+              },
+              {
+                "a": "mbo",
+                "b": "mbi",
+                "name": "border",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "center": [
+                  1.2,
+                  0.3
+                ],
+                "coords": "c",
+                "font": "bold",
+                "name": "t1",
+                "size": 0.22,
+                "text": "START HERE  →",
+                "type": "text"
+              },
+              {
+                "name": "mt",
+                "sdf": "t1",
+                "type": "mask"
+              },
+              {
+                "a": "border",
+                "b": "mt",
+                "name": "gold",
+                "op": "max",
+                "type": "math"
+              },
+              {
+                "a": "#1a2440",
+                "b": "#e8c46a",
+                "c": "gold",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "#000000",
+                "b": "#7a5e18",
+                "c": "mt",
+                "name": "em",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.05,
+                "b": 0.8,
+                "c": "gold",
+                "name": "met",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "emissive": "em",
+                "metallic": "met",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "variant": {
+        "name": "start",
+        "materials": [
+          {
+            "parts": "face_*",
+            "pbr": {
+              "material": "cfm-sign-start",
+              "scale": 1.0,
+              "graph": {
+                "domain": "card",
+                "tile": 1.0,
+                "resolution": 1024,
+                "nodes": [
+                  {
+                    "name": "uv",
+                    "of": "uv",
+                    "type": "input"
+                  },
+                  {
+                    "coords": "uv",
+                    "name": "c",
+                    "scale": [
+                      2.4,
+                      0.6
+                    ],
+                    "type": "transform"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "name": "bo",
+                    "size": [
+                      2.32,
+                      0.52
+                    ],
+                    "type": "rect"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "name": "bi",
+                    "size": [
+                      2.27,
+                      0.47
+                    ],
+                    "type": "rect"
+                  },
+                  {
+                    "name": "mbo",
+                    "sdf": "bo",
+                    "type": "mask"
+                  },
+                  {
+                    "name": "mbi",
+                    "sdf": "bi",
+                    "type": "mask"
+                  },
+                  {
+                    "a": "mbo",
+                    "b": "mbi",
+                    "name": "border",
+                    "op": "sub",
+                    "type": "math"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "font": "bold",
+                    "name": "t1",
+                    "size": 0.22,
+                    "text": "START HERE  →",
+                    "type": "text"
+                  },
+                  {
+                    "name": "mt",
+                    "sdf": "t1",
+                    "type": "mask"
+                  },
+                  {
+                    "a": "border",
+                    "b": "mt",
+                    "name": "gold",
+                    "op": "max",
+                    "type": "math"
+                  },
+                  {
+                    "a": "#1a2440",
+                    "b": "#e8c46a",
+                    "c": "gold",
+                    "name": "col",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "a": "#000000",
+                    "b": "#7a5e18",
+                    "c": "mt",
+                    "name": "em",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "a": 0.05,
+                    "b": 0.8,
+                    "c": "gold",
+                    "name": "met",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "base_color": "col",
+                    "emissive": "em",
+                    "metallic": "met",
+                    "name": "out",
+                    "roughness": 0.5,
+                    "type": "output"
+                  }
+                ],
+                "params": {}
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "variant": {
+        "name": "history",
+        "materials": [
+          {
+            "parts": "face_*",
+            "pbr": {
+              "material": "cfm-sign-history",
+              "scale": 1.0,
+              "graph": {
+                "domain": "card",
+                "tile": 1.0,
+                "resolution": 1024,
+                "nodes": [
+                  {
+                    "name": "uv",
+                    "of": "uv",
+                    "type": "input"
+                  },
+                  {
+                    "coords": "uv",
+                    "name": "c",
+                    "scale": [
+                      2.4,
+                      0.6
+                    ],
+                    "type": "transform"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "name": "bo",
+                    "size": [
+                      2.32,
+                      0.52
+                    ],
+                    "type": "rect"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "name": "bi",
+                    "size": [
+                      2.27,
+                      0.47
+                    ],
+                    "type": "rect"
+                  },
+                  {
+                    "name": "mbo",
+                    "sdf": "bo",
+                    "type": "mask"
+                  },
+                  {
+                    "name": "mbi",
+                    "sdf": "bi",
+                    "type": "mask"
+                  },
+                  {
+                    "a": "mbo",
+                    "b": "mbi",
+                    "name": "border",
+                    "op": "sub",
+                    "type": "math"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "font": "bold",
+                    "name": "t1",
+                    "size": 0.095,
+                    "text": "A BRIEF HISTORY OF MOVING AIR",
+                    "type": "text"
+                  },
+                  {
+                    "name": "mt",
+                    "sdf": "t1",
+                    "type": "mask"
+                  },
+                  {
+                    "a": "border",
+                    "b": "mt",
+                    "name": "gold",
+                    "op": "max",
+                    "type": "math"
+                  },
+                  {
+                    "a": "#1a2440",
+                    "b": "#e8c46a",
+                    "c": "gold",
+                    "name": "col",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "a": "#000000",
+                    "b": "#7a5e18",
+                    "c": "mt",
+                    "name": "em",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "a": 0.05,
+                    "b": 0.8,
+                    "c": "gold",
+                    "name": "met",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "base_color": "col",
+                    "emissive": "em",
+                    "metallic": "met",
+                    "name": "out",
+                    "roughness": 0.5,
+                    "type": "output"
+                  }
+                ],
+                "params": {}
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "variant": {
+        "name": "fame",
+        "materials": [
+          {
+            "parts": "face_*",
+            "pbr": {
+              "material": "cfm-sign-fame",
+              "scale": 1.0,
+              "graph": {
+                "domain": "card",
+                "tile": 1.0,
+                "resolution": 1024,
+                "nodes": [
+                  {
+                    "name": "uv",
+                    "of": "uv",
+                    "type": "input"
+                  },
+                  {
+                    "coords": "uv",
+                    "name": "c",
+                    "scale": [
+                      2.4,
+                      0.6
+                    ],
+                    "type": "transform"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "name": "bo",
+                    "size": [
+                      2.32,
+                      0.52
+                    ],
+                    "type": "rect"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "name": "bi",
+                    "size": [
+                      2.27,
+                      0.47
+                    ],
+                    "type": "rect"
+                  },
+                  {
+                    "name": "mbo",
+                    "sdf": "bo",
+                    "type": "mask"
+                  },
+                  {
+                    "name": "mbi",
+                    "sdf": "bi",
+                    "type": "mask"
+                  },
+                  {
+                    "a": "mbo",
+                    "b": "mbi",
+                    "name": "border",
+                    "op": "sub",
+                    "type": "math"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "font": "bold",
+                    "name": "t1",
+                    "size": 0.22,
+                    "text": "HALL OF FAME",
+                    "type": "text"
+                  },
+                  {
+                    "name": "mt",
+                    "sdf": "t1",
+                    "type": "mask"
+                  },
+                  {
+                    "a": "border",
+                    "b": "mt",
+                    "name": "gold",
+                    "op": "max",
+                    "type": "math"
+                  },
+                  {
+                    "a": "#1a2440",
+                    "b": "#e8c46a",
+                    "c": "gold",
+                    "name": "col",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "a": "#000000",
+                    "b": "#7a5e18",
+                    "c": "mt",
+                    "name": "em",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "a": 0.05,
+                    "b": 0.8,
+                    "c": "gold",
+                    "name": "met",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "base_color": "col",
+                    "emissive": "em",
+                    "metallic": "met",
+                    "name": "out",
+                    "roughness": 0.5,
+                    "type": "output"
+                  }
+                ],
+                "params": {}
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "variant": {
+        "name": "curiosities",
+        "materials": [
+          {
+            "parts": "face_*",
+            "pbr": {
+              "material": "cfm-sign-curiosities",
+              "scale": 1.0,
+              "graph": {
+                "domain": "card",
+                "tile": 1.0,
+                "resolution": 1024,
+                "nodes": [
+                  {
+                    "name": "uv",
+                    "of": "uv",
+                    "type": "input"
+                  },
+                  {
+                    "coords": "uv",
+                    "name": "c",
+                    "scale": [
+                      2.4,
+                      0.6
+                    ],
+                    "type": "transform"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "name": "bo",
+                    "size": [
+                      2.32,
+                      0.52
+                    ],
+                    "type": "rect"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "name": "bi",
+                    "size": [
+                      2.27,
+                      0.47
+                    ],
+                    "type": "rect"
+                  },
+                  {
+                    "name": "mbo",
+                    "sdf": "bo",
+                    "type": "mask"
+                  },
+                  {
+                    "name": "mbi",
+                    "sdf": "bi",
+                    "type": "mask"
+                  },
+                  {
+                    "a": "mbo",
+                    "b": "mbi",
+                    "name": "border",
+                    "op": "sub",
+                    "type": "math"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "font": "bold",
+                    "name": "t1",
+                    "size": 0.14,
+                    "text": "CABINET OF CURIOSITIES",
+                    "type": "text"
+                  },
+                  {
+                    "name": "mt",
+                    "sdf": "t1",
+                    "type": "mask"
+                  },
+                  {
+                    "a": "border",
+                    "b": "mt",
+                    "name": "gold",
+                    "op": "max",
+                    "type": "math"
+                  },
+                  {
+                    "a": "#1a2440",
+                    "b": "#e8c46a",
+                    "c": "gold",
+                    "name": "col",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "a": "#000000",
+                    "b": "#7a5e18",
+                    "c": "mt",
+                    "name": "em",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "a": 0.05,
+                    "b": 0.8,
+                    "c": "gold",
+                    "name": "met",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "base_color": "col",
+                    "emissive": "em",
+                    "metallic": "met",
+                    "name": "out",
+                    "roughness": 0.5,
+                    "type": "output"
+                  }
+                ],
+                "params": {}
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "variant": {
+        "name": "exit",
+        "materials": [
+          {
+            "parts": "face_*",
+            "pbr": {
+              "material": "cfm-sign-exit",
+              "scale": 1.0,
+              "graph": {
+                "domain": "card",
+                "tile": 1.0,
+                "resolution": 1024,
+                "nodes": [
+                  {
+                    "name": "uv",
+                    "of": "uv",
+                    "type": "input"
+                  },
+                  {
+                    "coords": "uv",
+                    "name": "c",
+                    "scale": [
+                      2.4,
+                      0.6
+                    ],
+                    "type": "transform"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "name": "bo",
+                    "size": [
+                      2.32,
+                      0.52
+                    ],
+                    "type": "rect"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "name": "bi",
+                    "size": [
+                      2.27,
+                      0.47
+                    ],
+                    "type": "rect"
+                  },
+                  {
+                    "name": "mbo",
+                    "sdf": "bo",
+                    "type": "mask"
+                  },
+                  {
+                    "name": "mbi",
+                    "sdf": "bi",
+                    "type": "mask"
+                  },
+                  {
+                    "a": "mbo",
+                    "b": "mbi",
+                    "name": "border",
+                    "op": "sub",
+                    "type": "math"
+                  },
+                  {
+                    "center": [
+                      1.2,
+                      0.3
+                    ],
+                    "coords": "c",
+                    "font": "bold",
+                    "name": "t1",
+                    "size": 0.18,
+                    "text": "GIFT SHOP & EXIT",
+                    "type": "text"
+                  },
+                  {
+                    "name": "mt",
+                    "sdf": "t1",
+                    "type": "mask"
+                  },
+                  {
+                    "a": "border",
+                    "b": "mt",
+                    "name": "gold",
+                    "op": "max",
+                    "type": "math"
+                  },
+                  {
+                    "a": "#1a2440",
+                    "b": "#e8c46a",
+                    "c": "gold",
+                    "name": "col",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "a": "#000000",
+                    "b": "#7a5e18",
+                    "c": "mt",
+                    "name": "em",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "a": 0.05,
+                    "b": 0.8,
+                    "c": "gold",
+                    "name": "met",
+                    "op": "mix",
+                    "type": "math"
+                  },
+                  {
+                    "base_color": "col",
+                    "emissive": "em",
+                    "metallic": "met",
+                    "name": "out",
+                    "roughness": 0.5,
+                    "type": "output"
+                  }
+                ],
+                "params": {}
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

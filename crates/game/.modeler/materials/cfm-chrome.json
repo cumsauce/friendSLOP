@@ -1,0 +1,190 @@
+{
+  "name": "cfm-chrome",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.5,
+  "resolution": 128,
+  "nodes": [
+    {
+      "mode": "fbm",
+      "name": "n",
+      "octaves": 3,
+      "seed": 1,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "c",
+      "stops": [
+        [
+          0,
+          "#c8ccd0"
+        ],
+        [
+          1,
+          "#eef0f2"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "c",
+      "metallic": 1,
+      "name": "out",
+      "roughness": 0.12,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 3,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-chrome",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 3,
+              "size": 0.1,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#b8bcc4"
+                ],
+                [
+                  1,
+                  "#d8dce2"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "c",
+              "metallic": 1,
+              "name": "out",
+              "roughness": 0.12,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+n +c +out"
+      },
+      {
+        "model": {
+          "name": "cfm-chrome",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 128,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 3,
+              "size": 0.1,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#b8bcc4"
+                ],
+                [
+                  1,
+                  "#d8dce2"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": [
+                0.92,
+                0.92,
+                0.94
+              ],
+              "metallic": 1,
+              "name": "out",
+              "roughness": 0.12,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "~out"
+      },
+      {
+        "model": {
+          "name": "cfm-chrome",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.5,
+          "resolution": 128,
+          "nodes": [
+            {
+              "mode": "fbm",
+              "name": "n",
+              "octaves": 3,
+              "seed": 1,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "c",
+              "stops": [
+                [
+                  0,
+                  "#c8ccd0"
+                ],
+                [
+                  1,
+                  "#eef0f2"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "c",
+              "metallic": 1,
+              "name": "out",
+              "roughness": 0.12,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 3
+        },
+        "parent": 1,
+        "children": [],
+        "label": "~n ~c ~out"
+      }
+    ],
+    "current": 2
+  }
+}

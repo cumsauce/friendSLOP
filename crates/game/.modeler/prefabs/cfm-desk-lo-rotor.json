@@ -1,0 +1,124 @@
+{
+  "format_version": 1,
+  "name": "cfm-desk-lo-rotor",
+  "parts": [],
+  "version": 90213,
+  "ops": [
+    {
+      "primitive": {
+        "name": "blade_a",
+        "kind": "plane",
+        "size": [
+          0.28,
+          0.05,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "blade_b",
+        "kind": "plane",
+        "size": [
+          0.28,
+          0.05,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.70710677,
+          0.0,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "group": {
+        "name": "blades",
+        "inputs": [
+          "blade_a",
+          "blade_b"
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "blades",
+        "input": "blades",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-chrome",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#c8ccd0"
+                  ],
+                  [
+                    1,
+                    "#eef0f2"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.12,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "blade_a",
+        "input": "blade_a",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "blade_b",
+        "input": "blade_b",
+        "visible": false
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

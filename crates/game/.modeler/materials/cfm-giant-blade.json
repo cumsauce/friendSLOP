@@ -1,0 +1,88 @@
+{
+  "name": "cfm-giant-blade",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 2.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 4,
+      "size": 0.5,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "base",
+      "stops": [
+        [
+          0,
+          "#8f9aa0"
+        ],
+        [
+          1,
+          "#b4bec2"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "base",
+      "metallic": 0.9,
+      "name": "out",
+      "roughness": 0.35,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-giant-blade",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 2.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 4,
+              "size": 0.5,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "base",
+              "stops": [
+                [
+                  0,
+                  "#8f9aa0"
+                ],
+                [
+                  1,
+                  "#b4bec2"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "base",
+              "metallic": 0.9,
+              "name": "out",
+              "roughness": 0.35,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +base +out"
+      }
+    ],
+    "current": 0
+  }
+}

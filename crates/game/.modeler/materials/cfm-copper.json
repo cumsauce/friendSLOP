@@ -1,0 +1,72 @@
+{
+  "name": "cfm-copper",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 0.2,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "n",
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "a": "#8a4020",
+      "b": "#d27a45",
+      "c": "n",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "metallic": 1,
+      "name": "out",
+      "roughness": 0.32,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-copper",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 0.2,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "n",
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "a": "#8a4020",
+              "b": "#d27a45",
+              "c": "n",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "metallic": 1,
+              "name": "out",
+              "roughness": 0.32,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

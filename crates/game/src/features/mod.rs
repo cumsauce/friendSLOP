@@ -99,6 +99,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(save::protocol);
         app.add_plugins(drowning::protocol);
         app.add_plugins(organ_butcher::protocol);
+        app.add_plugins(fan_museum::protocol);
     }
 }
 
@@ -176,6 +177,9 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(broadcast::plugin);
         app.add_plugins(surf::plugin);
         app.add_plugins(surf_props::plugin);
+        app.add_plugins(surf_slalom::plugin);
+        app.add_plugins(surf_tower::plugin);
+        app.add_plugins(surf_train::plugin);
         app.add_plugins(wallet::plugin);
         app.add_plugins(trains::plugin);
         app.add_plugins(vessel::plugin);
@@ -201,5 +205,6 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(jokah::plugin);
         app.add_plugins(achievements::plugin);
         app.add_plugins(wastes::plugin);
+        app.add_plugins(fan_museum::plugin);
     }
 }

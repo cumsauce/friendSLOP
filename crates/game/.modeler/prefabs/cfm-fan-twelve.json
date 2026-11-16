@@ -1,0 +1,1393 @@
+{
+  "format_version": 1,
+  "name": "cfm-fan-twelve",
+  "parts": [],
+  "version": 80722,
+  "ops": [
+    {
+      "primitive": {
+        "name": "m_plate",
+        "kind": "box",
+        "size": [
+          0.4,
+          0.05,
+          0.4
+        ],
+        "translation": [
+          0.0,
+          -0.025,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "m_rod",
+        "kind": "cylinder",
+        "size": [
+          0.045,
+          1.6,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -0.83,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "m_gearbox",
+        "kind": "box",
+        "size": [
+          0.5,
+          0.35,
+          0.42
+        ],
+        "translation": [
+          0.0,
+          -1.78,
+          0.0
+        ],
+        "rotation": null,
+        "round": 0.03,
+        "segments": 2
+      }
+    },
+    {
+      "primitive": {
+        "name": "m_motor",
+        "kind": "cylinder",
+        "size": [
+          0.16,
+          0.42,
+          0.0
+        ],
+        "translation": [
+          0.42,
+          -1.76,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.70710677,
+          0.70710677
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "m_skirt",
+        "kind": "cylinder",
+        "size": [
+          0.3,
+          0.06,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -1.93,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "sweep": {
+        "name": "m_cable1",
+        "profile": [
+          [
+            0.005,
+            0.0
+          ],
+          [
+            0.0024999997,
+            0.004330127
+          ],
+          [
+            -0.0025000002,
+            0.004330127
+          ],
+          [
+            -0.005,
+            -4.3711387e-10
+          ],
+          [
+            -0.0024999995,
+            -0.004330127
+          ],
+          [
+            0.0024999995,
+            -0.004330127
+          ]
+        ],
+        "path": [
+          [
+            0.7,
+            -0.01,
+            0.7
+          ],
+          [
+            0.22,
+            -1.62,
+            0.18
+          ]
+        ],
+        "closed": false
+      }
+    },
+    {
+      "sweep": {
+        "name": "m_cable2",
+        "profile": [
+          [
+            0.005,
+            0.0
+          ],
+          [
+            0.0024999997,
+            0.004330127
+          ],
+          [
+            -0.0025000002,
+            0.004330127
+          ],
+          [
+            -0.005,
+            -4.3711387e-10
+          ],
+          [
+            -0.0024999995,
+            -0.004330127
+          ],
+          [
+            0.0024999995,
+            -0.004330127
+          ]
+        ],
+        "path": [
+          [
+            -0.7,
+            -0.01,
+            0.7
+          ],
+          [
+            -0.22,
+            -1.62,
+            0.18
+          ]
+        ],
+        "closed": false
+      }
+    },
+    {
+      "sweep": {
+        "name": "m_cable3",
+        "profile": [
+          [
+            0.005,
+            0.0
+          ],
+          [
+            0.0024999997,
+            0.004330127
+          ],
+          [
+            -0.0025000002,
+            0.004330127
+          ],
+          [
+            -0.005,
+            -4.3711387e-10
+          ],
+          [
+            -0.0024999995,
+            -0.004330127
+          ],
+          [
+            0.0024999995,
+            -0.004330127
+          ]
+        ],
+        "path": [
+          [
+            0.7,
+            -0.01,
+            -0.7
+          ],
+          [
+            0.22,
+            -1.62,
+            -0.18
+          ]
+        ],
+        "closed": false
+      }
+    },
+    {
+      "sweep": {
+        "name": "m_cable4",
+        "profile": [
+          [
+            0.005,
+            0.0
+          ],
+          [
+            0.0024999997,
+            0.004330127
+          ],
+          [
+            -0.0025000002,
+            0.004330127
+          ],
+          [
+            -0.005,
+            -4.3711387e-10
+          ],
+          [
+            -0.0024999995,
+            -0.004330127
+          ],
+          [
+            0.0024999995,
+            -0.004330127
+          ]
+        ],
+        "path": [
+          [
+            -0.7,
+            -0.01,
+            -0.7
+          ],
+          [
+            -0.22,
+            -1.62,
+            -0.18
+          ]
+        ],
+        "closed": false
+      }
+    },
+    {
+      "primitive": {
+        "name": "r_hub",
+        "kind": "cylinder",
+        "size": [
+          0.38,
+          0.09,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -2.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "r_iron",
+        "kind": "box",
+        "size": [
+          0.3,
+          0.025,
+          0.1
+        ],
+        "translation": [
+          0.45,
+          -2.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "r_blade",
+        "kind": "box",
+        "size": [
+          2.65,
+          0.04,
+          0.22
+        ],
+        "translation": [
+          1.66,
+          -2.0,
+          0.0
+        ],
+        "rotation": [
+          0.06975647,
+          0.0,
+          0.0,
+          0.9975641
+        ],
+        "round": 0.015,
+        "segments": 1
+      }
+    },
+    {
+      "primitive": {
+        "name": "r_tip",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.1,
+          0.24
+        ],
+        "translation": [
+          2.99,
+          -2.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "m_plate",
+        "input": "m_plate",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-grey-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 9,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#5c6066"
+                  ],
+                  [
+                    1,
+                    "#70757c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.3,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "m_rod",
+        "input": "m_rod",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-grey-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 9,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#5c6066"
+                  ],
+                  [
+                    1,
+                    "#70757c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.3,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "m_gearbox",
+        "input": "m_gearbox",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-grey-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 9,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#5c6066"
+                  ],
+                  [
+                    1,
+                    "#70757c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.3,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "m_motor",
+        "input": "m_motor",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-grey-paint",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 9,
+                "size": 0.06,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#5c6066"
+                  ],
+                  [
+                    1,
+                    "#70757c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.3,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "m_skirt",
+        "input": "m_skirt",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-black-metal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 11,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141416"
+                  ],
+                  [
+                    1,
+                    "#24252a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "m_cable1",
+        "input": "m_cable1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-alu-polished",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#a9adb2"
+                  ],
+                  [
+                    1,
+                    "#c9ccd0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.22,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "m_cable2",
+        "input": "m_cable2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-alu-polished",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#a9adb2"
+                  ],
+                  [
+                    1,
+                    "#c9ccd0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.22,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "m_cable3",
+        "input": "m_cable3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-alu-polished",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#a9adb2"
+                  ],
+                  [
+                    1,
+                    "#c9ccd0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.22,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "m_cable4",
+        "input": "m_cable4",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-alu-polished",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#a9adb2"
+                  ],
+                  [
+                    1,
+                    "#c9ccd0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.22,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "r_hub",
+        "input": "r_hub",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-black-metal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 11,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141416"
+                  ],
+                  [
+                    1,
+                    "#24252a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "r_iron",
+        "input": "r_iron",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-alu-polished",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 4,
+                "seed": 13,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#a9adb2"
+                  ],
+                  [
+                    1,
+                    "#c9ccd0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.22,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "r_blade",
+        "input": "r_blade",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-yellow-alu",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 7,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#d9a90f"
+                  ],
+                  [
+                    1,
+                    "#f2c21c"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.4,
+                "name": "out",
+                "roughness": 0.4,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "r_tip",
+        "input": "r_tip",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-black-metal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 11,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141416"
+                  ],
+                  [
+                    1,
+                    "#24252a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0.7,
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "radial_array": {
+        "name": "r_ironA",
+        "input": "r_iron",
+        "count": 12,
+        "center": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "degrees": 360.0,
+        "start_degrees": 0.0,
+        "axis": "y",
+        "include_source": true
+      }
+    },
+    {
+      "radial_array": {
+        "name": "r_bladeA",
+        "input": "r_blade",
+        "count": 12,
+        "center": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "degrees": 360.0,
+        "start_degrees": 0.0,
+        "axis": "y",
+        "include_source": true
+      }
+    },
+    {
+      "radial_array": {
+        "name": "r_tipA",
+        "input": "r_tip",
+        "count": 12,
+        "center": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "degrees": 360.0,
+        "start_degrees": 0.0,
+        "axis": "y",
+        "include_source": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_hub",
+        "input": "r_hub",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_iron",
+        "input": "r_iron",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_blade",
+        "input": "r_blade",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_tip",
+        "input": "r_tip",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_ironA_1",
+        "input": "r_ironA_1",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_ironA_2",
+        "input": "r_ironA_2",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_ironA_3",
+        "input": "r_ironA_3",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_ironA_4",
+        "input": "r_ironA_4",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_ironA_5",
+        "input": "r_ironA_5",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_ironA_6",
+        "input": "r_ironA_6",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_ironA_7",
+        "input": "r_ironA_7",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_ironA_8",
+        "input": "r_ironA_8",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_ironA_9",
+        "input": "r_ironA_9",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_ironA_10",
+        "input": "r_ironA_10",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_ironA_11",
+        "input": "r_ironA_11",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_bladeA_1",
+        "input": "r_bladeA_1",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_bladeA_2",
+        "input": "r_bladeA_2",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_bladeA_3",
+        "input": "r_bladeA_3",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_bladeA_4",
+        "input": "r_bladeA_4",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_bladeA_5",
+        "input": "r_bladeA_5",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_bladeA_6",
+        "input": "r_bladeA_6",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_bladeA_7",
+        "input": "r_bladeA_7",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_bladeA_8",
+        "input": "r_bladeA_8",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_bladeA_9",
+        "input": "r_bladeA_9",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_bladeA_10",
+        "input": "r_bladeA_10",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_bladeA_11",
+        "input": "r_bladeA_11",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_tipA_1",
+        "input": "r_tipA_1",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_tipA_2",
+        "input": "r_tipA_2",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_tipA_3",
+        "input": "r_tipA_3",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_tipA_4",
+        "input": "r_tipA_4",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_tipA_5",
+        "input": "r_tipA_5",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_tipA_6",
+        "input": "r_tipA_6",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_tipA_7",
+        "input": "r_tipA_7",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_tipA_8",
+        "input": "r_tipA_8",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_tipA_9",
+        "input": "r_tipA_9",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_tipA_10",
+        "input": "r_tipA_10",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "r_tipA_11",
+        "input": "r_tipA_11",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "m_plate",
+        "input": "m_plate",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "m_rod",
+        "input": "m_rod",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "m_gearbox",
+        "input": "m_gearbox",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "m_motor",
+        "input": "m_motor",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "m_skirt",
+        "input": "m_skirt",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "m_cable1",
+        "input": "m_cable1",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "m_cable2",
+        "input": "m_cable2",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "m_cable3",
+        "input": "m_cable3",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "m_cable4",
+        "input": "m_cable4",
+        "visible": true
+      }
+    },
+    {
+      "move": {
+        "name": "rotor_up",
+        "parts": [
+          "r_*"
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null,
+        "pivot": [
+          0.0,
+          -2.05,
+          0.0
+        ]
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

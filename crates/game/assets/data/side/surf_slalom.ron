@@ -1,0 +1,65 @@
+// The skybridge slalom on the surf map (#306): a downtown canyon along part
+// of stage 2, sky bridges between its towers at every height
+// (crates/side/src/features/surf_slalom.rs). Hall coordinates, metres.
+(
+    // Stage 2 (0-based 1), its ramps 3 to 5 (0-based 2..=4): no speed gaps.
+    stage: 1,
+    ramps: (2, 4),
+    // Tower slots: the first one's z, one every `spacing` m down the course.
+    // Bridges stand at slots, so keep every slot over a ramp (not a jump).
+    first_z: -655.0,
+    spacing: 22.0,
+    slots: 9,
+    // Room between the widest ramp face and a tower's wall.
+    tower_gap: 6.0,
+    // Tower section model (18 m square, 16 m tall, stacked), how far a tower
+    // rises over its highest bridge and reaches down under the ramps.
+    tower_model: "surf_slalom_tower_section.gltf",
+    tower_size: 18.0,
+    tower_section: 16.0,
+    tower_over: 12.0,
+    tower_under: 40.0,
+    // Bridge kinds: 10 m segment, end collar, solid half width, and how far
+    // the solid reaches below and above the deck line.
+    kinds: [
+        // 0: glass sky bridge
+        (segment: "surf_skybridge_segment.gltf", end: Some("surf_skybridge_end.gltf"), half_width: 3.3, below: 0.95, above: 4.7),
+        // 1: steel truss
+        (segment: "surf_truss_bridge_segment.gltf", end: None, half_width: 2.15, below: 0.5, above: 3.8),
+        // 2: catwalk
+        (segment: "surf_catwalk_segment.gltf", end: None, half_width: 1.1, below: 1.0, above: 1.25),
+        // 3: low bridge, pink neon belly and warning chevrons
+        (segment: "surf_slalom_low_bridge_segment.gltf", end: None, half_width: 3.45, below: 1.05, above: 3.65),
+    ],
+    // The bridges: slot, kind, span (Across wall to wall, Left / Right: a
+    // stub from that wall out over that face), deck height over the ridge
+    // (negative: below it; under -15 a bridge crosses beneath the ramp) and
+    // whether a DUCK sign warns of it (lift 1.45 puts a low bridge's belly
+    // 0.4 m over the ridge: drop down the face to pass).
+    bridges: [
+        (slot: 0, kind: 0, span: Across, lift: 6.0, duck: false),
+        (slot: 1, kind: 3, span: Across, lift: 1.45, duck: true),
+        (slot: 2, kind: 1, span: Left, lift: -4.0, duck: false),
+        (slot: 2, kind: 0, span: Across, lift: -16.0, duck: false),
+        (slot: 3, kind: 2, span: Right, lift: -3.0, duck: false),
+        (slot: 3, kind: 1, span: Across, lift: 9.0, duck: false),
+        (slot: 4, kind: 3, span: Across, lift: 1.45, duck: true),
+        (slot: 5, kind: 0, span: Left, lift: -5.0, duck: false),
+        (slot: 5, kind: 2, span: Across, lift: 14.0, duck: false),
+        (slot: 6, kind: 3, span: Across, lift: 1.45, duck: true),
+        (slot: 7, kind: 1, span: Right, lift: -4.5, duck: false),
+        (slot: 8, kind: 0, span: Across, lift: 5.0, duck: false),
+        (slot: 8, kind: 1, span: Across, lift: -18.0, duck: false),
+    ],
+    // The DUCK sign: model, metres up the course from its bridge, height
+    // over the ridge.
+    sign: ("surf_slalom_duck_sign.gltf", 18.0, 7.0),
+    // A stub stops this far (m) from the ridge, across the ground.
+    stub_reach: 3.0,
+    // A surfer needs this much (m) of open face to get by, in the band from
+    // 10 m under the ridge to 3 m over it.
+    gap_needed: 3.0,
+    band: (-10.0, 3.0),
+    // Extra room around the canyon kept free of surf_props' pieces.
+    claim_margin: 4.0,
+)

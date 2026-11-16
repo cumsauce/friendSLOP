@@ -1,0 +1,39 @@
+// The sky train (surf map, #306: doomy wanted "an area where you ride
+// alongside a sky train"). An elevated monorail runs beside one of the
+// course's ramps and a train glides back and forth on it at surf speed, so
+// you race it as you surf. Everything is hall coordinates and metres.
+(
+    // Which ramp the line follows: its stage and ramp (both counted from 0).
+    // Stage 5's last ramp, the run into the finish (clear of the speed gap).
+    stage: 4,
+    ramp: 2,
+    // Which side of the ramp (1 = its left looking downhill, -1 = right),
+    // how far (m) the line's middle is from the ridge, and how far above
+    // the ridge the beam's top runs (negative: below). The city's towers
+    // stand 15-40 m off every ramp, so the line threads through a few of
+    // them; this side and spacing keep the pylons out of every tower.
+    side: 1.0,
+    offset: 25.0,
+    rise: -2.0,
+    // How far (m) the line runs on past the ramp's start and end.
+    extend: (60.0, 50.0),
+    // The beam: width and depth (m), one model segment's length.
+    beam: (2.2, 1.6),
+    segment: 10.0,
+    // A pylon every this many metres along the line, its width (m) and
+    // where its feet stand (hall y: the city's floor).
+    pylon_every: 35.0,
+    pylon_width: 2.4,
+    floor: -720.0,
+    // The train: how many cars, each car's length, width and height (m),
+    // and the gap between cars.
+    cars: 4,
+    car: (14.0, 3.2, 3.4),
+    car_gap: 1.2,
+    // Its top speed (m/s) mid-line; it eases to a stop at each end and turns back.
+    speed: 40.0,
+    // How long (s) it waits at each end.
+    dwell: 2.0,
+    // Generated props keep this far (m) out of the line's box.
+    claim_margin: 6.0,
+)

@@ -1,0 +1,766 @@
+{
+  "format_version": 1,
+  "name": "cfm-fan-four",
+  "parts": [],
+  "version": 79469,
+  "ops": [
+    {
+      "revolve": {
+        "name": "mnt_canopy",
+        "profile": [
+          [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.08,
+              0.0
+            ],
+            [
+              0.08,
+              -0.015
+            ],
+            [
+              0.04,
+              -0.06
+            ],
+            [
+              0.0,
+              -0.06
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 24,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "mnt_rod",
+        "kind": "cylinder",
+        "size": [
+          0.012,
+          0.16,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -0.14,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "mnt_motor",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.2
+            ],
+            [
+              0.05,
+              -0.2
+            ],
+            [
+              0.1,
+              -0.23
+            ],
+            [
+              0.105,
+              -0.3
+            ],
+            [
+              0.08,
+              -0.33
+            ],
+            [
+              0.0,
+              -0.33
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 24,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "mnt_collar",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.358
+            ],
+            [
+              0.06,
+              -0.358
+            ],
+            [
+              0.07,
+              -0.38
+            ],
+            [
+              0.0,
+              -0.38
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 24,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "revolve": {
+        "name": "mnt_bowl",
+        "profile": [
+          [
+            [
+              0.0,
+              -0.38
+            ],
+            [
+              0.075,
+              -0.38
+            ],
+            [
+              0.07,
+              -0.43
+            ],
+            [
+              0.045,
+              -0.465
+            ],
+            [
+              0.0,
+              -0.475
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 24,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "rot_hub",
+        "kind": "cylinder",
+        "size": [
+          0.075,
+          0.028,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -0.344,
+          0.0
+        ],
+        "rotation": null,
+        "round": 0.006
+      }
+    },
+    {
+      "primitive": {
+        "name": "rot_iron",
+        "kind": "box",
+        "size": [
+          0.14,
+          0.012,
+          0.04
+        ],
+        "translation": [
+          0.12,
+          -0.344,
+          0.0
+        ],
+        "rotation": null,
+        "round": 0.004
+      }
+    },
+    {
+      "primitive": {
+        "name": "rot_blade",
+        "kind": "box",
+        "size": [
+          0.48,
+          0.01,
+          0.13
+        ],
+        "translation": [
+          0.41,
+          -0.346,
+          0.0
+        ],
+        "rotation": [
+          0.08715574,
+          0.0,
+          0.0,
+          0.9961947
+        ],
+        "round": 0.004
+      }
+    },
+    {
+      "radial_array": {
+        "name": "rot_iron",
+        "input": "rot_iron",
+        "count": 4,
+        "center": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "degrees": 360.0,
+        "start_degrees": 0.0,
+        "axis": "y",
+        "include_source": true
+      }
+    },
+    {
+      "radial_array": {
+        "name": "rot_blade",
+        "input": "rot_blade",
+        "count": 4,
+        "center": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "degrees": 360.0,
+        "start_degrees": 0.0,
+        "axis": "y",
+        "include_source": true
+      }
+    },
+    {
+      "material": {
+        "name": "mnt_canopy",
+        "input": "mnt_canopy",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 2,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#e4e2dc"
+                  ],
+                  [
+                    1,
+                    "#f2f1ec"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "mnt_rod",
+        "input": "mnt_rod",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 2,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#e4e2dc"
+                  ],
+                  [
+                    1,
+                    "#f2f1ec"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "mnt_motor",
+        "input": "mnt_motor",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 2,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#e4e2dc"
+                  ],
+                  [
+                    1,
+                    "#f2f1ec"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "mnt_collar",
+        "input": "mnt_collar",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 2,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#e4e2dc"
+                  ],
+                  [
+                    1,
+                    "#f2f1ec"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "mnt_bowl",
+        "input": "mnt_bowl",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-frosted-glass",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 5,
+                "size": 0.1,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#e8ecef"
+                  ],
+                  [
+                    1,
+                    "#fbfcfd"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "emissive": "#3a3528",
+                "name": "out",
+                "roughness": 0.3,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rot_hub",
+        "input": "rot_hub",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 2,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#e4e2dc"
+                  ],
+                  [
+                    1,
+                    "#f2f1ec"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rot_iron",
+        "input": "rot_iron",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 2,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#e4e2dc"
+                  ],
+                  [
+                    1,
+                    "#f2f1ec"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rot_blade",
+        "input": "rot_blade",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-white",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 2,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#e4e2dc"
+                  ],
+                  [
+                    1,
+                    "#f2f1ec"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.5,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "rot_hub",
+        "input": "rot_hub",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "rot_iron",
+        "input": "rot_iron",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "rot_blade",
+        "input": "rot_blade",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "rot_iron_1",
+        "input": "rot_iron_1",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "rot_iron_2",
+        "input": "rot_iron_2",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "rot_iron_3",
+        "input": "rot_iron_3",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "rot_blade_1",
+        "input": "rot_blade_1",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "rot_blade_2",
+        "input": "rot_blade_2",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "rot_blade_3",
+        "input": "rot_blade_3",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "mnt_canopy",
+        "input": "mnt_canopy",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "mnt_rod",
+        "input": "mnt_rod",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "mnt_motor",
+        "input": "mnt_motor",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "mnt_collar",
+        "input": "mnt_collar",
+        "visible": true
+      }
+    },
+    {
+      "visibility": {
+        "name": "mnt_bowl",
+        "input": "mnt_bowl",
+        "visible": true
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

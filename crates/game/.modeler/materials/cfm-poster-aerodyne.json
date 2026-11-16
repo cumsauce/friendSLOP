@@ -1,0 +1,768 @@
+{
+  "name": "cfm-poster-aerodyne",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        0.8,
+        1.2
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.4,
+        0.6
+      ],
+      "coords": "c",
+      "name": "sun",
+      "radius": 0.3,
+      "type": "circle"
+    },
+    {
+      "name": "msun",
+      "sdf": "sun",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.4,
+        1.03
+      ],
+      "coords": "c",
+      "name": "band",
+      "size": [
+        0.8,
+        0.26
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "mband",
+      "sdf": "band",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.4,
+        0.6
+      ],
+      "coords": "c",
+      "name": "hub",
+      "radius": 0.05,
+      "type": "circle"
+    },
+    {
+      "coords": "c",
+      "name": "bl0",
+      "points": [
+        [
+          0.4217,
+          0.5504
+        ],
+        [
+          0.4682,
+          0.414
+        ],
+        [
+          0.4124,
+          0.3706
+        ],
+        [
+          0.3504,
+          0.3954
+        ],
+        [
+          0.3783,
+          0.5504
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "a": "hub",
+      "b": "bl0",
+      "name": "fu0",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "coords": "c",
+      "name": "bl1",
+      "points": [
+        [
+          0.3595,
+          0.564
+        ],
+        [
+          0.2442,
+          0.4777
+        ],
+        [
+          0.1857,
+          0.5173
+        ],
+        [
+          0.1901,
+          0.5839
+        ],
+        [
+          0.3461,
+          0.6053
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "a": "fu0",
+      "b": "bl1",
+      "name": "fu1",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "coords": "c",
+      "name": "bl2",
+      "points": [
+        [
+          0.3533,
+          0.6274
+        ],
+        [
+          0.2355,
+          0.7104
+        ],
+        [
+          0.2551,
+          0.7783
+        ],
+        [
+          0.3199,
+          0.7947
+        ],
+        [
+          0.3884,
+          0.6529
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "a": "fu1",
+      "b": "bl2",
+      "name": "fu2",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "coords": "c",
+      "name": "bl3",
+      "points": [
+        [
+          0.4116,
+          0.6529
+        ],
+        [
+          0.4542,
+          0.7906
+        ],
+        [
+          0.5248,
+          0.7929
+        ],
+        [
+          0.5604,
+          0.7364
+        ],
+        [
+          0.4467,
+          0.6274
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "a": "fu2",
+      "b": "bl3",
+      "name": "fu3",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "coords": "c",
+      "name": "bl4",
+      "points": [
+        [
+          0.4539,
+          0.6053
+        ],
+        [
+          0.598,
+          0.6074
+        ],
+        [
+          0.622,
+          0.5409
+        ],
+        [
+          0.5793,
+          0.4896
+        ],
+        [
+          0.4405,
+          0.564
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "a": "fu3",
+      "b": "bl4",
+      "name": "fu4",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mfan",
+      "sdf": "fu4",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.4,
+        0.17
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "ht0",
+      "size": 0.1,
+      "text": "AERODYNE",
+      "type": "text"
+    },
+    {
+      "name": "mht",
+      "sdf": "ht0",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.4,
+        0.97
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "bt0",
+      "size": 0.075,
+      "text": "THE FAN OF",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.4,
+        1.08
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "bt1",
+      "size": 0.095,
+      "text": "TOMORROW",
+      "type": "text"
+    },
+    {
+      "a": "bt0",
+      "b": "bt1",
+      "name": "btu1",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mbt",
+      "sdf": "btu1",
+      "type": "mask"
+    },
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 9,
+      "size": 0.02,
+      "type": "noise"
+    },
+    {
+      "a": "#1f2c55",
+      "b": "#d84f6a",
+      "c": "msun",
+      "name": "c1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "#f3e6c8",
+      "c": "mfan",
+      "name": "c2",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c2",
+      "b": "#f3e6c8",
+      "c": "mht",
+      "name": "c3",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c3",
+      "b": "#e9c45a",
+      "c": "mband",
+      "name": "c4",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c4",
+      "b": "#1f2c55",
+      "c": "mbt",
+      "name": "c5",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "in": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "grain",
+      "type": "levels"
+    },
+    {
+      "a": "grain",
+      "b": 0.12,
+      "name": "g2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "g2",
+      "b": 0.88,
+      "name": "g3",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "c5",
+      "b": "g3",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-poster-aerodyne",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                0.8,
+                1.2
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.4,
+                0.6
+              ],
+              "coords": "c",
+              "name": "sun",
+              "radius": 0.3,
+              "type": "circle"
+            },
+            {
+              "name": "msun",
+              "sdf": "sun",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                1.03
+              ],
+              "coords": "c",
+              "name": "band",
+              "size": [
+                0.8,
+                0.26
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mband",
+              "sdf": "band",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                0.6
+              ],
+              "coords": "c",
+              "name": "hub",
+              "radius": 0.05,
+              "type": "circle"
+            },
+            {
+              "coords": "c",
+              "name": "bl0",
+              "points": [
+                [
+                  0.4217,
+                  0.5504
+                ],
+                [
+                  0.4682,
+                  0.414
+                ],
+                [
+                  0.4124,
+                  0.3706
+                ],
+                [
+                  0.3504,
+                  0.3954
+                ],
+                [
+                  0.3783,
+                  0.5504
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "hub",
+              "b": "bl0",
+              "name": "fu0",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "coords": "c",
+              "name": "bl1",
+              "points": [
+                [
+                  0.3595,
+                  0.564
+                ],
+                [
+                  0.2442,
+                  0.4777
+                ],
+                [
+                  0.1857,
+                  0.5173
+                ],
+                [
+                  0.1901,
+                  0.5839
+                ],
+                [
+                  0.3461,
+                  0.6053
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "fu0",
+              "b": "bl1",
+              "name": "fu1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "coords": "c",
+              "name": "bl2",
+              "points": [
+                [
+                  0.3533,
+                  0.6274
+                ],
+                [
+                  0.2355,
+                  0.7104
+                ],
+                [
+                  0.2551,
+                  0.7783
+                ],
+                [
+                  0.3199,
+                  0.7947
+                ],
+                [
+                  0.3884,
+                  0.6529
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "fu1",
+              "b": "bl2",
+              "name": "fu2",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "coords": "c",
+              "name": "bl3",
+              "points": [
+                [
+                  0.4116,
+                  0.6529
+                ],
+                [
+                  0.4542,
+                  0.7906
+                ],
+                [
+                  0.5248,
+                  0.7929
+                ],
+                [
+                  0.5604,
+                  0.7364
+                ],
+                [
+                  0.4467,
+                  0.6274
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "fu2",
+              "b": "bl3",
+              "name": "fu3",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "coords": "c",
+              "name": "bl4",
+              "points": [
+                [
+                  0.4539,
+                  0.6053
+                ],
+                [
+                  0.598,
+                  0.6074
+                ],
+                [
+                  0.622,
+                  0.5409
+                ],
+                [
+                  0.5793,
+                  0.4896
+                ],
+                [
+                  0.4405,
+                  0.564
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "fu3",
+              "b": "bl4",
+              "name": "fu4",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mfan",
+              "sdf": "fu4",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                0.17
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "ht0",
+              "size": 0.1,
+              "text": "AERODYNE",
+              "type": "text"
+            },
+            {
+              "name": "mht",
+              "sdf": "ht0",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                0.97
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "bt0",
+              "size": 0.075,
+              "text": "THE FAN OF",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.4,
+                1.08
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "bt1",
+              "size": 0.095,
+              "text": "TOMORROW",
+              "type": "text"
+            },
+            {
+              "a": "bt0",
+              "b": "bt1",
+              "name": "btu1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mbt",
+              "sdf": "btu1",
+              "type": "mask"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 9,
+              "size": 0.02,
+              "type": "noise"
+            },
+            {
+              "a": "#1f2c55",
+              "b": "#d84f6a",
+              "c": "msun",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#f3e6c8",
+              "c": "mfan",
+              "name": "c2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#f3e6c8",
+              "c": "mht",
+              "name": "c3",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#e9c45a",
+              "c": "mband",
+              "name": "c4",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c4",
+              "b": "#1f2c55",
+              "c": "mbt",
+              "name": "c5",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "in": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "grain",
+              "type": "levels"
+            },
+            {
+              "a": "grain",
+              "b": 0.12,
+              "name": "g2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "g2",
+              "b": 0.88,
+              "name": "g3",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "c5",
+              "b": "g3",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +sun +msun +band +mband +hub +bl0 +fu0 +bl1 +fu1 +bl2 +fu2 +bl3 +fu3 +bl4 +fu4 +mfan +ht0 +mht +bt0 +bt1 +btu1 +mbt +n +c1 +c2 +c3 +c4 +c5 +grain +g2 +g3 +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

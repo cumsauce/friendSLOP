@@ -1,0 +1,242 @@
+{
+  "name": "cfm-sign-mobius",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        4,
+        0.7
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        2,
+        0.35
+      ],
+      "coords": "c",
+      "name": "bo",
+      "size": [
+        3.9,
+        0.6
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        2,
+        0.35
+      ],
+      "coords": "c",
+      "name": "bi",
+      "size": [
+        3.84,
+        0.54
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "mbo",
+      "sdf": "bo",
+      "type": "mask"
+    },
+    {
+      "name": "mbi",
+      "sdf": "bi",
+      "type": "mask"
+    },
+    {
+      "a": "mbo",
+      "b": "mbi",
+      "name": "border",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "center": [
+        2,
+        0.35
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t1",
+      "size": 0.3,
+      "text": "THE MÖBIUS",
+      "type": "text"
+    },
+    {
+      "name": "mt",
+      "sdf": "t1",
+      "type": "mask"
+    },
+    {
+      "a": "border",
+      "b": "mt",
+      "name": "gold",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "#141210",
+      "b": "#f2d27a",
+      "c": "gold",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "#000000",
+      "b": "#a07c20",
+      "c": "mt",
+      "name": "em",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "metallic": 0.1,
+      "name": "out",
+      "roughness": 0.5,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-sign-mobius",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                4,
+                0.7
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                2,
+                0.35
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                3.9,
+                0.6
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                2,
+                0.35
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                3.84,
+                0.54
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                2,
+                0.35
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.3,
+              "text": "THE MÖBIUS",
+              "type": "text"
+            },
+            {
+              "name": "mt",
+              "sdf": "t1",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#141210",
+              "b": "#f2d27a",
+              "c": "gold",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#000000",
+              "b": "#a07c20",
+              "c": "mt",
+              "name": "em",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0.1,
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +bo +bi +mbo +mbi +border +t1 +mt +gold +col +em +out"
+      }
+    ],
+    "current": 0
+  }
+}

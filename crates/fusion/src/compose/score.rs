@@ -86,6 +86,18 @@ pub enum Gen {
     },
     /// An arpeggio through the chord.
     Arp,
+    /// A steady arpeggio: the chord's tones over `octaves` octaves in a set
+    /// direction, one note every `every` steps, each held `gate` of that.
+    Arpeggio {
+        #[serde(default)]
+        dir: ArpDir,
+        #[serde(default = "two")]
+        every: u32,
+        #[serde(default = "one_u8")]
+        octaves: u8,
+        #[serde(default = "gate")]
+        gate: f32,
+    },
     /// An interlocking two-bar figure from the library's `ostinatos`.
     Ostinato { figure: String },
     /// The lead: a style from the library's `leads`, maybe playing a theme in
@@ -141,6 +153,26 @@ pub enum Gen {
     Bells,
 }
 
+/// Which way an [`Gen::Arpeggio`] walks the chord.
+#[derive(serde::Deserialize, Clone, Copy, Debug, Default, PartialEq)]
+pub enum ArpDir {
+    Up,
+    Down,
+    /// Up then back down, not repeating the top and bottom notes.
+    #[default]
+    UpDown,
+}
+
+fn two() -> u32 {
+    2
+}
+fn one_u8() -> u8 {
+    1
+}
+fn gate() -> f32 {
+    0.6
+}
+
 /// One part of a song, as written.
 #[derive(serde::Deserialize, Clone, Debug)]
 pub struct PartFile {
@@ -171,6 +203,9 @@ pub struct PartFile {
     /// Automation lanes on its instrument (see `crate::auto`).
     #[serde(default)]
     pub auto: Vec<crate::auto::AutoFile>,
+    /// Its level follows a live signal from the game (see `crate::live`).
+    #[serde(default)]
+    pub follow: Option<crate::live::Follow>,
 }
 
 // --- Parts, resolved --------------------------------------------------------
@@ -192,6 +227,12 @@ pub(super) enum G {
         under: Option<usize>,
     },
     Arp,
+    Arpeggio {
+        dir: ArpDir,
+        every: u32,
+        octaves: u8,
+        gate: f32,
+    },
     Ostinato {
         figs: &'static [Vec<Vec<(u8, u8)>>],
     },
@@ -237,6 +278,8 @@ pub(super) struct Part {
     pub(super) intensity: (f32, f32),
     pub(super) register: (u8, u8),
     pub(super) auto: Vec<crate::auto::AutoFile>,
+    /// (slot, fade, invert) of the live signal it follows.
+    pub(super) follow: Option<(usize, f32, bool)>,
 }
 
 impl Part {
@@ -252,7 +295,12 @@ impl Part {
     pub(super) fn in_kime(&self) -> bool {
         matches!(
             self.play,
-            G::Pad { .. } | G::Arp | G::Ostinato { .. } | G::Bells | G::Kime { .. }
+            G::Pad { .. }
+                | G::Arp
+                | G::Arpeggio { .. }
+                | G::Ostinato { .. }
+                | G::Bells
+                | G::Kime { .. }
         )
     }
 }
@@ -437,7 +485,7 @@ pub struct SongScore {
     pub(super) beats: u32,
     /// The parts, written out (instead of the shorthand below).
     #[serde(default)]
-    pub(super) parts: Option<Vec<PartFile>>,
+    pub(crate) parts: Option<Vec<PartFile>>,
     // The shorthand.
     #[serde(default)]
     pub(super) groove: Name,
@@ -615,6 +663,21 @@ fn resolve(
             )
         }
         Gen::Arp => (G::Arp, Inst::NONE, r.arp),
+        Gen::Arpeggio {
+            dir,
+            every,
+            octaves,
+            gate,
+        } => (
+            G::Arpeggio {
+                dir: *dir,
+                every: (*every).max(1),
+                octaves: (*octaves).clamp(1, 4),
+                gate: gate.clamp(0.05, 1.0),
+            },
+            Inst::NONE,
+            r.arp,
+        ),
         Gen::Ostinato { figure } => (
             G::Ostinato {
                 figs: lib.ostinatos.get(figure)?,
@@ -713,6 +776,10 @@ fn resolve(
         intensity: p.intensity.unwrap_or((0.0, 1.0)),
         register,
         auto: p.auto.clone(),
+        follow: p
+            .follow
+            .as_ref()
+            .and_then(|f| crate::live::slot(&f.signal).map(|s| (s, f.fade, f.invert))),
     })
 }
 
@@ -729,6 +796,7 @@ fn part(play: Gen) -> PartFile {
         layer: Some(Vec::new()),
         register: None,
         auto: Vec::new(),
+        follow: None,
     }
 }
 

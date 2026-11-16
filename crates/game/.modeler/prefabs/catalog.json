@@ -2718,7 +2718,7 @@
       "tags": [],
       "prompt": "",
       "file": "commune-map.json",
-      "created_at": "2026-11-16T21:59:55Z"
+      "created_at": "2026-11-16T23:32:50Z"
     },
     {
       "name": "sp-wendys",
@@ -6243,15 +6243,11 @@
     },
     {
       "name": "cfm-building",
-      "description": "The Ceiling Fan Museum: 40x28x9 m converted big-box store, open 4 m door, glass shopfront, neon CEILING FAN MUSEUM sign and fan logo, ticket desk, gift shelf, rope line, info signs, ceiling light panels, parking strip to z=-26.",
-      "tags": [
-        "museum",
-        "building",
-        "friendslop"
-      ],
-      "prompt": "Ceiling Fan Museum building shell for friendSLOP (fans and celebrity wall are separate models).",
+      "description": "Ceiling Fan Museum big-box store; west doorway (z 3..7) to the installations annex",
+      "tags": [],
+      "prompt": "",
       "file": "cfm-building.json",
-      "created_at": "2026-11-16T21:54:15Z"
+      "created_at": "2026-11-16T22:25:53Z"
     },
     {
       "name": "cfm-fan-caged",
@@ -6280,16 +6276,1155 @@
     },
     {
       "name": "cfm-celeb-wall",
-      "description": "Ceiling Fan Museum 'Wall of Fans': 22x5x0.4 m feature wall with 10 fictional celebrity plaques (portrait, gold signature, nameplate) and mini trophy fans; rotors exported separately (rotor_i at origin, axis +Y).",
+      "description": "Ceiling Fan Museum 'Wall of Fans': 22x5 m wall, back at z=0 facing -Z, header and 10 celebrity plaques printed on one card-atlas tri_mesh ('faces', cfm-celeb-atlas), low-poly gold frames, motor mounts; rotor_*_wall parts are exported separately as celeb_rotor_<i>.gltf (hide them before exporting celeb_wall).",
       "tags": [
         "museum",
-        "ceiling fan",
+        "fan",
         "wall",
-        "set piece"
+        "sign"
       ],
-      "prompt": "Wall of Fans in the Ceiling Fan Museum: invented celebrities who signed with their favourite ceiling fan; mini rotors spin in game.",
+      "prompt": "",
       "file": "cfm-celeb-wall.json",
-      "created_at": "2026-11-16T21:55:04Z"
+      "created_at": "2026-11-16T22:09:54Z"
+    },
+    {
+      "name": "cfm-fan-ring-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-ring-mount.json",
+      "created_at": "2026-11-16T22:48:35Z"
+    },
+    {
+      "name": "cfm-exhibit",
+      "description": "Ceiling Fan Museum cordoned exhibit: 3.2 m square dark-carpet dais (0.15 m) with brass trim, 8 brass stanchions and sagging red velvet ropes. Origin floor centre, front -Z.",
+      "tags": [
+        "museum",
+        "fan",
+        "stanchion",
+        "exhibit"
+      ],
+      "prompt": "",
+      "file": "cfm-exhibit.json",
+      "created_at": "2026-11-16T22:13:27Z"
+    },
+    {
+      "name": "cfm-fan-hands-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-hands-mount.json",
+      "created_at": "2026-11-16T22:49:15Z"
+    },
+    {
+      "name": "cfm-fan-ring-rotor",
+      "description": "The Ouroboros rotor: chrome bladeless ring (1.4 m), 16 angled vanes on an inner hoop and 4 spokes, snake head biting the ring with gold eyes. Centred on origin, spin +Y.",
+      "tags": [
+        "museum",
+        "ceiling-fan",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-fan-ring-rotor.json",
+      "created_at": "2026-11-16T22:13:56Z"
+    },
+    {
+      "name": "cfm-fan-hands-rotor",
+      "description": "\"The Applause\" ceiling fan rotor: 6 pale mannequin open hands on wrist arms, ~1.6 m across, centred on origin, spin axis +Y.",
+      "tags": [
+        "ceiling-fan",
+        "museum",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-fan-hands-rotor.json",
+      "created_at": "2026-11-16T22:14:04Z"
+    },
+    {
+      "name": "cfm-fan-chandelier-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-chandelier-mount.json",
+      "created_at": "2026-11-16T22:48:45Z"
+    },
+    {
+      "name": "cfm-fan-tentacle-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-tentacle-mount.json",
+      "created_at": "2026-11-16T22:49:35Z"
+    },
+    {
+      "name": "cfm-fan-chandelier-rotor",
+      "description": "Chandelier Supreme rotor: 9 faceted clear crystal teardrop blades on curving gold arms, candle stubs in gold cups, ornate gold hub with finial. ~1.6 m across, centred on origin, spin +Y.",
+      "tags": [
+        "museum",
+        "ceiling-fan",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-fan-chandelier-rotor.json",
+      "created_at": "2026-11-16T22:14:36Z"
+    },
+    {
+      "name": "cfm-fan-tentacle-rotor",
+      "description": "\"Kraken Breeze\" ceiling fan rotor: 8 tapering purple octopus tentacles curling up at the tips, pink sucker discs underneath, ~1.75 m across, spin axis +Y.",
+      "tags": [
+        "ceiling-fan",
+        "museum",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-fan-tentacle-rotor.json",
+      "created_at": "2026-11-16T22:14:37Z"
+    },
+    {
+      "name": "cfm-fan-spoons-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-spoons-mount.json",
+      "created_at": "2026-11-16T22:49:02Z"
+    },
+    {
+      "name": "cfm-fan-vinyl-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-vinyl-mount.json",
+      "created_at": "2026-11-16T22:49:49Z"
+    },
+    {
+      "name": "cfm-fan-vinyl-rotor",
+      "description": "\"B-Side Spinner\" ceiling fan rotor: 4 black vinyl LPs (red and blue centre labels, both sides) on chrome arms, 1.6 m across, spin axis +Y.",
+      "tags": [
+        "ceiling-fan",
+        "museum",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-fan-vinyl-rotor.json",
+      "created_at": "2026-11-16T22:15:06Z"
+    },
+    {
+      "name": "cfm-fan-spoons-rotor",
+      "description": "Cutlery Cyclone rotor: 5 giant silver spoons (bowl at the tip, handle to the hub, pitched 15 deg) on a stainless hub. ~1.6 m across, centred on origin, spin +Y.",
+      "tags": [
+        "museum",
+        "ceiling-fan",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-fan-spoons-rotor.json",
+      "created_at": "2026-11-16T22:15:07Z"
+    },
+    {
+      "name": "cfm-placard-ring",
+      "description": "Ceiling Fan Museum exhibit placard (THE OUROBOROS) on a brass stand; origin at the stand foot, reading face toward -Z, top ~1.02 m.",
+      "tags": [
+        "museum",
+        "placard",
+        "sign"
+      ],
+      "prompt": "",
+      "file": "cfm-placard-ring.json",
+      "created_at": "2026-11-16T22:15:10Z"
+    },
+    {
+      "name": "cfm-placard-chandelier",
+      "description": "Ceiling Fan Museum exhibit placard (THE CHANDELIER SUPREME) on a brass stand; origin at the stand foot, reading face toward -Z.",
+      "tags": [
+        "museum",
+        "placard",
+        "sign"
+      ],
+      "prompt": "",
+      "file": "cfm-placard-chandelier.json",
+      "created_at": "2026-11-16T22:15:24Z"
+    },
+    {
+      "name": "cfm-placard-spoons",
+      "description": "Ceiling Fan Museum exhibit placard (CUTLERY CYCLONE) on a brass stand; origin at the stand foot, reading face toward -Z.",
+      "tags": [
+        "museum",
+        "placard",
+        "sign"
+      ],
+      "prompt": "",
+      "file": "cfm-placard-spoons.json",
+      "created_at": "2026-11-16T22:15:25Z"
+    },
+    {
+      "name": "cfm-placard-hands",
+      "description": "Ceiling Fan Museum exhibit placard (THE APPLAUSE) on a brass stand; origin at the stand foot, reading face toward -Z.",
+      "tags": [
+        "museum",
+        "placard",
+        "sign"
+      ],
+      "prompt": "",
+      "file": "cfm-placard-hands.json",
+      "created_at": "2026-11-16T22:15:26Z"
+    },
+    {
+      "name": "cfm-placard-tentacle",
+      "description": "Ceiling Fan Museum exhibit placard (KRAKEN BREEZE) on a brass stand; origin at the stand foot, reading face toward -Z.",
+      "tags": [
+        "museum",
+        "placard",
+        "sign"
+      ],
+      "prompt": "",
+      "file": "cfm-placard-tentacle.json",
+      "created_at": "2026-11-16T22:15:26Z"
+    },
+    {
+      "name": "cfm-placard-vinyl",
+      "description": "Ceiling Fan Museum exhibit placard (B-SIDE SPINNER) on a brass stand; origin at the stand foot, reading face toward -Z.",
+      "tags": [
+        "museum",
+        "placard",
+        "sign"
+      ],
+      "prompt": "",
+      "file": "cfm-placard-vinyl.json",
+      "created_at": "2026-11-16T22:15:27Z"
+    },
+    {
+      "name": "cfm-fan-two-mount",
+      "description": "cfm-fan-two mount only (canopy at y=0), rotor hidden",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-two-mount.json",
+      "created_at": "2026-11-16T22:24:41Z"
+    },
+    {
+      "name": "cfm-fan-two-rotor",
+      "description": "cfm-fan-two rotor only, hub at origin, spins about +Y",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-two-rotor.json",
+      "created_at": "2026-11-16T22:24:48Z"
+    },
+    {
+      "name": "cfm-fan-three-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-three-mount.json",
+      "created_at": "2026-11-16T22:25:21Z"
+    },
+    {
+      "name": "cfm-fan-three-rotor",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-three-rotor.json",
+      "created_at": "2026-11-16T22:25:21Z"
+    },
+    {
+      "name": "cfm-fan-four-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-four-mount.json",
+      "created_at": "2026-11-16T22:25:21Z"
+    },
+    {
+      "name": "cfm-fan-four-rotor",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-four-rotor.json",
+      "created_at": "2026-11-16T22:25:22Z"
+    },
+    {
+      "name": "cfm-fan-five-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-five-mount.json",
+      "created_at": "2026-11-16T22:25:22Z"
+    },
+    {
+      "name": "cfm-fan-five-rotor",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-five-rotor.json",
+      "created_at": "2026-11-16T22:25:22Z"
+    },
+    {
+      "name": "cfm-fan-leaf-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-leaf-mount.json",
+      "created_at": "2026-11-16T22:25:22Z"
+    },
+    {
+      "name": "cfm-fan-leaf-rotor",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-leaf-rotor.json",
+      "created_at": "2026-11-16T22:25:22Z"
+    },
+    {
+      "name": "cfm-fan-eight-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-eight-mount.json",
+      "created_at": "2026-11-16T22:25:47Z"
+    },
+    {
+      "name": "cfm-fan-eight-rotor",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-eight-rotor.json",
+      "created_at": "2026-11-16T22:25:47Z"
+    },
+    {
+      "name": "cfm-fan-ten-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-ten-mount.json",
+      "created_at": "2026-11-16T22:25:47Z"
+    },
+    {
+      "name": "cfm-fan-ten-rotor",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-ten-rotor.json",
+      "created_at": "2026-11-16T22:25:47Z"
+    },
+    {
+      "name": "cfm-fan-twelve-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-twelve-mount.json",
+      "created_at": "2026-11-16T22:25:47Z"
+    },
+    {
+      "name": "cfm-fan-twelve-rotor",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-twelve-rotor.json",
+      "created_at": "2026-11-16T22:25:47Z"
+    },
+    {
+      "name": "cfm-fan-caged-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-caged-mount.json",
+      "created_at": "2026-11-16T22:25:47Z"
+    },
+    {
+      "name": "cfm-fan-caged-rotor",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-caged-rotor.json",
+      "created_at": "2026-11-16T22:25:47Z"
+    },
+    {
+      "name": "cfm-fan-propeller-mount",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-propeller-mount.json",
+      "created_at": "2026-11-16T22:25:48Z"
+    },
+    {
+      "name": "cfm-fan-propeller-rotor",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-fan-propeller-rotor.json",
+      "created_at": "2026-11-16T22:25:48Z"
+    },
+    {
+      "name": "cfm-celeb-wall-static",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-celeb-wall-static.json",
+      "created_at": "2026-11-16T22:25:58Z"
+    },
+    {
+      "name": "cfm-desk-fan-mount",
+      "description": "Retro desk fan stand for the Möbius (low budget: ~40 tris). Faces +Z, hub at (0, 0.28, 0.03).",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-desk-fan-mount.json",
+      "created_at": "2026-11-16T22:58:34Z"
+    },
+    {
+      "name": "cfm-desk-fan-rotor",
+      "description": "Low-poly desk fan rotor: 6-sided hub, 4 pitched flat blades, radius 0.14, spin axis +Y, centred on origin.",
+      "tags": [
+        "fan",
+        "prop",
+        "lowpoly"
+      ],
+      "prompt": "",
+      "file": "cfm-desk-fan-rotor.json",
+      "created_at": "2026-11-16T22:38:58Z"
+    },
+    {
+      "name": "cfm-giant-mount",
+      "description": "Ceiling Fan Museum giant fan: static steel housing 12.5x12.5x1.6 m with 11.4 m shroud, motor nacelle on struts, hazard stripes, full front safety grate with rings, riveted plaque THE GRATE ONE. Origin bottom centre of back face, front faces -Z; rotor hub at (0, 6.25, -0.9).",
+      "tags": [
+        "museum",
+        "fan",
+        "giant",
+        "friendslop"
+      ],
+      "prompt": "",
+      "file": "cfm-giant-mount.json",
+      "created_at": "2026-11-16T22:26:14Z"
+    },
+    {
+      "name": "cfm-celeb-rotor-0",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-celeb-rotor-0.json",
+      "created_at": "2026-11-16T22:26:22Z"
+    },
+    {
+      "name": "cfm-celeb-rotor-1",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-celeb-rotor-1.json",
+      "created_at": "2026-11-16T22:26:22Z"
+    },
+    {
+      "name": "cfm-celeb-rotor-2",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-celeb-rotor-2.json",
+      "created_at": "2026-11-16T22:26:23Z"
+    },
+    {
+      "name": "cfm-celeb-rotor-3",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-celeb-rotor-3.json",
+      "created_at": "2026-11-16T22:26:23Z"
+    },
+    {
+      "name": "cfm-celeb-rotor-4",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-celeb-rotor-4.json",
+      "created_at": "2026-11-16T22:26:23Z"
+    },
+    {
+      "name": "cfm-giant-rotor",
+      "description": "Ceiling Fan Museum giant fan rotor: 7 broad curved scimitar steel blades, radius 5.5 m, on a hub with nose cone; centred on origin, spin axis +Y, y within -0.32..0.35.",
+      "tags": [
+        "museum",
+        "fan",
+        "giant",
+        "rotor",
+        "friendslop"
+      ],
+      "prompt": "",
+      "file": "cfm-giant-rotor.json",
+      "created_at": "2026-11-16T22:26:35Z"
+    },
+    {
+      "name": "cfm-celeb-rotor-5",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-celeb-rotor-5.json",
+      "created_at": "2026-11-16T22:26:39Z"
+    },
+    {
+      "name": "cfm-celeb-rotor-6",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-celeb-rotor-6.json",
+      "created_at": "2026-11-16T22:26:39Z"
+    },
+    {
+      "name": "cfm-celeb-rotor-7",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-celeb-rotor-7.json",
+      "created_at": "2026-11-16T22:26:39Z"
+    },
+    {
+      "name": "cfm-celeb-rotor-8",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-celeb-rotor-8.json",
+      "created_at": "2026-11-16T22:26:39Z"
+    },
+    {
+      "name": "cfm-celeb-rotor-9",
+      "description": "",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-celeb-rotor-9.json",
+      "created_at": "2026-11-16T22:26:40Z"
+    },
+    {
+      "name": "cfm-mobius",
+      "description": "Ceiling Fan Museum Mobius strip (R=4.5, half-width 1.2, centre height 6, 0.08 m thick, red lacquer, steel edge trim) with two steel pylons (u=0 under (4.5,5.96,0); u=pi to lower edge (-4.5,4.8,0)), brackets and 1.2 m stone plinths. Origin = floor centre.",
+      "tags": [
+        "museum",
+        "mobius",
+        "cfm",
+        "installation"
+      ],
+      "prompt": "P(u,v)=((R+v cos(u/2))cos u, 6+v sin(u/2), (R+v cos(u/2)) sin u), R=4.5, v in [-1.2,1.2], offset +-0.04 along normal.",
+      "file": "cfm-mobius.json",
+      "created_at": "2026-11-16T22:27:33Z"
+    },
+    {
+      "name": "cfm-annex",
+      "description": "Ceiling Fan Museum west annex (museum coordinates): two tall dark installation halls, Hall A (giant fan) and Hall B (Möbius)",
+      "tags": [
+        "building",
+        "museum",
+        "interior"
+      ],
+      "prompt": "",
+      "file": "cfm-annex.json",
+      "created_at": "2026-11-16T22:27:59Z"
+    },
+    {
+      "name": "cfm-museum",
+      "description": "The Ceiling Fan Museum interior as a map (load-in area, no exterior faces): lobby -> A Brief History -> Hall of Fame + atrium -> Cabinet of Curiosities with the installations annex -> gift shop & exit. Rotors carry Spin; Block colliders, Lamps, room_* boxes, door. Origin = interior floor centre. Export maps/fan_museum.bsn. Generated first by scripts/fan_museum_map.py.",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-museum.json",
+      "created_at": "2026-11-16T23:32:15Z"
+    },
+    {
+      "name": "cfm-partition",
+      "description": "Freestanding gallery wall 1 m long (x -0.5..0.5), 4.5 m tall, 0.3 m thick, origin bottom centre; blue-grey paint, black skirting, gold cap. Scale along X.",
+      "tags": [
+        "cfm",
+        "museum",
+        "wall",
+        "partition"
+      ],
+      "prompt": "",
+      "file": "cfm-partition.json",
+      "created_at": "2026-11-16T22:40:49Z"
+    },
+    {
+      "name": "cfm-timeline-five",
+      "description": "Timeline wall panel 1889 THE VICTORIAN. 1.4x1.0x0.05, origin bottom centre of back face, reads toward +Z.",
+      "tags": [
+        "cfm",
+        "museum",
+        "timeline",
+        "panel"
+      ],
+      "prompt": "",
+      "file": "cfm-timeline-five.json",
+      "created_at": "2026-11-16T22:41:06Z"
+    },
+    {
+      "name": "cfm-timeline-propeller",
+      "description": "Timeline wall panel 1911 THE AVIATOR. 1.4x1.0x0.05, origin bottom centre of back face, reads toward +Z.",
+      "tags": [
+        "cfm",
+        "museum",
+        "timeline",
+        "panel"
+      ],
+      "prompt": "",
+      "file": "cfm-timeline-propeller.json",
+      "created_at": "2026-11-16T22:41:33Z"
+    },
+    {
+      "name": "cfm-timeline-eight",
+      "description": "Timeline wall panel 1931 ART DECO. 1.4x1.0x0.05, origin bottom centre of back face, reads toward +Z.",
+      "tags": [
+        "cfm",
+        "museum",
+        "timeline",
+        "panel"
+      ],
+      "prompt": "",
+      "file": "cfm-timeline-eight.json",
+      "created_at": "2026-11-16T22:41:33Z"
+    },
+    {
+      "name": "cfm-timeline-four",
+      "description": "Timeline wall panel 1956 THE LIGHT KIT. 1.4x1.0x0.05, origin bottom centre of back face, reads toward +Z.",
+      "tags": [
+        "cfm",
+        "museum",
+        "timeline",
+        "panel"
+      ],
+      "prompt": "",
+      "file": "cfm-timeline-four.json",
+      "created_at": "2026-11-16T22:41:33Z"
+    },
+    {
+      "name": "cfm-timeline-two",
+      "description": "Timeline wall panel 1972 THE TWO-BLADER. 1.4x1.0x0.05, origin bottom centre of back face, reads toward +Z.",
+      "tags": [
+        "cfm",
+        "museum",
+        "timeline",
+        "panel"
+      ],
+      "prompt": "",
+      "file": "cfm-timeline-two.json",
+      "created_at": "2026-11-16T22:41:34Z"
+    },
+    {
+      "name": "cfm-timeline-leaf",
+      "description": "Timeline wall panel 1984 TROPICAL LEAF. 1.4x1.0x0.05, origin bottom centre of back face, reads toward +Z.",
+      "tags": [
+        "cfm",
+        "museum",
+        "timeline",
+        "panel"
+      ],
+      "prompt": "",
+      "file": "cfm-timeline-leaf.json",
+      "created_at": "2026-11-16T22:41:34Z"
+    },
+    {
+      "name": "cfm-timeline-ten",
+      "description": "Timeline wall panel 1997 BAMBOO BREEZE. 1.4x1.0x0.05, origin bottom centre of back face, reads toward +Z.",
+      "tags": [
+        "cfm",
+        "museum",
+        "timeline",
+        "panel"
+      ],
+      "prompt": "",
+      "file": "cfm-timeline-ten.json",
+      "created_at": "2026-11-16T22:41:34Z"
+    },
+    {
+      "name": "cfm-timeline-three",
+      "description": "Timeline wall panel 2014 THE MINIMALIST. 1.4x1.0x0.05, origin bottom centre of back face, reads toward +Z.",
+      "tags": [
+        "cfm",
+        "museum",
+        "timeline",
+        "panel"
+      ],
+      "prompt": "",
+      "file": "cfm-timeline-three.json",
+      "created_at": "2026-11-16T22:41:34Z"
+    },
+    {
+      "name": "cfm-timeline-caged",
+      "description": "Timeline wall panel 2003 THE CAGED DRUM. 1.4x1.0x0.05, origin bottom centre of back face, reads toward +Z.",
+      "tags": [
+        "cfm",
+        "museum",
+        "timeline",
+        "panel"
+      ],
+      "prompt": "",
+      "file": "cfm-timeline-caged.json",
+      "created_at": "2026-11-16T22:41:34Z"
+    },
+    {
+      "name": "cfm-sign-start",
+      "description": "Double-sided hanging sign START HERE; origin top centre (chain ends y=0), board 2.4x0.6 centred at y=-2.6.",
+      "tags": [
+        "cfm",
+        "museum",
+        "sign"
+      ],
+      "prompt": "",
+      "file": "cfm-sign-start.json",
+      "created_at": "2026-11-16T22:42:25Z"
+    },
+    {
+      "name": "cfm-sign-history",
+      "description": "Double-sided hanging sign A BRIEF HISTORY OF MOVING AIR; origin top centre, board centred at y=-2.6.",
+      "tags": [
+        "cfm",
+        "museum",
+        "sign"
+      ],
+      "prompt": "",
+      "file": "cfm-sign-history.json",
+      "created_at": "2026-11-16T22:42:25Z"
+    },
+    {
+      "name": "cfm-sign-fame",
+      "description": "Double-sided hanging sign HALL OF FAME; origin top centre, board centred at y=-2.6.",
+      "tags": [
+        "cfm",
+        "museum",
+        "sign"
+      ],
+      "prompt": "",
+      "file": "cfm-sign-fame.json",
+      "created_at": "2026-11-16T22:42:25Z"
+    },
+    {
+      "name": "cfm-sign-curiosities",
+      "description": "Double-sided hanging sign CABINET OF CURIOSITIES; origin top centre, board centred at y=-2.6.",
+      "tags": [
+        "cfm",
+        "museum",
+        "sign"
+      ],
+      "prompt": "",
+      "file": "cfm-sign-curiosities.json",
+      "created_at": "2026-11-16T22:42:25Z"
+    },
+    {
+      "name": "cfm-sign-exit",
+      "description": "Double-sided hanging sign GIFT SHOP & EXIT; origin top centre, board centred at y=-2.6.",
+      "tags": [
+        "cfm",
+        "museum",
+        "sign"
+      ],
+      "prompt": "",
+      "file": "cfm-sign-exit.json",
+      "created_at": "2026-11-16T22:42:25Z"
+    },
+    {
+      "name": "cfm-bench",
+      "description": "Museum bench 2.0 x 0.5 m, seat 0.45 m, origin bottom centre; navy velvet cushion on walnut frame.",
+      "tags": [
+        "cfm",
+        "museum",
+        "bench",
+        "furniture"
+      ],
+      "prompt": "",
+      "file": "cfm-bench.json",
+      "created_at": "2026-11-16T22:42:25Z"
+    },
+    {
+      "name": "cfm-trim-crown",
+      "description": "Ceiling Fan Museum crown moulding strip, 1 m along X (scale along X), cream cove with a gold bead; back on z=0, sticks out to -Z, origin top-back centre, hangs y 0..-0.25.",
+      "tags": [
+        "museum",
+        "trim",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-trim-crown.json",
+      "created_at": "2026-11-16T22:49:59Z"
+    },
+    {
+      "name": "cfm-trim-base",
+      "description": "Ceiling Fan Museum walnut baseboard strip 1 m along X, 0.2 tall, 0.04 deep; back on z=0, out to -Z, origin bottom-back centre.",
+      "tags": [
+        "museum",
+        "trim",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-trim-base.json",
+      "created_at": "2026-11-16T22:50:28Z"
+    },
+    {
+      "name": "cfm-runner",
+      "description": "Ceiling Fan Museum carpet runner, 1.6 m wide (x) x 1 m along Z x 0.01, deep red with gold border stripes along both long edges; origin bottom centre; scale along Z.",
+      "tags": [
+        "museum",
+        "carpet",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-runner.json",
+      "created_at": "2026-11-16T22:50:37Z"
+    },
+    {
+      "name": "cfm-pilaster",
+      "description": "Ceiling Fan Museum flat pilaster: 0.6 m cream fluted shaft (gold flute strips), cream plinth with gold torus, gold capital, cream abacus; 8 m tall, back on z=0 out to -Z; origin bottom-back centre.",
+      "tags": [
+        "museum",
+        "trim",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-pilaster.json",
+      "created_at": "2026-11-16T22:51:44Z"
+    },
+    {
+      "name": "cfm-vitrine-motor",
+      "description": "Museum vitrine (1.0x0.8x1.5 m, front -Z): walnut plinth, brass kick strip and frames, glass case; an opened cast-iron 1882 fan motor with copper windings. Label THE 1882 MOTOR.",
+      "tags": [
+        "museum",
+        "vitrine",
+        "ceiling-fan-museum"
+      ],
+      "prompt": "",
+      "file": "cfm-vitrine-motor.json",
+      "created_at": "2026-11-16T23:00:09Z"
+    },
+    {
+      "name": "cfm-vitrine-blades",
+      "description": "Museum vitrine (1.0x0.8x1.5 m, front -Z): five antique fan blades of different woods fanned like a hand of cards on brass brackets. Label BLADES OF HISTORY.",
+      "tags": [
+        "museum",
+        "vitrine",
+        "ceiling-fan-museum"
+      ],
+      "prompt": "",
+      "file": "cfm-vitrine-blades.json",
+      "created_at": "2026-11-16T23:00:53Z"
+    },
+    {
+      "name": "cfm-track-light",
+      "description": "Ceiling Fan Museum ceiling track light: 3 m black rail along X with 4 spot heads tilted 35 deg (alternating to +/-Z), warm emissive lenses; origin top centre (y=0 mounts to ceiling), hangs ~0.24 m.",
+      "tags": [
+        "museum",
+        "light",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-track-light.json",
+      "created_at": "2026-11-16T22:53:18Z"
+    },
+    {
+      "name": "cfm-vitrine-chains",
+      "description": "Museum vitrine (1.0x0.8x1.5 m, front -Z): brass T-stand with three pull chains ending in a tiny brass fan, an acorn and a red bead. Label PULL CHAIN ARCHIVE.",
+      "tags": [
+        "museum",
+        "vitrine",
+        "ceiling-fan-museum"
+      ],
+      "prompt": "",
+      "file": "cfm-vitrine-chains.json",
+      "created_at": "2026-11-16T23:02:21Z"
+    },
+    {
+      "name": "cfm-banner-breeze",
+      "description": "Ceiling Fan Museum hanging banner FEEL THE BREEZE with fan icon, navy and gold, 1.2 x 3.0 m, slight wave, both faces read; brass rod with finials; origin rod centre top (y=0).",
+      "tags": [
+        "museum",
+        "banner",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-banner-breeze.json",
+      "created_at": "2026-11-16T22:55:19Z"
+    },
+    {
+      "name": "cfm-vitrine-patent",
+      "description": "Museum vitrine (1.0x0.8x1.5 m, front -Z): framed ceiling-fan patent drawing (U.S. PATENT 1,234,567) on a small walnut easel, with a fountain pen. Label THE ORIGINAL PATENT.",
+      "tags": [
+        "museum",
+        "vitrine",
+        "ceiling-fan-museum"
+      ],
+      "prompt": "",
+      "file": "cfm-vitrine-patent.json",
+      "created_at": "2026-11-16T23:01:47Z"
+    },
+    {
+      "name": "cfm-banner-since",
+      "description": "Ceiling Fan Museum hanging banner SINCE 1882 with fan icon, navy and gold, 1.2 x 3.0 m, slight wave, both faces read; brass rod with finials; origin rod centre top (y=0).",
+      "tags": [
+        "museum",
+        "banner",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-banner-since.json",
+      "created_at": "2026-11-16T22:57:18Z"
+    },
+    {
+      "name": "cfm-banner-spin",
+      "description": "Ceiling Fan Museum hanging banner KEEP SPINNING with fan icon, navy and gold, 1.2 x 3.0 m, slight wave, both faces read; brass rod with finials; origin rod centre top (y=0).",
+      "tags": [
+        "museum",
+        "banner",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-banner-spin.json",
+      "created_at": "2026-11-16T22:58:31Z"
+    },
+    {
+      "name": "cfm-vitrine-remote",
+      "description": "Museum vitrine (1.0x0.8x1.5 m, front -Z): vintage fan controls - brass rotary speed dial plate, wooden slider control and a chunky 80s remote. Label CONTROL THROUGH THE AGES.",
+      "tags": [
+        "museum",
+        "vitrine",
+        "ceiling-fan-museum"
+      ],
+      "prompt": "",
+      "file": "cfm-vitrine-remote.json",
+      "created_at": "2026-11-16T23:01:39Z"
+    },
+    {
+      "name": "cfm-plant",
+      "description": "Ceiling Fan Museum potted fiddle-leaf fig, ~1.8 m tall, flared brass pot (0.5 m dia), solid round leaves; origin bottom centre.",
+      "tags": [
+        "museum",
+        "plant",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-plant.json",
+      "created_at": "2026-11-16T22:59:27Z"
+    },
+    {
+      "name": "cfm-desk-lo-mount",
+      "description": "Low-poly desk fan stand for the Möbius (48 tris): faces +Z, rotor hub at (0, 0.28, 0.03).",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-desk-lo-mount.json",
+      "created_at": "2026-11-16T23:00:19Z"
+    },
+    {
+      "name": "cfm-desk-lo-rotor",
+      "description": "Low-poly desk fan rotor for the Möbius (8 tris): 4 blades as two crossed sheets, spin axis +Y.",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-desk-lo-rotor.json",
+      "created_at": "2026-11-16T23:00:22Z"
+    },
+    {
+      "name": "cfm-poster-breezeway",
+      "description": "Framed 1950s fan ad poster BREEZEWAY FANS - Cool As A Cucumber!, 0.9 x 1.3 m gilt frame 0.05 deep; back on z=0, picture faces -Z; origin bottom-back centre.",
+      "tags": [
+        "museum",
+        "poster",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-poster-breezeway.json",
+      "created_at": "2026-11-16T23:00:40Z"
+    },
+    {
+      "name": "cfm-poster-whirlwind",
+      "description": "Framed 1950s fan ad poster THE WHIRLWIND DELUXE - Now With 3 Speeds, 0.9 x 1.3 m gilt frame 0.05 deep; back on z=0, picture faces -Z; origin bottom-back centre.",
+      "tags": [
+        "museum",
+        "poster",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-poster-whirlwind.json",
+      "created_at": "2026-11-16T23:01:42Z"
+    },
+    {
+      "name": "cfm-poster-aerodyne",
+      "description": "Framed 1950s fan ad poster AERODYNE - The Fan Of Tomorrow, 0.9 x 1.3 m gilt frame 0.05 deep; back on z=0, picture faces -Z; origin bottom-back centre.",
+      "tags": [
+        "museum",
+        "poster",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-poster-aerodyne.json",
+      "created_at": "2026-11-16T23:01:42Z"
+    },
+    {
+      "name": "cfm-sign",
+      "description": "Hanging two-sided museum sign; skins (variants): start, history, fame, curiosities, exit. Origin top centre (ceiling), board centre y -2.6.",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-sign.json",
+      "created_at": "2026-11-16T23:23:21Z"
+    },
+    {
+      "name": "cfm-timeline",
+      "description": "Wall-mounted dated history panel; skins: five, propeller, eight, four, two, leaf, ten, caged, three. Origin bottom-back centre, faces +Z.",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-timeline.json",
+      "created_at": "2026-11-16T23:23:29Z"
+    },
+    {
+      "name": "cfm-placard",
+      "description": "Exhibit placard on a brass stand, reading toward -Z; skins: ring, chandelier, spoons, hands, tentacle, vinyl. Origin at the stand's foot.",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-placard.json",
+      "created_at": "2026-11-16T23:23:34Z"
+    },
+    {
+      "name": "cfm-banner",
+      "description": "Hanging fabric banner on a brass rod, two-sided; skins: breeze, since, spin. Origin rod top centre.",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-banner.json",
+      "created_at": "2026-11-16T23:23:51Z"
+    },
+    {
+      "name": "cfm-poster",
+      "description": "Framed vintage fan advert poster, picture toward -Z; skins: breezeway, whirlwind, aerodyne. Origin bottom-back centre.",
+      "tags": [],
+      "prompt": "",
+      "file": "cfm-poster.json",
+      "created_at": "2026-11-16T23:23:46Z"
+    },
+    {
+      "name": "cfm-building-interior",
+      "description": "Ceiling Fan Museum load-in interior: one-sided inward walls/floor/ceiling, frosted lit shopfronts, daylight door plane, EXIT sign. Same coords as cfm-building.",
+      "tags": [
+        "interior",
+        "museum",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-building-interior.json",
+      "created_at": "2026-11-16T23:27:56Z"
+    },
+    {
+      "name": "cfm-annex-interior",
+      "description": "Ceiling Fan Museum annex load-in interior: one-sided inward floor/walls/ceiling incl. east wall (museum side) with doorway; partition, signs, railing, spotlights kept. Same coords as cfm-annex.",
+      "tags": [
+        "interior",
+        "museum",
+        "cfm"
+      ],
+      "prompt": "",
+      "file": "cfm-annex-interior.json",
+      "created_at": "2026-11-16T23:28:18Z"
+    },
+    {
+      "name": "cfm-museum-exterior",
+      "description": "Ceiling Fan Museum + annex exterior only (one-sided outward walls, roofs, facade sign, tinted shopfronts, closed sliding doors, canopy, bollards, parking lot). Same coordinates as cfm-building.",
+      "tags": [
+        "building",
+        "exterior",
+        "museum"
+      ],
+      "prompt": "",
+      "file": "cfm-museum-exterior.json",
+      "created_at": "2026-11-16T23:28:28Z"
+    },
+    {
+      "name": "sf-slalom-low-bridge",
+      "description": "",
+      "tags": [
+        "surf"
+      ],
+      "prompt": "",
+      "file": "sf-slalom-low-bridge.json",
+      "created_at": "2026-11-16T23:33:02Z"
+    },
+    {
+      "name": "sf-slalom-duck-sign",
+      "description": "",
+      "tags": [
+        "surf"
+      ],
+      "prompt": "",
+      "file": "sf-slalom-duck-sign.json",
+      "created_at": "2026-11-16T23:33:02Z"
+    },
+    {
+      "name": "sf-slalom-tower",
+      "description": "",
+      "tags": [
+        "surf"
+      ],
+      "prompt": "",
+      "file": "sf-slalom-tower.json",
+      "created_at": "2026-11-16T23:33:02Z"
+    },
+    {
+      "name": "surf-train-car",
+      "description": "",
+      "tags": [
+        "surf",
+        "train"
+      ],
+      "prompt": "",
+      "file": "surf-train-car.json",
+      "created_at": "2026-11-16T23:37:05Z"
+    },
+    {
+      "name": "surf-train-nose",
+      "description": "",
+      "tags": [
+        "surf",
+        "train"
+      ],
+      "prompt": "",
+      "file": "surf-train-nose.json",
+      "created_at": "2026-11-16T23:38:52Z"
+    },
+    {
+      "name": "surf-train-beam",
+      "description": "",
+      "tags": [
+        "surf",
+        "train"
+      ],
+      "prompt": "",
+      "file": "surf-train-beam.json",
+      "created_at": "2026-11-16T23:37:25Z"
+    },
+    {
+      "name": "surf-train-pylon",
+      "description": "",
+      "tags": [
+        "surf",
+        "train"
+      ],
+      "prompt": "",
+      "file": "surf-train-pylon.json",
+      "created_at": "2026-11-16T23:37:30Z"
+    },
+    {
+      "name": "surf-train-head",
+      "description": "",
+      "tags": [
+        "surf",
+        "train"
+      ],
+      "prompt": "",
+      "file": "surf-train-head.json",
+      "created_at": "2026-11-16T23:37:47Z"
+    },
+    {
+      "name": "sf-tower-shell",
+      "description": "Surf map skyscraper complex (shell), built from surf_tower.rs layout",
+      "tags": [
+        "surf",
+        "tower"
+      ],
+      "prompt": "",
+      "file": "sf-tower-shell.json",
+      "created_at": "2026-11-16T23:43:23Z"
+    },
+    {
+      "name": "sf-tower-interior",
+      "description": "Surf map skyscraper complex (interior), built from surf_tower.rs layout",
+      "tags": [
+        "surf",
+        "tower"
+      ],
+      "prompt": "",
+      "file": "sf-tower-interior.json",
+      "created_at": "2026-11-16T23:43:22Z"
     }
   ]
 }

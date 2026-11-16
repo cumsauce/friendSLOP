@@ -1,0 +1,294 @@
+{
+  "format_version": 1,
+  "name": "cfm-bench",
+  "parts": [],
+  "version": 88358,
+  "ops": [
+    {
+      "primitive": {
+        "name": "cushion",
+        "kind": "box",
+        "size": [
+          2.0,
+          0.1,
+          0.5
+        ],
+        "translation": [
+          0.0,
+          0.4,
+          0.0
+        ],
+        "rotation": null,
+        "round": 0.02,
+        "segments": 1
+      }
+    },
+    {
+      "primitive": {
+        "name": "rail",
+        "kind": "box",
+        "size": [
+          1.9,
+          0.06,
+          0.42
+        ],
+        "translation": [
+          0.0,
+          0.32,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "leg_l",
+        "kind": "box",
+        "size": [
+          0.06,
+          0.29,
+          0.42
+        ],
+        "translation": [
+          -0.85,
+          0.145,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "leg_r",
+        "kind": "box",
+        "size": [
+          0.06,
+          0.29,
+          0.42
+        ],
+        "translation": [
+          0.85,
+          0.145,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "cushion",
+        "input": "cushion",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-navy-velvet",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 3,
+                "size": 0.03,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141c38"
+                  ],
+                  [
+                    1,
+                    "#24305a"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.95,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "rail",
+        "input": "rail",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-walnut",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 5,
+                "seed": 9,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#2e1a0e"
+                  ],
+                  [
+                    0.5,
+                    "#4a2c18"
+                  ],
+                  [
+                    1,
+                    "#6b4428"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "leg_l",
+        "input": "leg_l",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-walnut",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 5,
+                "seed": 9,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#2e1a0e"
+                  ],
+                  [
+                    0.5,
+                    "#4a2c18"
+                  ],
+                  [
+                    1,
+                    "#6b4428"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "leg_r",
+        "input": "leg_r",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-walnut",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 5,
+                "seed": 9,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#2e1a0e"
+                  ],
+                  [
+                    0.5,
+                    "#4a2c18"
+                  ],
+                  [
+                    1,
+                    "#6b4428"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

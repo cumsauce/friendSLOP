@@ -55,6 +55,8 @@ pub struct MusicControl {
     climb: AtomicU32,
     /// Ducking level (f32 bits); 0 bits reads as "no ducking".
     duck: AtomicU32,
+    /// Live signals songs follow (f32 bits), in `fusion::live::names` order.
+    live: [AtomicU32; fusion::live::LIVE],
 }
 
 impl MusicControl {
@@ -80,6 +82,17 @@ impl MusicControl {
     pub fn set_duck(&self, level: f32) {
         self.duck
             .store(level.clamp(0.0, 1.0).to_bits(), Ordering::Relaxed);
+    }
+
+    /// A live signal's value (slot from `fusion::live::names`).
+    pub fn set_live(&self, slot: usize, value: f32) {
+        if let Some(s) = self.live.get(slot) {
+            s.store(value.clamp(0.0, 1.0).to_bits(), Ordering::Relaxed);
+        }
+    }
+
+    pub fn live(&self) -> [f32; fusion::live::LIVE] {
+        std::array::from_fn(|i| f32::from_bits(self.live[i].load(Ordering::Relaxed)))
     }
 
     pub fn duck(&self) -> f32 {
@@ -150,6 +163,7 @@ impl Iterator for FusionSource {
         if self.i >= CHUNK {
             let control = &self.control;
             self.engine.set_duck(control.duck());
+            self.engine.set_live(&control.live());
             self.engine.render(&mut self.buf, &mut || control.cue());
             self.i = 0;
         }
@@ -191,7 +205,13 @@ pub fn plugin(app: &mut App) {
         .init_resource::<MusicSignals>()
         .add_systems(
             Update,
-            (follow_player, direct, duck_for_voice, music_volume)
+            (
+                follow_player,
+                direct,
+                duck_for_voice,
+                live_signals,
+                music_volume,
+            )
                 .chain()
                 .after(MusicSignalSet),
         );
@@ -384,6 +404,14 @@ fn follow_player(
         .filter(|(p, w)| Some(p.id) != my_id && w.pos.distance(at) < FRIEND_RANGE)
         .count();
     link.0.set_motion(motion.storey, motion.vy / 1.5);
+}
+
+/// The signals songs follow live (a part's `follow:`), copied to the audio
+/// thread every frame.
+fn live_signals(signals: Res<MusicSignals>, link: Res<MusicLink>) {
+    for (slot, name) in fusion::live::names().iter().enumerate() {
+        link.0.set_live(slot, signals.get(name));
+    }
 }
 
 /// The band backs off while someone's talking (a little for your own
@@ -841,6 +869,7 @@ mod tests {
             "miami",
             "factory_town",
             "surf",
+            "airborne",
             "boba",
             "penn_njt",
             "penn_lirr",

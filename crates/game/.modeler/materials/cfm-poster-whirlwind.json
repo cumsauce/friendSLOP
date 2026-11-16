@@ -1,0 +1,738 @@
+{
+  "name": "cfm-poster-whirlwind",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        0.8,
+        1.2
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.4,
+        0.6
+      ],
+      "coords": "c",
+      "name": "sun",
+      "radius": 0.3,
+      "type": "circle"
+    },
+    {
+      "name": "msun",
+      "sdf": "sun",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.4,
+        1.03
+      ],
+      "coords": "c",
+      "name": "band",
+      "size": [
+        0.8,
+        0.26
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "mband",
+      "sdf": "band",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.4,
+        0.6
+      ],
+      "coords": "c",
+      "name": "hub",
+      "radius": 0.05,
+      "type": "circle"
+    },
+    {
+      "coords": "c",
+      "name": "bl0",
+      "points": [
+        [
+          0.4217,
+          0.5504
+        ],
+        [
+          0.4682,
+          0.414
+        ],
+        [
+          0.4124,
+          0.3706
+        ],
+        [
+          0.3504,
+          0.3954
+        ],
+        [
+          0.3783,
+          0.5504
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "a": "hub",
+      "b": "bl0",
+      "name": "fu0",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "coords": "c",
+      "name": "bl1",
+      "points": [
+        [
+          0.3504,
+          0.5783
+        ],
+        [
+          0.214,
+          0.5318
+        ],
+        [
+          0.1706,
+          0.5876
+        ],
+        [
+          0.1954,
+          0.6496
+        ],
+        [
+          0.3504,
+          0.6217
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "a": "fu0",
+      "b": "bl1",
+      "name": "fu1",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "coords": "c",
+      "name": "bl2",
+      "points": [
+        [
+          0.3783,
+          0.6496
+        ],
+        [
+          0.3318,
+          0.786
+        ],
+        [
+          0.3876,
+          0.8294
+        ],
+        [
+          0.4496,
+          0.8046
+        ],
+        [
+          0.4217,
+          0.6496
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "a": "fu1",
+      "b": "bl2",
+      "name": "fu2",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "coords": "c",
+      "name": "bl3",
+      "points": [
+        [
+          0.4496,
+          0.6217
+        ],
+        [
+          0.586,
+          0.6682
+        ],
+        [
+          0.6294,
+          0.6124
+        ],
+        [
+          0.6046,
+          0.5504
+        ],
+        [
+          0.4496,
+          0.5783
+        ]
+      ],
+      "type": "polygon"
+    },
+    {
+      "a": "fu2",
+      "b": "bl3",
+      "name": "fu3",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mfan",
+      "sdf": "fu3",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.4,
+        0.14
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "ht0",
+      "size": 0.068,
+      "text": "THE WHIRLWIND",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.4,
+        0.26
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "ht1",
+      "size": 0.11,
+      "text": "DELUXE",
+      "type": "text"
+    },
+    {
+      "a": "ht0",
+      "b": "ht1",
+      "name": "htu1",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mht",
+      "sdf": "htu1",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.4,
+        0.97
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "bt0",
+      "size": 0.07,
+      "text": "NOW WITH",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.4,
+        1.08
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "bt1",
+      "size": 0.095,
+      "text": "3 SPEEDS",
+      "type": "text"
+    },
+    {
+      "a": "bt0",
+      "b": "bt1",
+      "name": "btu1",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mbt",
+      "sdf": "btu1",
+      "type": "mask"
+    },
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 9,
+      "size": 0.02,
+      "type": "noise"
+    },
+    {
+      "a": "#f2d27a",
+      "b": "#e8833a",
+      "c": "msun",
+      "name": "c1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "#7a1f1a",
+      "c": "mfan",
+      "name": "c2",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c2",
+      "b": "#7a1f1a",
+      "c": "mht",
+      "name": "c3",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c3",
+      "b": "#24406e",
+      "c": "mband",
+      "name": "c4",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c4",
+      "b": "#f6ecd0",
+      "c": "mbt",
+      "name": "c5",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "in": [
+        0,
+        1
+      ],
+      "input": "n",
+      "name": "grain",
+      "type": "levels"
+    },
+    {
+      "a": "grain",
+      "b": 0.12,
+      "name": "g2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "g2",
+      "b": 0.88,
+      "name": "g3",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "c5",
+      "b": "g3",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.6,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-poster-whirlwind",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                0.8,
+                1.2
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.4,
+                0.6
+              ],
+              "coords": "c",
+              "name": "sun",
+              "radius": 0.3,
+              "type": "circle"
+            },
+            {
+              "name": "msun",
+              "sdf": "sun",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                1.03
+              ],
+              "coords": "c",
+              "name": "band",
+              "size": [
+                0.8,
+                0.26
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mband",
+              "sdf": "band",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                0.6
+              ],
+              "coords": "c",
+              "name": "hub",
+              "radius": 0.05,
+              "type": "circle"
+            },
+            {
+              "coords": "c",
+              "name": "bl0",
+              "points": [
+                [
+                  0.4217,
+                  0.5504
+                ],
+                [
+                  0.4682,
+                  0.414
+                ],
+                [
+                  0.4124,
+                  0.3706
+                ],
+                [
+                  0.3504,
+                  0.3954
+                ],
+                [
+                  0.3783,
+                  0.5504
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "hub",
+              "b": "bl0",
+              "name": "fu0",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "coords": "c",
+              "name": "bl1",
+              "points": [
+                [
+                  0.3504,
+                  0.5783
+                ],
+                [
+                  0.214,
+                  0.5318
+                ],
+                [
+                  0.1706,
+                  0.5876
+                ],
+                [
+                  0.1954,
+                  0.6496
+                ],
+                [
+                  0.3504,
+                  0.6217
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "fu0",
+              "b": "bl1",
+              "name": "fu1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "coords": "c",
+              "name": "bl2",
+              "points": [
+                [
+                  0.3783,
+                  0.6496
+                ],
+                [
+                  0.3318,
+                  0.786
+                ],
+                [
+                  0.3876,
+                  0.8294
+                ],
+                [
+                  0.4496,
+                  0.8046
+                ],
+                [
+                  0.4217,
+                  0.6496
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "fu1",
+              "b": "bl2",
+              "name": "fu2",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "coords": "c",
+              "name": "bl3",
+              "points": [
+                [
+                  0.4496,
+                  0.6217
+                ],
+                [
+                  0.586,
+                  0.6682
+                ],
+                [
+                  0.6294,
+                  0.6124
+                ],
+                [
+                  0.6046,
+                  0.5504
+                ],
+                [
+                  0.4496,
+                  0.5783
+                ]
+              ],
+              "type": "polygon"
+            },
+            {
+              "a": "fu2",
+              "b": "bl3",
+              "name": "fu3",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mfan",
+              "sdf": "fu3",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                0.14
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "ht0",
+              "size": 0.068,
+              "text": "THE WHIRLWIND",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.4,
+                0.26
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "ht1",
+              "size": 0.11,
+              "text": "DELUXE",
+              "type": "text"
+            },
+            {
+              "a": "ht0",
+              "b": "ht1",
+              "name": "htu1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mht",
+              "sdf": "htu1",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.4,
+                0.97
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "bt0",
+              "size": 0.07,
+              "text": "NOW WITH",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.4,
+                1.08
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "bt1",
+              "size": 0.095,
+              "text": "3 SPEEDS",
+              "type": "text"
+            },
+            {
+              "a": "bt0",
+              "b": "bt1",
+              "name": "btu1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mbt",
+              "sdf": "btu1",
+              "type": "mask"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 9,
+              "size": 0.02,
+              "type": "noise"
+            },
+            {
+              "a": "#f2d27a",
+              "b": "#e8833a",
+              "c": "msun",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#7a1f1a",
+              "c": "mfan",
+              "name": "c2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#7a1f1a",
+              "c": "mht",
+              "name": "c3",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#24406e",
+              "c": "mband",
+              "name": "c4",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c4",
+              "b": "#f6ecd0",
+              "c": "mbt",
+              "name": "c5",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "in": [
+                0,
+                1
+              ],
+              "input": "n",
+              "name": "grain",
+              "type": "levels"
+            },
+            {
+              "a": "grain",
+              "b": 0.12,
+              "name": "g2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "g2",
+              "b": 0.88,
+              "name": "g3",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "c5",
+              "b": "g3",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.6,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +sun +msun +band +mband +hub +bl0 +fu0 +bl1 +fu1 +bl2 +fu2 +bl3 +fu3 +mfan +ht0 +ht1 +htu1 +mht +bt0 +bt1 +btu1 +mbt +n +c1 +c2 +c3 +c4 +c5 +grain +g2 +g3 +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

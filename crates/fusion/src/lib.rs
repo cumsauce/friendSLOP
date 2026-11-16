@@ -24,6 +24,7 @@ pub mod dsp;
 pub mod engine;
 pub mod fx;
 pub mod inst;
+pub mod live;
 pub mod render;
 pub mod synth;
 pub mod theory;

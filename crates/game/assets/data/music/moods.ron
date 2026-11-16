@@ -47,11 +47,16 @@
 //     Melody(style: "fusion", theme: "signature") | Answer() | Harmony(steps: -2) (the
 //     melody doubled a diatonic third below; -5 a sixth below) | Horns(style: "fusion",
 //     stabs: true, swells: true) | Pad(under: "lead", after_swell: true) |
+//     Arpeggio(dir: Up | Down | UpDown, every: 2 (steps per note), octaves: 1, gate: 0.6
+//       (how much of its step each note holds); all optional) |
 //     Lane(lane: "shaker") | Kime(rhythms: "fusion", bass: Bass, keys: EPiano, horn: PolyBrass)
 //     | Bells;
 //   inst (who plays it), sections / not (where), when (conditions, see library.ron),
 //   intensity: (lo, hi), bus and layer (its mix bus and level rules; default: always on),
 //   register: (lo, hi).
+//   follow: (signal: "<name>", fade: secs (0.4), invert: false): its level follows a
+//     signal live (0..1, eased over `fade`), not bar by bar: e.g. "airborne" (in the surf
+//     hall, off the ground). invert plays it while the signal is 0.
 //   auto: [lanes] moves its sound over time (electronic music's automation). A lane:
 //     (param: "<setting>": any number in its instrument's engine in instruments.ron
 //        (Fm and Sub: "cut_base", "k", "env_oct", "i1_sus", "vibrato", "detune"...),

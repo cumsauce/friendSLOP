@@ -34,7 +34,7 @@ use crate::inst::{Engine, Foley, Hit, KitSample, Pan, Spec, Table, Voice, table}
 
 /// Engine sample rate.
 pub const RATE: u32 = 44_100;
-const INV_RATE: f32 = 1.0 / RATE as f32;
+pub const INV_RATE: f32 = 1.0 / RATE as f32;
 
 pub use crate::inst::Inst;
 
@@ -1989,6 +1989,11 @@ pub struct Band {
     pub auto: Vec<crate::auto::Lane>,
     pub auto_pos: f32,
     pub auto_step: f32,
+    /// Live signals from the game (targets, 0..1), their eased levels, and
+    /// the parts following them this bar.
+    pub live: [f32; crate::live::LIVE],
+    live_level: [f32; crate::live::LIVE],
+    pub follow: Vec<crate::live::Followed>,
     /// Reverb and echo send scales, eased towards their targets.
     wet: f32,
     pub wet_target: f32,
@@ -2123,6 +2128,9 @@ impl Band {
             auto: Vec::new(),
             auto_pos: 0.0,
             auto_step: 0.0,
+            live: [0.0; crate::live::LIVE],
+            live_level: [0.0; crate::live::LIVE],
+            follow: Vec::new(),
             wet: 1.0,
             wet_target: 1.0,
             echo_amt: 1.0,
@@ -2507,15 +2515,32 @@ impl Band {
         // block's middle: 256 samples is ~6 ms).
         let (p0, p1) = (self.auto_pos, self.auto_pos + n as f32 * self.auto_step);
         self.auto_pos = p1;
+        // Live follows: each slot eases towards the game's value (at the
+        // first follower's fade), and a follower plays at its slot's level.
+        let l0 = self.live_level;
+        for f in &self.follow {
+            let target = self.live[f.slot];
+            let target = if f.invert { 1.0 - target } else { target };
+            if self.live_level[f.slot] == l0[f.slot] {
+                self.live_level[f.slot] = crate::live::ease(l0[f.slot], target, f.fade, n);
+            }
+        }
+        let l1 = self.live_level;
+        let follow = &self.follow;
         let lanes = &self.auto;
         let table = &self.table;
         let mid = 0.5 * (p0 + p1);
         let gain = |inst: Inst| {
-            if lanes.is_empty() {
+            let (mut a, mut b) = if lanes.is_empty() {
                 (1.0, 1.0)
             } else {
                 crate::auto::gain(lanes, inst, p0, p1)
+            };
+            if let Some(f) = follow.iter().find(|f| f.inst == inst) {
+                a *= l0[f.slot];
+                b *= l1[f.slot];
             }
+            (a, b)
         };
         let on = |inst: Inst| lanes.iter().any(|l| l.inst == inst);
         for v in self

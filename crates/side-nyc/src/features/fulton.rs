@@ -2288,6 +2288,7 @@ pub fn plugin(app: &mut App) {
     );
     crate::features::start::provide(starts);
     app.add_observer(click)
+        .add_observer(merge_ready)
         .add_systems(OnExit(AppState::InGame), |mut commands: Commands| {
             commands.remove_resource::<Station>()
         })
@@ -2295,6 +2296,7 @@ pub fn plugin(app: &mut App) {
             Update,
             (
                 stream_levels,
+                merge_levels.after(stream_levels),
                 hide_surface,
                 follow_light,
                 light_shadows,
@@ -2702,6 +2704,7 @@ fn stream_levels(
                 }
                 commands.spawn((
                     model(&assets, file),
+                    Merge,
                     Transform::from_translation(at).with_rotation(f.rotation()),
                     ChildOf(root),
                 ));
@@ -2727,6 +2730,7 @@ fn stream_levels(
                         };
                         commands.spawn((
                             model(&assets, &set.room.wall),
+                            Merge,
                             Transform::from_translation(at).with_rotation(turn.rotation()),
                             ChildOf(root),
                         ));
@@ -2740,7 +2744,7 @@ fn stream_levels(
             if file.is_empty() {
                 continue;
             }
-            commands.spawn((model(&assets, file), sh.transform, ChildOf(root)));
+            commands.spawn((model(&assets, file), Merge, sh.transform, ChildOf(root)));
         }
         // The big rooms' dressing (benches, crates, drums, puddles...).
         for d in room_dressing(&t, li, level) {
@@ -2756,6 +2760,7 @@ fn stream_levels(
             for at in room_columns(&t, li, level) {
                 commands.spawn((
                     model(&assets, &set.room.column),
+                    Merge,
                     Transform::from_translation(at),
                     ChildOf(root),
                 ));
@@ -2769,10 +2774,177 @@ fn stream_levels(
             };
             commands.spawn((
                 model(&assets, file),
+                Merge,
                 Transform::from_translation(s.at).with_rotation(Quat::from_rotation_y(s.yaw)),
                 ChildOf(root),
             ));
         }
+    }
+}
+
+/// Local: a level's static model pieces (tiles, room walls and floors, tall
+/// rooms' pieces, columns, signs), merged into one mesh per material once
+/// they've all loaded, so a level is a few draws instead of hundreds.
+#[derive(Component)]
+struct Merge;
+
+/// A [`Merge`] piece whose model has spawned.
+#[derive(Component)]
+struct MergeReady;
+
+/// A level whose pieces have been merged.
+#[derive(Component)]
+struct LevelMerged;
+
+fn merge_ready(
+    ready: On<bevy::world_serialization::WorldInstanceReady>,
+    mut commands: Commands,
+    marked: Query<(), With<Merge>>,
+) {
+    if marked.contains(ready.entity) {
+        commands.entity(ready.entity).try_insert(MergeReady);
+    }
+}
+
+/// What makes two of the pieces' materials look the same: the files' own
+/// copies of a shared material (same textures, same numbers) merge together.
+fn material_key(m: &StandardMaterial) -> String {
+    let id = |h: &Option<Handle<Image>>| h.as_ref().map(|h| h.id());
+    format!(
+        "{:?}",
+        (
+            (
+                m.base_color,
+                id(&m.base_color_texture),
+                m.base_color_channel.clone()
+            ),
+            (
+                m.emissive,
+                id(&m.emissive_texture),
+                m.emissive_exposure_weight
+            ),
+            (
+                m.perceptual_roughness,
+                m.metallic,
+                id(&m.metallic_roughness_texture)
+            ),
+            (
+                m.reflectance,
+                id(&m.normal_map_texture),
+                m.flip_normal_map_y
+            ),
+            (
+                id(&m.occlusion_texture),
+                m.double_sided,
+                m.cull_mode,
+                m.unlit
+            ),
+            (m.alpha_mode, m.depth_bias, m.uv_transform, m.fog_enabled),
+            (m.diffuse_transmission, m.specular_transmission, m.clearcoat),
+        )
+    )
+}
+
+/// `e`'s transform into `root`'s frame (the root's own left out).
+fn to_root(
+    e: Entity,
+    root: Entity,
+    nodes: &Query<(&Transform, Option<&ChildOf>)>,
+) -> bevy::math::Affine3A {
+    let mut acc = bevy::math::Affine3A::IDENTITY;
+    let mut at = e;
+    while at != root {
+        let Ok((tf, parent)) = nodes.get(at) else {
+            break;
+        };
+        acc = tf.compute_affine() * acc;
+        let Some(parent) = parent else { break };
+        at = parent.parent();
+    }
+    acc
+}
+
+/// Local: once every [`Merge`] piece of a level has spawned, their meshes are
+/// baked into one mesh per material (children of the level, so they go with
+/// it) and the pieces are despawned. A mesh that can't be merged stays put.
+#[allow(clippy::type_complexity)]
+fn merge_levels(
+    mut commands: Commands,
+    levels: Query<(Entity, &Children), (With<LevelModels>, Without<LevelMerged>)>,
+    pieces: Query<Has<MergeReady>, With<Merge>>,
+    children: Query<&Children>,
+    nodes: Query<(&Transform, Option<&ChildOf>)>,
+    drawn: Query<
+        (
+            Option<&MeshMaterial3d<StandardMaterial>>,
+            Has<bevy::mesh::skinning::SkinnedMesh>,
+        ),
+        With<Mesh3d>,
+    >,
+    mesh_of: Query<&Mesh3d>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    materials: Res<Assets<StandardMaterial>>,
+) {
+    use friendslop_structures::batch::{MeshBatch, layout};
+    for (root, kids) in &levels {
+        let roots: Vec<Entity> = kids.iter().filter(|&e| pieces.contains(e)).collect();
+        if roots.iter().any(|&e| !matches!(pieces.get(e), Ok(true))) {
+            continue;
+        }
+        let mut groups: Vec<(String, Handle<StandardMaterial>, MeshBatch)> = Vec::new();
+        for &r in &roots {
+            let mut all = true;
+            let mut merged = Vec::new();
+            for e in children.iter_descendants(r) {
+                let Ok((mat, skinned)) = drawn.get(e) else {
+                    continue;
+                };
+                let (Some(mat), false, Ok(m)) = (mat, skinned, mesh_of.get(e)) else {
+                    all = false;
+                    continue;
+                };
+                let (Some(mesh), Some(material)) = (meshes.get(&m.0), materials.get(&mat.0)) else {
+                    all = false;
+                    continue;
+                };
+                let Some(lay) = layout(mesh) else {
+                    all = false;
+                    continue;
+                };
+                let key = format!("{}{lay:?}", material_key(material));
+                let i = match groups.iter().position(|g| g.0 == key) {
+                    Some(i) => i,
+                    None => {
+                        groups.push((key, mat.0.clone(), MeshBatch::default()));
+                        groups.len() - 1
+                    }
+                };
+                if groups[i].2.push(mesh, to_root(e, root, &nodes)) {
+                    merged.push(e);
+                } else {
+                    all = false;
+                }
+            }
+            if all {
+                commands.entity(r).despawn();
+            } else {
+                for e in merged {
+                    commands.entity(e).remove::<Mesh3d>();
+                }
+            }
+        }
+        for (_, material, batch) in groups {
+            if batch.is_empty() {
+                continue;
+            }
+            commands.spawn((
+                Mesh3d(meshes.add(batch.build())),
+                MeshMaterial3d(material),
+                Transform::default(),
+                ChildOf(root),
+            ));
+        }
+        commands.entity(root).insert(LevelMerged);
     }
 }
 

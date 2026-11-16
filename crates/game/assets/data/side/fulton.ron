@@ -39,16 +39,18 @@
     platform_max: 6,
     // Lights: one under every cell's fluorescent fittings (lumens, reach in
     // m, height above the floor), and a dim one that goes with you so dark
-    // corners aren't pitch black.
+    // corners aren't pitch black. Kept low on purpose: the camera's eye
+    // adaptation (graphics.ron) brightens a scene only a little darker than
+    // daylight back up, so a dim subway has to be well under it.
     light: (
-        cell_lumens: 45000.0,
+        cell_lumens: 6000.0,
         cell_range: 9.0,
         cell_height: 3.4,
-        follow_lumens: 15000.0,
+        follow_lumens: 2500.0,
         follow_range: 8.0,
         // Reflections: the station's baked probe ("fulton", baked in a hall;
         // FRIENDSLOP_BAKE=1), this bright.
-        probe: 1.0,
+        probe: 0.4,
         // The nearest this many cell lights cast shadows (0 for none).
         shadow_lights: 2,
         // How dark it is down here (no sky, a dim haze): data/base/place_looks.ron ("fulton").

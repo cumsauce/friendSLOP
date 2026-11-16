@@ -211,6 +211,16 @@ fn relative(p: Vec2, at: Vec2, dir: Vec2) -> (f32, f32) {
 }
 
 /// Is someone at `p` under the cab?
+/// How far below the street (m) counts as under it: the stations and
+/// tunnels, where the cabs above can't reach you or be seen.
+const UNDER: f32 = 2.0;
+
+/// Pure: someone at this height is on the street (where a cab can honk at
+/// or hit them), not on a roof or down in a station under it.
+pub fn on_street(y: f32) -> bool {
+    (crate::rules::nyc::CITY_Y - UNDER..crate::rules::nyc::CITY_Y + 2.0).contains(&y)
+}
+
 pub fn hits(p: Vec2, at: Vec2, dir: Vec2) -> bool {
     let (ahead, side) = relative(p, at, dir);
     ahead.abs() < CAB_HALF.y + 0.3 && side.abs() < CAB_HALF.x + 0.3
@@ -287,7 +297,7 @@ fn drive(
 
         // Honk at anyone in the lane, and don't stop for them.
         let (at, dir, _) = pose(road, car.s);
-        let near = |p: &Vec3| p.y < crate::rules::nyc::CITY_Y + 2.0;
+        let near = |p: &Vec3| on_street(p.y);
         if now >= driving.honk_ready
             && bodies_at
                 .iter()
@@ -351,10 +361,11 @@ fn draw_cars(
     dresses: Query<(), With<crate::area::Dress>>,
 ) {
     let tu = tuning();
-    let near = camera
-        .iter()
-        .next()
-        .is_some_and(|g| super::nyc::city_drawn(g.translation().x, g.translation().z));
+    let near = camera.iter().next().is_some_and(|g| {
+        let p = g.translation();
+        // Not from the stations and tunnels under the streets.
+        p.y > crate::rules::nyc::CITY_Y - UNDER && super::nyc::city_drawn(p.x, p.z)
+    });
     let blend = 1.0 - (-15.0 * time.delta_secs()).exp();
     for (entity, car, transform, vis, children) in &mut cars {
         let Some(road) = tu.roads.get(car.route as usize) else {
@@ -487,5 +498,13 @@ mod tests {
         assert!(!in_the_way(Vec2::new(0.0, -10.0), at, dir, 20.0));
         assert!(hits(Vec2::new(0.5, 2.0), at, dir));
         assert!(!hits(Vec2::new(3.0, 0.0), at, dir));
+    }
+
+    #[test]
+    fn cabs_only_reach_people_on_the_street() {
+        let y = crate::rules::nyc::CITY_Y;
+        assert!(on_street(y) && on_street(y + 1.0));
+        // A roof, Fulton St's top level, a station under the street.
+        assert!(!on_street(y + 5.0) && !on_street(y - 12.0) && !on_street(y - 4.0));
     }
 }

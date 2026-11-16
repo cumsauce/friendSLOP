@@ -375,7 +375,8 @@ fn act(
                 let twitch = (secs * 13.0 + p.i as f32).sin() * 0.25;
                 if step.length_squared() > 1e-6 {
                     let look = step.normalize();
-                    tf.rotation = Quat::from_rotation_y(look.x.atan2(look.z) + twitch);
+                    tf.rotation =
+                        Quat::from_rotation_y(crate::people::yaw_toward(look.xz()) + twitch);
                 } else {
                     tf.rotation = Quat::from_rotation_y(yaw + twitch);
                 }
@@ -383,7 +384,7 @@ fn act(
             Kind::Preacher => {
                 if let Some(at) = nearest(p.home, &players, t.point_range) {
                     let d = at - p.home;
-                    tf.rotation = Quat::from_rotation_y(d.x.atan2(d.z));
+                    tf.rotation = Quat::from_rotation_y(crate::people::yaw_toward(d.xz()));
                 }
             }
             Kind::Performer => {

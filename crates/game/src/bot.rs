@@ -379,12 +379,14 @@ fn step_out(
 ) -> Out {
     match step {
         Step::Start(n) => match lookup(bot, points, n) {
-            // `aboard` marks the teleport done; then half a second to land.
-            Some(at) if !bot.aboard => {
-                bot.aboard = true;
+            // Teleport until we're really there (a ride's set-down or the
+            // controller can put us back the same tick), then half a second
+            // to land.
+            Some(at) if pos.distance(at) > 3.0 => {
                 bot.best = (0.0, bot.secs);
                 Out {
                     teleport: Some(at + Vec3::Y * 0.05),
+                    skip: bot.secs > t.give_up,
                     ..default()
                 }
             }
@@ -474,6 +476,14 @@ fn step_out(
             }
             // To the door first, then in through it.
             let (front, inside) = crate::features::trains::door_way(s);
+            if (bot.secs).fract() < 0.02 {
+                debug!(
+                    "bot ride: at {pos:.1} cleared {} aboard {} waiting {waiting} car {:?} front {front:.1} inside {inside:.1}",
+                    bot.cleared,
+                    bot.aboard,
+                    crate::features::trains::car_at(&trains, pos)
+                );
+            }
             if !bot.cleared {
                 // Out through the door and a couple of metres on.
                 let out = front + (front - inside).normalize_or_zero() * 2.0;

@@ -718,6 +718,15 @@ fn fade_blasts(
     }
 }
 
+/// Where a cat of `size` can be petted: its middle (it grows, so the pick point and the
+/// reach grow with it, matching the server's `SERVER_REACH + 0.5 * size`).
+pub fn pet_target(size: f32) -> super::interact::Clickable {
+    super::interact::Clickable::at_height(0.5 * size)
+        .radius(80.0)
+        .reach_bonus(0.5 * size)
+        .labelled("pet the cat")
+}
+
 /// Local: the time until this cat's next meow.
 #[derive(Component)]
 struct MeowIn {
@@ -749,9 +758,7 @@ fn dress_cats(
                 .with_rotation(Quat::from_rotation_y(cat.yaw))
                 .with_scale(Vec3::splat(cat.size)),
             Visibility::default(),
-            super::interact::Clickable::at_height(0.5)
-                .radius(80.0)
-                .labelled("pet the cat"),
+            pet_target(cat.size),
             crate::rigged::Rigged { path: CAT_MODEL },
             crate::rigged::RigClip::looping("idle"),
             CatAct::default(),
@@ -825,16 +832,23 @@ fn move_cats(
         &mut Transform,
         &mut CatAct,
         &mut crate::rigged::RigClip,
+        Option<&mut super::interact::Clickable>,
     )>,
 ) {
     let dt = time.delta_secs();
     let k = (dt * 8.0).min(1.0);
-    for (cat, lapping, mut tf, mut act, mut clip) in &mut cats {
+    for (cat, lapping, mut tf, mut act, mut clip, click) in &mut cats {
         let gap = cat.pos - tf.translation;
         let moving = gap.xz().length() > 0.02 * cat.size;
         tf.translation += gap * k;
         let size = tf.scale.x + (cat.size - tf.scale.x) * k;
         tf.scale = Vec3::splat(size);
+        if let Some(mut click) = click {
+            let want = pet_target(size);
+            if (click.height - want.height).abs() > 0.01 {
+                *click = want;
+            }
+        }
         tf.rotation = Quat::from_rotation_y(cat.yaw);
         if let Some((_, left)) = &mut act.0 {
             *left -= dt;
@@ -1070,6 +1084,22 @@ mod tests {
         assert_eq!(grown(2.0, true, 10.0), 2.0);
         assert!(grown(2.0, false, 1.0) > 2.0);
         assert_eq!(grown(MAX_SIZE - 0.01, false, 100.0), MAX_SIZE);
+    }
+
+    #[test]
+    fn a_grown_cat_is_petted_where_its_body_is() {
+        use super::super::interact::{REACH, SERVER_REACH, within};
+        let big = pet_target(4.0);
+        // The pick point rides up with the body, and you can reach it from beside
+        // its flank (2 m from its middle at size 4), as the server allows.
+        assert!(big.height >= 1.5, "pick point at {}", big.height);
+        let me = Vec3::new(REACH + 1.5, 0.0, 0.0);
+        assert!(within(me, Vec3::ZERO, big.reach()), "client reach");
+        assert!(
+            big.reach() <= SERVER_REACH + 0.5 * 4.0,
+            "never past the server's"
+        );
+        assert!(!within(me, Vec3::ZERO, pet_target(1.0).reach()));
     }
 
     #[test]

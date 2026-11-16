@@ -15,9 +15,17 @@ pub const STATION_TOP_Y: f32 = -12.0;
 /// Fulton St station: floor to floor, one level to the next (matches its tile kit).
 pub const STATION_LEVEL_H: f32 = 4.0;
 
+/// Fulton St station never goes deeper than this many levels (its data
+/// file's `levels` stays at or under it). Below that, under the city, hang
+/// other places (the trains' ride cars) that aren't the station.
+pub const STATION_MAX_LEVELS: usize = 48;
+
+/// The lowest feet height still in the station.
+pub const STATION_BOTTOM_Y: f32 = STATION_TOP_Y - STATION_MAX_LEVELS as f32 * STATION_LEVEL_H - 2.0;
+
 /// Is a body with feet at `feet` down in Fulton St station, under the city?
 pub fn in_station(feet: Vec3) -> bool {
-    in_city(feet.x, feet.z) && feet.y < STATION_TOP_Y + 2.0
+    in_city(feet.x, feet.z) && feet.y < STATION_TOP_Y + 2.0 && feet.y > STATION_BOTTOM_Y
 }
 
 /// The floor of the station level a body with feet at `y` stands on (headless walk).

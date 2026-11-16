@@ -1212,6 +1212,19 @@ mod tests {
     }
 
     #[test]
+    fn ride_cars_are_not_in_fulton_st() {
+        // In a ride car Fulton St must not hide the city, dim the light or
+        // have Andrew ring.
+        let t = t();
+        for line in 0..t.lines.len() {
+            for to in 0..2 {
+                let o = ride_origin(&t, line, to) + ABOARD;
+                assert!(!crate::rules::nyc::in_station(o), "ride car at {o}");
+            }
+        }
+    }
+
+    #[test]
     fn the_data_file_parses_and_has_everything() {
         let t = t();
         assert!(t.board_secs > 0.0 && t.ride_secs > t.board_secs);

@@ -17,7 +17,6 @@ use bevy::prelude::*;
 use bevy_landmass::{Archipelago3d, ArchipelagoOptions, ArchipelagoRef3d, FromAgentRadius};
 use bevy_replicon::prelude::*;
 use bevy_rerecast::prelude::{NavmeshGenerator, NavmeshReady, NavmeshSettings};
-use landmass_rerecast::{Island3dBundle, NavMeshHandle3d};
 use serde::Deserialize;
 
 use crate::AppState;
@@ -67,6 +66,75 @@ pub fn archipelago_options(radius: f32) -> ArchipelagoOptions<bevy_landmass::coo
     o.point_sample_distance.distance_above = 2.0;
     o.point_sample_distance.distance_below = 3.0;
     o
+}
+
+/// A rerecast mesh as a landmass one, ready to hang on an island. Landmass
+/// refuses a whole mesh over a single bad polygon (a sliver rerecast leaves
+/// flat, wound backwards or a hair concave), which left every agent off the
+/// mesh; this drops each polygon the validator names and tries again.
+pub fn to_landmass(mesh: &bevy_rerecast::Navmesh) -> Option<bevy_landmass::NavMesh3d> {
+    use bevy_landmass::ValidationError as E;
+    let mut raw = landmass_rerecast::convert_rerecast_navmesh_to_landmass_navmesh(mesh);
+    let mut dropped = 0;
+    loop {
+        let bad = match raw.clone().validate() {
+            Ok(valid) => {
+                if dropped > 0 {
+                    debug!("nav: dropped {dropped} bad polygons from a navmesh");
+                }
+                return Some(bevy_landmass::NavMesh3d {
+                    nav_mesh: std::sync::Arc::new(valid),
+                });
+            }
+            Err(
+                E::ConcavePolygon(i)
+                | E::NotEnoughVerticesInPolygon(i)
+                | E::InvalidVertexIndexInPolygon(i)
+                | E::DegenerateEdgeInPolygon(i),
+            ) => i,
+            Err(e) => {
+                error!("nav: landmass refused a navmesh: {e}");
+                return None;
+            }
+        };
+        if bad >= raw.polygons.len() || dropped > 10_000 {
+            return None;
+        }
+        raw.polygons.remove(bad);
+        if bad < raw.polygon_type_indices.len() {
+            raw.polygon_type_indices.remove(bad);
+        }
+        if let Some(h) = raw.height_mesh.as_mut()
+            && bad < h.polygons.len()
+        {
+            h.polygons.remove(bad);
+        }
+        dropped += 1;
+    }
+}
+
+/// Hang a built rerecast mesh on `archipelago` (see [`to_landmass`]).
+pub fn spawn_island(
+    commands: &mut Commands,
+    rerecast: &Assets<bevy_rerecast::Navmesh>,
+    landmass: &mut Assets<bevy_landmass::NavMesh3d>,
+    mesh: &Handle<bevy_rerecast::Navmesh>,
+    archipelago: Entity,
+) -> Option<Entity> {
+    let converted = to_landmass(rerecast.get(mesh)?)?;
+    let handle = landmass.add(converted);
+    Some(
+        commands
+            .spawn((
+                bevy_landmass::Island3dBundle {
+                    island: bevy_landmass::Island,
+                    archipelago_ref: ArchipelagoRef3d::new(archipelago),
+                    nav_mesh: bevy_landmass::NavMeshHandle(handle),
+                },
+                areas::Global,
+            ))
+            .id(),
+    )
 }
 
 /// One area's navigation.
@@ -228,6 +296,7 @@ fn on_ready(
     ready: On<NavmeshReady>,
     mut navs: ResMut<AreaNavs>,
     meshes: Res<Assets<bevy_rerecast::Navmesh>>,
+    mut landmass: ResMut<Assets<bevy_landmass::NavMesh3d>>,
     mut commands: Commands,
 ) {
     for (id, nav) in navs.navs.iter_mut() {
@@ -242,16 +311,15 @@ fn on_ready(
             "nav: {id}'s navmesh ready: {verts} vertices in {:.1}s",
             nav.started.elapsed().as_secs_f32()
         );
-        let island = commands
-            .spawn((
-                Island3dBundle {
-                    island: bevy_landmass::Island,
-                    archipelago_ref: ArchipelagoRef3d::new(nav.archipelago),
-                    nav_mesh: NavMeshHandle3d(mesh),
-                },
-                areas::Global,
-            ))
-            .id();
+        let Some(island) = spawn_island(
+            &mut commands,
+            &meshes,
+            &mut landmass,
+            &mesh,
+            nav.archipelago,
+        ) else {
+            continue;
+        };
         nav.island = Some(island);
         nav.ready = true;
     }

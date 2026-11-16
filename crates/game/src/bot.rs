@@ -302,6 +302,14 @@ fn drive(
         )
     });
     bot.nav_target = None;
+    if (bot.clock * 1.0).fract() < dt {
+        let state = bot.agent.and_then(|e| states.get(e).ok());
+        debug!(
+            "bot nav: at {pos:.1} mesh {} dir {:?} agent {state:?}",
+            archipelago.is_some(),
+            bot.nav_dir
+        );
+    }
     let out = step_out(&mut bot, &step, pos, &points, &runs, &t);
     steer_agent(&mut bot, &mut commands, &mut agents, archipelago, pos);
     if let Some(at) = out.teleport {

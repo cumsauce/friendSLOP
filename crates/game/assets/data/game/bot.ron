@@ -35,7 +35,10 @@
             Start("bonfire"),
             Wait(5.0),
             WalkTo("village"),
+            // Round the landlord's yard walls, there and back.
+            WalkTo("landlord"),
             WalkTo("lake"),
+            WalkTo("landlord"),
             WalkTo("warehouse"),
             WalkTo("windmill"),
             WalkTo("bonfire"),

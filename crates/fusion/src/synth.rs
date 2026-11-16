@@ -26,6 +26,7 @@ use std::f32::consts::TAU;
 use std::sync::Arc;
 
 use super::dsp::{AutoPan, Chorus, Echo, Eq, Reverb, StereoEq, Svf, saw, square};
+use crate::fx::{comp::Comp, drive::Drive};
 use crate::inst::{Engine, Foley, Hit, KitSample, Pan, Spec, Table, Voice, table};
 
 /// Engine sample rate.
@@ -1734,6 +1735,11 @@ crate::bus_mix! {
         autopan: Option<(f32, f32)> = None => [rate, depth],
         /// Chorus: (rate Hz, centre ms, depth ms, mix).
         chorus: Option<(f32, f32, f32, f32)> = None => [rate, centre, depth, mix],
+        /// Saturation: (amount 0..1, tone 0..1), level-matched ([`crate::fx::drive`]).
+        drive: Option<(f32, f32)> = None => [amount, tone],
+        /// Compressor: (threshold dB, ratio, attack ms, release ms, mix 0..1)
+        /// ([`crate::fx::comp`]); mix under 1 is parallel compression.
+        comp: Option<(f32, f32, f32, f32, f32)> = None => [threshold, ratio, attack, release, mix],
     }
 }
 
@@ -1760,6 +1766,8 @@ struct BusFx {
     eq: Vec<StereoEq>,
     autopan: Vec<Option<AutoPan>>,
     chorus: Vec<Option<Chorus>>,
+    drive: Vec<Option<Drive>>,
+    comp: Vec<Option<Comp>>,
     trim: [f32; BUSES],
     pump: [f32; BUSES],
 }
@@ -1775,6 +1783,14 @@ impl BusFx {
             chorus: m
                 .iter()
                 .map(|m| m.chorus.map(|(r, c, d, x)| Chorus::new(r, c, d, x)))
+                .collect(),
+            comp: m
+                .iter()
+                .map(|m| m.comp.map(|(t, ra, a, rl, x)| Comp::new(t, ra, a, rl, x)))
+                .collect(),
+            drive: m
+                .iter()
+                .map(|m| m.drive.map(|(a, t)| Drive::new(a, t)))
                 .collect(),
             trim: std::array::from_fn(|b| m[b].trim),
             pump: std::array::from_fn(|b| m[b].pump),
@@ -1792,6 +1808,12 @@ impl BusFx {
             if let (Some(c), Some((r, ce, d, x))) = (&mut self.chorus[b], m.chorus) {
                 c.set(r, ce, d, x);
             }
+            if let (Some(e), Some((t, ra, a, rl, x))) = (&mut self.comp[b], m.comp) {
+                e.set(t, ra, a, rl, x);
+            }
+            if let (Some(e), Some((a, t))) = (&mut self.drive[b], m.drive) {
+                e.set(a, t);
+            }
             self.trim[b] = m.trim;
             self.pump[b] = m.pump;
         }
@@ -1799,7 +1821,10 @@ impl BusFx {
 
     /// Bus `b`'s chain on one block, `pump` the sidechain envelope.
     fn run(&mut self, b: usize, l: &mut [f32], r: &mut [f32], pump: &[f32]) {
+        // chain: start
         self.eq[b].process(l, r);
+        // chain: eq
+
         let t = self.trim[b];
         let depth = self.pump[b];
         if depth > 0.0 {
@@ -1813,12 +1838,20 @@ impl BusFx {
             l.iter_mut().for_each(|x| *x *= t);
             r.iter_mut().for_each(|x| *x *= t);
         }
+        // chain: trim
+        if let Some(e) = &mut self.drive[b] {
+            e.process(l, r);
+        }
+        if let Some(e) = &mut self.comp[b] {
+            e.process(l, r);
+        }
         if let Some(a) = &mut self.autopan[b] {
             a.process(l, r);
         }
         if let Some(c) = &mut self.chorus[b] {
             c.process(l, r);
         }
+        // chain: chorus
     }
 }
 

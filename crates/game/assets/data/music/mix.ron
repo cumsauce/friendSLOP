@@ -12,6 +12,14 @@
 //            the presence boosts small.
 //   autopan  a suitcase-piano tremolo: (rate Hz, depth).
 //   chorus   (rate Hz, centre ms, depth ms, mix).
+//   drive    saturation: (amount 0..1, tone 0..1). A soft clipper at twice the
+//            sample rate, level-matched so it thickens without getting louder;
+//            tone is the low-pass after it (0 dark ~1.5 kHz, 1 open ~18 kHz).
+//            Optional, leave out for off.
+//   comp     compressor: (threshold dB, ratio, attack ms, release ms, mix 0..1).
+//            RMS, stereo-linked; mix below 1 blends the squashed bus with the
+//            dry one (parallel compression: ghost notes and hats come up, the
+//            hits keep their snap). Optional, leave out for off.
 // Every field is optional: one left out is its default (trim 1, no pump, no EQ, effect off).
 //
 // A song can change this mix for itself only: `mix:` in its song file overrides any field
@@ -24,11 +32,14 @@
 (
     buses: {
         "drums": (
-            trim: 1.0,
+            // Up from 1.0 to make up what the parallel comp takes off the hits.
+            trim: 1.4,
             pump: 0.0,
             eq: [Hp(32.0, 0.7), Peak(110.0, 1.0, 1.5), Peak(420.0, 1.0, -1.0), HighShelf(9000.0, -0.5)],
             autopan: None,
             chorus: None,
+            drive: Some((0.2, 0.85)),
+            comp: Some((-28.0, 6.0, 3.0, 90.0, 0.45)),
         ),
         "bass": (
             trim: 1.55,
@@ -42,6 +53,7 @@
             ],
             autopan: None,
             chorus: None,
+            drive: Some((0.55, 0.45)),
         ),
         "keys": (
             trim: 1.6,

@@ -4159,15 +4159,15 @@
     },
     {
       "name": "claw-machine",
-      "description": "Arcade claw machine (KORI): pink cabinet, glass box with plushes and a hanging claw, joystick + button panel, coin slot, prize chute.",
+      "description": "Kori claw machine cabinet; the claw and prizes are spawned by the game (claw-head, physics prizes). Front-right corner has the prize bin.",
       "tags": [
-        "arcade",
-        "prop",
-        "kori"
+        "kori",
+        "claw",
+        "arcade"
       ],
-      "prompt": "",
+      "prompt": "#459 playable claw machine",
       "file": "claw-machine.json",
-      "created_at": "2026-11-14T03:00:33Z"
+      "created_at": "2026-11-16T16:19:46Z"
     },
     {
       "name": "kori-little-stinker",
@@ -4697,6 +4697,50 @@
       "prompt": "",
       "file": "nyc-kit-van.json",
       "created_at": "2026-11-16T11:39:15Z"
+    },
+    {
+      "name": "claw-head",
+      "description": "Claw machine claw hub (origin at the cable end); the game hangs three claw-prong under it.",
+      "tags": [
+        "kori",
+        "claw"
+      ],
+      "prompt": "",
+      "file": "claw-head.json",
+      "created_at": "2026-11-16T16:19:57Z"
+    },
+    {
+      "name": "claw-prong",
+      "description": "One claw machine prong, hanging from its hinge at the origin, tip curling toward -x.",
+      "tags": [
+        "kori",
+        "claw"
+      ],
+      "prompt": "",
+      "file": "claw-prong.json",
+      "created_at": "2026-11-16T16:20:08Z"
+    },
+    {
+      "name": "claw-trolley",
+      "description": "Claw machine trolley that rides the gantry bar; the cable hangs from its spool.",
+      "tags": [
+        "kori",
+        "claw"
+      ],
+      "prompt": "",
+      "file": "claw-trolley.json",
+      "created_at": "2026-11-16T16:20:18Z"
+    },
+    {
+      "name": "claw-gantry",
+      "description": "Claw machine gantry bar (spans the pit along x, slides along z).",
+      "tags": [
+        "kori",
+        "claw"
+      ],
+      "prompt": "",
+      "file": "claw-gantry.json",
+      "created_at": "2026-11-16T16:20:26Z"
     }
   ]
 }

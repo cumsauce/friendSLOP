@@ -3,14 +3,39 @@
 (
     // Coins a go costs.
     price: 5,
-    // Chance (0..1) the claw actually holds on to something.
-    win_chance: 0.35,
     // Walking speed a figure in your hand adds (0.08 = +8%).
     held_speed: 0.08,
-    // Where the machine stands, metres (x, z) from the gambling table...
+    // Where the commune's machine stands, metres (x, z) from the gambling table...
     offset: (3.5, -2.0),
     // ...and how it's turned (degrees).
     yaw_deg: 200.0,
+    // Every boba shop has one (#459): where in the shop (x, z metres in the
+    // shop's own frame, the door at +z) and its turn (degrees; 0 faces the door).
+    boba_spot: (-3.6, 2.6, 90.0),
+    // So does every subway station: along the stop (x, metres from the
+    // train's middle) and across it (z; the platform is 1.5..5 m out), turn.
+    station_spot: (-4.0, 4.4, 180.0),
+    // The claw itself (#459).
+    claw: (
+        // Seconds to steer before it drops by itself.
+        steer_secs: 20.0,
+        // How fast it moves across (m/s), drops and lifts.
+        move_speed: 0.22,
+        drop_speed: 0.3,
+        lift_speed: 0.25,
+        // How close (m) a figure must be to the closing prongs to be grabbed.
+        grab_radius: 0.075,
+        // Chance per second the grip slips on the way back (it's a claw machine).
+        slip_per_sec: 0.3,
+        // Figures in the pit, their ball's radius (m) and their model's size in it.
+        pit_count: 10,
+        prize_radius: 0.05,
+        prize_scale: 0.8,
+        // Seconds after opening over the bin before the go is over.
+        settle_secs: 1.5,
+        // Shown when your go starts.
+        steer_line: "Steer the claw with {move}, {claw_drop} to drop it, {claw_quit} to walk away.",
+    ),
     // Every figure: name, the shelf's blurb, its model and how often the claw
     // grabs it (bigger = more often).
     prizes: [
@@ -46,7 +71,7 @@
         ),
     ],
     win_line: "{who} won a {prize} from the Kori claw!",
-    miss_line: "The claw drops it. Of course it does.",
+    miss_line: "Nothing in the bin. Of course.",
     broke_line: "A go is {price} Kori coins. You have {coins}. Go fart.",
     coins_line: "{coins} Kori coins",
 )

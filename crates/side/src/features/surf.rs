@@ -158,7 +158,8 @@ fn leave(ev: On<FromClient<LeaveSurf>>, mut commands: Commands, mut bodies: Quer
 
 pub fn plugin(app: &mut App) {
     app.add_observer(click)
-        .spawn_into("commune", build)
+        .spawn_into("surf", build)
+        .spawn_into("nyc", build_sign)
         .add_systems(Update, timer.run_if(in_state(AppState::InGame)));
 }
 
@@ -175,6 +176,17 @@ fn model(assets: &AssetServer, file: &str) -> WorldAssetRoot {
     WorldAssetRoot(
         assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{file}"))),
     )
+}
+
+/// The neon sign over the brownstone's door (faces the avenue, -x): New York's.
+fn build_sign(mut commands: Commands, assets: Res<AssetServer>) {
+    let t = tuning();
+    commands.spawn((
+        model(&assets, "surf-door-sign.gltf"),
+        Transform::from_xyz(t.sign_at.0, t.sign_at.1, t.sign_at.2)
+            .with_rotation(Quat::from_rotation_y(-std::f32::consts::FRAC_PI_2)),
+        DespawnOnExit(AppState::InGame),
+    ));
 }
 
 fn build(
@@ -227,13 +239,6 @@ fn build(
             DespawnOnExit(AppState::InGame),
         ));
     }
-    // The neon sign over the brownstone's door (faces the avenue, -x).
-    commands.spawn((
-        model(&assets, "surf-door-sign.gltf"),
-        Transform::from_xyz(t.sign_at.0, t.sign_at.1, t.sign_at.2)
-            .with_rotation(Quat::from_rotation_y(-std::f32::consts::FRAC_PI_2)),
-        DespawnOnExit(AppState::InGame),
-    ));
     let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
     let pole = materials.add(Color::srgb(0.2, 0.2, 0.3));
     let sign = materials.add(Color::srgb(1.0, 0.3, 0.85));

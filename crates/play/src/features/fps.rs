@@ -49,6 +49,7 @@ pub struct JumpTuning {
     pub coyote_time: f32,
     pub buffer_time: f32,
     pub release_cut: f32,
+    pub auto_hop: bool,
 }
 
 impl Default for JumpTuning {
@@ -59,6 +60,7 @@ impl Default for JumpTuning {
             coyote_time: j.coyote,
             buffer_time: j.buffer,
             release_cut: j.release_cut,
+            auto_hop: j.auto_hop,
         }
     }
 }
@@ -70,6 +72,7 @@ impl From<JumpTuning> for crate::kcc::Jump {
             coyote: t.coyote_time,
             buffer: t.buffer_time,
             release_cut: t.release_cut,
+            auto_hop: t.auto_hop,
         }
     }
 }

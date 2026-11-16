@@ -148,6 +148,8 @@ struct Bot {
     best: (f32, f32),
     /// Where the body last made real progress (moved half a metre).
     anchor: Vec2,
+    /// A ride: seen outside a car yet (the trains need that before boarding).
+    cleared: bool,
     /// A ride: on board yet.
     aboard: bool,
     /// Starts looked up so far (a lookup asks every feature, and some work
@@ -362,6 +364,7 @@ fn drive(
         bot.point = 0;
         bot.best = (f32::MAX, 0.0);
         bot.aboard = false;
+        bot.cleared = false;
     }
 }
 
@@ -445,9 +448,15 @@ fn step_out(
                 };
             };
             let skip = bot.secs > t.give_up * 30.0;
-            // Anywhere inside a car (the standing train or the ride car) is
+            // The trains only take someone they've seen outside a car first
+            // (a start can put you down inside one): step clear, then board.
+            let in_a_car = crate::features::trains::car_at(&trains, pos).is_some();
+            if !in_a_car {
+                bot.cleared = true;
+            }
+            // Inside a car after that (the standing train or the ride car) is
             // aboard: stand still and let it carry us; no steering at doors.
-            if crate::features::trains::car_at(&trains, pos).is_some() {
+            if bot.cleared && in_a_car {
                 bot.aboard = true;
             }
             if bot.aboard {
@@ -465,6 +474,17 @@ fn step_out(
             }
             // To the door first, then in through it.
             let (front, inside) = crate::features::trains::door_way(s);
+            if !bot.cleared {
+                // Out through the door and a couple of metres on.
+                let out = front + (front - inside).normalize_or_zero() * 2.0;
+                let (yaw, stick) = steer(pos, out.xz());
+                return Out {
+                    yaw: Some(yaw),
+                    stick,
+                    skip,
+                    ..default()
+                };
+            }
             let in_front = bot.point > 0 || pos.xz().distance(front.xz()) < 0.6;
             if in_front {
                 bot.point = 1;

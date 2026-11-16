@@ -1,15 +1,13 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "zn-jetty",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 60929,
   "ops": [
     {
       "primitive": {
-        "kind": "box",
         "name": "plank0_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.24,
           0.05,
@@ -19,45 +17,51 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "plank0_ch",
         "input": "plank0_raw",
         "mode": "chamfer",
-        "name": "plank0_ch",
         "radius": 0.01,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "plank0_ch",
         "name": "plank0",
+        "input": "plank0_ch",
+        "translation": [
+          -1.2,
+          0.28,
+          0.0
+        ],
         "rotation": [
           0.0,
           -0.001109779,
           0.0,
           0.9999994
         ],
-        "scale": null,
-        "translation": [
-          -1.2,
-          0.28,
-          0.0
-        ]
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "plank0",
-        "metalness": null,
         "name": "plank0",
+        "input": "plank0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-plank",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -193,21 +197,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-plank",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "plank1_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.24,
           0.05,
@@ -217,45 +215,51 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "plank1_ch",
         "input": "plank1_raw",
         "mode": "chamfer",
-        "name": "plank1_ch",
         "radius": 0.01,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "plank1_ch",
         "name": "plank1",
+        "input": "plank1_ch",
+        "translation": [
+          -0.9,
+          0.28,
+          0.0
+        ],
         "rotation": [
           0.0,
           -0.0038006331,
           0.0,
           0.9999928
         ],
-        "scale": null,
-        "translation": [
-          -0.9,
-          0.28,
-          0.0
-        ]
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "plank1",
-        "metalness": null,
         "name": "plank1",
+        "input": "plank1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -344,21 +348,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "plank2_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.24,
           0.05,
@@ -368,45 +366,51 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "plank2_ch",
         "input": "plank2_raw",
         "mode": "chamfer",
-        "name": "plank2_ch",
         "radius": 0.01,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "plank2_ch",
         "name": "plank2",
+        "input": "plank2_ch",
+        "translation": [
+          -0.6,
+          0.28,
+          0.0
+        ],
         "rotation": [
           0.0,
           -0.010843606,
           0.0,
           0.99994123
         ],
-        "scale": null,
-        "translation": [
-          -0.6,
-          0.28,
-          0.0
-        ]
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "plank2",
-        "metalness": null,
         "name": "plank2",
+        "input": "plank2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-plank",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -542,21 +546,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-plank",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "plank3_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.24,
           0.05,
@@ -566,45 +564,51 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "plank3_ch",
         "input": "plank3_raw",
         "mode": "chamfer",
-        "name": "plank3_ch",
         "radius": 0.01,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "plank3_ch",
         "name": "plank3",
+        "input": "plank3_ch",
+        "translation": [
+          -0.3,
+          0.28,
+          0.0
+        ],
         "rotation": [
           0.0,
           0.010996634,
           0.0,
           0.99993956
         ],
-        "scale": null,
-        "translation": [
-          -0.3,
-          0.28,
-          0.0
-        ]
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "plank3",
-        "metalness": null,
         "name": "plank3",
+        "input": "plank3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -693,21 +697,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "plank4_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.24,
           0.05,
@@ -717,45 +715,51 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "plank4_ch",
         "input": "plank4_raw",
         "mode": "chamfer",
-        "name": "plank4_ch",
         "radius": 0.01,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "plank4_ch",
         "name": "plank4",
+        "input": "plank4_ch",
+        "translation": [
+          0.0,
+          0.28,
+          0.0
+        ],
         "rotation": [
           0.0,
           -0.0148064075,
           0.0,
           0.9998904
         ],
-        "scale": null,
-        "translation": [
-          0.0,
-          0.28,
-          0.0
-        ]
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "plank4",
-        "metalness": null,
         "name": "plank4",
+        "input": "plank4",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-plank",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -891,21 +895,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-plank",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "plank5_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.24,
           0.05,
@@ -915,45 +913,51 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "plank5_ch",
         "input": "plank5_raw",
         "mode": "chamfer",
-        "name": "plank5_ch",
         "radius": 0.01,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "plank5_ch",
         "name": "plank5",
+        "input": "plank5_ch",
+        "translation": [
+          0.3,
+          0.28,
+          0.0
+        ],
         "rotation": [
           0.0,
           0.0000834624,
           0.0,
           1.0
         ],
-        "scale": null,
-        "translation": [
-          0.3,
-          0.28,
-          0.0
-        ]
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "plank5",
-        "metalness": null,
         "name": "plank5",
+        "input": "plank5",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -1042,21 +1046,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "plank6_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.24,
           0.05,
@@ -1066,45 +1064,51 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "plank6_ch",
         "input": "plank6_raw",
         "mode": "chamfer",
-        "name": "plank6_ch",
         "radius": 0.01,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "plank6_ch",
         "name": "plank6",
+        "input": "plank6_ch",
+        "translation": [
+          0.6,
+          0.28,
+          0.0
+        ],
         "rotation": [
           0.0,
           0.011948655,
           0.0,
           0.9999286
         ],
-        "scale": null,
-        "translation": [
-          0.6,
-          0.28,
-          0.0
-        ]
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "plank6",
-        "metalness": null,
         "name": "plank6",
+        "input": "plank6",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-plank",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -1240,21 +1244,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-plank",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "plank7_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.24,
           0.05,
@@ -1264,45 +1262,51 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "plank7_ch",
         "input": "plank7_raw",
         "mode": "chamfer",
-        "name": "plank7_ch",
         "radius": 0.01,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "plank7_ch",
         "name": "plank7",
+        "input": "plank7_ch",
+        "translation": [
+          0.9,
+          0.28,
+          0.0
+        ],
         "rotation": [
           0.0,
           -0.01257523,
           0.0,
           0.9999209
         ],
-        "scale": null,
-        "translation": [
-          0.9,
-          0.28,
-          0.0
-        ]
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "plank7",
-        "metalness": null,
         "name": "plank7",
+        "input": "plank7",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -1391,21 +1395,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "plank8_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.24,
           0.05,
@@ -1415,45 +1413,51 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "plank8_ch",
         "input": "plank8_raw",
         "mode": "chamfer",
-        "name": "plank8_ch",
         "radius": 0.01,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "plank8_ch",
         "name": "plank8",
+        "input": "plank8_ch",
+        "translation": [
+          1.2,
+          0.28,
+          0.0
+        ],
         "rotation": [
           0.0,
           0.0016281133,
           0.0,
           0.9999987
         ],
-        "scale": null,
-        "translation": [
-          1.2,
-          0.28,
-          0.0
-        ]
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "plank8",
-        "metalness": null,
         "name": "plank8",
+        "input": "plank8",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-plank",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -1589,21 +1593,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-plank",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "stringera_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           2.7,
           0.08,
@@ -1613,40 +1611,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "stringera_ch",
         "input": "stringera_raw",
         "mode": "chamfer",
-        "name": "stringera_ch",
         "radius": 0.01,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "stringera_ch",
         "name": "stringera",
-        "rotation": null,
-        "scale": null,
+        "input": "stringera_ch",
         "translation": [
           0.0,
-          0.21,
+          0.215,
           -0.36
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "stringera",
-        "metalness": null,
         "name": "stringera",
+        "input": "stringera",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -1735,21 +1739,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "stringerb_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           2.7,
           0.08,
@@ -1759,40 +1757,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "stringerb_ch",
         "input": "stringerb_raw",
         "mode": "chamfer",
-        "name": "stringerb_ch",
         "radius": 0.01,
         "segments": 2
       }
     },
     {
       "transform": {
+        "name": "stringerb",
         "input": "stringerb_ch",
-        "name": "stringerb",
-        "rotation": null,
-        "scale": null,
         "translation": [
           0.0,
-          0.21,
+          0.215,
           0.36
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "stringerb",
-        "metalness": null,
         "name": "stringerb",
+        "input": "stringerb",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -1881,21 +1885,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "post0_raw",
-        "rotation": null,
+        "kind": "cylinder",
         "size": [
           0.06,
           0.6,
@@ -1905,31 +1903,37 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "transform": {
+        "name": "post0",
         "input": "post0_raw",
-        "name": "post0",
-        "rotation": null,
-        "scale": null,
         "translation": [
           -1.15,
           0.2,
           -0.42
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
+        "name": "post0",
         "input": "post0",
+        "base_color": null,
+        "roughness": null,
         "metalness": null,
-        "name": "post0",
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -2018,21 +2022,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "post1_raw",
-        "rotation": null,
+        "kind": "cylinder",
         "size": [
           0.06,
           0.6,
@@ -2042,31 +2040,37 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "transform": {
-        "input": "post1_raw",
         "name": "post1",
-        "rotation": null,
-        "scale": null,
+        "input": "post1_raw",
         "translation": [
           -1.15,
           0.2,
           0.42
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "post1",
-        "metalness": null,
         "name": "post1",
+        "input": "post1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -2155,21 +2159,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "post2_raw",
-        "rotation": null,
+        "kind": "cylinder",
         "size": [
           0.06,
           0.6,
@@ -2179,31 +2177,37 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "transform": {
-        "input": "post2_raw",
         "name": "post2",
-        "rotation": null,
-        "scale": null,
+        "input": "post2_raw",
         "translation": [
           1.2,
           0.2,
           -0.42
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "post2",
-        "metalness": null,
         "name": "post2",
+        "input": "post2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -2292,21 +2296,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "post3_raw",
-        "rotation": null,
+        "kind": "cylinder",
         "size": [
           0.06,
           0.6,
@@ -2316,31 +2314,37 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "transform": {
-        "input": "post3_raw",
         "name": "post3",
-        "rotation": null,
-        "scale": null,
+        "input": "post3_raw",
         "translation": [
           1.2,
           0.2,
           0.42
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "post3",
-        "metalness": null,
         "name": "post3",
+        "input": "post3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -2429,55 +2433,55 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "lantern_post_raw",
-        "rotation": null,
+        "kind": "cylinder",
         "size": [
           0.04,
-          1.3,
+          0.97,
           0.0
         ],
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "transform": {
-        "input": "lantern_post_raw",
         "name": "lantern_post",
-        "rotation": null,
-        "scale": null,
+        "input": "lantern_post_raw",
         "translation": [
           -1.15,
-          0.9,
+          0.985,
           0.42
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "lantern_post",
-        "metalness": null,
         "name": "lantern_post",
+        "input": "lantern_post",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -2566,21 +2570,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "lantern_base_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.2,
           0.03,
@@ -2590,31 +2588,37 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "transform": {
-        "input": "lantern_base_raw",
         "name": "lantern_base",
-        "rotation": null,
-        "scale": null,
+        "input": "lantern_base_raw",
         "translation": [
           -1.15,
           1.485,
           0.42
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "lantern_base",
-        "metalness": null,
         "name": "lantern_base",
+        "input": "lantern_base",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -2703,21 +2707,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "lantern_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.16,
           0.2,
@@ -2727,40 +2725,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "lantern_ch",
         "input": "lantern_raw",
         "mode": "chamfer",
-        "name": "lantern_ch",
         "radius": 0.01,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "lantern_ch",
         "name": "lantern",
-        "rotation": null,
-        "scale": null,
+        "input": "lantern_ch",
         "translation": [
           -1.15,
           1.6,
           0.42
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "lantern",
-        "metalness": null,
         "name": "lantern",
+        "input": "lantern",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-lamp",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
             "nodes": [
               {
                 "name": "fn",
@@ -2799,21 +2803,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 64,
-            "tile": 0.25
-          },
-          "material": "zn-lamp",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "lantern_cap_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.22,
           0.05,
@@ -2823,40 +2821,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "lantern_cap_ch",
         "input": "lantern_cap_raw",
         "mode": "chamfer",
-        "name": "lantern_cap_ch",
         "radius": 0.01,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "lantern_cap_ch",
         "name": "lantern_cap",
-        "rotation": null,
-        "scale": null,
+        "input": "lantern_cap_ch",
         "translation": [
           -1.15,
           1.725,
           0.42
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "lantern_cap",
-        "metalness": null,
         "name": "lantern_cap",
+        "input": "lantern_cap",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -2945,243 +2949,240 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "visibility": {
-        "input": "plank0_raw",
         "name": "plank0_raw",
+        "input": "plank0_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank1_raw",
         "name": "plank1_raw",
+        "input": "plank1_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank2_raw",
         "name": "plank2_raw",
+        "input": "plank2_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank3_raw",
         "name": "plank3_raw",
+        "input": "plank3_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank4_raw",
         "name": "plank4_raw",
+        "input": "plank4_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank5_raw",
         "name": "plank5_raw",
+        "input": "plank5_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank6_raw",
         "name": "plank6_raw",
+        "input": "plank6_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank7_raw",
         "name": "plank7_raw",
+        "input": "plank7_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank8_raw",
         "name": "plank8_raw",
+        "input": "plank8_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "stringera_raw",
         "name": "stringera_raw",
+        "input": "stringera_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "stringerb_raw",
         "name": "stringerb_raw",
+        "input": "stringerb_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "post0_raw",
         "name": "post0_raw",
+        "input": "post0_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "post1_raw",
         "name": "post1_raw",
+        "input": "post1_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "post2_raw",
         "name": "post2_raw",
+        "input": "post2_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "post3_raw",
         "name": "post3_raw",
+        "input": "post3_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "lantern_post_raw",
         "name": "lantern_post_raw",
+        "input": "lantern_post_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "lantern_base_raw",
         "name": "lantern_base_raw",
+        "input": "lantern_base_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "lantern_raw",
         "name": "lantern_raw",
+        "input": "lantern_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "lantern_cap_raw",
         "name": "lantern_cap_raw",
+        "input": "lantern_cap_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank0_ch",
         "name": "plank0_ch",
+        "input": "plank0_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank1_ch",
         "name": "plank1_ch",
+        "input": "plank1_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank2_ch",
         "name": "plank2_ch",
+        "input": "plank2_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank3_ch",
         "name": "plank3_ch",
+        "input": "plank3_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank4_ch",
         "name": "plank4_ch",
+        "input": "plank4_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank5_ch",
         "name": "plank5_ch",
+        "input": "plank5_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank6_ch",
         "name": "plank6_ch",
+        "input": "plank6_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank7_ch",
         "name": "plank7_ch",
+        "input": "plank7_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "plank8_ch",
         "name": "plank8_ch",
+        "input": "plank8_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "stringera_ch",
         "name": "stringera_ch",
+        "input": "stringera_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "stringerb_ch",
         "name": "stringerb_ch",
+        "input": "stringerb_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "lantern_ch",
         "name": "lantern_ch",
+        "input": "lantern_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "lantern_cap_ch",
         "name": "lantern_cap_ch",
+        "input": "lantern_cap_ch",
         "visible": false
       }
     }
   ],
-  "parts": [],
+  "annotations": [],
+  "next_annotation_id": 0,
   "style": {
+    "name": "friendslop",
     "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
     "colors": {
       "bark": "#6b4a2f",
@@ -3196,10 +3197,9 @@
       "stone_dark": "#5e5a54",
       "wood": "#9a6a3e"
     },
-    "name": "friendslop",
     "numbers": {
       "segments": 12.0
     }
   },
-  "version": 8079
+  "derived_from_ops": true
 }

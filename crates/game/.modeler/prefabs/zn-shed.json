@@ -1,58 +1,62 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "zn-shed",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 60914,
   "ops": [
     {
       "primitive": {
-        "kind": "box",
         "name": "back_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           3.0,
-          2.2,
+          1.86,
           0.15
         ],
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "back_ch",
         "input": "back_raw",
         "mode": "chamfer",
-        "name": "back_ch",
         "radius": 0.02,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "back_ch",
         "name": "back",
-        "rotation": null,
-        "scale": null,
+        "input": "back_ch",
         "translation": [
           0.0,
-          1.1,
+          0.93,
           -1.2
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "back",
-        "metalness": null,
         "name": "back",
+        "input": "back",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-plank",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -188,21 +192,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-plank",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "sidel_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.15,
           1.8,
@@ -212,40 +210,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "sidel_ch",
         "input": "sidel_raw",
         "mode": "chamfer",
-        "name": "sidel_ch",
         "radius": 0.02,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "sidel_ch",
         "name": "sidel",
-        "rotation": null,
-        "scale": null,
+        "input": "sidel_ch",
         "translation": [
           -1.5,
           0.9,
           0.0
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "sidel",
-        "metalness": null,
         "name": "sidel",
+        "input": "sidel",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-plank",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -381,21 +385,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-plank",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "sider_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.15,
           1.8,
@@ -405,40 +403,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "sider_ch",
         "input": "sider_raw",
         "mode": "chamfer",
-        "name": "sider_ch",
         "radius": 0.02,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "sider_ch",
         "name": "sider",
-        "rotation": null,
-        "scale": null,
+        "input": "sider_ch",
         "translation": [
           1.5,
           0.9,
           0.0
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "sider",
-        "metalness": null,
         "name": "sider",
+        "input": "sider",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-plank",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -574,21 +578,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-plank",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "front_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           1.1,
           1.2,
@@ -598,40 +596,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "front_ch",
         "input": "front_raw",
         "mode": "chamfer",
-        "name": "front_ch",
         "radius": 0.02,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "front_ch",
         "name": "front",
-        "rotation": null,
-        "scale": null,
+        "input": "front_ch",
         "translation": [
           -0.95,
           0.6,
           1.2
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "front",
-        "metalness": null,
         "name": "front",
+        "input": "front",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-plank",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -767,21 +771,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-plank",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "roof_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           3.5,
           0.12,
@@ -791,45 +789,51 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "roof_ch",
         "input": "roof_raw",
         "mode": "chamfer",
-        "name": "roof_ch",
         "radius": 0.02,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "roof_ch",
         "name": "roof",
+        "input": "roof_ch",
+        "translation": [
+          0.0,
+          2.25,
+          0.0
+        ],
         "rotation": [
           -0.12467473,
           0.0,
           0.0,
           0.9921977
         ],
-        "scale": null,
-        "translation": [
-          0.0,
-          2.25,
-          0.0
-        ]
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "roof",
-        "metalness": null,
         "name": "roof",
+        "input": "roof",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-shingle",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "g",
@@ -913,64 +917,64 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-shingle",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "post0_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.2,
-          2.24,
+          1.88,
           0.2
         ],
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "post0_ch",
         "input": "post0_raw",
         "mode": "chamfer",
-        "name": "post0_ch",
         "radius": 0.02,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "post0_ch",
         "name": "post0",
-        "rotation": null,
-        "scale": null,
+        "input": "post0_ch",
         "translation": [
           -1.5,
-          1.12,
+          0.94,
           -1.2
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
+        "name": "post0",
         "input": "post0",
+        "base_color": null,
+        "roughness": null,
         "metalness": null,
-        "name": "post0",
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -1059,64 +1063,64 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "post1_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.2,
-          2.24,
+          1.88,
           0.2
         ],
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "post1_ch",
         "input": "post1_raw",
         "mode": "chamfer",
-        "name": "post1_ch",
         "radius": 0.02,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "post1_ch",
         "name": "post1",
-        "rotation": null,
-        "scale": null,
+        "input": "post1_ch",
         "translation": [
           1.5,
-          1.12,
+          0.94,
           -1.2
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "post1",
-        "metalness": null,
         "name": "post1",
+        "input": "post1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -1205,64 +1209,64 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "post2_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.2,
-          2.24,
+          2.48,
           0.2
         ],
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "post2_ch",
         "input": "post2_raw",
         "mode": "chamfer",
-        "name": "post2_ch",
         "radius": 0.02,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "post2_ch",
         "name": "post2",
-        "rotation": null,
-        "scale": null,
+        "input": "post2_ch",
         "translation": [
           -1.5,
-          1.12,
+          1.24,
           1.2
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "post2",
-        "metalness": null,
         "name": "post2",
+        "input": "post2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -1351,64 +1355,64 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "post3_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.2,
-          2.24,
+          2.48,
           0.2
         ],
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "post3_ch",
         "input": "post3_raw",
         "mode": "chamfer",
-        "name": "post3_ch",
         "radius": 0.02,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "post3_ch",
         "name": "post3",
-        "rotation": null,
-        "scale": null,
+        "input": "post3_ch",
         "translation": [
           1.5,
-          1.12,
+          1.24,
           1.2
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "post3",
-        "metalness": null,
         "name": "post3",
+        "input": "post3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -1497,145 +1501,142 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "visibility": {
-        "input": "back_raw",
         "name": "back_raw",
+        "input": "back_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "sidel_raw",
         "name": "sidel_raw",
+        "input": "sidel_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "sider_raw",
         "name": "sider_raw",
+        "input": "sider_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "front_raw",
         "name": "front_raw",
+        "input": "front_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "roof_raw",
         "name": "roof_raw",
+        "input": "roof_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "post0_raw",
         "name": "post0_raw",
+        "input": "post0_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "post1_raw",
         "name": "post1_raw",
+        "input": "post1_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "post2_raw",
         "name": "post2_raw",
+        "input": "post2_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "post3_raw",
         "name": "post3_raw",
+        "input": "post3_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "back_ch",
         "name": "back_ch",
+        "input": "back_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "sidel_ch",
         "name": "sidel_ch",
+        "input": "sidel_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "sider_ch",
         "name": "sider_ch",
+        "input": "sider_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "front_ch",
         "name": "front_ch",
+        "input": "front_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "roof_ch",
         "name": "roof_ch",
+        "input": "roof_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "post0_ch",
         "name": "post0_ch",
+        "input": "post0_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "post1_ch",
         "name": "post1_ch",
+        "input": "post1_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "post2_ch",
         "name": "post2_ch",
+        "input": "post2_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "post3_ch",
         "name": "post3_ch",
+        "input": "post3_ch",
         "visible": false
       }
     }
   ],
-  "parts": [],
+  "annotations": [],
+  "next_annotation_id": 0,
   "style": {
+    "name": "friendslop",
     "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
     "colors": {
       "bark": "#6b4a2f",
@@ -1650,10 +1651,9 @@
       "stone_dark": "#5e5a54",
       "wood": "#9a6a3e"
     },
-    "name": "friendslop",
     "numbers": {
       "segments": 12.0
     }
   },
-  "version": 6490
+  "derived_from_ops": true
 }

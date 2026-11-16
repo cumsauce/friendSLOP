@@ -1,15 +1,13 @@
 {
-  "annotations": [],
-  "derived_from_ops": true,
   "format_version": 1,
   "name": "zn-quarry-crane",
-  "next_annotation_id": 0,
+  "parts": [],
+  "version": 60820,
   "ops": [
     {
       "primitive": {
-        "kind": "box",
         "name": "posta_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.35,
           7.0,
@@ -19,40 +17,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "posta_ch",
         "input": "posta_raw",
         "mode": "chamfer",
-        "name": "posta_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "posta_ch",
         "name": "posta",
-        "rotation": null,
-        "scale": null,
+        "input": "posta_ch",
         "translation": [
           0.0,
           3.5,
           -1.2
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "posta",
-        "metalness": null,
         "name": "posta",
+        "input": "posta",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -141,21 +145,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "postb_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.35,
           7.0,
@@ -165,40 +163,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "postb_ch",
         "input": "postb_raw",
         "mode": "chamfer",
-        "name": "postb_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "postb_ch",
         "name": "postb",
-        "rotation": null,
-        "scale": null,
+        "input": "postb_ch",
         "translation": [
           0.0,
           3.5,
           1.2
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "postb",
-        "metalness": null,
         "name": "postb",
+        "input": "postb",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -287,21 +291,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "cross_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           0.35,
           0.35,
@@ -311,40 +309,46 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "cross_ch",
         "input": "cross_raw",
         "mode": "chamfer",
-        "name": "cross_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "cross_ch",
         "name": "cross",
-        "rotation": null,
-        "scale": null,
+        "input": "cross_ch",
         "translation": [
           0.0,
           7.0,
           0.0
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "cross",
-        "metalness": null,
         "name": "cross",
+        "input": "cross",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -433,21 +437,15 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "box",
         "name": "jib_raw",
-        "rotation": null,
+        "kind": "box",
         "size": [
           6.5,
           0.3,
@@ -457,45 +455,51 @@
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "round": {
+        "name": "jib_ch",
         "input": "jib_raw",
         "mode": "chamfer",
-        "name": "jib_ch",
         "radius": 0.03,
         "segments": 2
       }
     },
     {
       "transform": {
-        "input": "jib_ch",
         "name": "jib",
+        "input": "jib_ch",
+        "translation": [
+          -3.0,
+          7.39,
+          0.0
+        ],
         "rotation": [
           0.0,
           0.0,
           -0.059964005,
           0.99820054
         ],
-        "scale": null,
-        "translation": [
-          -3.0,
-          6.8,
-          0.0
-        ]
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "jib",
-        "metalness": null,
         "name": "jib",
+        "input": "jib",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-timber",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "wv",
@@ -584,55 +588,55 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 1.0
-          },
-          "material": "zn-timber",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "primitive": {
-        "kind": "cylinder",
         "name": "rope_raw",
-        "rotation": null,
+        "kind": "cylinder",
         "size": [
           0.03,
-          2.85,
+          3.6,
           0.0
         ],
         "translation": [
           0.0,
           0.0,
           0.0
-        ]
+        ],
+        "rotation": null
       }
     },
     {
       "transform": {
-        "input": "rope_raw",
         "name": "rope",
-        "rotation": null,
-        "scale": null,
+        "input": "rope_raw",
         "translation": [
           -6.0,
-          5.62,
+          5.95,
           0.0
-        ]
+        ],
+        "rotation": null,
+        "scale": null
       }
     },
     {
       "material": {
-        "base_color": null,
-        "input": "rope",
-        "metalness": null,
         "name": "rope",
+        "input": "rope",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
         "pbr": {
+          "material": "zn-hay",
+          "scale": 1.0,
           "graph": {
             "domain": "tile",
+            "tile": 0.5,
+            "resolution": 256,
             "nodes": [
               {
                 "name": "g",
@@ -700,20 +704,26 @@
                 "type": "output"
               }
             ],
-            "params": {},
-            "resolution": 256,
-            "tile": 0.5
-          },
-          "material": "zn-hay",
-          "scale": 1.0
-        },
-        "roughness": null
+            "params": {}
+          }
+        }
       }
     },
     {
       "prefab": {
-        "digest": 10161277117728693250,
         "name": "load",
+        "prefab": "zn-crate",
+        "translation": [
+          -6.0,
+          3.8,
+          0.0
+        ],
+        "rotation": null,
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ],
         "parts": [
           "core",
           "bx0",
@@ -733,86 +743,77 @@
           "brace_r",
           "brace_l"
         ],
-        "prefab": "zn-crate",
-        "rotation": null,
-        "scale": [
-          0.8,
-          0.8,
-          0.8
-        ],
-        "translation": [
-          -6.0,
-          3.8,
-          0.0
-        ]
+        "digest": 10161277117728693250
       }
     },
     {
       "visibility": {
-        "input": "posta_raw",
         "name": "posta_raw",
+        "input": "posta_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "postb_raw",
         "name": "postb_raw",
+        "input": "postb_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "cross_raw",
         "name": "cross_raw",
+        "input": "cross_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "jib_raw",
         "name": "jib_raw",
+        "input": "jib_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "rope_raw",
         "name": "rope_raw",
+        "input": "rope_raw",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "posta_ch",
         "name": "posta_ch",
+        "input": "posta_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "postb_ch",
         "name": "postb_ch",
+        "input": "postb_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "cross_ch",
         "name": "cross_ch",
+        "input": "cross_ch",
         "visible": false
       }
     },
     {
       "visibility": {
-        "input": "jib_ch",
         "name": "jib_ch",
+        "input": "jib_ch",
         "visible": false
       }
     }
   ],
-  "parts": [],
+  "annotations": [],
+  "next_annotation_id": 0,
   "style": {
+    "name": "friendslop",
     "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
     "colors": {
       "bark": "#6b4a2f",
@@ -827,10 +828,9 @@
       "stone_dark": "#5e5a54",
       "wood": "#9a6a3e"
     },
-    "name": "friendslop",
     "numbers": {
       "segments": 12.0
     }
   },
-  "version": 7956
+  "derived_from_ops": true
 }

@@ -2,7 +2,7 @@
   "format_version": 1,
   "name": "zn-path-lantern",
   "parts": [],
-  "version": 63565,
+  "version": 60903,
   "ops": [
     {
       "primitive": {
@@ -18,7 +18,8 @@
           0.65,
           0.0
         ],
-        "rotation": null
+        "rotation": null,
+        "round": 0.012
       }
     },
     {
@@ -35,7 +36,8 @@
           1.62,
           0.0
         ],
-        "rotation": null
+        "rotation": null,
+        "round": 0.008
       }
     },
     {
@@ -52,7 +54,8 @@
           1.32,
           0.0
         ],
-        "rotation": null
+        "rotation": null,
+        "round": 0.008
       }
     },
     {
@@ -420,6 +423,438 @@
             "params": {}
           }
         }
+      }
+    },
+    {
+      "extrude": {
+        "name": "roof",
+        "profile": [
+          [
+            [
+              -0.11,
+              -0.11
+            ],
+            [
+              0.11,
+              -0.11
+            ],
+            [
+              0.11,
+              0.11
+            ],
+            [
+              -0.11,
+              0.11
+            ]
+          ]
+        ],
+        "height": 0.06,
+        "scale_top": [
+          0.2,
+          0.2
+        ],
+        "slices": 0,
+        "translation": [
+          0.0,
+          1.64,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "bar",
+        "kind": "box",
+        "size": [
+          0.02,
+          0.26,
+          0.02
+        ],
+        "translation": [
+          0.08,
+          1.47,
+          0.08
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "mirror": {
+        "name": "bar_x",
+        "input": "bar",
+        "axis": "x",
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "mirror": {
+        "name": "bar_z",
+        "input": "bar",
+        "axis": "z",
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "mirror": {
+        "name": "bar_xz",
+        "input": "bar_x",
+        "axis": "z",
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "bar",
+        "input": "bar",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "gunmetal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 12,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "gain": 1.5,
+                "name": "cv",
+                "radius": 0.004,
+                "type": "mesh_curvature"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.8
+                ],
+                "input": "cv.convex",
+                "name": "wear",
+                "type": "levels"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#2c2e33"
+                  ],
+                  [
+                    1.0,
+                    "#43464d"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#8a8d93",
+                "c": "wear",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "r",
+                "to": [
+                  0.3,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 1.0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "roof",
+        "input": "roof",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "gunmetal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 12,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "gain": 1.5,
+                "name": "cv",
+                "radius": 0.004,
+                "type": "mesh_curvature"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.8
+                ],
+                "input": "cv.convex",
+                "name": "wear",
+                "type": "levels"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#2c2e33"
+                  ],
+                  [
+                    1.0,
+                    "#43464d"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#8a8d93",
+                "c": "wear",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "r",
+                "to": [
+                  0.3,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 1.0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "group": {
+        "name": "metal",
+        "inputs": [
+          "cap",
+          "roof",
+          "base",
+          "bar",
+          "bar_x",
+          "bar_z",
+          "bar_xz"
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "metal",
+        "input": "metal",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "gunmetal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 12,
+                "size": 0.02,
+                "type": "noise"
+              },
+              {
+                "gain": 1.5,
+                "name": "cv",
+                "radius": 0.004,
+                "type": "mesh_curvature"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.8
+                ],
+                "input": "cv.convex",
+                "name": "wear",
+                "type": "levels"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0.0,
+                    "#2c2e33"
+                  ],
+                  [
+                    1.0,
+                    "#43464d"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#8a8d93",
+                "c": "wear",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "n",
+                "name": "r",
+                "to": [
+                  0.3,
+                  0.5
+                ],
+                "type": "remap"
+              },
+              {
+                "base_color": "col",
+                "metallic": 1.0,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "visibility": {
+        "name": "cap",
+        "input": "cap",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "roof",
+        "input": "roof",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "base",
+        "input": "base",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bar",
+        "input": "bar",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bar_x",
+        "input": "bar_x",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bar_z",
+        "input": "bar_z",
+        "visible": false
+      }
+    },
+    {
+      "visibility": {
+        "name": "bar_xz",
+        "input": "bar_xz",
+        "visible": false
       }
     }
   ],

@@ -431,12 +431,6 @@ fn step_out(
                     ..default()
                 };
             };
-            if pos.distance(dest) < 25.0 {
-                return Out {
-                    next: true,
-                    ..default()
-                };
-            }
             let trains = crate::features::trains::tuning();
             let stop = trains.lines.iter().enumerate().find_map(|(li, l)| {
                 l.stops.iter().enumerate().find_map(|(si, s)| {
@@ -449,6 +443,19 @@ fn step_out(
                     ..default()
                 };
             };
+            // There once the train has stopped at the far platform: while it
+            // pulls in it still holds its riders (a teleport would be undone).
+            let arrived = runs.iter().any(|r| {
+                r.line as usize == li
+                    && r.stop as usize == 1 - si
+                    && r.phase == crate::features::trains::Phase::Waiting
+            });
+            if pos.distance(dest) < 25.0 && arrived {
+                return Out {
+                    next: true,
+                    ..default()
+                };
+            }
             let skip = bot.secs > t.give_up * 30.0;
             // The trains only take someone they've seen outside a car first
             // (a start can put you down inside one): step clear, then board.

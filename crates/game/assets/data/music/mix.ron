@@ -12,6 +12,12 @@
 //            the presence boosts small.
 //   autopan  a suitcase-piano tremolo: (rate Hz, depth).
 //   chorus   (rate Hz, centre ms, depth ms, mix).
+//   width    stereo width: (width, mono below Hz). Width 0 is mono, 1 as is,
+//            up to 2 wide; everything below the frequency is summed to mono
+//            (a phase-safe crossover; 0 leaves the lows alone). Optional.
+//   filter   a resonant bus filter: (Lp or Hp, cutoff Hz, q), smoothed so
+//            the cutoff can sweep (a filtered breakdown that opens on the
+//            drop). Optional, off when left out.
 //   drive    saturation: (amount 0..1, tone 0..1). A soft clipper at twice the
 //            sample rate, level-matched so it thickens without getting louder;
 //            tone is the low-pass after it (0 dark ~1.5 kHz, 1 open ~18 kHz).
@@ -38,6 +44,7 @@
             eq: [Hp(32.0, 0.7), Peak(110.0, 1.0, 1.5), Peak(420.0, 1.0, -1.0), HighShelf(9000.0, -0.5)],
             autopan: None,
             chorus: None,
+            width: Some((1.0, 120.0)),
             drive: Some((0.2, 0.85)),
             comp: Some((-28.0, 6.0, 3.0, 90.0, 0.45)),
         ),
@@ -53,6 +60,7 @@
             ],
             autopan: None,
             chorus: None,
+            width: Some((1.0, 120.0)),
             drive: Some((0.55, 0.45)),
         ),
         "keys": (
@@ -67,6 +75,7 @@
             ],
             autopan: Some((4.2, 0.22)),
             chorus: Some((0.55, 6.5, 2.2, 0.5)),
+            width: Some((1.3, 150.0)),
         ),
         "lead": (
             trim: 1.5,
@@ -87,6 +96,7 @@
             eq: [Hp(140.0, 0.7), Peak(280.0, 0.8, 2.0), Peak(620.0, 0.8, -2.0), HighShelf(5000.0, 0.5)],
             autopan: None,
             chorus: Some((0.32, 9.0, 3.5, 0.7)),
+            width: Some((1.5, 150.0)),
         ),
         "perc": (
             trim: 1.45,
@@ -101,6 +111,7 @@
             eq: [Hp(120.0, 0.7), Peak(300.0, 0.9, 1.5), Peak(520.0, 0.9, -1.0), Peak(2400.0, 0.9, 1.0)],
             autopan: None,
             chorus: Some((0.8, 5.5, 1.6, 0.45)),
+            width: Some((1.3, 150.0)),
         ),
         // The nylon guitar's body: the air resonance and the top plate, the
         // boxy low mids pulled out, a little clarity up top.

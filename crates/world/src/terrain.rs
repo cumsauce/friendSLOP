@@ -26,8 +26,26 @@ impl Plugin for TerrainPlugin {
     fn build(&self, app: &mut App) {
         // `spawn_terrain` runs when the commune's area loads (the game
         // registers it: this crate doesn't know areas).
-        let _ = app;
+        app.init_resource::<Built>().add_systems(
+            OnExit(AppState::InGame),
+            |mut b: ResMut<Built>| {
+                *b = Built::default();
+            },
+        );
     }
+}
+
+/// The ground's meshes and materials from the last time the commune loaded,
+/// kept for the rest of the game: building the grass tufts took half a
+/// second, every time you came back from New York.
+#[derive(Resource, Default)]
+pub struct Built {
+    /// The detail level they were built at.
+    detail: Option<f32>,
+    ground: Handle<StandardMaterial>,
+    grass: Handle<StandardMaterial>,
+    /// Each chunk's ground and (if it has any) tufts.
+    chunks: Vec<(Handle<Mesh>, Option<Handle<Mesh>>, f32)>,
 }
 
 /// Half the side of the flat commune square at the centre.
@@ -598,10 +616,38 @@ pub fn spawn_terrain(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut images: ResMut<Assets<Image>>,
+    mut built: Option<ResMut<Built>>,
 ) {
+    let level = friendslop_core::detail(detail.as_deref());
+    if let Some(b) = built.as_deref()
+        && b.detail == Some(level)
+        && b.chunks
+            .iter()
+            .all(|(g, t, _)| meshes.contains(g) && t.as_ref().is_none_or(|t| meshes.contains(t)))
+        && materials.contains(&b.ground)
+        && materials.contains(&b.grass)
+    {
+        spawn_chunks(&mut commands, b);
+    } else {
+        let b = build(&mut meshes, &mut materials, &mut images, level);
+        spawn_chunks(&mut commands, &b);
+        if let Some(built) = built.as_deref_mut() {
+            *built = b;
+        }
+    }
+    spawn_ground_rest(&mut commands, &mut meshes, &mut materials);
+}
+
+/// Build the ground's materials and chunk meshes at detail `level`.
+fn build(
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+    images: &mut Assets<Image>,
+    level: f32,
+) -> Built {
     let ground = materials.add(StandardMaterial {
         base_color: Color::WHITE,
-        base_color_texture: Some(art::grass_texture(&mut images)),
+        base_color_texture: Some(art::grass_texture(images)),
         perceptual_roughness: 0.95,
         reflectance: 0.12,
         ..default()
@@ -615,19 +661,38 @@ pub fn spawn_terrain(
         ..default()
     });
     // Ground and grass in chunks, built once, so off-screen chunks are culled.
-    for (min, size) in chunks() {
+    let chunks = chunks()
+        .map(|(min, size)| {
+            let tufts = tufts_in(min, size, level);
+            (
+                meshes.add(ground_in(min, size, CHUNK_CELLS)),
+                (tufts.count_vertices() > 0).then(|| meshes.add(tufts)),
+                size,
+            )
+        })
+        .collect();
+    Built {
+        detail: Some(level),
+        ground,
+        grass,
+        chunks,
+    }
+}
+
+fn spawn_chunks(commands: &mut Commands, b: &Built) {
+    for (ground, tufts, size) in &b.chunks {
+        let size = *size;
         commands.spawn((
             Name::new("Ground"),
-            Mesh3d(meshes.add(ground_in(min, size, CHUNK_CELLS))),
-            MeshMaterial3d(ground.clone()),
+            Mesh3d(ground.clone()),
+            MeshMaterial3d(b.ground.clone()),
             DespawnOnExit(AppState::InGame),
         ));
-        let tufts = tufts_in(min, size, friendslop_core::detail(detail.as_deref()));
-        if tufts.count_vertices() > 0 {
+        if let Some(tufts) = tufts {
             commands.spawn((
                 Name::new("Grass tufts"),
-                Mesh3d(meshes.add(tufts)),
-                MeshMaterial3d(grass.clone()),
+                Mesh3d(tufts.clone()),
+                MeshMaterial3d(b.grass.clone()),
                 NotShadowCaster,
                 // Tufts are thousands of blades: far chunks aren't drawn
                 // (#151). Measured from the chunk's centre, so the margin
@@ -641,6 +706,14 @@ pub fn spawn_terrain(
             ));
         }
     }
+}
+
+/// The ground's collider and the pond and lake surfaces.
+fn spawn_ground_rest(
+    commands: &mut Commands,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+) {
     commands.spawn((
         Name::new("Ground collider"),
         RigidBody::Static,

@@ -78,5 +78,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &input::BINDINGS,
         &sites::SITES,
         &areas::AREAS,
+        &areas::BUDGET,
     ]
 }

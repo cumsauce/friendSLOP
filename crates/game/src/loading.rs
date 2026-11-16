@@ -6,7 +6,9 @@
 //! multi-hundred-ms (up to multi-second) frames. Instead of showing a frozen
 //! world, an opaque overlay covers the screen while the world keeps rendering
 //! behind it (so the pipelines warm up), and lifts once every scenery model has
-//! loaded (or failed: missing LFS data never blocks) and frames are smooth again.
+//! loaded (or failed: missing LFS data never blocks), the area you're in has
+//! finished spawning (it's spread over frames: `areas::Loaded::busy_at`), and
+//! frames are smooth again.
 //! Purely local; a hard timeout guarantees it always lifts.
 
 use bevy::asset::RecursiveDependencyLoadState;
@@ -231,6 +233,8 @@ fn lift_curtain(
     curtains: Query<Entity, With<Curtain>>,
     mut parts: Query<(&Part, Option<&mut Text>, &mut Node)>,
     pending: Res<WorldReadyPending>,
+    areas: Option<Res<crate::areas::Loaded>>,
+    here: Option<Res<crate::place::Here>>,
     mut ready: ResMut<WorldReady>,
     mut progress: ResMut<Progress>,
 ) {
@@ -247,7 +251,12 @@ fn lift_curtain(
             })
             .count()
     });
-    let loading = still > 0;
+    // The place you're in is still spawning (spread over frames): its
+    // models aren't all asked for yet.
+    let spawning = areas
+        .zip(here)
+        .is_some_and(|(a, h)| a.busy_at(&crate::areas::areas(), h.0));
+    let loading = still > 0 || spawning;
     if loading || time.delta_secs() * 1000.0 > SMOOTH_MS {
         progress.smooth = 0;
     } else {
@@ -264,6 +273,7 @@ fn lift_curtain(
                 continue;
             }
             Part::Percent => format!("{}%", (frac * 100.0).round() as u32),
+            Part::Detail if spawning => "Building the place".to_string(),
             Part::Detail if loading => {
                 format!("Unpacking the commune · {} / {total} models", total - still)
             }

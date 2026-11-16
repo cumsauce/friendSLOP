@@ -242,7 +242,11 @@ fn build(
     for area in &list.areas {
         let id = area.id.as_str();
         let theirs = TUNING.get().provided.iter().any(|p| p == id);
-        if theirs || navs.navs.contains_key(id) || !loaded.is(id, Layer::Sim) {
+        if theirs
+            || navs.navs.contains_key(id)
+            || !loaded.is(id, Layer::Sim)
+            || loaded.pending(id, Layer::Sim)
+        {
             navs.seen.remove(id);
             continue;
         }

@@ -290,6 +290,8 @@ pub(super) struct Style {
     /// The melody's style, else the band's: motifs are still written (and
     /// the dice still rolled) for a song whose lead is silent.
     pub(super) lead_style: &'static LeadStyle,
+    /// The song's own mix (mix.ron's when it has none).
+    pub(super) mix: &'static crate::fx::song_mix::SongMix,
     /// Who holds the stillness's pad.
     pub(super) hold_inst: Inst,
 }
@@ -462,6 +464,12 @@ pub struct SongScore {
     /// Extra hand percussion: lanes named after their instruments.
     #[serde(default)]
     pub(super) perc: Vec<Inst>,
+    /// This song's changes to mix.ron, by bus (see `crate::fx::song_mix`).
+    #[serde(default)]
+    pub(super) mix: BTreeMap<String, crate::synth::BusOverride>,
+    /// Bus automation lanes (see `crate::fx::params`).
+    #[serde(default)]
+    pub(super) mix_auto: Vec<crate::fx::params::BusLaneFile>,
 }
 
 /// The score, read at run time (see [`friendslop_data`]).
@@ -531,6 +539,7 @@ pub(super) fn fallback() -> &'static Style {
             lead_range: (62, 84),
             lead_style: empty(),
             hold_inst: Inst::NONE,
+            mix: &crate::fx::song_mix::NO_MIX,
         }))
     })
 }
@@ -972,6 +981,14 @@ fn song(
         lead_range,
         lead_style,
         hold_inst,
+        mix: if s.mix.is_empty() && s.mix_auto.is_empty() {
+            &crate::fx::song_mix::NO_MIX
+        } else {
+            Box::leak(Box::new(crate::fx::song_mix::SongMix {
+                buses: s.mix.clone(),
+                auto: s.mix_auto.clone(),
+            }))
+        },
     }
 }
 
@@ -1146,6 +1163,50 @@ mod score_file {
         ))
         .unwrap_or_default();
         ron::from_str(&text).unwrap_or_default()
+    }
+
+    /// A song's `mix:` names real buses, and every `mix_auto` lane a
+    /// setting its bus has in that song's mix.
+    #[test]
+    fn song_mixes_name_real_buses_and_settings() {
+        use crate::fx::{params, song_mix};
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../game/assets/data/music/mix.ron"
+        );
+        let text = std::fs::read_to_string(path).unwrap_or_else(|e| panic!("{e}"));
+        let file: crate::synth::Mix = ron::from_str(&text).unwrap_or_else(|e| panic!("{e}"));
+        let songs = SONGS.get();
+        assert!(!songs.is_empty(), "songs didn't load");
+        for s in songs.iter() {
+            for bus in s.mix.keys() {
+                assert!(
+                    crate::synth::Bus::NAMES.contains(&bus.as_str()),
+                    "{}: mix: no bus {bus:?}",
+                    s.mood
+                );
+            }
+            let sm = song_mix::SongMix {
+                buses: s.mix.clone(),
+                auto: s.mix_auto.clone(),
+            };
+            let mut buses = song_mix::merged(Some(&file), &sm);
+            let mut master = params::Master::DEFAULT;
+            for l in &s.mix_auto {
+                let Some(lane) = l.lane() else {
+                    panic!("{}: mix_auto: no bus {:?}", s.mood, l.bus);
+                };
+                let found = match lane.bus {
+                    Some(b) => buses[b].param(&l.param).is_some(),
+                    None => params::Params::param(&mut master, &l.param).is_some(),
+                };
+                assert!(
+                    found,
+                    "{}: {} has no {:?} to automate",
+                    s.mood, l.bus, l.param
+                );
+            }
+        }
     }
 
     #[test]

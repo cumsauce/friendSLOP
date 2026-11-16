@@ -964,6 +964,12 @@ fn shape(look: &CharacterLook) -> Shape {
     }
 }
 
+/// The yaw (about +Y) that turns a body, which faces -Z, to look along `dir`
+/// on the ground (x, z). Use it for anything wearing a commune body.
+pub fn yaw_toward(dir: Vec2) -> f32 {
+    (-dir.x).atan2(-dir.y)
+}
+
 /// Where the bones sit (rig-local, feet at y 0, facing -Z) and the uniform
 /// scale that fits the body inside the walker capsule.
 struct Layout {
@@ -1797,6 +1803,16 @@ fn animate_bones(
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn yaw_toward_faces_the_body_along_the_walk() {
+        use bevy::prelude::*;
+        for dir in [Vec2::X, Vec2::Y, -Vec2::X, -Vec2::Y, Vec2::new(0.6, -0.8)] {
+            // The body's front is -Z.
+            let front = Quat::from_rotation_y(super::yaw_toward(dir)) * Vec3::NEG_Z;
+            assert!(front.xz().distance(dir) < 1e-5, "{dir} -> {front}");
+        }
+    }
+
     use super::*;
 
     #[test]

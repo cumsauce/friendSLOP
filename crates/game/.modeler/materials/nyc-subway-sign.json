@@ -1,0 +1,124 @@
+{
+  "name": "nyc-subway-sign",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        1.5,
+        0.32
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.75,
+        0.16
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "word",
+      "size": 0.17,
+      "text": "SUBWAY",
+      "type": "text"
+    },
+    {
+      "mode": "fill",
+      "name": "m",
+      "sdf": "word",
+      "type": "mask"
+    },
+    {
+      "a": "#1d1d1f",
+      "b": "#f2f2f2",
+      "c": "m",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.5,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "nyc-subway-sign",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1.5,
+                0.32
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.75,
+                0.16
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "word",
+              "size": 0.17,
+              "text": "SUBWAY",
+              "type": "text"
+            },
+            {
+              "mode": "fill",
+              "name": "m",
+              "sdf": "word",
+              "type": "mask"
+            },
+            {
+              "a": "#1d1d1f",
+              "b": "#f2f2f2",
+              "c": "m",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +word +m +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

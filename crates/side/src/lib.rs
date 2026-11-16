@@ -55,6 +55,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &fusion::synth::MIX,
         &fusion::inst::INSTRUMENTS,
         &features::affair::TUNING,
+        &features::surf::DRESSING,
         &features::ambience::TUNING,
         &features::discord_friends::TUNING,
         &features::gaslighting::TUNING,

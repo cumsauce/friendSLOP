@@ -12,6 +12,13 @@
 //            thickest (m). Outside it's the sky's horizon colour.
 (
     looks: {
+        // The hell pit (afterlife.rs): no sky, a smoky red haze, the lava's light.
+        "hell": (
+            priority: 2,
+            sun: Some(0.0),
+            ambient: Some(25.0),
+            fog: Some((color: (0.16, 0.035, 0.015), start: 6.0, end: 34.0)),
+        ),
         // A train's ride car: dark as a tunnel, only its lamp and the lights
         // going by (trains.rs).
         "train_ride": (priority: 1, sun: Some(0.0), ambient: Some(0.0)),

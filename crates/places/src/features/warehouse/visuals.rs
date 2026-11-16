@@ -718,6 +718,9 @@ fn build_inside(
     // Furnish each cell: stacked crates where it's blocked up, shelving
     // against its walls, a stain, a pallet; a few lights that barely work.
     let mut lamps = 0;
+    let dressing = DRESSING.get();
+    let mut dress_rng = Rng::new(seed ^ 0xd2e5);
+    let mut bulbs = 0;
     for (z, row) in plan.cells.iter().enumerate().take(H) {
         for (x, &mask) in row.iter().enumerate().take(W) {
             let c = cell_centre(x, z);
@@ -853,6 +856,51 @@ fn build_inside(
                     DespawnOnExit(AppState::InGame),
                 ));
             }
+            // Dressing on its own dice, so the rest of the layout stays put.
+            let roll = dress_rng.roll();
+            let pick = dress_rng.below(4);
+            if (x, z) != ENTRANCE
+                && roll < dressing.drum_chance
+                && let Some(corner) = walled_corner(mask, pick)
+            {
+                // `whd-drums` spans about 1.25 x 1.35 m around its origin.
+                let at = cw + Vec3::new(corner.x, 0.0, corner.y) * 1.5;
+                let yaw = Quat::from_rotation_y(dress_rng.below(4) as f32 * FRAC_PI_2);
+                prop(
+                    &mut commands,
+                    "whd_drums.gltf",
+                    Transform::from_translation(at).with_rotation(yaw),
+                );
+                collider(&mut commands, at + Vec3::Y * 0.45, Vec3::new(1.4, 0.9, 1.4));
+            }
+            if bulbs < dressing.max_bulbs && dress_rng.roll() < dressing.bulb_chance {
+                bulbs += 1;
+                // Hung off-centre from the ceiling; the bulb is 1.3 m down its cord.
+                let off = Vec3::new(dress_rng.roll() - 0.5, 0.0, dress_rng.roll() - 0.5) * 2.0;
+                let top = cw + off + Vec3::Y * ceiling((x, z));
+                prop(
+                    &mut commands,
+                    "whd_bulb.gltf",
+                    Transform::from_translation(top),
+                );
+                let base = dressing.bulb_intensity * (0.7 + dress_rng.roll() * 0.3);
+                commands.spawn((
+                    InteriorPart,
+                    PointLight {
+                        color: Color::srgb(1.0, 0.72, 0.4),
+                        intensity: base,
+                        range: dressing.bulb_range,
+                        ..default()
+                    },
+                    Flicker {
+                        base,
+                        seed: dress_rng.roll() * 100.0,
+                        bad: dress_rng.roll() * 0.6,
+                    },
+                    Transform::from_translation(top - Vec3::Y * 1.36),
+                    DespawnOnExit(AppState::InGame),
+                ));
+            }
         }
     }
 }
@@ -938,6 +986,40 @@ fn undress_pieces(
         }
         commands.entity(e).remove::<(PieceDressed, Clickable)>();
     }
+}
+
+/// Extra dressing (`assets/data/places/warehouse_dressing.ron`).
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Dressing {
+    /// Chance an open cell gets a cluster of drums in a walled corner.
+    pub drum_chance: f32,
+    /// Chance an open cell gets a bare bulb.
+    pub bulb_chance: f32,
+    /// The most bulbs in one warehouse.
+    pub max_bulbs: usize,
+    /// A bulb's light: brightness.
+    pub bulb_intensity: f32,
+    /// A bulb's light: reach (m).
+    pub bulb_range: f32,
+}
+
+pub static DRESSING: friendslop_data::Data<Dressing> =
+    friendslop_data::Data::ron("data/places/warehouse_dressing.ron");
+
+/// A corner of a cell (as x, z signs) whose two sides are both walled, for
+/// dressing that must stay out of the aisles; `pick` chooses among them.
+pub fn walled_corner(mask: u8, pick: usize) -> Option<Vec2> {
+    let corners: Vec<Vec2> = [
+        (E, N, 1.0, -1.0),
+        (E, S, 1.0, 1.0),
+        (WEST, S, -1.0, 1.0),
+        (WEST, N, -1.0, -1.0),
+    ]
+    .into_iter()
+    .filter(|(a, b, ..)| mask & a == 0 && mask & b == 0)
+    .map(|(.., x, z)| Vec2::new(x, z))
+    .collect();
+    (!corners.is_empty()).then(|| corners[pick % corners.len()])
 }
 
 /// Dying lights: mostly on, sometimes stuttering off.

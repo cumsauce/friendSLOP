@@ -19,12 +19,10 @@ camera=${2:-}
 scene=${3:-${FRIENDSLOP_SCREENSHOT_SCENE:-}}
 root=$(cd "$(dirname "$0")/.." && pwd)
 case $out in /*) ;; *) out="$PWD/$out" ;; esac
+mkdir -p "$(dirname "$out")"
 
-if [[ -z ${BIN:-} ]]; then
-  cargo build -p friendslop --manifest-path "$root/Cargo.toml"
-  BIN="$root/target/debug/friendslop"
-fi
-BIN=$(realpath "$BIN")
+. "$root/scripts/lib/target.sh"
+BIN=$(friendslop_bin)
 
 # macOS has Metal and no coreutils `timeout`; Linux uses Vulkan (lavapipe in CI).
 backend=vulkan

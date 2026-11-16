@@ -16,11 +16,12 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 starts=("$@")
 [[ ${#starts[@]} -gt 0 ]] || starts=(fulton penn_street chambers_st warehouse forest_clearing factory_town)
 
-if [[ -z ${BIN:-} ]]; then
-  cargo build -p friendslop --manifest-path "$root/Cargo.toml"
-  BIN="$root/target/debug/friendslop"
-fi
-BIN=$(realpath "$BIN")
+. "$root/scripts/lib/target.sh"
+BIN=$(friendslop_bin)
+# Frame times are only comparable with one game on screen: one sweep at a time
+# across every worktree sharing the target dir.
+lock_take perf
+trap 'lock_drop perf' EXIT
 out=${OUT:-"$root/hardening/perf-sweep-raw.txt"}
 secs=${SECS:-45}
 mkdir -p "$(dirname "$out")"

@@ -178,11 +178,17 @@ pub fn plugin(app: &mut App) {
     app.init_resource::<PerfMark>().register_type::<PerfMark>();
     #[cfg(not(any(target_arch = "wasm32", target_os = "android")))]
     if std::env::var("FRIENDSLOP_BRP").is_ok_and(|v| v == "1") {
+        // FRIENDSLOP_BRP_PORT picks another port, so games in several
+        // worktrees can serve BRP side by side.
+        let port = std::env::var("FRIENDSLOP_BRP_PORT")
+            .ok()
+            .and_then(|p| p.parse().ok())
+            .unwrap_or(bevy_remote::http::DEFAULT_PORT);
         app.add_plugins((
             bevy_remote::RemotePlugin::default(),
-            bevy_remote::http::RemoteHttpPlugin::default(),
+            bevy_remote::http::RemoteHttpPlugin::default().with_port(port),
         ));
-        info!("bot: Bevy Remote Protocol on http://127.0.0.1:15702");
+        info!("bot: Bevy Remote Protocol on http://127.0.0.1:{port}");
     }
     let Ok(route) = std::env::var("FRIENDSLOP_BOT") else {
         return;

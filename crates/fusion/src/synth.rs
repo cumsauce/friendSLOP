@@ -1711,34 +1711,52 @@ pub struct Ev {
 // --- Mixer -----------------------------------------------------------------
 
 /// The band's balance and bus sound: `assets/data/music/mix.ron`, one entry
-/// per bus, by name ([`Bus::NAMES`]).
+/// per bus, by name ([`Bus::NAMES`]). A song can change it for itself
+/// (`mix:` in its file, see [`crate::fx::song_mix`]).
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Mix {
     pub buses: std::collections::BTreeMap<String, BusMix>,
 }
 
-/// One bus: level, ducking, EQ and effects.
-#[derive(serde::Deserialize, Default, Debug, Clone)]
-pub struct BusMix {
-    /// Bus trim: the kit is synthesized hot, the band sits up with it.
-    pub trim: f32,
-    /// How deep the bus ducks under a full-strength kick.
-    pub pump: f32,
-    /// Up to six bands, in order.
-    pub eq: Vec<Eq>,
-    /// Suitcase tremolo: (rate Hz, depth).
-    pub autopan: Option<(f32, f32)>,
-    /// Chorus: (rate Hz, centre ms, depth ms, mix).
-    pub chorus: Option<(f32, f32, f32, f32)>,
+crate::bus_mix! {
+    /// One bus: level, ducking, EQ and effects. Every field is optional in
+    /// the file (a missing one is its default: no effect). A new bus effect
+    /// is one more line here: an `Option<...>` defaulting to `None`, which
+    /// songs can then override and automate by name.
+    pub struct BusMix / BusOverride {
+        /// Bus trim: the kit is synthesized hot, the band sits up with it.
+        trim: f32 = 1.0,
+        /// How deep the bus ducks under a full-strength kick.
+        pump: f32 = 0.0,
+        /// Up to six bands, in order.
+        eq: Vec<Eq> = Vec::new(),
+        /// Suitcase tremolo: (rate Hz, depth).
+        autopan: Option<(f32, f32)> = None => [rate, depth],
+        /// Chorus: (rate Hz, centre ms, depth ms, mix).
+        chorus: Option<(f32, f32, f32, f32)> = None => [rate, centre, depth, mix],
+    }
 }
 
 pub static MIX: friendslop_data::Data<Mix> = friendslop_data::Data::ron("data/music/mix.ron");
 
-/// The buses' processing, built from [`MIX`]: a bus the file doesn't list
-/// passes straight through.
+/// Which version of mix.ron is loaded (0: not yet).
+fn mix_key() -> usize {
+    let mix = MIX.get();
+    if MIX.loaded() {
+        Arc::as_ptr(&mix) as usize
+    } else {
+        0
+    }
+}
+
+/// mix.ron, if it has loaded.
+fn mix_file() -> Option<Arc<Mix>> {
+    let mix = MIX.get();
+    MIX.loaded().then_some(mix)
+}
+
+/// The buses' processing, built from one song's settings.
 struct BusFx {
-    /// Which version of the file this is (0: not loaded yet).
-    key: usize,
     eq: Vec<StereoEq>,
     autopan: Vec<Option<AutoPan>>,
     chorus: Vec<Option<Chorus>>,
@@ -1747,43 +1765,65 @@ struct BusFx {
 }
 
 impl BusFx {
-    fn key() -> usize {
-        let mix = MIX.get();
-        if MIX.loaded() {
-            Arc::as_ptr(&mix) as usize
-        } else {
-            0
+    fn build(m: &[BusMix; BUSES]) -> Self {
+        Self {
+            eq: m.iter().map(|m| StereoEq::new(&m.eq)).collect(),
+            autopan: m
+                .iter()
+                .map(|m| m.autopan.map(|(r, d)| AutoPan::new(r, d)))
+                .collect(),
+            chorus: m
+                .iter()
+                .map(|m| m.chorus.map(|(r, c, d, x)| Chorus::new(r, c, d, x)))
+                .collect(),
+            trim: std::array::from_fn(|b| m[b].trim),
+            pump: std::array::from_fn(|b| m[b].pump),
         }
     }
 
-    fn build() -> Self {
-        let key = Self::key();
-        let mix = MIX.get();
-        let bus = |b: usize| mix.buses.get(Bus::NAMES[b]).filter(|_| key != 0);
-        Self {
-            key,
-            eq: (0..BUSES)
-                .map(|b| StereoEq::new(bus(b).map_or(&[][..], |m| &m.eq)))
-                .collect(),
-            autopan: (0..BUSES)
-                .map(|b| {
-                    bus(b)
-                        .and_then(|m| m.autopan)
-                        .map(|(r, d)| AutoPan::new(r, d))
-                })
-                .collect(),
-            chorus: (0..BUSES)
-                .map(|b| {
-                    bus(b)
-                        .and_then(|m| m.chorus)
-                        .map(|(r, c, d, x)| Chorus::new(r, c, d, x))
-                })
-                .collect(),
-            trim: std::array::from_fn(|b| bus(b).map_or(1.0, |m| m.trim)),
-            pump: std::array::from_fn(|b| bus(b).map_or(0.0, |m| m.pump)),
+    /// Move the running effects to `m` (automation: the same effects as
+    /// built, their numbers changed), keeping their state.
+    fn set(&mut self, m: &[BusMix; BUSES]) {
+        for (b, m) in m.iter().enumerate() {
+            self.eq[b].set(&m.eq);
+            if let (Some(a), Some((r, d))) = (&mut self.autopan[b], m.autopan) {
+                a.set(r, d);
+            }
+            if let (Some(c), Some((r, ce, d, x))) = (&mut self.chorus[b], m.chorus) {
+                c.set(r, ce, d, x);
+            }
+            self.trim[b] = m.trim;
+            self.pump[b] = m.pump;
+        }
+    }
+
+    /// Bus `b`'s chain on one block, `pump` the sidechain envelope.
+    fn run(&mut self, b: usize, l: &mut [f32], r: &mut [f32], pump: &[f32]) {
+        self.eq[b].process(l, r);
+        let t = self.trim[b];
+        let depth = self.pump[b];
+        if depth > 0.0 {
+            for ((x, y), p) in l.iter_mut().zip(r.iter_mut()).zip(pump) {
+                // A smooth dip (squared) so the duck doesn't click.
+                let g = t * (1.0 - depth * p * p.sqrt());
+                *x *= g;
+                *y *= g;
+            }
+        } else {
+            l.iter_mut().for_each(|x| *x *= t);
+            r.iter_mut().for_each(|x| *x *= t);
+        }
+        if let Some(a) = &mut self.autopan[b] {
+            a.process(l, r);
+        }
+        if let Some(c) = &mut self.chorus[b] {
+            c.process(l, r);
         }
     }
 }
+
+/// How long a change of mix (a new song, an edited mix.ron) crossfades.
+const MIX_FADE_SECS: f32 = 0.35;
 
 const FM_VOICES: usize = 16;
 const SUB_VOICES: usize = 12;
@@ -1807,6 +1847,25 @@ pub struct Band {
     send: Vec<f32>,
     echo_send: Vec<f32>,
     fx: BusFx,
+    /// The mix being left (crossfading out) and how far the fade is (0..1).
+    fx_old: Option<BusFx>,
+    fade: f32,
+    /// Which mix.ron and song mix `fx` was built from.
+    mix_key: usize,
+    mix_song: &'static crate::fx::song_mix::SongMix,
+    /// The song mix to play (set per bar; a change crossfades).
+    pub song_mix: &'static crate::fx::song_mix::SongMix,
+    /// Every bus's settings for this song, and with this block's automation.
+    mixes: [BusMix; BUSES],
+    now: [BusMix; BUSES],
+    master_mix: crate::fx::params::Master,
+    /// Bus automation lanes for this bar, where the band is in the section
+    /// (bars) and how far a sample moves it.
+    pub mix_lanes: Vec<crate::fx::params::BusLane>,
+    pub mix_pos: f32,
+    pub mix_step: f32,
+    /// Lanes moved the settings last block (put them back when they stop).
+    automated: bool,
     /// The instruments, refreshed once per block.
     table: Arc<Table>,
     echo: Echo,
@@ -1898,6 +1957,8 @@ pub const BLOCK: usize = 256;
 
 impl Band {
     pub fn new(bank: Arc<Bank>) -> Self {
+        let mixes =
+            crate::fx::song_mix::merged(mix_file().as_deref(), &crate::fx::song_mix::NO_MIX);
         Self {
             bank,
             fm: [FmVoice::idle(); FM_VOICES],
@@ -1927,7 +1988,19 @@ impl Band {
             br: vec![[0.0; BLOCK]; BUSES],
             send: vec![0.0; BLOCK],
             echo_send: vec![0.0; BLOCK],
-            fx: BusFx::build(),
+            fx: BusFx::build(&mixes),
+            fx_old: None,
+            fade: 1.0,
+            mix_key: mix_key(),
+            mix_song: &crate::fx::song_mix::NO_MIX,
+            song_mix: &crate::fx::song_mix::NO_MIX,
+            now: mixes.clone(),
+            mixes,
+            master_mix: crate::fx::params::Master::DEFAULT,
+            mix_lanes: Vec::new(),
+            mix_pos: 0.0,
+            mix_step: 0.0,
+            automated: false,
             table: table(),
             echo: Echo::new(),
             verb: Reverb::new(),
@@ -2249,14 +2322,41 @@ impl Band {
         };
     }
 
+    /// Follow the mix: rebuild (crossfading) when mix.ron or the song's
+    /// mix changes, and lay this block's automation lanes over it.
+    fn update_mix(&mut self, n: usize) {
+        let key = mix_key();
+        if key != self.mix_key || !std::ptr::eq(self.mix_song, self.song_mix) {
+            self.mix_key = key;
+            self.mix_song = self.song_mix;
+            self.mixes = crate::fx::song_mix::merged(mix_file().as_deref(), self.song_mix);
+            let new = BusFx::build(&self.mixes);
+            self.fx_old = Some(std::mem::replace(&mut self.fx, new));
+            self.fade = 0.0;
+            self.automated = true;
+        }
+        let (p0, p1) = (self.mix_pos, self.mix_pos + n as f32 * self.mix_step);
+        self.mix_pos = p1;
+        if self.mix_lanes.is_empty() && !self.automated {
+            return;
+        }
+        for (now, m) in self.now.iter_mut().zip(&self.mixes) {
+            now.copy_from(m);
+        }
+        let mut master = crate::fx::params::Master::DEFAULT;
+        crate::fx::params::apply(&self.mix_lanes, 0.5 * (p0 + p1), &mut self.now, &mut master);
+        self.fx.set(&self.now);
+        self.master_mix = master;
+        self.echo.set_feedback(master.feedback);
+        self.automated = !self.mix_lanes.is_empty();
+    }
+
     /// Mix `out.len() / 2` stereo frames (at most [`BLOCK`]).
     pub fn render(&mut self, out: &mut [f32]) {
         let n = (out.len() / 2).min(BLOCK);
         // Pick up edited data files.
         self.table = table();
-        if BusFx::key() != self.fx.key {
-            self.fx = BusFx::build();
-        }
+        self.update_mix(n);
         for b in 0..BUSES {
             self.bl[b][..n].fill(0.0);
             self.br[b][..n].fill(0.0);
@@ -2375,29 +2475,30 @@ impl Band {
             *p = self.pump;
             self.pump *= fall;
         }
-        // Bus processing.
+        // Bus processing (both mixes while one fades into the other).
         let fx = &mut self.fx;
+        let df = INV_RATE / MIX_FADE_SECS;
         for b in 0..BUSES {
             let (l, r) = (&mut bl[b][..n], &mut br[b][..n]);
-            fx.eq[b].process(l, r);
-            let t = fx.trim[b];
-            let depth = fx.pump[b];
-            if depth > 0.0 {
-                for ((x, y), p) in l.iter_mut().zip(r.iter_mut()).zip(&pump[..n]) {
-                    // A smooth dip (squared) so the duck doesn't click.
-                    let g = t * (1.0 - depth * p * p.sqrt());
-                    *x *= g;
-                    *y *= g;
-                }
-            } else {
-                l.iter_mut().for_each(|x| *x *= t);
-                r.iter_mut().for_each(|x| *x *= t);
+            let Some(old) = &mut self.fx_old else {
+                fx.run(b, l, r, &pump[..n]);
+                continue;
+            };
+            let (mut ol, mut or) = ([0.0f32; BLOCK], [0.0f32; BLOCK]);
+            ol[..n].copy_from_slice(l);
+            or[..n].copy_from_slice(r);
+            old.run(b, &mut ol[..n], &mut or[..n], &pump[..n]);
+            fx.run(b, l, r, &pump[..n]);
+            for i in 0..n {
+                let a = (self.fade + df * i as f32).min(1.0);
+                l[i] = ol[i] + (l[i] - ol[i]) * a;
+                r[i] = or[i] + (r[i] - or[i]) * a;
             }
-            if let Some(a) = &mut fx.autopan[b] {
-                a.process(l, r);
-            }
-            if let Some(c) = &mut fx.chorus[b] {
-                c.process(l, r);
+        }
+        if self.fx_old.is_some() {
+            self.fade += df * n as f32;
+            if self.fade >= 1.0 {
+                self.fx_old = None;
             }
         }
         // Sum the buses into the first one, add the echo.
@@ -2416,9 +2517,10 @@ impl Band {
         self.wet += (self.wet_target - self.wet) * k;
         self.echo_amt += (self.echo_target - self.echo_amt) * k;
         let (dw, de) = ((self.wet - w0) / n as f32, (self.echo_amt - e0) / n as f32);
+        let (mw, me) = (self.master_mix.wet.max(0.0), self.master_mix.echo.max(0.0));
         for (j, (s, e)) in send.iter_mut().zip(echo.iter_mut()).enumerate() {
-            *s *= w0 + dw * j as f32;
-            *e *= e0 + de * j as f32;
+            *s *= (w0 + dw * j as f32) * mw;
+            *e *= (e0 + de * j as f32) * me;
         }
         let (l, r) = (&mut bl[0][..n], &mut br[0][..n]);
         self.echo.process(echo, l, r);
@@ -2535,6 +2637,74 @@ mod tests {
             }
             assert!(peak > 0.02 && peak < 1.0, "{inst:?}: {peak}");
         }
+    }
+
+    /// A new song's mix crossfades in (no jump), then the old one goes;
+    /// a bus lane moves its effect while it plays.
+    #[test]
+    fn song_mixes_crossfade_and_lanes_move_effects() {
+        use crate::fx::{params, song_mix::SongMix};
+        let start = || {
+            let mut band = Band::new(Arc::new(Bank::default()));
+            band.bus_target = [1.0; BUSES];
+            band.bus_gain = [1.0; BUSES];
+            band.play(&Ev {
+                at: 0,
+                inst: Inst::named("Strings"),
+                note: 60,
+                vel: 0.8,
+                len: RATE * 4,
+                glide: false,
+            });
+            band
+        };
+        // The biggest sample-to-sample step over `blocks` blocks.
+        fn run(band: &mut Band, last: &mut f32, blocks: usize) -> f32 {
+            let mut buf = vec![0.0f32; 2 * BLOCK];
+            let mut jump = 0.0f32;
+            for _ in 0..blocks {
+                band.render(&mut buf);
+                for x in buf.chunks(2) {
+                    assert!(x[0].is_finite());
+                    jump = jump.max((x[0] - *last).abs());
+                    *last = x[0];
+                }
+            }
+            jump
+        }
+        // The same notes with no change of mix, for comparison.
+        let (mut plain, mut lp) = (start(), 0.0);
+        run(&mut plain, &mut lp, 40);
+        let steady = run(&mut plain, &mut lp, 81);
+        let (mut band, mut last) = (start(), 0.0);
+        run(&mut band, &mut last, 40);
+        let quiet: &'static SongMix = Box::leak(Box::new(SongMix {
+            buses: ron::from_str(
+                "{ \"pad\": (trim: 0.0), \"keys\": (trim: 0.0), \"lead\": (trim: 0.0) }",
+            )
+            .unwrap_or_else(|e| panic!("{e}")),
+            auto: Vec::new(),
+        }));
+        band.song_mix = quiet;
+        let mut jump = run(&mut band, &mut last, 1);
+        assert!(band.fx_old.is_some(), "the old mix fades out");
+        jump = jump.max(run(&mut band, &mut last, 80));
+        assert!(band.fx_old.is_none(), "and goes");
+        assert!(jump <= steady * 1.05 + 1e-4, "a click: {jump} vs {steady}");
+        assert_eq!(band.mixes[Bus::Pad as usize].trim, 0.0);
+        // A lane on the echo's feedback reaches the echo.
+        band.mix_lanes = vec![params::BusLane {
+            bus: None,
+            param: "feedback".into(),
+            how: params::How::Set,
+            curve: params::Curve::Steps(vec![0.7]),
+            bars: 1.0,
+        }];
+        run(&mut band, &mut last, 1);
+        assert_eq!(band.master_mix.feedback, 0.7);
+        band.mix_lanes.clear();
+        run(&mut band, &mut last, 1);
+        assert_eq!(band.master_mix.feedback, crate::dsp::ECHO_FEEDBACK);
     }
 
     /// One guitar note, mono, `secs` long.

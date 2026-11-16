@@ -14,6 +14,7 @@ use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 
 use super::super::bathroom::{CEILING, FartMonster, Gassed, Zone, zone};
 use super::*;
+use std::f32::consts::TAU;
 
 pub fn plugin(app: &mut App) {
     app.add_observer(on_gassed).add_systems(
@@ -101,6 +102,7 @@ pub(super) struct Kit {
     cube: Handle<Mesh>,
     floor: Handle<Mesh>,
     tiles: Handle<StandardMaterial>,
+    checker: Handle<StandardMaterial>,
     pub wall: Handle<StandardMaterial>,
 }
 
@@ -117,28 +119,38 @@ pub(super) fn kit(
         uv_transform: Affine2::from_scale(Vec2::splat(3.0)),
         ..default()
     });
+    // Until the checker swatch loads it's the same generated tiles.
+    let checker = materials.add(StandardMaterial {
+        base_color: Color::srgb(0.7, 0.7, 0.68),
+        ..materials.get(&tiles).cloned().unwrap_or_default()
+    });
     Kit {
         cube: cube.clone(),
         floor: meshes.add(Cuboid::new(CELL, 0.02, CELL)),
         tiles,
-        wall: mat(materials, Color::srgb(0.66, 0.72, 0.66), 0.6),
+        checker,
+        // The bare wall above the tiles: a flat, sickly Backrooms yellow.
+        wall: mat(materials, Color::srgb(0.74, 0.69, 0.5), 0.7),
     }
 }
 
 /// The modeler's tile surface (`models/surfaces/bath_tiles.gltf`, source
 /// `bt-swatch-tiles`): 4 x 4 tiles to a 1.67 m texture, the same size as
 /// the generated one, which stays until (or unless) the swatch loads.
-const TILE_SWATCH: &str = "models/surfaces/bath_tiles.gltf";
+const TILE_SWATCH: &str = "models/surfaces/bath_tiles_backrooms.gltf";
+/// The old black-and-white checker some rooms have (`bt-swatch-tiles-checker`).
+const CHECKER_SWATCH: &str = "models/surfaces/bath_tiles_checker.gltf";
 
-/// A bathroom floor still wearing the generated tiles.
+/// A bathroom floor still wearing the generated tiles, and the swatch it
+/// takes its look from.
 #[derive(Component)]
-struct BathFloor;
+struct BathFloor(&'static str);
 
-/// Swap the generated tile texture for the modeler swatch's once it loads.
+/// Swap the generated tile texture for a modeler swatch's once it loads.
 fn tile_floors(
     mut commands: Commands,
-    mut swatch: Local<Option<Handle<Gltf>>>,
-    floors: Query<(Entity, &MeshMaterial3d<StandardMaterial>), With<BathFloor>>,
+    mut swatches: Local<std::collections::HashMap<&'static str, Handle<Gltf>>>,
+    floors: Query<(Entity, &MeshMaterial3d<StandardMaterial>, &BathFloor)>,
     assets: Option<Res<AssetServer>>,
     gltfs: Option<Res<Assets<Gltf>>>,
     gltf_materials: Option<Res<Assets<bevy::gltf::GltfMaterial>>>,
@@ -152,24 +164,23 @@ fn tile_floors(
     else {
         return;
     };
-    let h = swatch
-        .get_or_insert_with(|| assets.load(TILE_SWATCH))
-        .clone();
-    if assets.load_state(&h).is_failed() {
-        // No swatch (no LFS data): keep the generated tiles for good.
-        for (e, _) in &floors {
+    for (e, m, floor) in &floors {
+        let h = swatches
+            .entry(floor.0)
+            .or_insert_with(|| assets.load(floor.0))
+            .clone();
+        if assets.load_state(&h).is_failed() {
+            // No swatch (no LFS data): keep the generated tiles for good.
             commands.entity(e).remove::<BathFloor>();
+            continue;
         }
-        return;
-    }
-    if !assets.is_loaded_with_dependencies(&h) {
-        return;
-    }
-    let look = (gltfs.get(&h))
-        .and_then(|g| g.materials.first())
-        .and_then(|m| gltf_materials.get(m));
-    for (e, m) in &floors {
+        if !assets.is_loaded_with_dependencies(&h) {
+            continue;
+        }
         commands.entity(e).remove::<BathFloor>();
+        let look = (gltfs.get(&h))
+            .and_then(|g| g.materials.first())
+            .and_then(|m| gltf_materials.get(m));
         let (Some(look), Some(mut floor)) = (look, materials.get_mut(&m.0)) else {
             continue;
         };
@@ -177,6 +188,7 @@ fn tile_floors(
             floor.base_color = Color::srgb(0.9, 0.95, 0.9);
             floor.base_color_texture = Some(t);
             floor.metallic_roughness_texture = look.metallic_roughness_texture.clone();
+            floor.normal_map_texture = look.normal_map_texture.clone();
             floor.perceptual_roughness = 1.0;
         }
     }
@@ -265,13 +277,72 @@ fn door_turn(along: Vec3) -> Quat {
     Quat::from_rotation_arc(Vec3::X, along)
 }
 
-/// Furnish one bathroom cell. The layout comes from the seed and which way a
-/// wall faces, not the cell, so every cell is laid out the same way (that's
-/// the confusing part); only the dirt differs.
+/// What one closed side of a bathroom cell is furnished with.
+#[derive(serde::Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
+pub enum WallKind {
+    /// Three stalls with broken doors and dirty toilets.
+    Stalls,
+    /// A row of urinals with dividers, or one long trough.
+    Urinals,
+    /// A long vanity of sinks under a mirror, or pedestal sinks.
+    Sinks,
+    /// Three gym shower bays with mildewed curtains.
+    Showers,
+    /// Hand dryer, towels, soap, a bin, a vent, a sign.
+    Fixtures,
+    /// Bare tile and whatever's been left against it.
+    Junk,
+    /// A stall door hung metres up the wall.
+    HighDoor,
+}
+
+impl WallKind {
+    /// Reaches far enough out from the wall to hit a row on the next wall.
+    fn deep(self) -> bool {
+        matches!(self, WallKind::Stalls | WallKind::Showers)
+    }
+}
+
+/// Pick a wall kind from weighted odds; `shallow` leaves out the deep ones.
+fn pick_wall(walls: &[(WallKind, f32)], roll: f32, shallow: bool, low: bool) -> WallKind {
+    let ok = |k: WallKind| !(shallow && k.deep()) && !(low && k == WallKind::HighDoor);
+    let total: f32 = walls.iter().filter(|w| ok(w.0)).map(|w| w.1.max(0.0)).sum();
+    let mut left = roll * total;
+    for &(k, w) in walls.iter().filter(|w| ok(w.0)) {
+        left -= w.max(0.0);
+        if left < 0.0 {
+            return k;
+        }
+    }
+    WallKind::Junk
+}
+
+/// Which look a cell has: one of a few templates, so the same rooms come
+/// round again and again (that's the confusing part), and whether its
+/// ceiling is dropped low.
+fn template(seed: u32, (x, z): (usize, usize)) -> (u32, bool) {
+    let t = tuning();
+    let n = t.templates.max(1);
+    let mut r = Rng::new(seed ^ 0x7e3b ^ (x as u32 * 0x2f9 + z as u32 * 0x61c3));
+    let k = r.below(n as usize) as u32;
+    let mut look = Rng::new(seed ^ 0x10c1 ^ k.wrapping_mul(0x9e37));
+    (k, look.roll() < t.low_ceiling)
+}
+
+/// How high the lights hang in a cell with a dropped ceiling.
+const DROP: f32 = 3.2;
+/// The wall's tile face, in from the cell edge.
+const FACE: f32 = CELL / 2.0 - 0.15;
+
+/// Furnish one bathroom cell. A cell takes one of a few templates (from the
+/// seed), and a template fixes what every wall is, so rooms repeat across the
+/// bathroom like the Backrooms; only the dirt differs.
+#[allow(clippy::too_many_arguments)]
 pub(super) fn furnish(
     commands: &mut Commands,
     kit: &Kit,
     seed: u32,
+    zone: Zone,
     (x, z): (usize, usize),
     mask: u8,
     hum: Option<&Handle<AudioSource>>,
@@ -279,12 +350,19 @@ pub(super) fn furnish(
     let c = cell_centre(x, z);
     let cw = Vec3::new(c.x, INSIDE_Y, c.y);
     let mut dirt = Rng::new(seed ^ (x as u32 * 31 + z as u32 * 977) ^ 0xd127);
-    // Tiles underfoot.
+    let (look, low) = template(seed, (x, z));
+    let t = tuning();
+    // Tiles underfoot: some templates have the old checker floor.
+    let checker = Rng::new(seed ^ 0xc4ec ^ look).roll() < t.checker;
     commands.spawn((
         Mesh3d(kit.floor.clone()),
-        MeshMaterial3d(kit.tiles.clone()),
+        MeshMaterial3d(if checker {
+            kit.checker.clone()
+        } else {
+            kit.tiles.clone()
+        }),
         Transform::from_translation(cw + Vec3::Y * 0.011),
-        BathFloor,
+        BathFloor(if checker { CHECKER_SWATCH } else { TILE_SWATCH }),
         InteriorPart,
         DespawnOnExit(AppState::InGame),
     ));
@@ -299,21 +377,51 @@ pub(super) fn furnish(
         );
         return;
     }
-    // A buzzing tube on long wires, far overhead, and its hum.
-    // The model's rods are 1.6 m long, up from the tube to the ceiling.
-    let hang = CEILING - 1.6;
-    model(
-        commands,
-        "bath_tube.gltf",
-        Transform::from_translation(cw + Vec3::Y * hang),
-    );
-    let base = 240_000.0;
+    // A tiled pillar where four bathroom cells meet (this cell's +x +z corner).
+    if zone.contains((x + 1, z)) && zone.contains((x, z + 1)) && zone.contains((x + 1, z + 1)) {
+        let p = cw + Vec3::new(CELL / 2.0, 0.0, CELL / 2.0);
+        model(
+            commands,
+            "bath_tile_pillar.gltf",
+            Transform::from_translation(p),
+        );
+        solid(
+            commands,
+            at(p + Vec3::Y * CEILING / 2.0, Vec3::new(0.7, CEILING, 0.7)),
+            avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+        );
+    }
+    // The light: a buzzing tube on long wires far overhead, or a troffer in
+    // a dropped ceiling, and its hum.
+    let hang = if low {
+        model(
+            commands,
+            "bath_ceiling_drop.gltf",
+            Transform::from_translation(cw),
+        );
+        model(
+            commands,
+            "bath_ceiling_lamp.gltf",
+            Transform::from_translation(cw),
+        );
+        DROP
+    } else {
+        // The model's rods are 1.6 m long, up from the tube to the ceiling.
+        let hang = CEILING - 1.6;
+        model(
+            commands,
+            "bath_tube.gltf",
+            Transform::from_translation(cw + Vec3::Y * hang),
+        );
+        hang
+    };
+    let base = if low { 90_000.0 } else { 240_000.0 };
     commands.spawn((
         InteriorPart,
         PointLight {
-            color: Color::srgb(0.88, 1.0, 0.92),
+            color: Color::srgb(1.0, 0.94, 0.74),
             intensity: base,
-            range: 20.0,
+            range: if low { 11.0 } else { 20.0 },
             ..default()
         },
         Flicker {
@@ -337,7 +445,7 @@ pub(super) fn furnish(
         );
         commands.entity(e).insert(InteriorPart);
     }
-    // Something brown on the floor.
+    // Something brown on the floor, a drain, a sign nobody heeds.
     if dirt.roll() < 0.6 {
         let p = cw + Vec3::new(dirt.roll() - 0.5, 0.0, dirt.roll() - 0.5) * 2.0;
         // The puddle model is a 1 m blot: stretch it to this one's size.
@@ -351,23 +459,299 @@ pub(super) fn furnish(
             )),
         );
     }
-    let mut stalled: Vec<Vec3> = Vec::new();
+    if dirt.roll() < t.drain {
+        let p = cw + Vec3::new(dirt.roll() - 0.5, 0.0, dirt.roll() - 0.5) * 0.8;
+        model(
+            commands,
+            "bath_floor_drain.gltf",
+            Transform::from_translation(p + Vec3::Y * 0.012),
+        );
+    }
+    if dirt.roll() < t.wet_sign {
+        let p = cw + Vec3::new(dirt.roll() - 0.5, 0.0, dirt.roll() - 0.5) * 1.2;
+        model(
+            commands,
+            "bath_wet_floor_sign.gltf",
+            Transform::from_translation(p).with_rotation(Quat::from_rotation_y(dirt.roll() * TAU)),
+        );
+    }
+    let mut deep: Vec<Vec3> = Vec::new();
     for (i, (side, dir)) in [(N, -Vec3::Z), (E, Vec3::X), (S, Vec3::Z), (WEST, -Vec3::X)]
         .into_iter()
         .enumerate()
     {
         if mask & side != 0 {
+            // An open side: now and then a door frame stands in it, with no
+            // wall and no door. One per opening (only the E and S sides).
+            if (side == E || side == S)
+                && Rng::new(seed ^ 0xd00f ^ (x as u32 * 131 + z as u32 * 7 + i as u32)).roll()
+                    < t.doorframe
+            {
+                doorframe(commands, cw + dir * (CELL / 2.0), dir);
+            }
             continue;
         }
-        let mut layout = Rng::new(seed ^ 0x57a1 ^ (i as u32 * 0x1f1f));
-        // Stalls only on facing walls: rows on walls that meet would collide.
-        let corner = stalled.iter().any(|&d: &Vec3| d.dot(dir).abs() < 0.5);
-        if layout.roll() < 0.8 && !corner {
-            stalled.push(dir);
-            stalls(commands, cw, dir, &mut layout, &mut dirt);
-        } else {
-            high_door(commands, cw, dir, &mut layout);
+        let mut layout = Rng::new(seed ^ 0x57a1 ^ look.wrapping_mul(0x9e37) ^ (i as u32 * 0x1f1f));
+        // Deep rows only on facing walls: rows on walls that meet would collide.
+        let corner = deep.iter().any(|&d: &Vec3| d.dot(dir).abs() < 0.5);
+        let kind = pick_wall(&t.walls, layout.roll(), corner, low);
+        if kind.deep() {
+            deep.push(dir);
         }
+        if kind != WallKind::Showers && kind != WallKind::HighDoor {
+            wall_model(commands, cw, dir, 0.0, "bath_wainscot.gltf");
+        }
+        match kind {
+            WallKind::Stalls => stalls(commands, cw, dir, &mut layout, &mut dirt),
+            WallKind::HighDoor => high_door(commands, cw, dir, &mut layout),
+            WallKind::Urinals => urinals(commands, cw, dir, &mut layout),
+            WallKind::Sinks => sinks(commands, cw, dir, &mut layout),
+            WallKind::Showers => showers(commands, cw, dir, &mut layout),
+            WallKind::Fixtures => fixtures(commands, cw, dir, &mut layout),
+            WallKind::Junk => junk(commands, cw, dir, &mut layout),
+        }
+    }
+}
+
+/// Where a wall piece's origin goes: the foot of the wall's tile face,
+/// `off` metres along it, the piece facing into the cell.
+fn on_wall(cw: Vec3, dir: Vec3, off: f32) -> Transform {
+    let along = Vec3::new(dir.z.abs(), 0.0, dir.x.abs());
+    Transform::from_translation(cw + dir * FACE + along * off).looking_to(dir, Vec3::Y)
+}
+
+/// A wall-mounted model (made with its back on z = 0, facing +z).
+fn wall_model(commands: &mut Commands, cw: Vec3, dir: Vec3, off: f32, file: &'static str) {
+    model(commands, file, on_wall(cw, dir, off));
+}
+
+/// A solid box in a wall piece's own space (centre and size in metres).
+fn wall_solid(commands: &mut Commands, cw: Vec3, dir: Vec3, off: f32, centre: Vec3, size: Vec3) {
+    let tf = on_wall(cw, dir, off);
+    solid(
+        commands,
+        Transform::from_translation(tf.transform_point(centre))
+            .with_rotation(tf.rotation)
+            .with_scale(size),
+        avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+    );
+}
+
+/// A door frame standing alone in an opening, the way through it along `dir`.
+fn doorframe(commands: &mut Commands, p: Vec3, dir: Vec3) {
+    let tf = Transform::from_translation(p).looking_to(dir, Vec3::Y);
+    model(commands, "bath_doorframe.gltf", tf);
+    for side in [-1.0, 1.0] {
+        let jamb = tf.transform_point(Vec3::new(side * 0.53, 1.13, 0.0));
+        solid(
+            commands,
+            Transform::from_translation(jamb)
+                .with_rotation(tf.rotation)
+                .with_scale(Vec3::new(0.06, 2.26, 0.15)),
+            avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+        );
+    }
+}
+
+/// Urinals: four with dividers (one maybe smashed), or a steel trough.
+fn urinals(commands: &mut Commands, cw: Vec3, dir: Vec3, layout: &mut Rng) {
+    if layout.roll() < 0.3 {
+        wall_model(commands, cw, dir, 0.0, "bath_urinal_trough.gltf");
+        wall_solid(
+            commands,
+            cw,
+            dir,
+            0.0,
+            Vec3::new(0.0, 0.33, 0.18),
+            Vec3::new(2.4, 0.65, 0.36),
+        );
+        return;
+    }
+    let broken = layout.below(6);
+    for k in 0..4 {
+        let off = (k as f32 - 1.5) * 0.9;
+        let file = if k == broken {
+            "bath_urinal_broken.gltf"
+        } else {
+            "bath_urinal.gltf"
+        };
+        wall_model(commands, cw, dir, off, file);
+        wall_solid(
+            commands,
+            cw,
+            dir,
+            off,
+            Vec3::new(0.0, 0.7, 0.18),
+            Vec3::new(0.45, 0.75, 0.36),
+        );
+        if k > 0 {
+            let d = off - 0.45;
+            wall_model(commands, cw, dir, d, "bath_urinal_divider.gltf");
+            wall_solid(
+                commands,
+                cw,
+                dir,
+                d,
+                Vec3::new(0.0, 0.9, 0.23),
+                Vec3::new(0.06, 1.2, 0.45),
+            );
+        }
+    }
+}
+
+/// Sinks: a long vanity under a mirror, or three pedestal sinks.
+fn sinks(commands: &mut Commands, cw: Vec3, dir: Vec3, layout: &mut Rng) {
+    if layout.roll() < 0.7 {
+        wall_model(commands, cw, dir, 0.0, "bath_sink_counter.gltf");
+        wall_solid(
+            commands,
+            cw,
+            dir,
+            0.0,
+            Vec3::new(0.0, 0.45, 0.275),
+            Vec3::new(3.6, 0.9, 0.55),
+        );
+        let mirror = if layout.roll() < 0.35 {
+            "bath_mirror_cracked.gltf"
+        } else {
+            "bath_mirror.gltf"
+        };
+        wall_model(commands, cw, dir, 0.0, mirror);
+    } else {
+        for k in 0..3 {
+            let off = (k as f32 - 1.0) * 1.2;
+            wall_model(commands, cw, dir, off, "bath_sink_pedestal.gltf");
+            wall_solid(
+                commands,
+                cw,
+                dir,
+                off,
+                Vec3::new(0.0, 0.43, 0.25),
+                Vec3::new(0.55, 0.86, 0.5),
+            );
+        }
+    }
+}
+
+/// Three gym shower bays, their curtains drawn, torn or gone.
+fn showers(commands: &mut Commands, cw: Vec3, dir: Vec3, layout: &mut Rng) {
+    wall_model(commands, cw, dir, 0.0, "bath_shower_row.gltf");
+    for off in [-1.76, -0.6, 0.6, 1.76] {
+        wall_solid(
+            commands,
+            cw,
+            dir,
+            off,
+            Vec3::new(0.0, 1.05, 0.7),
+            Vec3::new(0.08, 2.1, 1.4),
+        );
+    }
+    for k in 0..3 {
+        let off = (k as f32 - 1.0) * 1.2;
+        let roll = layout.roll();
+        let file = if roll < 0.45 {
+            "bath_shower_curtain.gltf"
+        } else if roll < 0.8 {
+            "bath_shower_curtain_torn.gltf"
+        } else {
+            continue;
+        };
+        let tf = on_wall(cw, dir, off);
+        model(
+            commands,
+            file,
+            tf.with_translation(tf.transform_point(Vec3::new(0.0, -0.03, 1.33))),
+        );
+    }
+}
+
+/// What's on a plain wall: dryer, towels, soap, a bin, a vent, a sign.
+fn fixtures(commands: &mut Commands, cw: Vec3, dir: Vec3, layout: &mut Rng) {
+    let spots = [-1.5, -0.75, 0.0, 0.75, 1.5];
+    let items = [
+        "bath_hand_dryer.gltf",
+        "bath_towel_dispenser.gltf",
+        "bath_soap_dispenser.gltf",
+        "bath_restroom_sign.gltf",
+        "bath_out_of_order.gltf",
+    ];
+    for off in spots {
+        if layout.roll() < 0.75 {
+            wall_model(commands, cw, dir, off, items[layout.below(items.len())]);
+        }
+    }
+    wall_model(
+        commands,
+        cw,
+        dir,
+        layout.roll() * 2.0 - 1.0,
+        "bath_wall_vent.gltf",
+    );
+    if layout.roll() < 0.7 {
+        let off = layout.roll() * 2.4 - 1.2;
+        // The bin stands free, its flap to the room, a little off the wall.
+        let tf = on_wall(cw, dir, off);
+        let bin = tf.transform_point(Vec3::Z * 0.3);
+        model(commands, "bath_trash_bin.gltf", tf.with_translation(bin));
+        solid(
+            commands,
+            Transform::from_translation(bin + Vec3::Y * 0.4)
+                .with_rotation(tf.rotation)
+                .with_scale(Vec3::new(0.43, 0.8, 0.43)),
+            avian3d::prelude::Collider::cuboid(1.0, 1.0, 1.0),
+        );
+    }
+    if layout.roll() < 0.5 {
+        wall_model(
+            commands,
+            cw,
+            dir,
+            layout.roll() * 2.0 - 1.0,
+            "bath_paper_pile.gltf",
+        );
+    }
+}
+
+/// A bare wall, and the things left against it.
+fn junk(commands: &mut Commands, cw: Vec3, dir: Vec3, layout: &mut Rng) {
+    for off in [-1.2, 0.0, 1.2] {
+        let roll = layout.roll();
+        let (file, solid_box) = match roll {
+            r if r < 0.15 => (
+                "bath_toilet_broken.gltf",
+                Some((Vec3::new(0.0, 0.45, 0.27), Vec3::new(0.5, 0.9, 0.54))),
+            ),
+            r if r < 0.3 => (
+                "bath_mop_bucket.gltf",
+                Some((Vec3::new(0.0, 0.27, 0.4), Vec3::new(0.63, 0.54, 0.63))),
+            ),
+            r if r < 0.42 => ("bath_hazard_bucket.gltf", None),
+            r if r < 0.55 => ("bath_tp_mess.gltf", None),
+            r if r < 0.65 => ("bath_plunger.gltf", None),
+            r if r < 0.75 => ("bath_paper_pile.gltf", None),
+            _ => continue,
+        };
+        let tf = on_wall(cw, dir, off);
+        // Free props stand a little off the wall.
+        let tf = if file == "bath_toilet_broken.gltf" || file == "bath_paper_pile.gltf" {
+            tf
+        } else {
+            tf.with_translation(tf.transform_point(Vec3::Z * 0.4))
+                .with_rotation(tf.rotation * Quat::from_rotation_y(layout.roll() * TAU))
+        };
+        model(commands, file, tf);
+        if let Some((centre, size)) = solid_box {
+            wall_solid(commands, cw, dir, off, centre, size);
+        }
+    }
+    if layout.roll() < 0.4 {
+        wall_model(
+            commands,
+            cw,
+            dir,
+            layout.roll() * 2.0 - 1.0,
+            "bath_out_of_order.gltf",
+        );
     }
 }
 
@@ -647,6 +1031,19 @@ struct FartCloud(f32);
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
     pub cloud_secs: f32,
+    /// How many different cell layouts the bathroom repeats.
+    pub templates: u32,
+    /// Chance a layout has a dropped ceiling (a low grid at 3.2 m).
+    pub low_ceiling: f32,
+    /// Chance a layout has the old checker floor.
+    pub checker: f32,
+    /// Chances per cell of a floor drain and a wet-floor sign, and per
+    /// opening of a door frame standing in it with no wall around it.
+    pub drain: f32,
+    pub wet_sign: f32,
+    pub doorframe: f32,
+    /// Odds of each kind of wall.
+    pub walls: Vec<(WallKind, f32)>,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -864,6 +1261,45 @@ mod tests {
     fn the_monster_waddles_when_it_moves() {
         assert_eq!(fart_clip(true).name, "waddle");
         assert_eq!(fart_clip(false).name, "idle");
+    }
+
+    #[test]
+    fn deep_walls_are_never_picked_next_to_deep_walls() {
+        let walls = [
+            (WallKind::Stalls, 1.0),
+            (WallKind::Showers, 1.0),
+            (WallKind::Urinals, 1.0),
+        ];
+        for i in 0..100 {
+            let roll = i as f32 / 100.0;
+            assert!(!pick_wall(&walls, roll, true, false).deep());
+        }
+        let any_stalls =
+            (0..100).any(|i| pick_wall(&walls, i as f32 / 100.0, false, false) == WallKind::Stalls);
+        assert!(any_stalls);
+        let high = [(WallKind::HighDoor, 1.0), (WallKind::Junk, 1.0)];
+        for i in 0..100 {
+            assert_ne!(
+                pick_wall(&high, i as f32 / 100.0, false, true),
+                WallKind::HighDoor
+            );
+        }
+    }
+
+    #[test]
+    fn tuning_parses_with_every_wall_kind() {
+        let path = format!(
+            "{}/../game/assets/{}",
+            env!("CARGO_MANIFEST_DIR"),
+            TUNING.path()
+        );
+        let Ok(bytes) = std::fs::read(&path) else {
+            panic!("no {path}")
+        };
+        assert!(TUNING.set_bytes(&bytes), "{path} doesn't parse");
+        let t = TUNING.get();
+        assert!(t.templates >= 2 && t.walls.len() == 7, "{t:?}");
+        assert!(t.cloud_secs > 0.0 && t.low_ceiling > 0.0 && t.doorframe > 0.0);
     }
 
     #[test]

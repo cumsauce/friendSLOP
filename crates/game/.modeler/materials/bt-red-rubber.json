@@ -1,0 +1,88 @@
+{
+  "name": "bt-red-rubber",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 4,
+      "seed": 303,
+      "size": 0.1,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#7a1410"
+        ],
+        [
+          1,
+          "#a8221a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.45,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "bt-red-rubber",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 4,
+              "seed": 303,
+              "size": 0.1,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#7a1410"
+                ],
+                [
+                  1,
+                  "#a8221a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.45,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

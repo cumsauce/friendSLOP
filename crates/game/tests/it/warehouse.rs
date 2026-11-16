@@ -195,6 +195,13 @@ fn the_fart_monster_gasses_you_out() {
     server.connect_client(&mut client);
     exchange(&mut server, &mut client, 3);
     use friendslop::features::warehouse::wfc::Plan;
+    // Read the bathroom's tuning (its odds and size) up front, as the game does.
+    let tuning = &friendslop::features::warehouse::bathroom::TUNING;
+    let path = format!("{}/assets/{}", env!("CARGO_MANIFEST_DIR"), tuning.path());
+    let Ok(bytes) = std::fs::read(&path) else {
+        panic!("no {path}")
+    };
+    assert!(tuning.set_bytes(&bytes), "{path} doesn't parse");
     let Some(seed) = (1..500u32).find(|&s| {
         let reach = Plan::generate(s).reachable();
         zone(s).is_some_and(|z| reach.iter().any(|&c| z.contains(c)))

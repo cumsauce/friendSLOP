@@ -34,6 +34,11 @@ pub struct Tuning {
     pub gas_reach: f32,
     /// Seconds it stands there, satisfied, after gassing someone.
     pub smug: f32,
+    /// How many cells it spans each way, smallest and biggest (the
+    /// warehouse is 7 x 7 and its first two rows stay storage, so at most
+    /// 7 across and 5 deep).
+    pub min_cells: usize,
+    pub max_cells: usize,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -77,8 +82,11 @@ pub fn zone(seed: u32) -> Option<Zone> {
     if rng.roll() >= tuning().chance {
         return None;
     }
-    let w = 2 + rng.below(2);
-    let h = 2 + rng.below(2);
+    let t = tuning();
+    let lo = t.min_cells.clamp(1, H - 2);
+    let span = t.max_cells.clamp(lo, H - 2) - lo + 1;
+    let w = (lo + rng.below(span)).min(W);
+    let h = lo + rng.below(span);
     let x0 = rng.below(W - w + 1);
     // Rows 0 and 1 stay storage, so you always walk in through the warehouse.
     let z0 = 2 + rng.below(H - h - 1);
@@ -350,7 +358,9 @@ mod tests {
             some += 1;
             assert!(z.x0 + z.w <= W && z.z0 + z.h <= H, "{z:?}");
             assert!(z.z0 >= 2 && !z.contains(ENTRANCE), "{z:?}");
-            assert!((2..=3).contains(&z.w) && (2..=3).contains(&z.h));
+            let t = tuning();
+            assert!((t.min_cells..=t.max_cells).contains(&z.w), "{z:?}");
+            assert!((t.min_cells..=t.max_cells).contains(&z.h), "{z:?}");
             assert_eq!(z.cells().count(), z.w * z.h);
         }
         assert!((80..180).contains(&some), "{some} of 200 have a bathroom");

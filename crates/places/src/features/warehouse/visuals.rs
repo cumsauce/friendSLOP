@@ -737,7 +737,9 @@ fn build_inside(
                 );
             }
             if let Some(kit) = kit.as_ref().filter(|_| in_bath((x, z))) {
-                bathroom::furnish(&mut commands, kit, seed, (x, z), mask, hum.as_ref());
+                if let Some(zone) = bath {
+                    bathroom::furnish(&mut commands, kit, seed, zone, (x, z), mask, hum.as_ref());
+                }
                 continue;
             }
             if mask == 0 {

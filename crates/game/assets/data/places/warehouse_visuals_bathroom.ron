@@ -1,5 +1,31 @@
 // Tuning for warehouse visuals bathroom (crates/places/src/features/warehouse/visuals/bathroom.rs).
 // Edit and save: the running game picks it up within a second.
 (
+    // Seconds a fart cloud hangs in the air.
     cloud_secs: 3.0,
+    // How many different cell layouts the bathroom repeats. Few = more
+    // Backrooms (the same room again and again); many = more variety.
+    templates: 4,
+    // Chance a layout has a dropped ceiling: a stained grid at 3.2 m with a
+    // troffer light, instead of the 11 m ceiling and the hanging tube.
+    low_ceiling: 0.3,
+    // Chance a layout has the old black-and-white checker floor.
+    checker: 0.25,
+    // Per cell: a floor drain, a wet-floor sign.
+    drain: 0.45,
+    wet_sign: 0.2,
+    // Per opening between two bathroom cells: a door frame standing in it,
+    // no wall and no door.
+    doorframe: 0.25,
+    // Odds of each kind of closed wall. Stalls and Showers reach far out, so
+    // they never go on two walls that meet.
+    walls: [
+        (Stalls, 0.3),
+        (Urinals, 0.16),
+        (Sinks, 0.16),
+        (Showers, 0.1),
+        (Fixtures, 0.12),
+        (Junk, 0.1),
+        (HighDoor, 0.06),
+    ],
 )

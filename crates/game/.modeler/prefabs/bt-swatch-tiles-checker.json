@@ -1,0 +1,2085 @@
+{
+  "format_version": 1,
+  "name": "bt-swatch-tiles-checker",
+  "parts": [],
+  "version": 69641,
+  "ops": [
+    {
+      "primitive": {
+        "name": "swatch",
+        "kind": "plane",
+        "size": [
+          1.6667,
+          1.6667,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "swatch",
+        "input": "swatch",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bt-tiles-checker",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.6667,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.41667,
+                  0.41667
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 7.539822368615503,
+                "name": "ux",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 7.539822368615503,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ux2",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "vy2",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "b": "sv",
+                "name": "w",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 191,
+                "type": "random"
+              },
+              {
+                "input": "tone",
+                "name": "wc",
+                "stops": [
+                  [
+                    0,
+                    "#c9c3ae"
+                  ],
+                  [
+                    1,
+                    "#ddd8c6"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "tone",
+                "name": "bc",
+                "stops": [
+                  [
+                    0,
+                    "#2a2928"
+                  ],
+                  [
+                    1,
+                    "#363431"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "bc",
+                "b": "wc",
+                "name": "base",
+                "opacity": "white",
+                "type": "blend"
+              },
+              {
+                "name": "ch",
+                "seed": 192,
+                "size": 0.041667,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.02
+                ],
+                "input": "ch",
+                "name": "chip0",
+                "type": "levels"
+              },
+              {
+                "a": 1,
+                "b": "chip0",
+                "name": "chipi",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 193,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.62,
+                  0.7
+                ],
+                "input": "cn",
+                "name": "cm",
+                "type": "levels"
+              },
+              {
+                "a": "chipi",
+                "b": "cm",
+                "name": "chip",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "name": "gn",
+                "octaves": 5,
+                "seed": 194,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.45,
+                  0.85
+                ],
+                "input": "gn",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "gm",
+                "b": 0.7,
+                "name": "gm2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "#5e5236",
+                "name": "c1",
+                "opacity": "gm2",
+                "type": "blend"
+              },
+              {
+                "a": "c1",
+                "b": "#6b6558",
+                "name": "c2",
+                "opacity": "chip",
+                "type": "blend"
+              },
+              {
+                "a": "c2",
+                "b": "#4a4538",
+                "name": "col",
+                "opacity": "grout",
+                "type": "blend"
+              },
+              {
+                "a": "grout",
+                "b": "chip",
+                "name": "hd",
+                "op": "max",
+                "type": "math"
+              },
+              {
+                "a": 0.0,
+                "b": -0.002,
+                "c": "hd",
+                "name": "h",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.3,
+                "b": 0.85,
+                "c": "hd",
+                "name": "r0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": "gm2",
+                "name": "r1",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "r1",
+                "b": 0,
+                "c": 1,
+                "name": "rough",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              },
+              {
+                "in": [
+                  0.006,
+                  0.018
+                ],
+                "input": "g.edge",
+                "name": "face",
+                "type": "levels"
+              },
+              {
+                "a": 1,
+                "b": "face",
+                "name": "grout",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "in": [
+                  -0.02,
+                  0.02
+                ],
+                "input": "w",
+                "name": "white",
+                "type": "levels"
+              },
+              {
+                "a": "ux",
+                "b": 0.0,
+                "name": "ux2",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "b": 0.0,
+                "name": "vy2",
+                "op": "add",
+                "type": "math"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "swatch",
+        "input": "swatch",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bt-tiles-checker",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.6667,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.41667,
+                  0.41667
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 7.539822368615503,
+                "name": "ux",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 7.539822368615503,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ux2",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "vy2",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "b": "sv",
+                "name": "w",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 191,
+                "type": "random"
+              },
+              {
+                "input": "tone",
+                "name": "wc",
+                "stops": [
+                  [
+                    0,
+                    "#c9c3ae"
+                  ],
+                  [
+                    1,
+                    "#ddd8c6"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "tone",
+                "name": "bc",
+                "stops": [
+                  [
+                    0,
+                    "#2a2928"
+                  ],
+                  [
+                    1,
+                    "#363431"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "bc",
+                "b": "wc",
+                "name": "base",
+                "opacity": "white",
+                "type": "blend"
+              },
+              {
+                "name": "ch",
+                "seed": 192,
+                "size": 0.041667,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.02
+                ],
+                "input": "ch",
+                "name": "chip0",
+                "type": "levels"
+              },
+              {
+                "a": 1,
+                "b": "chip0",
+                "name": "chipi",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 193,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.62,
+                  0.7
+                ],
+                "input": "cn",
+                "name": "cm",
+                "type": "levels"
+              },
+              {
+                "a": "chipi",
+                "b": "cm",
+                "name": "chip",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "name": "gn",
+                "octaves": 5,
+                "seed": 194,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.45,
+                  0.85
+                ],
+                "input": "gn",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "gm",
+                "b": 0.7,
+                "name": "gm2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "#5e5236",
+                "name": "c1",
+                "opacity": "gm2",
+                "type": "blend"
+              },
+              {
+                "a": "c1",
+                "b": "#6b6558",
+                "name": "c2",
+                "opacity": "chip",
+                "type": "blend"
+              },
+              {
+                "a": "c2",
+                "b": "#4a4538",
+                "name": "col",
+                "opacity": "grout",
+                "type": "blend"
+              },
+              {
+                "a": "grout",
+                "b": "chip",
+                "name": "hd",
+                "op": "max",
+                "type": "math"
+              },
+              {
+                "a": 0.0,
+                "b": -0.002,
+                "c": "hd",
+                "name": "h",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.3,
+                "b": 0.85,
+                "c": "hd",
+                "name": "r0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": "gm2",
+                "name": "r1",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "r1",
+                "b": 0,
+                "c": 1,
+                "name": "rough",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              },
+              {
+                "in": [
+                  0.006,
+                  0.018
+                ],
+                "input": "g.edge",
+                "name": "face",
+                "type": "levels"
+              },
+              {
+                "a": 1,
+                "b": "face",
+                "name": "grout",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "in": [
+                  -0.02,
+                  0.02
+                ],
+                "input": "w",
+                "name": "white",
+                "type": "levels"
+              },
+              {
+                "a": "ux",
+                "b": 0.0,
+                "name": "ux2",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "b": 0.0,
+                "name": "vy2",
+                "op": "add",
+                "type": "math"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "swatch",
+        "input": "swatch",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bt-tiles-checker",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.6667,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.41667,
+                  0.41667
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 7.539822368615503,
+                "name": "ux",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 7.539822368615503,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ux2",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "vy2",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "b": "sv",
+                "name": "w",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 191,
+                "type": "random"
+              },
+              {
+                "input": "tone",
+                "name": "wc",
+                "stops": [
+                  [
+                    0,
+                    "#c9c3ae"
+                  ],
+                  [
+                    1,
+                    "#ddd8c6"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "tone",
+                "name": "bc",
+                "stops": [
+                  [
+                    0,
+                    "#2a2928"
+                  ],
+                  [
+                    1,
+                    "#363431"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "bc",
+                "b": "wc",
+                "name": "base",
+                "opacity": "white",
+                "type": "blend"
+              },
+              {
+                "name": "ch",
+                "seed": 192,
+                "size": 0.041667,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.02
+                ],
+                "input": "ch",
+                "name": "chip0",
+                "type": "levels"
+              },
+              {
+                "a": 1,
+                "b": "chip0",
+                "name": "chipi",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 193,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.62,
+                  0.7
+                ],
+                "input": "cn",
+                "name": "cm",
+                "type": "levels"
+              },
+              {
+                "a": "chipi",
+                "b": "cm",
+                "name": "chip",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "name": "gn",
+                "octaves": 5,
+                "seed": 194,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.45,
+                  0.85
+                ],
+                "input": "gn",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "gm",
+                "b": 0.7,
+                "name": "gm2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "#5e5236",
+                "name": "c1",
+                "opacity": "gm2",
+                "type": "blend"
+              },
+              {
+                "a": "c1",
+                "b": "#6b6558",
+                "name": "c2",
+                "opacity": "chip",
+                "type": "blend"
+              },
+              {
+                "a": "c2",
+                "b": "#4a4538",
+                "name": "col",
+                "opacity": "grout",
+                "type": "blend"
+              },
+              {
+                "a": "grout",
+                "b": "chip",
+                "name": "hd",
+                "op": "max",
+                "type": "math"
+              },
+              {
+                "a": 0.0,
+                "b": -0.002,
+                "c": "hd",
+                "name": "h",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.3,
+                "b": 0.85,
+                "c": "hd",
+                "name": "r0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": "gm2",
+                "name": "r1",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "r1",
+                "b": 0,
+                "c": 1,
+                "name": "rough",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              },
+              {
+                "in": [
+                  0.006,
+                  0.018
+                ],
+                "input": "g.edge",
+                "name": "face",
+                "type": "levels"
+              },
+              {
+                "a": 1,
+                "b": "face",
+                "name": "grout",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "in": [
+                  -0.02,
+                  0.02
+                ],
+                "input": "w",
+                "name": "white",
+                "type": "levels"
+              },
+              {
+                "a": "ux",
+                "b": 0.0,
+                "name": "ux2",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "b": 0.0,
+                "name": "vy2",
+                "op": "add",
+                "type": "math"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "swatch",
+        "input": "swatch",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bt-tiles-checker",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.6667,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.41667,
+                  0.41667
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 7.539822368615503,
+                "name": "ux",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 7.539822368615503,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ux2",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "vy2",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "b": "sv",
+                "name": "w",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 191,
+                "type": "random"
+              },
+              {
+                "input": "tone",
+                "name": "wc",
+                "stops": [
+                  [
+                    0,
+                    "#c9c3ae"
+                  ],
+                  [
+                    1,
+                    "#ddd8c6"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "tone",
+                "name": "bc",
+                "stops": [
+                  [
+                    0,
+                    "#2a2928"
+                  ],
+                  [
+                    1,
+                    "#363431"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "bc",
+                "b": "wc",
+                "name": "base",
+                "opacity": "white",
+                "type": "blend"
+              },
+              {
+                "name": "ch",
+                "seed": 192,
+                "size": 0.041667,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.02
+                ],
+                "input": "ch",
+                "name": "chip0",
+                "type": "levels"
+              },
+              {
+                "a": 1,
+                "b": "chip0",
+                "name": "chipi",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 193,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.62,
+                  0.7
+                ],
+                "input": "cn",
+                "name": "cm",
+                "type": "levels"
+              },
+              {
+                "a": "chipi",
+                "b": "cm",
+                "name": "chip",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "name": "gn",
+                "octaves": 5,
+                "seed": 194,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.45,
+                  0.85
+                ],
+                "input": "gn",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "gm",
+                "b": 0.7,
+                "name": "gm2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "#5e5236",
+                "name": "c1",
+                "opacity": "gm2",
+                "type": "blend"
+              },
+              {
+                "a": "c1",
+                "b": "#6b6558",
+                "name": "c2",
+                "opacity": "chip",
+                "type": "blend"
+              },
+              {
+                "a": "c2",
+                "b": "#4a4538",
+                "name": "col",
+                "opacity": "grout",
+                "type": "blend"
+              },
+              {
+                "a": "grout",
+                "b": "chip",
+                "name": "hd",
+                "op": "max",
+                "type": "math"
+              },
+              {
+                "a": 0.0,
+                "b": -0.002,
+                "c": "hd",
+                "name": "h",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.3,
+                "b": 0.85,
+                "c": "hd",
+                "name": "r0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": "gm2",
+                "name": "r1",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "r1",
+                "b": 0,
+                "c": 1,
+                "name": "rough",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              },
+              {
+                "in": [
+                  0.006,
+                  0.018
+                ],
+                "input": "g.edge",
+                "name": "face",
+                "type": "levels"
+              },
+              {
+                "a": 1,
+                "b": "face",
+                "name": "grout",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "in": [
+                  -0.02,
+                  0.02
+                ],
+                "input": "w",
+                "name": "white",
+                "type": "levels"
+              },
+              {
+                "a": "ux",
+                "b": 0.0,
+                "name": "ux2",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "b": 0.0,
+                "name": "vy2",
+                "op": "add",
+                "type": "math"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "swatch",
+        "input": "swatch",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bt-tiles-checker",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.6667,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.41667,
+                  0.41667
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 7.539822368615503,
+                "name": "ux",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 7.539822368615503,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ux2",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "vy2",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "b": "sv",
+                "name": "w",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 191,
+                "type": "random"
+              },
+              {
+                "input": "tone",
+                "name": "wc",
+                "stops": [
+                  [
+                    0,
+                    "#c9c3ae"
+                  ],
+                  [
+                    1,
+                    "#ddd8c6"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "tone",
+                "name": "bc",
+                "stops": [
+                  [
+                    0,
+                    "#2a2928"
+                  ],
+                  [
+                    1,
+                    "#363431"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "bc",
+                "b": "wc",
+                "name": "base",
+                "opacity": "white",
+                "type": "blend"
+              },
+              {
+                "name": "ch",
+                "seed": 192,
+                "size": 0.041667,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.02
+                ],
+                "input": "ch",
+                "name": "chip0",
+                "type": "levels"
+              },
+              {
+                "a": 1,
+                "b": "chip0",
+                "name": "chipi",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 193,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.62,
+                  0.7
+                ],
+                "input": "cn",
+                "name": "cm",
+                "type": "levels"
+              },
+              {
+                "a": "chipi",
+                "b": "cm",
+                "name": "chip",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "name": "gn",
+                "octaves": 5,
+                "seed": 194,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.45,
+                  0.85
+                ],
+                "input": "gn",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "gm",
+                "b": 0.7,
+                "name": "gm2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "#5e5236",
+                "name": "c1",
+                "opacity": "gm2",
+                "type": "blend"
+              },
+              {
+                "a": "c1",
+                "b": "#6b6558",
+                "name": "c2",
+                "opacity": "chip",
+                "type": "blend"
+              },
+              {
+                "a": "c2",
+                "b": "#4a4538",
+                "name": "col",
+                "opacity": "grout",
+                "type": "blend"
+              },
+              {
+                "a": "grout",
+                "b": "chip",
+                "name": "hd",
+                "op": "max",
+                "type": "math"
+              },
+              {
+                "a": 0.0,
+                "b": -0.002,
+                "c": "hd",
+                "name": "h",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.3,
+                "b": 0.85,
+                "c": "hd",
+                "name": "r0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": "gm2",
+                "name": "r1",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "r1",
+                "b": 0,
+                "c": 1,
+                "name": "rough",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              },
+              {
+                "in": [
+                  0.006,
+                  0.018
+                ],
+                "input": "g.edge",
+                "name": "face",
+                "type": "levels"
+              },
+              {
+                "a": 1,
+                "b": "face",
+                "name": "grout",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "in": [
+                  -0.02,
+                  0.02
+                ],
+                "input": "w",
+                "name": "white",
+                "type": "levels"
+              },
+              {
+                "a": "ux",
+                "b": 0.0,
+                "name": "ux2",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "b": 0.0,
+                "name": "vy2",
+                "op": "add",
+                "type": "math"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "swatch",
+        "input": "swatch",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bt-tiles-checker",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.6667,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.41667,
+                  0.41667
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 7.539822368615503,
+                "name": "ux",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 7.539822368615503,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ux2",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "vy2",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "b": "sv",
+                "name": "w",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 191,
+                "type": "random"
+              },
+              {
+                "input": "tone",
+                "name": "wc",
+                "stops": [
+                  [
+                    0,
+                    "#c9c3ae"
+                  ],
+                  [
+                    1,
+                    "#ddd8c6"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "tone",
+                "name": "bc",
+                "stops": [
+                  [
+                    0,
+                    "#2a2928"
+                  ],
+                  [
+                    1,
+                    "#363431"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "bc",
+                "b": "wc",
+                "name": "base",
+                "opacity": "white",
+                "type": "blend"
+              },
+              {
+                "name": "ch",
+                "seed": 192,
+                "size": 0.041667,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.02
+                ],
+                "input": "ch",
+                "name": "chip0",
+                "type": "levels"
+              },
+              {
+                "a": 1,
+                "b": "chip0",
+                "name": "chipi",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 193,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.62,
+                  0.7
+                ],
+                "input": "cn",
+                "name": "cm",
+                "type": "levels"
+              },
+              {
+                "a": "chipi",
+                "b": "cm",
+                "name": "chip",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "name": "gn",
+                "octaves": 5,
+                "seed": 194,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.45,
+                  0.85
+                ],
+                "input": "gn",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "gm",
+                "b": 0.7,
+                "name": "gm2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "#5e5236",
+                "name": "c1",
+                "opacity": "gm2",
+                "type": "blend"
+              },
+              {
+                "a": "c1",
+                "b": "#6b6558",
+                "name": "c2",
+                "opacity": "chip",
+                "type": "blend"
+              },
+              {
+                "a": "c2",
+                "b": "#4a4538",
+                "name": "col",
+                "opacity": "grout",
+                "type": "blend"
+              },
+              {
+                "a": "grout",
+                "b": "chip",
+                "name": "hd",
+                "op": "max",
+                "type": "math"
+              },
+              {
+                "a": 0.0,
+                "b": -0.002,
+                "c": "hd",
+                "name": "h",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.3,
+                "b": 0.85,
+                "c": "hd",
+                "name": "r0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": "gm2",
+                "name": "r1",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "r1",
+                "b": 0,
+                "c": 1,
+                "name": "rough",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              },
+              {
+                "in": [
+                  0.006,
+                  0.018
+                ],
+                "input": "g.edge",
+                "name": "face",
+                "type": "levels"
+              },
+              {
+                "a": 1,
+                "b": "face",
+                "name": "grout",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "in": [
+                  -0.02,
+                  0.02
+                ],
+                "input": "w",
+                "name": "white",
+                "type": "levels"
+              },
+              {
+                "a": "ux",
+                "b": 0.0,
+                "name": "ux2",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "b": 0.0,
+                "name": "vy2",
+                "op": "add",
+                "type": "math"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "swatch",
+        "input": "swatch",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "bt-tiles-checker",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.6667,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "g",
+                "size": [
+                  0.41667,
+                  0.41667
+                ],
+                "type": "tile_grid"
+              },
+              {
+                "name": "uv",
+                "of": "uv",
+                "type": "input"
+              },
+              {
+                "input": "uv",
+                "name": "s",
+                "type": "split"
+              },
+              {
+                "a": "s.x",
+                "b": 7.539822368615503,
+                "name": "ux",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "s.y",
+                "b": 7.539822368615503,
+                "name": "vy",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "ux2",
+                "name": "su",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "vy2",
+                "name": "sv",
+                "op": "sin",
+                "type": "math"
+              },
+              {
+                "a": "su",
+                "b": "sv",
+                "name": "w",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "id": "g.id",
+                "max": 1,
+                "min": 0,
+                "name": "tone",
+                "seed": 191,
+                "type": "random"
+              },
+              {
+                "input": "tone",
+                "name": "wc",
+                "stops": [
+                  [
+                    0,
+                    "#c9c3ae"
+                  ],
+                  [
+                    1,
+                    "#ddd8c6"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "input": "tone",
+                "name": "bc",
+                "stops": [
+                  [
+                    0,
+                    "#2a2928"
+                  ],
+                  [
+                    1,
+                    "#363431"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "bc",
+                "b": "wc",
+                "name": "base",
+                "opacity": "white",
+                "type": "blend"
+              },
+              {
+                "name": "ch",
+                "seed": 192,
+                "size": 0.041667,
+                "type": "worley"
+              },
+              {
+                "in": [
+                  0.0,
+                  0.02
+                ],
+                "input": "ch",
+                "name": "chip0",
+                "type": "levels"
+              },
+              {
+                "a": 1,
+                "b": "chip0",
+                "name": "chipi",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "name": "cn",
+                "octaves": 3,
+                "seed": 193,
+                "size": 0.15,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.62,
+                  0.7
+                ],
+                "input": "cn",
+                "name": "cm",
+                "type": "levels"
+              },
+              {
+                "a": "chipi",
+                "b": "cm",
+                "name": "chip",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "name": "gn",
+                "octaves": 5,
+                "seed": 194,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.45,
+                  0.85
+                ],
+                "input": "gn",
+                "name": "gm",
+                "type": "levels"
+              },
+              {
+                "a": "gm",
+                "b": 0.7,
+                "name": "gm2",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "base",
+                "b": "#5e5236",
+                "name": "c1",
+                "opacity": "gm2",
+                "type": "blend"
+              },
+              {
+                "a": "c1",
+                "b": "#6b6558",
+                "name": "c2",
+                "opacity": "chip",
+                "type": "blend"
+              },
+              {
+                "a": "c2",
+                "b": "#4a4538",
+                "name": "col",
+                "opacity": "grout",
+                "type": "blend"
+              },
+              {
+                "a": "grout",
+                "b": "chip",
+                "name": "hd",
+                "op": "max",
+                "type": "math"
+              },
+              {
+                "a": 0.0,
+                "b": -0.002,
+                "c": "hd",
+                "name": "h",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": 0.3,
+                "b": 0.85,
+                "c": "hd",
+                "name": "r0",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": "gm2",
+                "name": "r1",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "r1",
+                "b": 0,
+                "c": 1,
+                "name": "rough",
+                "op": "clamp",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "metallic": 0,
+                "name": "out",
+                "roughness": "rough",
+                "type": "output"
+              },
+              {
+                "in": [
+                  0.006,
+                  0.018
+                ],
+                "input": "g.edge",
+                "name": "face",
+                "type": "levels"
+              },
+              {
+                "a": 1,
+                "b": "face",
+                "name": "grout",
+                "op": "sub",
+                "type": "math"
+              },
+              {
+                "in": [
+                  -0.02,
+                  0.02
+                ],
+                "input": "w",
+                "name": "white",
+                "type": "levels"
+              },
+              {
+                "a": "ux",
+                "b": 0.0,
+                "name": "ux2",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "vy",
+                "b": 0.0,
+                "name": "vy2",
+                "op": "add",
+                "type": "math"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "style": {
+    "name": "friendslop",
+    "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
+    "colors": {
+      "bark": "#6b4a2f",
+      "brass": "#b8893a",
+      "char": "#2a2220",
+      "ember": "#ff5a1f",
+      "flame": "#ffb347",
+      "gunmetal": "#3a3d44",
+      "leaf": "#5f8f2f",
+      "moss": "#6f8f3a",
+      "stone": "#8f8a80",
+      "stone_dark": "#5e5a54",
+      "wood": "#9a6a3e"
+    },
+    "numbers": {
+      "segments": 12.0
+    }
+  },
+  "derived_from_ops": true
+}

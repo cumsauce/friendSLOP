@@ -294,6 +294,13 @@ pub fn protocol(app: &mut App) {
 }
 
 pub fn plugin(app: &mut App) {
+    // `FRIENDSLOP_START=warehouse_inside`: just inside the loading door.
+    crate::features::start::provide(|| {
+        vec![(
+            "warehouse_inside".to_owned(),
+            cell_world(ENTRANCE.0, ENTRANCE.1) + Vec3::Y * 0.1,
+        )]
+    });
     app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     visuals::plugin(app);
 }

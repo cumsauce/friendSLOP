@@ -39,6 +39,8 @@ fn spawn_bear(mut commands: Commands) {
 }
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    crate::areas::dress_in_area::<Bear>(app);
     app.add_hud(spawn_growl_text)
         .add_systems(Startup, load_growl_sound)
         .add_systems(
@@ -87,7 +89,7 @@ pub const BEAR_MODEL: &str = "models/creatures/bear.gltf";
 
 /// Give the bear (on every peer) its rigged plush model. A missing file only
 /// makes it invisible: its wandering and growls don't depend on it.
-fn dress_bear(mut commands: Commands, new: Query<(Entity, &Bear), Added<Bear>>) {
+fn dress_bear(mut commands: Commands, new: Query<(Entity, &Bear), Added<crate::areas::Shown>>) {
     for (entity, bear) in &new {
         commands.entity(entity).insert((
             Transform::from_translation(crate::terrain::on_ground(bear_position(bear, 0.0).xz())),

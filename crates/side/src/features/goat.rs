@@ -59,6 +59,8 @@ pub fn tuning() -> std::sync::Arc<Tuning> {
 }
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    friendslop_base::areas::dress_in_area::<Goat>(app);
     app.add_hud(spawn_goat_text).add_systems(
         Update,
         (dress_goat, animate_goat, judge).run_if(in_state(AppState::InGame)),
@@ -70,7 +72,10 @@ pub const GOAT_MODEL: &str = "models/creatures/goat.gltf";
 
 /// Give the goat (on every peer) its rigged plush model. A missing file only
 /// makes it invisible: its remarks don't depend on it.
-fn dress_goat(mut commands: Commands, new: Query<(Entity, &Goat), Added<Goat>>) {
+fn dress_goat(
+    mut commands: Commands,
+    new: Query<(Entity, &Goat), Added<friendslop_base::areas::Shown>>,
+) {
     for (entity, goat) in &new {
         commands.entity(entity).insert((
             Transform::from_translation(crate::terrain::on_ground(goat.home)),

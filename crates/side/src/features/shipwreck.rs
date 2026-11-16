@@ -350,6 +350,8 @@ fn loot(
 }
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    friendslop_base::areas::dress_in_area::<Treasure>(app);
     app.add_observer(click)
         .add_observer(show_news)
         .spawn_into("commune", build_wreck)
@@ -461,7 +463,7 @@ fn pose_pirates(
 
 fn dress_chest(
     mut commands: Commands,
-    new: Query<Entity, Added<Treasure>>,
+    new: Query<Entity, (With<Treasure>, Added<friendslop_base::areas::Shown>)>,
     assets: Res<AssetServer>,
 ) {
     for e in &new {

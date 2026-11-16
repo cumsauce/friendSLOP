@@ -233,6 +233,8 @@ fn take_burger(
 }
 
 pub fn plugin(app: &mut App) {
+    // Drawn only while its area shows (dressed again each time it does).
+    friendslop_base::areas::dress_in_area::<Burger>(app);
     app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     app.add_observer(click_burger)
         .spawn_into("commune", build_restaurant)
@@ -307,7 +309,7 @@ fn show_bag(
 /// Bun, lettuce, a pinkish patty and cheese, sat on the counter.
 fn dress_burgers(
     mut commands: Commands,
-    new: Query<(Entity, &Burger), Added<Burger>>,
+    new: Query<(Entity, &Burger), Added<friendslop_base::areas::Shown>>,
     assets: Res<AssetServer>,
 ) {
     for (entity, burger) in &new {

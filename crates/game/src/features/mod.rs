@@ -184,6 +184,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(boba::plugin);
         app.add_plugins(penn::plugin);
         app.add_plugins(street_people::plugin);
+        app.add_plugins(street_dressing::plugin);
         app.add_plugins(vessel_jump::plugin);
         app.add_plugins(pigeons::plugin);
         app.add_plugins(high_places::plugin);

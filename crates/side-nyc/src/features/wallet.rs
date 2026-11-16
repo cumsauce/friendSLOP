@@ -256,21 +256,28 @@ fn give_cash(add: On<Add<Player>>, server: Res<State<ServerState>>, mut commands
 
 fn scatter(
     mut commands: Commands,
-    station: Res<Station>,
+    mut station: ResMut<Station>,
     mut below: ResMut<Below>,
     mut dice: ResMut<Dice>,
 ) {
     if below.scattered {
         return;
     }
-    below.scattered = true;
+    // The station is planned as people go down: ask for the levels the
+    // strangers' wallets (and lost ones) fall on, and wait for them.
     let (t, ft) = (tuning(), fulton::tuning());
+    station.want(t.stranger_levels.max(t.lose_levels));
+    if !station.has(&ft, t.stranger_levels) {
+        return;
+    }
+    below.scattered = true;
     let (lo, hi) = (
         t.stranger_cash.0.min(t.stranger_cash.1),
         t.stranger_cash.0.max(t.stranger_cash.1),
     );
     for _ in 0..t.strangers {
-        let Some(at) = spot_in_station(&ft, &station.levels, t.stranger_levels, &mut dice.0) else {
+        let Some(at) = spot_in_station(&ft, station.levels(), t.stranger_levels, &mut dice.0)
+        else {
             return;
         };
         let dollars = lo + dice.0.below((hi - lo + 1) as usize) as u32;
@@ -289,12 +296,17 @@ fn scatter(
 /// Server: going into the subway, your wallet may fall out somewhere below.
 fn lose(
     mut commands: Commands,
-    station: Res<Station>,
+    mut station: ResMut<Station>,
     mut below: ResMut<Below>,
     mut dice: ResMut<Dice>,
     mut players: Query<(&Player, &Walker, &mut Cash)>,
 ) {
     let (t, ft) = (tuning(), fulton::tuning());
+    // Wait until the levels a wallet can fall to are planned.
+    if !station.has(&ft, t.lose_levels) {
+        station.want(t.lose_levels);
+        return;
+    }
     for (p, w, mut cash) in &mut players {
         let now = in_station(w.pos);
         let arrived = now && below.in_station.insert(p.id);
@@ -307,7 +319,7 @@ fn lose(
         {
             continue;
         }
-        let Some(at) = spot_in_station(&ft, &station.levels, t.lose_levels, &mut dice.0) else {
+        let Some(at) = spot_in_station(&ft, station.levels(), t.lose_levels, &mut dice.0) else {
             continue;
         };
         let dollars = cash.dollars;

@@ -57,8 +57,56 @@
     // corridors, so a level isn't all hallways: the chance a level has any,
     // at most how many, their sizes in cells (also tried turned round), and
     // how many doors each has (at least, at most). The corridors are run up
-    // to their doors; chance 0 turns them off.
-    rooms: (chance: 0.7, max: 2, sizes: [(2, 2), (3, 2), (3, 3)], doors: (2, 3)),
+    // to their doors; chance 0 turns them off. More doors make loops.
+    rooms: (
+        chance: 0.8,
+        max: 2,
+        sizes: [(2, 2), (3, 2), (3, 3), (2, 3), (1, 4), (2, 4)],
+        doors: (2, 4),
+        // What each room is for, picked by weight among the kinds that come
+        // in its size (either way round; none listed: any size). `columns`
+        // stands a column where four of its cells meet. Props (models under
+        // assets/models/): `Wall` ones stand against a walled side (never a
+        // door) at each `slots` spot along it (m from the wall's middle) with
+        // `chance`, facing in; `Middle` ones lie somewhere within `slots[0]` m
+        // of a cell's middle (never solid). `lift` raises a model onto the
+        // floor, `size` is a wall prop's collider (along, up, out; zeros for
+        // none), `scale` its size.
+        kinds: [
+            (name: "concourse", weight: 2.0, sizes: [(3, 3), (3, 2), (2, 4)], columns: true, props: [
+                (model: "props/lily_bench.gltf", chance: 0.3, slots: [0.0], lift: 0.47, size: (1.5, 0.9, 0.4)),
+                (model: "props/debris.gltf", place: Middle, chance: 0.3, slots: [1.5]),
+            ]),
+            (name: "waiting room", weight: 1.5, sizes: [(2, 2), (2, 3), (3, 2)], props: [
+                (model: "props/lily_bench.gltf", chance: 0.75, slots: [-1.3, 1.3], lift: 0.47, size: (1.5, 0.9, 0.4)),
+                (model: "props/bucket.gltf", chance: 0.15, slots: [2.3], lift: 0.04, size: (0.4, 0.45, 0.4)),
+            ]),
+            (name: "token booth", weight: 1.0, sizes: [(2, 2), (3, 2), (2, 3)], columns: true, props: [
+                (model: "props/counter.gltf", chance: 0.35, slots: [0.0], lift: 0.41, size: (1.9, 1.2, 0.65), scale: 1.2),
+                (model: "props/stool.gltf", chance: 0.3, slots: [-1.8, 1.8], lift: 0.2, size: (0.35, 0.4, 0.35)),
+                (model: "props/table.gltf", chance: 0.2, slots: [1.6], lift: 0.35, size: (1.4, 0.7, 0.9)),
+            ]),
+            (name: "storage", weight: 1.5, sizes: [(2, 2), (2, 3), (1, 4)], props: [
+                (model: "props/crates_single.gltf", chance: 0.55, slots: [-1.7, 0.0, 1.7], lift: 0.41, size: (1.0, 0.82, 1.0)),
+                (model: "props/barrel.gltf", chance: 0.3, slots: [-0.9, 0.9], lift: 0.01, size: (0.65, 0.9, 0.65)),
+                (model: "props/sack.gltf", place: Middle, chance: 0.25, slots: [1.2]),
+            ]),
+            (name: "boiler room", weight: 1.0, sizes: [(2, 2), (1, 4), (2, 3)], props: [
+                (model: "features/barrel.gltf", chance: 0.5, slots: [-1.5, 1.5], lift: 0.47, size: (0.85, 0.96, 0.85), scale: 1.2),
+                (model: "props/pipe_run.gltf", chance: 0.9, slots: [-1.6, 0.4], lift: 3.3, scale: 1.2),
+                (model: "features/grate.gltf", place: Middle, chance: 0.6, slots: [0.5], lift: 0.04),
+            ]),
+            (name: "flooded hall", weight: 1.0, props: [
+                (model: "features/bath_puddle.gltf", place: Middle, chance: 0.9, slots: [0.8], lift: 0.02, scale: 4.0),
+                (model: "props/debris.gltf", place: Middle, chance: 0.5, slots: [2.0]),
+                (model: "props/bucket.gltf", chance: 0.15, slots: [1.0], lift: 0.04, size: (0.4, 0.45, 0.4)),
+            ]),
+            (name: "long gallery", weight: 4.0, sizes: [(1, 4)], props: [
+                (model: "props/lily_bench.gltf", chance: 0.4, slots: [0.0], lift: 0.47, size: (1.5, 0.9, 0.4)),
+                (model: "props/debris.gltf", place: Middle, chance: 0.4, slots: [1.5]),
+            ]),
+        ],
+    ),
     // The reward for reaching the J: this much Pelf (the stats' wealth, max 10).
     reward_pelf: 3,
     // Toasts.

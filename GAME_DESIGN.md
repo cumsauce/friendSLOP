@@ -244,8 +244,12 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
 - **Fulton St subway platforms**. Some levels have platforms and empty tracks you can drop onto.
   Tile pieces `fs-tile-track*`.
 - **GTA VI ads** (#359). A lit "OUT NEXT WEEK" ad board on every subway platform. Decoration.
-- **Fulton St big rooms**. Most levels get large wall-free halls; room code now lives in
-  `friendslop_wfc::rooms`. `fulton.ron`.
+- **Fulton St big rooms**. Most levels get large wall-free halls (2x2 up to 3x3, long 1x4
+  galleries), each with a purpose and dressing reused from existing models: concourse
+  (columns), waiting room (benches), token booth, storage (crates, barrels), boiler room
+  (drums, pipes, grates), flooded hall (puddles, debris), long gallery. Up to 4 doors, so
+  levels loop. Kinds, sizes and props in `fulton.ron` (`rooms.kinds`); room code in
+  `friendslop_wfc::rooms`.
 - **Fulton St lighting**. Station is dark with fluorescent fittings per cell and some shadows.
   `fulton.ron` (`light`).
 - **Reflections**. Shiny things reflect baked environment maps (world and Fulton St), baked with

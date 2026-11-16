@@ -171,6 +171,61 @@ pub struct Rooms {
     pub sizes: Vec<(usize, usize)>,
     /// How many doors each has, at least and at most.
     pub doors: (usize, usize),
+    /// What the rooms are for (a waiting room, storage, a boiler room...):
+    /// each room is one of these, picked by weight among those that fit
+    /// its size. None: every room is a plain hall with columns.
+    #[serde(default)]
+    pub kinds: Vec<RoomKind>,
+}
+
+/// What a big room is for, and what's in it.
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct RoomKind {
+    pub name: String,
+    pub weight: f32,
+    /// The sizes it comes in (either way round); empty: any.
+    #[serde(default)]
+    pub sizes: Vec<(usize, usize)>,
+    /// Columns where four of its cells meet.
+    #[serde(default)]
+    pub columns: bool,
+    /// Its dressing.
+    #[serde(default)]
+    pub props: Vec<RoomProp>,
+}
+
+/// Where a room prop goes.
+#[derive(Deserialize, Default, Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PropPlace {
+    /// Against a walled side of a room cell (never a door), facing in.
+    #[default]
+    Wall,
+    /// Around the middle of a room cell (never solid: you walk over or past it).
+    Middle,
+}
+
+/// One kind of prop in a room.
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct RoomProp {
+    /// Under `assets/models/`.
+    pub model: String,
+    #[serde(default)]
+    pub place: PropPlace,
+    /// The chance of one at each slot.
+    pub chance: f32,
+    /// Wall: where along the wall (m from its middle) it may stand.
+    /// Middle: how far off the cell's middle (m, each way at most).
+    #[serde(default)]
+    pub slots: Vec<f32>,
+    /// Raised this far (m) so it stands on the floor.
+    #[serde(default)]
+    pub lift: f32,
+    /// Its collider (across the wall, up, out from it; m). Zero: none.
+    #[serde(default)]
+    pub size: (f32, f32, f32),
+    /// Scaled this much (0 counts as 1).
+    #[serde(default)]
+    pub scale: f32,
 }
 
 /// Andrew's calls and the thing he sends after you (`fulton_hunt.rs`).
@@ -1001,6 +1056,11 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
             }
         }
     }
+    out.extend(
+        room_dressing(t, li, level)
+            .into_iter()
+            .filter_map(|d| d.block),
+    );
     for at in room_columns(t, li, level) {
         out.push(Block {
             centre: at + Vec3::Y * (ROOM_H / 2.0),
@@ -1017,9 +1077,138 @@ pub fn room_columns(t: &Tuning, li: usize, level: &Level) -> Vec<Vec3> {
     level
         .rooms
         .iter()
-        .flat_map(|r| r.inner_corners())
+        .enumerate()
+        .filter(|&(ri, r)| room_kind(t, li, ri, r).is_none_or(|k| k.columns))
+        .flat_map(|(_, r)| r.inner_corners())
         .map(|c| cell_world(t, li, c) + Vec3::new(CELL / 2.0, 0.0, CELL / 2.0))
         .collect()
+}
+
+/// A number from 0 to 1 for this station, level, room, cell and slot (the
+/// rooms' dressing doesn't touch the plan's random numbers).
+fn dress_roll(t: &Tuning, parts: [usize; 4]) -> f32 {
+    let mut h = t.seed as u64 ^ 0x9e37_79b9_7f4a_7c15;
+    for p in parts {
+        h = (h ^ p as u64).wrapping_mul(0xbf58_476d_1ce4_e5b9);
+        h ^= h >> 31;
+        h = h.wrapping_mul(0x94d0_49bb_1331_11eb);
+        h ^= h >> 29;
+    }
+    (h >> 40) as f32 / (1u64 << 24) as f32
+}
+
+/// What big room `ri` on level `li` is for: one of [`Rooms::kinds`] that
+/// fits its size, by weight (`None` when none does: a plain hall).
+pub fn room_kind<'a>(t: &'a Tuning, li: usize, ri: usize, r: &wfc::Room) -> Option<&'a RoomKind> {
+    let (a, b) = r.size;
+    let fits: Vec<&RoomKind> = t
+        .rooms
+        .kinds
+        .iter()
+        .filter(|k| {
+            k.weight > 0.0
+                && (k.sizes.is_empty() || k.sizes.iter().any(|&s| s == (a, b) || s == (b, a)))
+        })
+        .collect();
+    let total: f32 = fits.iter().map(|k| k.weight).sum();
+    let mut pick = dress_roll(t, [li, ri, usize::MAX, 0]) * total;
+    for k in &fits {
+        if pick < k.weight {
+            return Some(k);
+        }
+        pick -= k.weight;
+    }
+    fits.last().copied()
+}
+
+/// One prop dressing a big room.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Dressing {
+    /// Under `assets/models/`.
+    pub model: String,
+    pub transform: Transform,
+    /// Its collider, if it has one.
+    pub block: Option<Block>,
+}
+
+/// How far a wall prop stands off the wall (m, the wall's thickness and a gap).
+const PROP_INSET: f32 = 0.3;
+
+/// The props dressing level `li`'s big rooms, by their kinds. Wall props
+/// stand against walled sides only (never in a door), and their colliders
+/// keep well clear of the cell's middle, so the way through and every
+/// walking spot stay open.
+pub fn room_dressing(t: &Tuning, li: usize, level: &Level) -> Vec<Dressing> {
+    let mut out = Vec::new();
+    for (ri, r) in level.rooms.iter().enumerate() {
+        let Some(kind) = room_kind(t, li, ri, r) else {
+            continue;
+        };
+        for (ci, c) in r.cells().enumerate() {
+            let f = level.fill(c);
+            let at = cell_world(t, li, c);
+            for (pi, p) in kind.props.iter().enumerate() {
+                let scale = if p.scale > 0.0 { p.scale } else { 1.0 };
+                let roll = |side: usize, slot: usize, k: usize| {
+                    dress_roll(t, [li, ri * 64 + ci, pi * 16 + side, slot * 4 + k])
+                };
+                match p.place {
+                    PropPlace::Wall => {
+                        for s in wfc::Side::ALL {
+                            if f.mask & bit(s) != 0 {
+                                continue;
+                            }
+                            let turn = Quat::from_rotation_y(
+                                -std::f32::consts::FRAC_PI_2 * s.index() as f32,
+                            );
+                            let slots: &[f32] = if p.slots.is_empty() { &[0.0] } else { &p.slots };
+                            for (si, &along) in slots.iter().enumerate() {
+                                if roll(s.index(), si, 0) >= p.chance {
+                                    continue;
+                                }
+                                // Modelled facing +z: on the N wall it faces S, into the room.
+                                let out_from = PROP_INSET + p.size.2.max(0.0) / 2.0;
+                                let local = Vec3::new(along, p.lift, -(CELL / 2.0 - out_from));
+                                let centre = at + turn * local;
+                                let block = (p.size.0 > 0.0 && p.size.1 > 0.0 && p.size.2 > 0.0)
+                                    .then(|| Block {
+                                        centre: at
+                                            + turn * Vec3::new(along, p.size.1 / 2.0, local.z),
+                                        size: Vec3::new(p.size.0, p.size.1, p.size.2),
+                                        rotation: turn,
+                                    });
+                                out.push(Dressing {
+                                    model: p.model.clone(),
+                                    transform: Transform::from_translation(centre)
+                                        .with_rotation(turn)
+                                        .with_scale(Vec3::splat(scale)),
+                                    block,
+                                });
+                            }
+                        }
+                    }
+                    PropPlace::Middle => {
+                        if roll(4, 0, 0) >= p.chance {
+                            continue;
+                        }
+                        let off = p.slots.first().copied().unwrap_or(0.0);
+                        let jitter =
+                            Vec3::new(roll(4, 0, 1) - 0.5, 0.0, roll(4, 0, 2) - 0.5) * (2.0 * off);
+                        out.push(Dressing {
+                            model: p.model.clone(),
+                            transform: Transform::from_translation(at + jitter + Vec3::Y * p.lift)
+                                .with_rotation(Quat::from_rotation_y(
+                                    roll(4, 0, 3) * std::f32::consts::TAU,
+                                ))
+                                .with_scale(Vec3::splat(scale)),
+                            block: None,
+                        });
+                    }
+                }
+            }
+        }
+    }
+    out
 }
 
 /// A room column's collider (it stands on the floor at its point).
@@ -1937,6 +2126,16 @@ fn stream_levels(
                 }
             }
         }
+        // The big rooms' dressing (benches, crates, drums, puddles...).
+        for d in room_dressing(&t, li, level) {
+            commands.spawn((
+                WorldAssetRoot(
+                    assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{}", d.model))),
+                ),
+                d.transform,
+                ChildOf(root),
+            ));
+        }
         if !set.room.column.is_empty() {
             for at in room_columns(&t, li, level) {
                 commands.spawn((
@@ -2353,6 +2552,50 @@ mod tests {
             "{with_rooms} of {}",
             levels.len()
         );
+    }
+
+    #[test]
+    fn rooms_have_kinds_and_their_dressing_keeps_the_way_clear() {
+        let (t, set) = data();
+        let levels = generate(&t, &set);
+        let mut seen = std::collections::BTreeMap::<String, usize>::new();
+        for (li, l) in levels.iter().enumerate() {
+            let mut line = format!("level {li:2}:");
+            for (ri, r) in l.rooms.iter().enumerate() {
+                let name = room_kind(&t, li, ri, r).map_or("hall", |k| k.name.as_str());
+                *seen.entry(name.to_string()).or_default() += 1;
+                let mid = cell_world(&t, li, r.at).lerp(
+                    cell_world(&t, li, (r.at.0 + r.size.0 - 1, r.at.1 + r.size.1 - 1)),
+                    0.5,
+                );
+                line += &format!(" {name} {}x{} at {mid:.0}", r.size.0, r.size.1);
+            }
+            println!("{line}");
+            let d = room_dressing(&t, li, l);
+            // The same every time (every peer).
+            assert_eq!(d, room_dressing(&t, li, l));
+            for p in &d {
+                assert!(!p.model.is_empty());
+                let Some(b) = p.block else { continue };
+                // Solid props stay well off a cell's middle (the walking line
+                // and the wallet's spots) and inside the room.
+                let o = cell_world(&t, li, (0, 0));
+                let c = (
+                    ((b.centre.x - o.x) / CELL).round() as usize,
+                    ((b.centre.z - o.z) / CELL).round() as usize,
+                );
+                let mid = cell_world(&t, li, c);
+                let off = (b.centre - mid).with_y(0.0);
+                let reach = off.length() - b.size.x.max(b.size.z) / 2.0;
+                let inward = off.x.abs().max(off.z.abs()) - b.size.z / 2.0;
+                assert!(inward >= 1.5 || reach >= 1.5, "level {li} {p:?}");
+                assert!(matches!(l.fill(c).kind, Kind::Room(_)), "level {li} {p:?}");
+            }
+        }
+        println!("{seen:?}");
+        for k in &t.rooms.kinds {
+            assert!(seen.contains_key(&k.name), "no {} in {seen:?}", k.name);
+        }
     }
 
     #[test]

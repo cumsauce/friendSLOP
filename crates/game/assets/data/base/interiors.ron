@@ -1,0 +1,9 @@
+// Walk-in interiors with windows and a door onto the street (shops, Wendy's):
+// each has a baked light probe over its room (crates/base/src/probes.rs) and
+// the "indoors" look (place_looks.ron) while you're inside.
+// Bake the probes with FRIENDSLOP_BAKE=1 (AGENTS.md "Reflections").
+// Edit and save: the running game picks it up within a second.
+(
+    // How bright an interior's baked light probe is (1 = as baked).
+    probe: 1.0,
+)

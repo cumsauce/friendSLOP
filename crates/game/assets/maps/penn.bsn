@@ -1,0 +1,1111 @@
+// jackdaw 0.20.2 | bevy 0.20
+// SALT: We're not needing `Cargo.lock` anyway. x didn't set us up for
+// success. We need more SME's. We haven't considered the problem space
+// enough. BSN syntax needs more changes. And `Children` sugaring? Ask
+// Sam "Salt" Saltman.
+// Written by the modeler (export_model to .bsn): edit the map document, not this file.
+bevy_ecs::hierarchy::Children [
+    #arrive
+    jackdaw_scene_types::node_id::SceneNodeId(1539446739767152578)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -4.0, y: 0.0, z: 15.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "arrive",
+    }
+    --
+    #blk_cafe_back
+    jackdaw_scene_types::node_id::SceneNodeId(6221729337410303174)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 2.0, y: 1.1, z: 69.3 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_cafe_counter
+    jackdaw_scene_types::node_id::SceneNodeId(3457005836931232890)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 2.0, y: 0.55, z: 65.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_charge_pillar
+    jackdaw_scene_types::node_id::SceneNodeId(6914941785446241084)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -4.0, y: 0.75, z: 46.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_ceil
+    jackdaw_scene_types::node_id::SceneNodeId(2681472514205287188)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -8.0, y: 4.15, z: 13.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_col0
+    jackdaw_scene_types::node_id::SceneNodeId(4491301639107956505)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -18.0, y: 2.0, z: 12.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_col1
+    jackdaw_scene_types::node_id::SceneNodeId(4491301089352142400)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -18.0, y: 2.0, z: 22.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_col2
+    jackdaw_scene_types::node_id::SceneNodeId(4491302738619584716)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -8.0, y: 2.0, z: 23.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_col3
+    jackdaw_scene_types::node_id::SceneNodeId(4491302188863770611)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 2.0, y: 2.0, z: 12.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_floor
+    jackdaw_scene_types::node_id::SceneNodeId(2989208602913758574)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -18.0, y: -0.15, z: 13.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_floor_e
+    jackdaw_scene_types::node_id::SceneNodeId(3288606379816795724)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 9.75, y: -0.15, z: 1.225 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_floor_n
+    jackdaw_scene_types::node_id::SceneNodeId(3288609128595866252)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: -0.15, z: 17.525 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_floor_s
+    jackdaw_scene_types::node_id::SceneNodeId(3288616275421449623)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: -0.15, z: -3.3 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_trash0_block
+    jackdaw_scene_types::node_id::SceneNodeId(481805035498654368)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -14.5, y: 0.475, z: 2.6 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_trash1_block
+    jackdaw_scene_types::node_id::SceneNodeId(6784149586580671815)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.5, y: 0.475, z: 19.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_wall_e
+    jackdaw_scene_types::node_id::SceneNodeId(1348985912030699456)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 10.15, y: 2.0, z: 17.55 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_wall_n1
+    jackdaw_scene_types::node_id::SceneNodeId(7505530028407890217)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -19.0, y: 2.0, z: 30.15 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_wall_n2
+    jackdaw_scene_types::node_id::SceneNodeId(7505530578163704323)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 4.0, y: 2.0, z: 30.15 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_wall_s
+    jackdaw_scene_types::node_id::SceneNodeId(1348978215449301979)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -8.0, y: 2.0, z: -4.15 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_wall_w1
+    jackdaw_scene_types::node_id::SceneNodeId(7502163323802970423)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -26.15, y: 2.0, z: 2.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_hall_wall_w2
+    jackdaw_scene_types::node_id::SceneNodeId(7502162774047156317)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -26.15, y: 2.0, z: 24.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_lirr_bench00_block
+    jackdaw_scene_types::node_id::SceneNodeId(8162561361315326815)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -22.0, y: 0.25, z: 54.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_lirr_bench01_block
+    jackdaw_scene_types::node_id::SceneNodeId(9168963788723990574)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -17.0, y: 0.25, z: 54.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_lirr_bench10_block
+    jackdaw_scene_types::node_id::SceneNodeId(8088912226116405745)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -22.0, y: 0.25, z: 58.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_lirr_bench11_block
+    jackdaw_scene_types::node_id::SceneNodeId(5064864682013091162)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -17.0, y: 0.25, z: 58.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_lirr_bench20_block
+    jackdaw_scene_types::node_id::SceneNodeId(4179888476759526910)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -22.0, y: 0.25, z: 62.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_lirr_bench21_block
+    jackdaw_scene_types::node_id::SceneNodeId(1930939277343437077)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -17.0, y: 0.25, z: 62.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_lirr_ceil
+    jackdaw_scene_types::node_id::SceneNodeId(7417272242656785044)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -8.0, y: 7.15, z: 50.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_lirr_floor
+    jackdaw_scene_types::node_id::SceneNodeId(1507695115590833134)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -8.0, y: -0.15, z: 50.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_lirr_planter0_block
+    jackdaw_scene_types::node_id::SceneNodeId(4912055152504318288)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -24.5, y: 0.4, z: 50.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_lirr_planter1_block
+    jackdaw_scene_types::node_id::SceneNodeId(4913418253584120439)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -24.5, y: 0.4, z: 66.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_lirr_planter2_block
+    jackdaw_scene_types::node_id::SceneNodeId(1055054529281849597)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -13.0, y: 0.4, z: 66.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_lirr_wall_e
+    jackdaw_scene_types::node_id::SceneNodeId(5604449639235107648)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 10.15, y: 3.5, z: 50.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_lirr_wall_n
+    jackdaw_scene_types::node_id::SceneNodeId(5604443591921152488)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -8.0, y: 3.5, z: 70.15 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_lirr_wall_w
+    jackdaw_scene_types::node_id::SceneNodeId(5604439743630453749)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -26.15, y: 3.5, z: 53.15 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_bags0_block
+    jackdaw_scene_types::node_id::SceneNodeId(4974521940040003660)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -48.3, y: 0.35, z: 34.5 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_bags1_block
+    jackdaw_scene_types::node_id::SceneNodeId(4376912045480243395)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -33.0, y: 0.35, z: -2.8 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_bags2_block
+    jackdaw_scene_types::node_id::SceneNodeId(995220439412589817)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -43.0, y: 0.35, z: -2.6 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_ceil
+    jackdaw_scene_types::node_id::SceneNodeId(8683198169050963531)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -37.95, y: 3.35, z: 16.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_col0
+    jackdaw_scene_types::node_id::SceneNodeId(1391206267573551516)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -44.0, y: 1.6, z: 6.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_col1
+    jackdaw_scene_types::node_id::SceneNodeId(1391206817329365621)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -33.0, y: 1.6, z: 6.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_col2
+    jackdaw_scene_types::node_id::SceneNodeId(1391207367085179727)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -44.0, y: 1.6, z: 26.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_col3
+    jackdaw_scene_types::node_id::SceneNodeId(1391207916840993832)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -33.0, y: 1.6, z: 26.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_drum0
+    jackdaw_scene_types::node_id::SceneNodeId(1638131361026004169)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -46.0, y: 0.45, z: 30.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_drum1
+    jackdaw_scene_types::node_id::SceneNodeId(1638131910781818274)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -40.0, y: 0.45, z: 1.5 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_drum2
+    jackdaw_scene_types::node_id::SceneNodeId(1638130261514375958)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -31.0, y: 0.45, z: 31.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_floor
+    jackdaw_scene_types::node_id::SceneNodeId(6614209179661601950)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -37.8, y: -0.15, z: 16.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_lintel
+    jackdaw_scene_types::node_id::SceneNodeId(7669147014309185005)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -26.15, y: 3.6, z: 13.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_wall_e
+    jackdaw_scene_types::node_id::SceneNodeId(1619765357440239743)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -26.15, y: 1.6, z: 33.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_wall_n
+    jackdaw_scene_types::node_id::SceneNodeId(1619760409637912793)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -37.8, y: 1.6, z: 36.15 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_wall_s
+    jackdaw_scene_types::node_id::SceneNodeId(1619775253044893642)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -37.8, y: 1.6, z: -4.15 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_wall_w
+    jackdaw_scene_types::node_id::SceneNodeId(1619773054021637220)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -49.75, y: 1.6, z: 16.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_well0
+    jackdaw_scene_types::node_id::SceneNodeId(3956385965146415685)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -44.0, y: 0.55, z: 16.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_well1
+    jackdaw_scene_types::node_id::SceneNodeId(3956386514902229790)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -37.0, y: 0.55, z: 16.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_njt_well2
+    jackdaw_scene_types::node_id::SceneNodeId(3956384865634787474)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -30.0, y: 0.55, z: 16.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_pz_counter
+    jackdaw_scene_types::node_id::SceneNodeId(1559967334607225369)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -20.0, y: 0.525, z: 25.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_pz_oven0
+    jackdaw_scene_types::node_id::SceneNodeId(6149161202094792182)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -23.0, y: 0.8, z: 29.4 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_pz_oven1
+    jackdaw_scene_types::node_id::SceneNodeId(6149161751850606287)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -20.0, y: 0.8, z: 29.4 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_pz_prep
+    jackdaw_scene_types::node_id::SceneNodeId(6387926514958796072)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -16.4, y: 0.475, z: 29.5 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_refill
+    jackdaw_scene_types::node_id::SceneNodeId(7709840496258376607)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -25.775, y: 0.65, z: 44.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_stairs_block
+    jackdaw_scene_types::node_id::SceneNodeId(8362480470438733887)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -22.0, y: 1.2, z: -2.3 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_wc_sink
+    jackdaw_scene_types::node_id::SceneNodeId(3176108357140712262)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 3.0, y: 0.875, z: 29.725 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_wc_stall_front_block
+    jackdaw_scene_types::node_id::SceneNodeId(3303572998242610993)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 6.825, y: 1.075, z: 28.48 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_wc_stall_side_block
+    jackdaw_scene_types::node_id::SceneNodeId(3184891958993505366)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 6.5, y: 1.075, z: 29.2 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_wc_toilet_block
+    jackdaw_scene_types::node_id::SceneNodeId(7158055816614173992)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 8.25, y: 0.225, z: 29.475 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_wc_wall_s
+    jackdaw_scene_types::node_id::SceneNodeId(558982789708905684)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 5.5, y: 2.0, z: 20.0 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_wc_wall_w1
+    jackdaw_scene_types::node_id::SceneNodeId(6233138834934610591)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 1.0, y: 2.0, z: 21.2 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #blk_wc_wall_w2
+    jackdaw_scene_types::node_id::SceneNodeId(6233139384690424697)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 1.0, y: 2.0, z: 26.8 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #counter
+    jackdaw_scene_types::node_id::SceneNodeId(1330997852472336416)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -20.0, y: 0.0, z: 23.8 },
+    }
+    friendslop_world::map::Spot {
+        name: "counter",
+    }
+    --
+    #door
+    jackdaw_scene_types::node_id::SceneNodeId(160293230390753219)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 1.1, y: 0.0, z: 23.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "door",
+    }
+    --
+    #exit
+    jackdaw_scene_types::node_id::SceneNodeId(4355839922071661399)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -22.0, y: 0.0, z: 0.4 },
+    }
+    friendslop_world::map::Spot {
+        name: "exit",
+    }
+    --
+    #fire_0
+    jackdaw_scene_types::node_id::SceneNodeId(4651919689982297466)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -46.0, y: 0.0, z: 30.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "fire_0",
+    }
+    --
+    #fire_1
+    jackdaw_scene_types::node_id::SceneNodeId(4651920239738111571)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -40.0, y: 0.0, z: 1.5 },
+    }
+    friendslop_world::map::Spot {
+        name: "fire_1",
+    }
+    --
+    #fire_2
+    jackdaw_scene_types::node_id::SceneNodeId(4651920789493925677)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -31.0, y: 0.0, z: 31.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "fire_2",
+    }
+    --
+    #hall_trash0
+    jackdaw_scene_types::node_id::SceneNodeId(6322824599399610481)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -14.5, y: -0.01999998, z: 2.6 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/nyc-kit-trash-can.gltf",
+        scene_index: 0,
+    }
+    --
+    #hall_trash1
+    jackdaw_scene_types::node_id::SceneNodeId(6322824049643796376)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.5, y: -0.01999998, z: 19.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/nyc-kit-trash-can.gltf",
+        scene_index: 0,
+    }
+    --
+    #hall_tube0
+    jackdaw_scene_types::node_id::SceneNodeId(1498776214114417244)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -20.0, y: 3.65, z: 6.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-tube.gltf",
+        scene_index: 0,
+    }
+    --
+    #hall_tube1
+    jackdaw_scene_types::node_id::SceneNodeId(1498775664358603139)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -12.0, y: 3.65, z: 6.0 },
+        rotation: glam::Quat { x: 0.0, y: 0.70710677, z: 0.0, w: 0.7071068 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-tube.gltf",
+        scene_index: 0,
+    }
+    --
+    #hall_tube2
+    jackdaw_scene_types::node_id::SceneNodeId(1498775114602789033)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -3.0, y: 3.65, z: 8.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-tube.gltf",
+        scene_index: 0,
+    }
+    --
+    #hall_tube3
+    jackdaw_scene_types::node_id::SceneNodeId(1498774564846974928)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -20.0, y: 3.65, z: 17.0 },
+        rotation: glam::Quat { x: 0.0, y: 0.70710677, z: 0.0, w: 0.7071068 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-tube.gltf",
+        scene_index: 0,
+    }
+    --
+    #hall_tube4
+    jackdaw_scene_types::node_id::SceneNodeId(1498778413137673666)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -12.0, y: 3.65, z: 13.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-tube.gltf",
+        scene_index: 0,
+    }
+    --
+    #hall_tube5
+    jackdaw_scene_types::node_id::SceneNodeId(1498777863381859561)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -3.0, y: 3.65, z: 18.0 },
+        rotation: glam::Quat { x: 0.0, y: 0.70710677, z: 0.0, w: 0.7071068 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-tube.gltf",
+        scene_index: 0,
+    }
+    --
+    #hall_tube6
+    jackdaw_scene_types::node_id::SceneNodeId(1498777313626045455)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -14.0, y: 3.65, z: 26.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-tube.gltf",
+        scene_index: 0,
+    }
+    --
+    #hall_tube7
+    jackdaw_scene_types::node_id::SceneNodeId(1498776763870231350)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -5.0, y: 3.65, z: 27.0 },
+        rotation: glam::Quat { x: 0.0, y: 0.70710677, z: 0.0, w: 0.7071068 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-tube.gltf",
+        scene_index: 0,
+    }
+    --
+    #in_line
+    jackdaw_scene_types::node_id::SceneNodeId(4858062787238294069)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.4, y: 0.0, z: 23.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "in_line",
+    }
+    --
+    #lirr_planter0
+    jackdaw_scene_types::node_id::SceneNodeId(1347257151245474465)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -24.5, y: 0.0, z: 50.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/nyc-kit-planter.gltf",
+        scene_index: 0,
+    }
+    --
+    #lirr_planter1
+    jackdaw_scene_types::node_id::SceneNodeId(1347256601489660360)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -24.5, y: 0.0, z: 66.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/nyc-kit-planter.gltf",
+        scene_index: 0,
+    }
+    --
+    #lirr_planter2
+    jackdaw_scene_types::node_id::SceneNodeId(1347258250757102676)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -13.0, y: 0.0, z: 66.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/nyc-kit-planter.gltf",
+        scene_index: 0,
+    }
+    --
+    #mirror
+    jackdaw_scene_types::node_id::SceneNodeId(1497884258060508630)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 3.0, y: 1.55, z: 29.9 },
+    }
+    friendslop_world::map::Spot {
+        name: "mirror",
+    }
+    --
+    #njt_bags0
+    jackdaw_scene_types::node_id::SceneNodeId(2589358184825036965)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -48.3, y: 0.0, z: 34.5 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/nyc-kit-trash-bags-a.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_bags1
+    jackdaw_scene_types::node_id::SceneNodeId(2589357635069222860)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -33.0, y: 0.0, z: -2.8 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/nyc-kit-trash-bags-b.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_bags2
+    jackdaw_scene_types::node_id::SceneNodeId(2589359284336665176)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -43.0, y: 0.0, z: -2.6 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/nyc-kit-trash-bags-a.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_grime0
+    jackdaw_scene_types::node_id::SceneNodeId(736412155253666038)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -47.0, y: 0.000000051688403, z: 12.0 },
+        scale: glam::Vec3 { x: 2.2, y: 1.0, z: 2.2 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-stain.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_grime1
+    jackdaw_scene_types::node_id::SceneNodeId(736412705009480143)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -34.0, y: 0.000000051688403, z: 10.0 },
+        scale: glam::Vec3 { x: 1.8, y: 1.0, z: 1.8 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-stain.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_grime2
+    jackdaw_scene_types::node_id::SceneNodeId(736413254765294249)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -42.0, y: 0.000000051688403, z: 30.0 },
+        scale: glam::Vec3 { x: 2.5, y: 1.0, z: 2.5 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-stain.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_grime3
+    jackdaw_scene_types::node_id::SceneNodeId(736413804521108354)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -28.5, y: 0.000000051688403, z: 13.0 },
+        scale: glam::Vec3 { x: 1.6, y: 1.0, z: 1.6 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-stain.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_pee0
+    jackdaw_scene_types::node_id::SceneNodeId(2047819885212621624)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -47.5, y: 0.0049999533, z: 3.0 },
+        scale: glam::Vec3 { x: 1.3, y: 1.0, z: 1.04 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/bt-puddle.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_pee1
+    jackdaw_scene_types::node_id::SceneNodeId(2047820434968435729)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -41.0, y: 0.0049999533, z: 33.0 },
+        scale: glam::Vec3 { x: 1.0, y: 1.0, z: 0.8 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/bt-puddle.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_pee2
+    jackdaw_scene_types::node_id::SceneNodeId(2047820984724249835)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -35.5, y: 0.0049999533, z: 24.0 },
+        scale: glam::Vec3 { x: 0.9, y: 1.0, z: 0.72 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/bt-puddle.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_poop0
+    jackdaw_scene_types::node_id::SceneNodeId(4860362741941030628)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -47.5, y: 0.029961614, z: 9.5 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/bt-poop-blob.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_poop1
+    jackdaw_scene_types::node_id::SceneNodeId(4860363291696844733)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -38.0, y: 0.029961614, z: 31.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/bt-poop-blob.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_poop2
+    jackdaw_scene_types::node_id::SceneNodeId(4860363841452658839)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -30.5, y: 0.029961614, z: 4.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/bt-poop-blob.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_poop3
+    jackdaw_scene_types::node_id::SceneNodeId(4860364391208472944)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -48.5, y: 0.029961614, z: 18.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/bt-poop-blob.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_smear
+    jackdaw_scene_types::node_id::SceneNodeId(7679273190193279655)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -47.0, y: 1.0005001, z: -4.0 },
+        scale: glam::Vec3 { x: 0.9, y: 0.99999994, z: 0.8999999 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/bt-poop-smear.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_tube0
+    jackdaw_scene_types::node_id::SceneNodeId(1132203195017027754)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -45.0, y: 2.85, z: 4.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-tube.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_tube1
+    jackdaw_scene_types::node_id::SceneNodeId(1132203744772841859)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -40.0, y: 2.85, z: 22.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-tube.gltf",
+        scene_index: 0,
+    }
+    --
+    #njt_tube2
+    jackdaw_scene_types::node_id::SceneNodeId(1132204294528655965)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -33.0, y: 2.85, z: 10.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-tube.gltf",
+        scene_index: 0,
+    }
+    --
+    #penn_ground
+    jackdaw_scene_types::node_id::SceneNodeId(3072900370628374521)
+    bevy_transform::components::transform::Transform
+    jackdaw_scene_types::types::GltfSource {
+        path: "maps/penn.gltf",
+        scene_index: 0,
+    }
+    --
+    #room_hall
+    jackdaw_scene_types::node_id::SceneNodeId(911125358157034785)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -8.0, y: 2.0, z: 13.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "room_hall",
+    }
+    --
+    #room_lirr
+    jackdaw_scene_types::node_id::SceneNodeId(1488304016975111581)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -8.0, y: 3.5, z: 50.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "room_lirr",
+    }
+    --
+    #room_njt
+    jackdaw_scene_types::node_id::SceneNodeId(1500016292347195071)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -37.8, y: 1.6, z: 16.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "room_njt",
+    }
+    --
+    #toilet
+    jackdaw_scene_types::node_id::SceneNodeId(5567025032562009855)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 8.25, y: 0.0, z: 29.2 },
+    }
+    friendslop_world::map::Spot {
+        name: "toilet",
+    }
+    --
+    #wc_puddle
+    jackdaw_scene_types::node_id::SceneNodeId(115033756118637355)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 4.5, y: 0.015000021, z: 25.5 },
+        scale: glam::Vec3 { x: 0.9, y: 1.0, z: 0.7 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/bt-puddle.gltf",
+        scene_index: 0,
+    }
+    --
+    #wc_stain
+    jackdaw_scene_types::node_id::SceneNodeId(9001817766162579093)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 8.0, y: 0.01, z: 27.8 },
+        scale: glam::Vec3 { x: 0.8, y: 1.0, z: 0.8 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/wh-stain.gltf",
+        scene_index: 0,
+    }
+    --
+    #wc_stall_door
+    jackdaw_scene_types::node_id::SceneNodeId(7876668244207274890)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 7.2, y: 1.2, z: 27.95 },
+        rotation: glam::Quat { x: 0.0, y: -0.5735765, z: 0.0, w: 0.819152 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/pk-stall-door.gltf",
+        scene_index: 0,
+    }
+    --
+    #wc_stall_side
+    jackdaw_scene_types::node_id::SceneNodeId(5056414001924468209)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 6.5, y: 1.25, z: 29.2 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/pk-stall-panel.gltf",
+        scene_index: 0,
+    }
+    --
+    #wc_toilet
+    jackdaw_scene_types::node_id::SceneNodeId(2815080893364826573)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 8.25, y: 0.0, z: 29.4 },
+        rotation: glam::Quat { x: 0.0, y: 1.0, z: 0.0, w: -0.00000004371139 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/pk-toilet.gltf",
+        scene_index: 0,
+    }
+]

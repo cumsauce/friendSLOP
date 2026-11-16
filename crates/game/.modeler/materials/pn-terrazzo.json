@@ -1,0 +1,272 @@
+{
+  "name": "pn-terrazzo",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 2.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "w1",
+      "seed": 1,
+      "size": 0.03,
+      "type": "worley"
+    },
+    {
+      "in": [
+        0.002,
+        0.006
+      ],
+      "input": "w1",
+      "name": "s1",
+      "out": [
+        1,
+        0
+      ],
+      "type": "levels"
+    },
+    {
+      "name": "w2",
+      "seed": 2,
+      "size": 0.045,
+      "type": "worley"
+    },
+    {
+      "in": [
+        0.003,
+        0.008
+      ],
+      "input": "w2",
+      "name": "s2",
+      "out": [
+        1,
+        0
+      ],
+      "type": "levels"
+    },
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 3,
+      "size": 0.6,
+      "type": "noise"
+    },
+    {
+      "name": "g",
+      "size": [
+        1,
+        1
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "in": [
+        0.002,
+        0.006
+      ],
+      "input": "g.edge",
+      "name": "joint",
+      "out": [
+        1,
+        0
+      ],
+      "type": "levels"
+    },
+    {
+      "a": 0.8,
+      "b": 0.92,
+      "c": "n",
+      "name": "base",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "base",
+      "b": 0.42,
+      "c": "s1",
+      "name": "c1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": 1,
+      "c": "s2",
+      "name": "c2",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c2",
+      "b": 0.5,
+      "c": "joint",
+      "name": "c3",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.28,
+      "b": 0.7,
+      "c": "joint",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "joint",
+      "b": -0.0015,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "c3",
+      "height": "h",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "pn-terrazzo",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 2.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "w1",
+              "seed": 1,
+              "size": 0.03,
+              "type": "worley"
+            },
+            {
+              "in": [
+                0.002,
+                0.006
+              ],
+              "input": "w1",
+              "name": "s1",
+              "out": [
+                1,
+                0
+              ],
+              "type": "levels"
+            },
+            {
+              "name": "w2",
+              "seed": 2,
+              "size": 0.045,
+              "type": "worley"
+            },
+            {
+              "in": [
+                0.003,
+                0.008
+              ],
+              "input": "w2",
+              "name": "s2",
+              "out": [
+                1,
+                0
+              ],
+              "type": "levels"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 3,
+              "size": 0.6,
+              "type": "noise"
+            },
+            {
+              "name": "g",
+              "size": [
+                1,
+                1
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.002,
+                0.006
+              ],
+              "input": "g.edge",
+              "name": "joint",
+              "out": [
+                1,
+                0
+              ],
+              "type": "levels"
+            },
+            {
+              "a": 0.8,
+              "b": 0.92,
+              "c": "n",
+              "name": "base",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "base",
+              "b": 0.42,
+              "c": "s1",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": 1,
+              "c": "s2",
+              "name": "c2",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": 0.5,
+              "c": "joint",
+              "name": "c3",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.28,
+              "b": 0.7,
+              "c": "joint",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "joint",
+              "b": -0.0015,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "c3",
+              "height": "h",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+w1 +s1 +w2 +s2 +n +g +joint +base +c1 +c2 +c3 +rough +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

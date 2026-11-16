@@ -58,6 +58,7 @@ pub mod features {
 pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     vec![
         &features::bear::TUNING,
+        &probes::INTERIORS,
         &hud::TUNING,
         &features::great_storm::TUNING,
         &features::random_dialogue::TUNING,

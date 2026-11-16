@@ -22,4 +22,22 @@
     // distance: how far shadows reach at all (m). Every preset uses Long.
     long_shadows: (count: 3, first: 12.0, distance: 80.0),
     short_shadows: (count: 2, first: 12.0, distance: 40.0),
+    // Eye adaptation (desktop with Bloom on; browsers and Low keep a fixed
+    // exposure). The camera meters the scene's average brightness (log2
+    // luminance; daylight is about `outdoor`) and moves its exposure:
+    // brighten/darken: the most it follows a darker / brighter scene, in stops
+    // (a shop or Penn Station comes back up to near daylight);
+    // fade_start/fade_end: from this many stops under daylight the boost fades,
+    // and past fade_end it's gone, so places dark on purpose (the warehouse,
+    // Fulton St, night) stay dark;
+    // speed_*: how fast it adapts, stops per second.
+    auto_exposure: (
+        outdoor: -1.5,
+        brighten: 2.0,
+        darken: 0.5,
+        fade_start: 3.0,
+        fade_end: 5.0,
+        speed_brighten: 1.2,
+        speed_darken: 1.8,
+    ),
 )

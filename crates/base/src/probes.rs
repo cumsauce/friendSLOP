@@ -53,7 +53,17 @@ pub fn probe(
     size: Vec3,
     intensity: f32,
 ) -> impl Bundle {
-    let at = Transform::from_translation(centre).with_scale(size);
+    probe_at(
+        assets,
+        name,
+        Transform::from_translation(centre).with_scale(size),
+        intensity,
+    )
+}
+
+/// A probe over a turned box: `at`'s translation is its middle, its rotation
+/// the box's turn and its scale the box's size (m).
+pub fn probe_at(assets: &AssetServer, name: &str, at: Transform, intensity: f32) -> impl Bundle {
     // WebGL2 can't draw light probes anyway: browsers (#242) skip the download.
     #[cfg(target_arch = "wasm32")]
     {
@@ -66,4 +76,44 @@ pub fn probe(
         env_map(assets, name, intensity),
         at,
     )
+}
+
+/// Ask for the probe called `name` to be baked from `at` (when this is a
+/// bake run: otherwise nothing happens). Call it from a place's build.
+pub fn register(commands: &mut Commands, name: impl Into<String>, at: Vec3) {
+    let name = name.into();
+    commands.queue(move |world: &mut World| {
+        if let Some(mut b) = world.get_resource_mut::<ProbeBakes>() {
+            b.add(&name, at);
+        }
+    });
+}
+
+/// Walk-in interiors' shared tuning: `assets/data/base/interiors.ron`.
+#[derive(serde::Deserialize, Default, Debug, Clone)]
+pub struct Interiors {
+    /// How bright an interior's baked light probe is (1 = as baked).
+    pub probe: f32,
+}
+
+pub static INTERIORS: friendslop_data::Data<Interiors> =
+    friendslop_data::Data::ron("data/base/interiors.ron");
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_interiors_file_parses_and_has_everything() {
+        let path = format!(
+            "{}/../game/assets/{}",
+            env!("CARGO_MANIFEST_DIR"),
+            INTERIORS.path()
+        );
+        let Ok(bytes) = std::fs::read(&path) else {
+            panic!("no {path}");
+        };
+        assert!(INTERIORS.set_bytes(&bytes), "{path} doesn't parse");
+        assert!(INTERIORS.get().probe > 0.0);
+    }
 }

@@ -247,7 +247,11 @@ pub fn plugin(app: &mut App) {
         )
         .add_systems(
             Update,
-            (show_buzz, step_in.run_if(crate::sites::here("nyc")))
+            (
+                show_buzz,
+                step_in.run_if(crate::sites::here("nyc")),
+                shop_look.in_set(crate::place::PlaceSet),
+            )
                 .run_if(in_state(AppState::InGame)),
         )
         .add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
@@ -266,6 +270,22 @@ struct BuzzText;
 #[derive(Component)]
 struct BuzzTint;
 
+/// The shop's light probe (and bake) name: its model's file name.
+pub fn probe_name(shop: &Shop) -> String {
+    let file = shop.model.rsplit('/').next().unwrap_or(&shop.model);
+    format!(
+        "shop_{}",
+        file.trim_end_matches(".gltf").trim_end_matches(".glb")
+    )
+}
+
+/// Local: inside a shop the sky's flat ambient comes down (`place::INDOORS`).
+fn shop_look(here: Res<crate::place::Here>, mut looks: ResMut<crate::place::PlaceLooks>) {
+    if shop_at(&tuning(), here.0).is_some() {
+        looks.push(crate::place::INDOORS);
+    }
+}
+
 fn build(mut commands: Commands, assets: Res<AssetServer>) {
     let t = tuning();
     for (i, shop) in t.shops.iter().enumerate() {
@@ -275,6 +295,26 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
             f,
             crate::area::show(),
         ));
+        // Its baked light, over the room inside its walls.
+        let probe = probe_name(shop);
+        friendslop_base::probes::register(
+            &mut commands,
+            probe.clone(),
+            f.transform_point(Vec3::new(0.0, 1.7, 0.0)),
+        );
+        if !friendslop_base::probes::baking() {
+            commands.spawn((
+                friendslop_base::probes::probe_at(
+                    &assets,
+                    &probe,
+                    Transform::from_translation(f.transform_point(Vec3::Y * 2.1))
+                        .with_rotation(f.rotation)
+                        .with_scale(Vec3::new(HALF.x * 2.0, 4.6, HALF.y * 2.0)),
+                    friendslop_base::probes::INTERIORS.get().probe,
+                ),
+                crate::area::show(),
+            ));
+        }
         for (d, cup) in CUPS.iter().enumerate().take(shop.drinks.len()) {
             commands.spawn((
                 Cup {

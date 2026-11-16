@@ -547,11 +547,14 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   silence ... then you can use the bathroom. the mirror is so dirty and small and shitty u can
   barely see yourself. important detail. make it look like the real place"). The 1 train (a
   line in `trains.ron`) runs from Chambers St, a stop in the trees at the city's north end
-  across from JFK, to Penn Station: a low, dingy LIRR-style concourse (the `penn-station`
-  model) floating 1000 m over New York like Miami, with tiled columns, fluorescent tubes, a
-  departures board ("TRACK TBA"), Rose Pizza's counter and ovens under a red neon sign (click
-  the counter for a slice), and a tiled restroom with a sink, a urinal, a stall and a tiny
-  filthy mirror (click it: you're a blur). The queue is per player and local: a stranger always
+  across from JFK, to Penn Station. The interior was redone in full (game-scaled, recognisable,
+  from #357 and #352): the modeler map `penn-map` (`maps/penn.bsn` + `penn.map.json`) floating
+  1000 m over New York like Miami. Its middle is the 7th Ave exit concourse: low (4 m), tiled
+  walls and squat tiled columns, terrazzo, buzzing tubes, a hanging departures board ("TRACK
+  TBA") and a PENN STATION sign, the 1 train's platform along its south side, the EXIT 7 AV
+  stairs, Rose Pizza's counter, ovens and menu under a red neon sign (click the counter for a
+  slice), and a tiled restroom with a sink, one stall and a postcard-sized filthy mirror (click
+  it: you're a blur). The queue is per player and local: a stranger always
   stands at the door; walk up and they say a nonsense conversation at you a line every 3.2 s
   (five conversations, one per visit), go in, and then 15 s of nothing. Then the toilet's
   yours (click it; before that it's "occupied"). Walk 12 m off and the next stranger is in
@@ -568,12 +571,18 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   Madison Square Garden's finned drum with a blue LED band and "THE GARDEN", and the glass 7th
   Ave entrance pavilion under a PENN STATION sign. Walk into its doors and you're moved into the
   floating concourse (chose: the same concourse the 1 train reaches, not a second copy); the
-  EXIT 7 AV stairs by the tracks put you back on the sidewalk. Off the hall's west side is the
-  NJ Transit wing: low concrete ceiling, cold blue light, seven storefronts behind rusted gates
-  with chains and padlocks, three burning trash barrels (flickering orange lights), blood, pee
-  and poop on the floor, bin bags, and a board of cancellations. Through the north wall is the
-  LIRR wing: twice as tall, warm light under a wood-slat ceiling, marble floor, a lounge, a cafe,
-  free charging, a bottle refill, planters, a clock and an all-on-time board. Each side has its
+  EXIT 7 AV stairs put you back on the sidewalk. West through a wide archway is the NJ Transit
+  side: wide but cramped under a 3.2 m concrete ceiling with exposed pipes, cold blue light,
+  eight storefronts (news, donuts, pretzels, snacks) behind roll-down gates with chains and
+  padlocks, three track stairways boarded up ("TRACK CLOSED"), three burning trash drums
+  (flickering orange lights), blood, pee and poop on the floor, grime and bin bags, and a board
+  of cancellations. North through another archway is the LIRR side: 7 m tall, white terrazzo
+  with brass inlay lines, warm wood paneling and a wood-slat ceiling with light coves, a
+  12 m all-on-time departures board, glass doors to the tracks, a lounge of wooden benches and
+  planters, a cafe, a charging pillar and a bottle refill. Nothing in `penn.rs` holds positions
+  any more: the rooms, the bathroom door and line spot, the toilet, mirror, counter, the way in
+  and out and the fires are `Spot` markers in the map, and its colliders are `Block` boxes, read
+  from `penn.map.json` on every peer (works without the model files). Each side has its
   own mood (`PennNjt`: a slow tense march, brass and strings, nothing resolves; `PennLirr`: laid
   major sevenths, fretless, flute and bossa nylon), from the `penn_njt` / `penn_lirr` signals;
   a line greets you on each side. `FRIENDSLOP_START=penn_street` starts at the doors.

@@ -359,9 +359,29 @@ pub fn plugin(app: &mut App) {
     crate::area::on_show(app, build_city);
     app.add_systems(
         Update,
-        (where_am_i.run_if(crate::sites::here("nyc")), cull_city)
+        (
+            where_am_i.run_if(crate::sites::here("nyc")),
+            cull_city,
+            shop_look.in_set(crate::place::PlaceSet),
+        )
             .run_if(in_state(AppState::InGame)),
     );
+}
+
+/// How tall a shop's room is (m), for its light probe and its look.
+const SHOP_H: f32 = 4.0;
+
+/// The probe (and bake) name of the shop called `name`.
+pub fn shop_probe(name: &str) -> String {
+    format!("shop_{name}")
+}
+
+/// Local: inside a shop the sky's flat ambient comes down (`place::INDOORS`).
+fn shop_look(here: Res<crate::place::Here>, mut looks: ResMut<crate::place::PlaceLooks>) {
+    let p = here.0;
+    if p.y < CITY_Y + SHOP_H && SHOPS.iter().any(|s| in_shop(Vec2::new(p.x, p.z), s)) {
+        looks.push(crate::place::INDOORS);
+    }
 }
 
 fn build_city(mut commands: Commands, assets: Res<AssetServer>) {
@@ -382,6 +402,35 @@ fn build_city(mut commands: Commands, assets: Res<AssetServer>) {
         Visibility::default(),
         crate::area::show(),
     ));
+    // Each shop's baked light (re-bake when the city map changes).
+    for (name, room) in SHOPS.iter().zip(&c.rooms) {
+        if room.max.x <= room.min.x {
+            continue;
+        }
+        let mid = (room.min + room.max) / 2.0;
+        let probe = shop_probe(name);
+        friendslop_base::probes::register(
+            &mut commands,
+            probe.clone(),
+            Vec3::new(mid.x, CITY_Y + 1.7, mid.y),
+        );
+        if !friendslop_base::probes::baking() {
+            let size = room.max - room.min;
+            commands.spawn((
+                friendslop_base::probes::probe_at(
+                    &assets,
+                    &probe,
+                    Transform::from_xyz(mid.x, CITY_Y + SHOP_H / 2.0, mid.y).with_scale(Vec3::new(
+                        size.x,
+                        SHOP_H + 0.4,
+                        size.y,
+                    )),
+                    friendslop_base::probes::INTERIORS.get().probe,
+                ),
+                crate::area::show(),
+            ));
+        }
+    }
     // The way in and out is the PATH train now (#321, `trains.rs`), not a trail post.
     // Each shop's door (on its avenue side) glows with the shop's name.
     let t = tuning();

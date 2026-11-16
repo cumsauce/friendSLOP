@@ -156,7 +156,13 @@ fn leave(ev: On<FromClient<LeaveSurf>>, mut commands: Commands, mut bodies: Quer
 
 // ------------------------------------------------------------------ every peer
 
+/// `FRIENDSLOP_START=surf`: the start pad.
+fn starts() -> Vec<(String, Vec3)> {
+    vec![("surf".to_owned(), start_at(&tuning()))]
+}
+
 pub fn plugin(app: &mut App) {
+    crate::features::start::provide(starts);
     app.add_observer(click)
         .spawn_into("surf", build)
         .spawn_into("nyc", build_sign)
@@ -226,6 +232,7 @@ fn build(
             DespawnOnExit(AppState::InGame),
         ));
     }
+    build_city(&mut commands, &mut meshes, &mut materials, &t);
     // Out under the sky; a light over the start and the finish.
     for at in [start_pad(&t).0, finish_pad(&t).0] {
         commands.spawn((
@@ -438,6 +445,175 @@ fn dress(
     );
 }
 
+/// A wedge (a kicker) as a mesh: its six corners, flat shaded.
+fn wedge_mesh(c: [Vec3; 6]) -> Mesh {
+    use bevy::asset::RenderAssetUsages;
+    use bevy::mesh::{Indices, PrimitiveTopology};
+    // Corners: 0..4 the base (-z pair, +z pair), 4, 5 the high +z edge.
+    let faces: [&[usize]; 5] = [
+        &[0, 2, 3, 1], // underside
+        &[0, 1, 5, 4], // the slope
+        &[2, 4, 5, 3], // the tall back
+        &[0, 4, 2],    // left side
+        &[1, 3, 5],    // right side
+    ];
+    let mut pos = Vec::new();
+    let mut nor = Vec::new();
+    let mut idx = Vec::new();
+    let mid = c.iter().copied().sum::<Vec3>() / 6.0;
+    for f in faces {
+        let v: Vec<Vec3> = f.iter().map(|&i| c[i]).collect();
+        let mut n = (v[1] - v[0]).cross(v[2] - v[0]).normalize_or_zero();
+        let mut v = v;
+        if n.dot(v[0] - mid) < 0.0 {
+            v.reverse();
+            n = -n;
+        }
+        let base = pos.len() as u32;
+        for p in &v {
+            pos.push(p.to_array());
+            nor.push(n.to_array());
+        }
+        for i in 1..v.len() as u32 - 1 {
+            idx.extend([base, base + i, base + i + 1]);
+        }
+    }
+    Mesh::new(
+        PrimitiveTopology::TriangleList,
+        RenderAssetUsages::default(),
+    )
+    .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, pos)
+    .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, nor)
+    .with_inserted_indices(Indices::U32(idx))
+}
+
+/// The city the course weaves through: solid boxes from [`city`], flat
+/// placeholder colours (glass towers, concrete sites, yellow steel).
+fn build_city(
+    commands: &mut Commands,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+    t: &Tuning,
+) {
+    use avian3d::prelude::{Collider, RigidBody};
+    let o = hall_at(t);
+    let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
+    let mat = |m: &mut Assets<StandardMaterial>, c: Color, rough: f32, glow: f32| {
+        m.add(StandardMaterial {
+            base_color: c,
+            perceptual_roughness: rough,
+            metallic: if rough < 0.4 { 0.6 } else { 0.0 },
+            emissive: c.to_linear() * glow,
+            ..default()
+        })
+    };
+    let glass = [
+        mat(materials, Color::srgb(0.25, 0.38, 0.52), 0.25, 0.0),
+        mat(materials, Color::srgb(0.55, 0.6, 0.62), 0.3, 0.0),
+        mat(materials, Color::srgb(0.18, 0.22, 0.3), 0.2, 0.0),
+        mat(materials, Color::srgb(0.62, 0.5, 0.4), 0.6, 0.0),
+    ];
+    let band = mat(materials, Color::srgb(1.0, 0.45, 0.85), 0.5, 4.0);
+    let roof = mat(materials, Color::srgb(0.32, 0.32, 0.34), 0.9, 0.0);
+    let concrete = mat(materials, Color::srgb(0.6, 0.58, 0.55), 0.95, 0.0);
+    let netting = mat(materials, Color::srgb(1.0, 0.45, 0.1), 0.8, 0.6);
+    let steel = mat(materials, Color::srgb(0.95, 0.75, 0.1), 0.6, 0.0);
+    let ply = mat(materials, Color::srgb(0.8, 0.62, 0.38), 0.85, 0.0);
+    let pallet = mat(materials, Color::srgb(0.5, 0.36, 0.22), 0.9, 0.0);
+    let part = |c: &mut Commands, b: &Block, m: &Handle<StandardMaterial>, at: Vec3, size: Vec3| {
+        c.spawn((
+            Mesh3d(cube.clone()),
+            MeshMaterial3d(m.clone()),
+            Transform::from_translation(o + b.centre + b.rotation() * at)
+                .with_rotation(b.rotation())
+                .with_scale(size),
+            DespawnOnExit(AppState::InGame),
+        ));
+    };
+    for b in city(t) {
+        let tf = Transform::from_translation(o + b.centre).with_rotation(b.rotation());
+        if b.piece == Piece::Kicker {
+            let corners = b.wedge();
+            commands.spawn((
+                Mesh3d(meshes.add(wedge_mesh(corners))),
+                MeshMaterial3d(ply.clone()),
+                tf,
+                RigidBody::Static,
+                Collider::convex_hull(&corners)
+                    .unwrap_or(Collider::cuboid(b.size.x, b.size.y, b.size.z)),
+                DespawnOnExit(AppState::InGame),
+            ));
+            continue;
+        }
+        commands.spawn((
+            tf,
+            RigidBody::Static,
+            Collider::cuboid(b.size.x, b.size.y, b.size.z),
+            DespawnOnExit(AppState::InGame),
+        ));
+        let top = b.size.y / 2.0;
+        match b.piece {
+            Piece::Tower { style } => {
+                let m = &glass[style as usize % glass.len()];
+                part(commands, &b, m, Vec3::ZERO, b.size);
+                part(
+                    commands,
+                    &b,
+                    &roof,
+                    Vec3::Y * (top + 0.15),
+                    b.size.with_y(0.3) - Vec3::new(0.4, 0.0, 0.4),
+                );
+                // A neon band under the roof, and a parapet.
+                if style % 2 == 0 {
+                    part(
+                        commands,
+                        &b,
+                        &band,
+                        Vec3::Y * (top - 2.5),
+                        b.size.with_y(0.5) + Vec3::new(0.2, 0.0, 0.2),
+                    );
+                }
+            }
+            Piece::Site => {
+                part(
+                    commands,
+                    &b,
+                    &concrete,
+                    Vec3::ZERO,
+                    b.size - Vec3::new(0.6, 0.0, 0.6),
+                );
+                // The open top floors: columns at the corners and a slab.
+                part(
+                    commands,
+                    &b,
+                    &concrete,
+                    Vec3::Y * (top - 0.3),
+                    b.size.with_y(0.6),
+                );
+                for (x, z) in [(-1.0, -1.0), (1.0, -1.0), (-1.0, 1.0), (1.0, 1.0)] {
+                    let at = Vec3::new(
+                        x * (b.size.x / 2.0 - 0.6),
+                        top - 5.0,
+                        z * (b.size.z / 2.0 - 0.6),
+                    );
+                    part(commands, &b, &concrete, at, Vec3::new(0.8, 9.4, 0.8));
+                }
+                // Safety netting round the floors under the deck.
+                part(
+                    commands,
+                    &b,
+                    &netting,
+                    Vec3::Y * (top - 6.0),
+                    b.size.with_y(5.0) + Vec3::new(0.1, 0.0, 0.1),
+                );
+            }
+            Piece::Steel => part(commands, &b, &steel, Vec3::ZERO, b.size),
+            Piece::Clutter => part(commands, &b, &pallet, Vec3::ZERO, b.size),
+            Piece::Kicker => {}
+        }
+    }
+}
+
 /// This screen's run: when it left the start pad, and its best time.
 #[derive(Default)]
 struct Run {
@@ -630,6 +806,55 @@ mod tests {
         }
         assert!(fallen(&t, o + Vec3::new(0.0, -t.fall_below - 1.0, -80.0)));
         assert!(finish_pad(&t).0.y > -t.fall_below && in_hall(&t, o + finish_pad(&t).0).is_some());
+    }
+
+    #[test]
+    fn the_city_crowds_the_ramps_but_never_blocks_them() {
+        let t = t();
+        let c = city(&t);
+        let count = |f: fn(&Piece) -> bool| c.iter().filter(|b| f(&b.piece)).count();
+        let towers = count(|p| matches!(p, Piece::Tower { .. }));
+        let sites = count(|p| *p == Piece::Site);
+        let kickers = count(|p| *p == Piece::Kicker);
+        assert!(towers > 40, "{towers} towers");
+        assert!(
+            sites > 5 && kickers == sites,
+            "{sites} sites, {kickers} kickers"
+        );
+        assert!(count(|p| *p == Piece::Steel) > 5);
+        let ridges: Vec<Vec3> = t
+            .stages
+            .iter()
+            .flat_map(|s| s.ramps.iter().flat_map(|r| ridge(r, t.ramp_samples)))
+            .collect();
+        // Plenty rise above the ramps beside them: you weave between them.
+        let above = c
+            .iter()
+            .filter(|b| matches!(b.piece, Piece::Tower { .. }))
+            .filter(|b| {
+                ridges
+                    .iter()
+                    .any(|q| b.ground_distance(q.xz()) < 30.0 && b.top() > q.y + 5.0)
+            })
+            .count();
+        assert!(
+            above > towers / 2,
+            "{above} of {towers} rise past the ramps"
+        );
+        // No tower or site reaches into a ramp's span.
+        for b in c
+            .iter()
+            .filter(|b| matches!(b.piece, Piece::Tower { .. } | Piece::Site))
+        {
+            for q in &ridges {
+                assert!(
+                    q.y - t.ramp_height > b.top() || b.ground_distance(q.xz()) > t.ramp_half_width,
+                    "{b:?} blocks the ramp at {q}"
+                );
+            }
+        }
+        // The same city every time (every peer builds its own).
+        assert_eq!(city(&t).len(), c.len());
     }
 
     #[test]

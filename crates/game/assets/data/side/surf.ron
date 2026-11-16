@@ -89,6 +89,39 @@
             ],
         ),
     ],
+    // The city the course weaves through, generated from the ramps (the
+    // same on every peer): tall towers both sides, building sites just under
+    // a ramp's side (fall off onto one, hit its kicker and get back on),
+    // cranes on roofs and girders across, high over the ramp.
+    city: (
+        // Change it for a different city.
+        seed: 306,
+        // A building every this many metres along each ramp (min, max).
+        every: (14.0, 30.0),
+        // Gap (m) between a ramp's face and a tall tower (min, max).
+        gap: (3.0, 9.0),
+        // A tower's width and depth (min, max).
+        size: (12.0, 24.0),
+        // How far a tall tower's roof rises above the ridge beside it (min, max).
+        rise: (6.0, 70.0),
+        // The towers' feet (hall y).
+        floor: -720.0,
+        // Chance a spot is a building site just under the ramp.
+        site_chance: 0.25,
+        // How far a site's roof is below the ramp's face bottoms (min, max).
+        site_drop: (4.0, 7.0),
+        // A site's kicker: length, width, height.
+        kicker: (8.0, 6.0, 3.5),
+        // Chance a tall tower has a crane on top, and its mast and jib.
+        crane_chance: 0.2,
+        crane: (18.0, 34.0),
+        // Chance of towers on both sides with a girder across.
+        girder_chance: 0.12,
+        // A girder's underside stays this far (m) above the ridge.
+        girder_clear: 9.0,
+        // Keep towers this far (m) from a pad's middle.
+        pad_clear: 13.0,
+    ),
     // The finish pad (centre, size).
     finish: ((483.65, -563.02, -1938.87), (24.00, 1.00, 24.00)),
     // Solid boxes (centre, size): the pads' towers and the skyline.

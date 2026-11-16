@@ -237,7 +237,7 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   music, dancers, and a dealer for a short ketamine trip (only you feel it). Planes are train
   lines. `data/side/miami.ron` (`features/miami.rs`).
 - **Surf map** (#306). A brownstone's neon-signed door leads to a sky surf course with five
-  stages, checkpoints, strong air control and a best-time timer. Each stage has its own neon colour (pad edge strips, a light, a marker post with one block per stage number, lane lights floating beside the ramps) and a gold arch stands over the finish (`data/side/surf_dressing.ron`, no colliders). `data/side/surf.ron`,
+  stages, checkpoints, strong air control and a best-time timer. A generated city crowds the ramps: towers rising past them on both sides, cranes, girders overhead, and building sites under the ramps with kickers to launch back on. Each stage has its own neon colour (pad edge strips, a light, a marker post with one block per stage number, lane lights floating beside the ramps) and a gold arch stands over the finish (`data/side/surf_dressing.ron`, no colliders). `data/side/surf.ron`,
   `rules/surf.rs` (`features/surf.rs`).
 - **Ragdolling** (#320). A cab hit punts you and you tumble as a physics body for a moment before
   getting up. `data/play/ragdoll.ron` (`crates/play/src/features/ragdoll.rs`).

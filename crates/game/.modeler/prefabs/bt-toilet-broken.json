@@ -1,0 +1,2476 @@
+{
+  "format_version": 1,
+  "name": "bt-toilet-broken",
+  "parts": [],
+  "version": 70638,
+  "ops": [
+    {
+      "revolve": {
+        "name": "bowl",
+        "profile": [
+          [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.15,
+              0.0
+            ],
+            [
+              0.13,
+              0.1
+            ],
+            [
+              0.15,
+              0.2
+            ],
+            [
+              0.2,
+              0.33
+            ],
+            [
+              0.215,
+              0.4
+            ],
+            [
+              0.17,
+              0.4
+            ],
+            [
+              0.12,
+              0.3
+            ],
+            [
+              0.0,
+              0.3
+            ]
+          ]
+        ],
+        "degrees": 250.0,
+        "segments": 10,
+        "translation": [
+          0.0,
+          0.0,
+          0.43
+        ],
+        "rotation": [
+          0.0,
+          -0.3007058,
+          0.0,
+          0.95371693
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "tank",
+        "kind": "box",
+        "size": [
+          0.5,
+          0.42,
+          0.2
+        ],
+        "translation": [
+          0.0,
+          0.72,
+          0.1
+        ],
+        "rotation": null,
+        "round": 0.03
+      }
+    },
+    {
+      "primitive": {
+        "name": "neck",
+        "kind": "box",
+        "size": [
+          0.16,
+          0.2,
+          0.14
+        ],
+        "translation": [
+          0.0,
+          0.45,
+          0.19
+        ],
+        "rotation": null,
+        "round": 0.02
+      }
+    },
+    {
+      "primitive": {
+        "name": "tlid",
+        "kind": "box",
+        "size": [
+          0.54,
+          0.05,
+          0.24
+        ],
+        "translation": [
+          0.55,
+          0.06,
+          0.55
+        ],
+        "rotation": [
+          0.092965044,
+          0.2439897,
+          0.008405007,
+          0.96527505
+        ],
+        "round": 0.015
+      }
+    },
+    {
+      "revolve": {
+        "name": "seat",
+        "profile": [
+          [
+            [
+              0.12,
+              0.0
+            ],
+            [
+              0.205,
+              0.0
+            ],
+            [
+              0.215,
+              0.012
+            ],
+            [
+              0.205,
+              0.024
+            ],
+            [
+              0.12,
+              0.024
+            ],
+            [
+              0.11,
+              0.012
+            ]
+          ]
+        ],
+        "degrees": 360.0,
+        "segments": 12,
+        "translation": [
+          -0.5,
+          0.03,
+          0.75
+        ],
+        "rotation": [
+          0.06969008,
+          -0.0030427345,
+          -0.043513134,
+          0.99661463
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "puddle",
+        "kind": "cylinder",
+        "size": [
+          0.55,
+          0.006,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.003,
+          0.75
+        ],
+        "rotation": null,
+        "segments": 1
+      }
+    },
+    {
+      "primitive": {
+        "name": "shard0",
+        "kind": "wedge",
+        "size": [
+          0.09168466,
+          0.03,
+          0.057748612
+        ],
+        "translation": [
+          -0.20201498,
+          0.016,
+          0.7050504
+        ],
+        "rotation": [
+          0.0,
+          0.2074459,
+          0.0,
+          0.9782465
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "shard1",
+        "kind": "wedge",
+        "size": [
+          0.124036185,
+          0.03,
+          0.08825813
+        ],
+        "translation": [
+          -0.15611519,
+          0.016,
+          1.0786601
+        ],
+        "rotation": [
+          0.0,
+          0.6420797,
+          0.0,
+          0.7666379
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "shard2",
+        "kind": "wedge",
+        "size": [
+          0.07381316,
+          0.03,
+          0.055309165
+        ],
+        "translation": [
+          0.036105704,
+          0.016,
+          0.8390828
+        ],
+        "rotation": [
+          0.0,
+          0.62377155,
+          0.0,
+          0.78160673
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "shard3",
+        "kind": "wedge",
+        "size": [
+          0.124532185,
+          0.03,
+          0.09002239
+        ],
+        "translation": [
+          0.5401186,
+          0.016,
+          0.75733787
+        ],
+        "rotation": [
+          0.0,
+          0.57097745,
+          0.0,
+          0.82096577
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "shard4",
+        "kind": "wedge",
+        "size": [
+          0.118551575,
+          0.03,
+          0.092732415
+        ],
+        "translation": [
+          -0.24272424,
+          0.016,
+          0.92442375
+        ],
+        "rotation": [
+          0.0,
+          0.3679763,
+          0.0,
+          -0.92983514
+        ]
+      }
+    },
+    {
+      "material": {
+        "name": "bowl",
+        "input": "bowl",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tank",
+        "input": "tank",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "neck",
+        "input": "neck",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tlid",
+        "input": "tlid",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "seat",
+        "input": "seat",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "shard0",
+        "input": "shard0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "shard1",
+        "input": "shard1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "shard2",
+        "input": "shard2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "shard3",
+        "input": "shard3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "shard4",
+        "input": "shard4",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "puddle",
+        "input": "puddle",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-sewage",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 14,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#3e2e0c"
+                  ],
+                  [
+                    1,
+                    "#665020"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.06,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "bowl",
+        "input": "bowl",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tank",
+        "input": "tank",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "neck",
+        "input": "neck",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tlid",
+        "input": "tlid",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "seat",
+        "input": "seat",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "shard0",
+        "input": "shard0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "shard1",
+        "input": "shard1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "shard2",
+        "input": "shard2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "shard3",
+        "input": "shard3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "shard4",
+        "input": "shard4",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "puddle",
+        "input": "puddle",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-sewage",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.25,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 14,
+                "size": 0.08,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#3e2e0c"
+                  ],
+                  [
+                    1,
+                    "#665020"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "n",
+                "b": 0.0006,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": 0.06,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "style": {
+    "name": "friendslop",
+    "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
+    "colors": {
+      "bark": "#6b4a2f",
+      "brass": "#b8893a",
+      "char": "#2a2220",
+      "ember": "#ff5a1f",
+      "flame": "#ffb347",
+      "gunmetal": "#3a3d44",
+      "leaf": "#5f8f2f",
+      "moss": "#6f8f3a",
+      "stone": "#8f8a80",
+      "stone_dark": "#5e5a54",
+      "wood": "#9a6a3e"
+    },
+    "numbers": {
+      "segments": 12.0
+    }
+  },
+  "derived_from_ops": true
+}

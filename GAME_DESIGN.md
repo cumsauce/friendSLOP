@@ -292,7 +292,12 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   fog, flashlight, low drone. The door closes when nobody is in or Jegg is whole. The helicopter
   (#134) won't follow you in.
 - **The nightmare bathroom** (#161, doomy). Most trips, a block of the warehouse is a filthy
-  bathroom: tall tiled halls, stalls with broken doors and holes, every cell alike. The **fart
+  bathroom, now like the Backrooms (doomy): 3-5 cells each way of sickly-yellow tiled halls,
+  tiled pillars where cells meet, door frames standing alone in openings, some rooms with a low
+  stained drop ceiling. A few room layouts repeat so you lose track: stalls with broken doors,
+  urinals (or a trough), sinks under cracked mirrors, gym showers with mildewed curtains, dryers
+  and signs, junk (smashed toilets, mop buckets, wet-floor signs), checker or tile floors
+  (`data/places/warehouse_visuals_bathroom.ron` sets the odds). The **fart
   monster** patrols it, farts, and gasses you out of the warehouse like the main monster
   (`features/warehouse/bathroom.rs`, `visuals/bathroom.rs`).
 - **Underground passages** (#127, doomy). One tunnel network 30 m below the map: sewers,

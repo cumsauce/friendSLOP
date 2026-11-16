@@ -12,4 +12,9 @@
     gas_reach: 1.5,
     // Seconds it stands there, satisfied, after gassing someone.
     smug: 4.0,
+    // How many cells (5 m each) it spans each way: big enough to get lost
+    // in, like the Backrooms. At most 5 (the warehouse is 7 x 7 and its
+    // first two rows stay storage).
+    min_cells: 3,
+    max_cells: 5,
 )

@@ -1,0 +1,124 @@
+{
+  "name": "bt-mirror-desilver",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "fn",
+      "octaves": 5,
+      "seed": 33,
+      "size": 0.06,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#140f0a"
+        ],
+        [
+          0.5,
+          "#2e2a22"
+        ],
+        [
+          1,
+          "#5a5546"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "fn",
+      "name": "r",
+      "to": [
+        0.15,
+        0.5
+      ],
+      "type": "remap"
+    },
+    {
+      "base_color": "col",
+      "metallic": 0.4,
+      "name": "out",
+      "roughness": "r",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "bt-mirror-desilver",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "fn",
+              "octaves": 5,
+              "seed": 33,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#140f0a"
+                ],
+                [
+                  0.5,
+                  "#2e2a22"
+                ],
+                [
+                  1,
+                  "#5a5546"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fn",
+              "name": "r",
+              "to": [
+                0.15,
+                0.5
+              ],
+              "type": "remap"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0.4,
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+fn +col +r +out"
+      }
+    ],
+    "current": 0
+  }
+}

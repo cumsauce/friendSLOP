@@ -1,0 +1,983 @@
+{
+  "format_version": 1,
+  "name": "bt-soap-dispenser",
+  "parts": [],
+  "version": 69458,
+  "ops": [
+    {
+      "primitive": {
+        "name": "plate",
+        "kind": "box",
+        "size": [
+          0.12,
+          0.2,
+          0.02
+        ],
+        "translation": [
+          0.0,
+          1.24,
+          0.01
+        ],
+        "rotation": null,
+        "round": 0.006,
+        "segments": 1
+      }
+    },
+    {
+      "primitive": {
+        "name": "tank",
+        "kind": "box",
+        "size": [
+          0.11,
+          0.16,
+          0.08
+        ],
+        "translation": [
+          0.0,
+          1.25,
+          0.06
+        ],
+        "rotation": null,
+        "round": 0.025,
+        "segments": 2
+      }
+    },
+    {
+      "primitive": {
+        "name": "tank_window",
+        "kind": "box",
+        "size": [
+          0.06,
+          0.06,
+          0.008
+        ],
+        "translation": [
+          0.0,
+          1.25,
+          0.1
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "pump_neck",
+        "kind": "box",
+        "size": [
+          0.05,
+          0.04,
+          0.05
+        ],
+        "translation": [
+          0.0,
+          1.15,
+          0.085
+        ],
+        "rotation": null,
+        "round": 0.01,
+        "segments": 1
+      }
+    },
+    {
+      "primitive": {
+        "name": "pump_button",
+        "kind": "box",
+        "size": [
+          0.07,
+          0.025,
+          0.03
+        ],
+        "translation": [
+          0.0,
+          1.16,
+          0.12
+        ],
+        "rotation": null,
+        "round": 0.008,
+        "segments": 1
+      }
+    },
+    {
+      "primitive": {
+        "name": "spout",
+        "kind": "cylinder",
+        "size": [
+          0.008,
+          0.02,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          1.125,
+          0.1
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "drip_run",
+        "kind": "box",
+        "size": [
+          0.018,
+          0.42,
+          0.005
+        ],
+        "translation": [
+          0.005,
+          0.93,
+          0.023
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "drip_run2",
+        "kind": "box",
+        "size": [
+          0.01,
+          0.2,
+          0.005
+        ],
+        "translation": [
+          0.025,
+          1.03,
+          0.023
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "drip_bead",
+        "kind": "sphere",
+        "size": [
+          0.013,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.005,
+          0.72,
+          0.025
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "drip_bead2",
+        "kind": "sphere",
+        "size": [
+          0.009,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.025,
+          0.93,
+          0.024
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "spout_blob",
+        "kind": "sphere",
+        "size": [
+          0.01,
+          0.0,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          1.11,
+          0.1
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "plate",
+        "input": "plate",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tank",
+        "input": "tank",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "pk-porcelain",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 0.5,
+            "resolution": 128,
+            "nodes": [
+              {
+                "name": "n",
+                "octaves": 3,
+                "seed": 71,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "name": "gr",
+                "octaves": 4,
+                "seed": 72,
+                "size": 0.12,
+                "type": "noise"
+              },
+              {
+                "in": [
+                  0.55,
+                  0.85
+                ],
+                "input": "gr",
+                "name": "gm0",
+                "type": "levels"
+              },
+              {
+                "a": "gm0",
+                "b": 0.75,
+                "name": "gm",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "input": "n",
+                "name": "c0",
+                "stops": [
+                  [
+                    0,
+                    "#d8d4c4"
+                  ],
+                  [
+                    1,
+                    "#f0ece0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "a": "c0",
+                "b": "#6e5a2c",
+                "c": "gm",
+                "name": "col",
+                "op": "mix",
+                "type": "math"
+              },
+              {
+                "a": "gm0",
+                "b": 0.5,
+                "name": "r0",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "a": "r0",
+                "b": 0.2,
+                "name": "r",
+                "op": "add",
+                "type": "math"
+              },
+              {
+                "a": "gr",
+                "b": 0.0008,
+                "name": "h",
+                "op": "mul",
+                "type": "math"
+              },
+              {
+                "base_color": "col",
+                "height": "h",
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pump_neck",
+        "input": "pump_neck",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "ns-steel",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 256,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 9,
+                "size": 0.05,
+                "type": "noise"
+              },
+              {
+                "angle": 0,
+                "input": "fn",
+                "length": 0.08,
+                "name": "br",
+                "type": "dir_blur"
+              },
+              {
+                "input": "br",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#9a9ea4"
+                  ],
+                  [
+                    1,
+                    "#d0d4d8"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "from": [
+                  0,
+                  1
+                ],
+                "input": "br",
+                "name": "r",
+                "to": [
+                  0.22,
+                  0.38
+                ],
+                "type": "remap"
+              },
+              {
+                "anisotropy": 0.6,
+                "base_color": "col",
+                "metallic": 0.9,
+                "name": "out",
+                "roughness": "r",
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "pump_button",
+        "input": "pump_button",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-plastic-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 104,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1e2022"
+                  ],
+                  [
+                    1,
+                    "#2c2e30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "spout",
+        "input": "spout",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "fs-plastic-dark",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "name": "fn",
+                "octaves": 4,
+                "seed": 104,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "fn",
+                "name": "col",
+                "stops": [
+                  [
+                    0,
+                    "#1e2022"
+                  ],
+                  [
+                    1,
+                    "#2c2e30"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "col",
+                "name": "out",
+                "roughness": 0.45,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "tank_window",
+        "input": "tank_window",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "petal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 41,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0.0,
+                    "#d4507f"
+                  ],
+                  [
+                    1.0,
+                    "#f08ab0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "hue": "$hue",
+                "input": "c",
+                "name": "c2",
+                "sat": "$sat",
+                "type": "hsv",
+                "val": "$val"
+              },
+              {
+                "base_color": "c2",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "sat": 1.0,
+              "val": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "drip_bead",
+        "input": "drip_bead",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "petal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 41,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0.0,
+                    "#d4507f"
+                  ],
+                  [
+                    1.0,
+                    "#f08ab0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "hue": "$hue",
+                "input": "c",
+                "name": "c2",
+                "sat": "$sat",
+                "type": "hsv",
+                "val": "$val"
+              },
+              {
+                "base_color": "c2",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "sat": 1.0,
+              "val": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "drip_bead2",
+        "input": "drip_bead2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "petal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 41,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0.0,
+                    "#d4507f"
+                  ],
+                  [
+                    1.0,
+                    "#f08ab0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "hue": "$hue",
+                "input": "c",
+                "name": "c2",
+                "sat": "$sat",
+                "type": "hsv",
+                "val": "$val"
+              },
+              {
+                "base_color": "c2",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "sat": 1.0,
+              "val": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "drip_run",
+        "input": "drip_run",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "petal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 41,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0.0,
+                    "#d4507f"
+                  ],
+                  [
+                    1.0,
+                    "#f08ab0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "hue": "$hue",
+                "input": "c",
+                "name": "c2",
+                "sat": "$sat",
+                "type": "hsv",
+                "val": "$val"
+              },
+              {
+                "base_color": "c2",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "sat": 1.0,
+              "val": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "drip_run2",
+        "input": "drip_run2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "petal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 41,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0.0,
+                    "#d4507f"
+                  ],
+                  [
+                    1.0,
+                    "#f08ab0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "hue": "$hue",
+                "input": "c",
+                "name": "c2",
+                "sat": "$sat",
+                "type": "hsv",
+                "val": "$val"
+              },
+              {
+                "base_color": "c2",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "sat": 1.0,
+              "val": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "spout_blob",
+        "input": "spout_blob",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "petal",
+          "scale": 1.0,
+          "graph": {
+            "domain": "object",
+            "tile": 1.0,
+            "resolution": 64,
+            "nodes": [
+              {
+                "name": "p",
+                "of": "position",
+                "type": "input"
+              },
+              {
+                "coords": "p",
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 41,
+                "size": 0.04,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0.0,
+                    "#d4507f"
+                  ],
+                  [
+                    1.0,
+                    "#f08ab0"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "hue": "$hue",
+                "input": "c",
+                "name": "c2",
+                "sat": "$sat",
+                "type": "hsv",
+                "val": "$val"
+              },
+              {
+                "base_color": "c2",
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {
+              "hue": 0.0,
+              "sat": 1.0,
+              "val": 1.0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "style": {
+    "name": "friendslop",
+    "brief": "friendSLOP meadow: chunky stylized low-poly, warm saturated naturals, soft faceted shapes, real-world scale",
+    "colors": {
+      "bark": "#6b4a2f",
+      "brass": "#b8893a",
+      "char": "#2a2220",
+      "ember": "#ff5a1f",
+      "flame": "#ffb347",
+      "gunmetal": "#3a3d44",
+      "leaf": "#5f8f2f",
+      "moss": "#6f8f3a",
+      "stone": "#8f8a80",
+      "stone_dark": "#5e5a54",
+      "wood": "#9a6a3e"
+    },
+    "numbers": {
+      "segments": 12.0
+    }
+  },
+  "derived_from_ops": true,
+  "material_patterns": {
+    "drip*": {
+      "name": "drip*",
+      "pbr": "petal",
+      "type": "material"
+    }
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "name": "bt-ceiling-panel",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.2,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "pits",
+      "octaves": 2,
+      "seed": 3,
+      "size": 0.01,
+      "type": "noise"
+    },
+    {
+      "name": "stain",
+      "octaves": 4,
+      "seed": 9,
+      "size": 0.35,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.6,
+        0.75
+      ],
+      "input": "stain",
+      "name": "sm",
+      "type": "levels"
+    },
+    {
+      "input": "pits",
+      "name": "base",
+      "stops": [
+        [
+          0,
+          "#b9ab84"
+        ],
+        [
+          1,
+          "#d8cfa8"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "input": "sm",
+      "name": "stc",
+      "stops": [
+        [
+          0,
+          "#000000"
+        ],
+        [
+          1,
+          "#000000"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "base",
+      "b": [
+        0.42,
+        0.3,
+        0.15
+      ],
+      "c": "sm",
+      "name": "albedo",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "pits",
+      "b": 0.002,
+      "name": "h",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "albedo",
+      "height": "h",
+      "name": "out",
+      "roughness": 0.95,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "bt-ceiling-panel",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.2,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "pits",
+              "octaves": 2,
+              "seed": 3,
+              "size": 0.01,
+              "type": "noise"
+            },
+            {
+              "name": "stain",
+              "octaves": 4,
+              "seed": 9,
+              "size": 0.35,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.6,
+                0.75
+              ],
+              "input": "stain",
+              "name": "sm",
+              "type": "levels"
+            },
+            {
+              "input": "pits",
+              "name": "base",
+              "stops": [
+                [
+                  0,
+                  "#b9ab84"
+                ],
+                [
+                  1,
+                  "#d8cfa8"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "input": "sm",
+              "name": "stc",
+              "stops": [
+                [
+                  0,
+                  "#000000"
+                ],
+                [
+                  1,
+                  "#000000"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "base",
+              "b": [
+                0.42,
+                0.3,
+                0.15
+              ],
+              "c": "sm",
+              "name": "albedo",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "pits",
+              "b": 0.002,
+              "name": "h",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "albedo",
+              "height": "h",
+              "name": "out",
+              "roughness": 0.95,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+pits +stain +sm +base +stc +albedo +h +out"
+      }
+    ],
+    "current": 0
+  }
+}

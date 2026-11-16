@@ -468,6 +468,7 @@ fn tag_navmesh_exclusions(
             With<crate::buildings::Building>,
         )>,
     >,
+    solid: Query<(), With<friendslop_base::nav::NavSolid>>,
 ) {
     // Every frame until the mesh is queued: props keep arriving as the
     // commune loads, and the build waits until each one is tagged.
@@ -482,7 +483,7 @@ fn tag_navmesh_exclusions(
         }
         let scale = at.map(|g| g.compute_transform().scale).unwrap_or(Vec3::ONE);
         let size = prop_size(collider, scale);
-        if keep.contains(entity) || size >= tuning().nav_keep_size {
+        if keep.contains(entity) || solid.contains(entity) || size >= tuning().nav_keep_size {
             // Wall-sized: in the mesh, so paths go round it.
             commands.entity(entity).insert(NavKeep);
             continue;

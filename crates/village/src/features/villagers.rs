@@ -62,6 +62,9 @@ pub struct Tuning {
     pub max_climb: f32,
     /// Steeper than this and the mesh ends (the quarry walls stay out of reach).
     pub max_slope_degs: f32,
+    /// Props smaller than this across (m) stay out of the navmesh; bigger ones
+    /// (walls, set pieces) are in it.
+    pub nav_keep_size: f32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -452,10 +455,10 @@ fn tag_navmesh_exclusions(
     mut build: ResMut<NavBuild>,
     mut commands: Commands,
     colliders: Query<
-        (Entity, &RigidBody),
+        (Entity, &RigidBody, &Collider, Option<&GlobalTransform>),
         (
-            With<Collider>,
             Without<avian_rerecast::ExcludeColliderFromNavmesh>,
+            Without<NavKeep>,
         ),
     >,
     keep: Query<
@@ -473,8 +476,15 @@ fn tag_navmesh_exclusions(
     }
     build.tagged = true;
     let mut tagged = 0;
-    for (entity, body) in &colliders {
-        if !body.is_static() || keep.contains(entity) {
+    for (entity, body, collider, at) in &colliders {
+        if !body.is_static() {
+            continue;
+        }
+        let scale = at.map(|g| g.compute_transform().scale).unwrap_or(Vec3::ONE);
+        let size = prop_size(collider, scale);
+        if keep.contains(entity) || size >= tuning().nav_keep_size {
+            // Wall-sized: in the mesh, so paths go round it.
+            commands.entity(entity).insert(NavKeep);
             continue;
         }
         commands
@@ -483,6 +493,21 @@ fn tag_navmesh_exclusions(
         tagged += 1;
     }
     debug!("navmesh: leaving {tagged} scattered colliders out of the mesh");
+}
+
+/// A static collider sorted into the navmesh (wall-sized, terrain or a building).
+#[derive(Component)]
+struct NavKeep;
+
+/// How big a collider is across the ground (m): the wider of its sides.
+/// The map's walls are unit boxes stretched by their transform's `scale`,
+/// which avian only bakes into the shape after a physics step, so it's
+/// applied here.
+fn prop_size(collider: &Collider, scale: Vec3) -> f32 {
+    use avian3d::collision::collider::SimpleCollider;
+    let b = collider.aabb(Vec3::ZERO, Quat::IDENTITY, 0.0);
+    let s = (b.max - b.min) * scale.abs();
+    s.x.max(s.z)
 }
 
 /// The mesh settings the host builds with (and `tests/it/navmesh.rs` asserts on).
@@ -556,18 +581,12 @@ fn build_navmesh(
     mut commands: Commands,
     mut generator: NavmeshGenerator,
     pending: Query<
-        (Entity, &RigidBody),
+        &RigidBody,
         (
             With<Collider>,
             Without<avian_rerecast::ExcludeColliderFromNavmesh>,
+            Without<NavKeep>,
         ),
-    >,
-    keep: Query<
-        (),
-        Or<(
-            With<crate::terrain::GroundCollider>,
-            With<crate::buildings::Building>,
-        )>,
     >,
 ) {
     if build.built {
@@ -576,10 +595,7 @@ fn build_navmesh(
     // The tagging from last frame's `tag_navmesh_exclusions` must be applied
     // before the obstacles are sampled (this frame's PostUpdate), so wait until
     // nothing that should be tagged remains.
-    if pending
-        .iter()
-        .any(|(e, body)| body.is_static() && !keep.contains(e))
-    {
+    if pending.iter().any(|body| body.is_static()) {
         return;
     }
     build.built = true;

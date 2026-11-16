@@ -9,8 +9,10 @@
 
 pub mod comp;
 pub mod drive;
+pub mod filter;
 pub mod params;
 pub mod song_mix;
+pub mod width;
 
 /// A field in an override: `None` when the song doesn't write it,
 /// `Some(v)` when it does (even when `v` is itself `None`, so a song can

@@ -1735,6 +1735,10 @@ crate::bus_mix! {
         autopan: Option<(f32, f32)> = None => [rate, depth],
         /// Chorus: (rate Hz, centre ms, depth ms, mix).
         chorus: Option<(f32, f32, f32, f32)> = None => [rate, centre, depth, mix],
+        /// Resonant bus filter: (Lp or Hp, cutoff Hz, q).
+        filter: Option<(crate::fx::filter::FilterKind, f32, f32)> = None => [kind, cutoff, q],
+        /// Stereo width: (width 0 mono..1 as is..2 wide, mono below Hz; 0 = off).
+        width: Option<(f32, f32)> = None => [amount, mono_below],
         /// Saturation: (amount 0..1, tone 0..1), level-matched ([`crate::fx::drive`]).
         drive: Option<(f32, f32)> = None => [amount, tone],
         /// Compressor: (threshold dB, ratio, attack ms, release ms, mix 0..1)
@@ -1768,6 +1772,8 @@ struct BusFx {
     chorus: Vec<Option<Chorus>>,
     drive: Vec<Option<Drive>>,
     comp: Vec<Option<Comp>>,
+    width: Vec<Option<crate::fx::width::Width>>,
+    filter: Vec<Option<crate::fx::filter::BusFilter>>,
     trim: [f32; BUSES],
     pump: [f32; BUSES],
 }
@@ -1792,6 +1798,17 @@ impl BusFx {
                 .iter()
                 .map(|m| m.drive.map(|(a, t)| Drive::new(a, t)))
                 .collect(),
+            width: m
+                .iter()
+                .map(|m| m.width.map(|(w, f)| crate::fx::width::Width::new(w, f)))
+                .collect(),
+            filter: m
+                .iter()
+                .map(|m| {
+                    m.filter
+                        .map(|(k, f, q)| crate::fx::filter::BusFilter::new(k, f, q))
+                })
+                .collect(),
             trim: std::array::from_fn(|b| m[b].trim),
             pump: std::array::from_fn(|b| m[b].pump),
         }
@@ -1813,6 +1830,12 @@ impl BusFx {
             }
             if let (Some(e), Some((a, t))) = (&mut self.drive[b], m.drive) {
                 e.set(a, t);
+            }
+            if let (Some(e), Some((w, f))) = (&mut self.width[b], m.width) {
+                e.set(w, f);
+            }
+            if let (Some(e), Some((k, f, q))) = (&mut self.filter[b], m.filter) {
+                e.set(k, f, q);
             }
             self.trim[b] = m.trim;
             self.pump[b] = m.pump;
@@ -1852,6 +1875,12 @@ impl BusFx {
             c.process(l, r);
         }
         // chain: chorus
+        if let Some(e) = &mut self.filter[b] {
+            e.process(l, r);
+        }
+        if let Some(e) = &mut self.width[b] {
+            e.process(l, r);
+        }
     }
 }
 

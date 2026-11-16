@@ -5,7 +5,7 @@
 
 pub use friendslop_art::{art, theme};
 pub use friendslop_core::AppState;
-pub use friendslop_kcc as kcc;
+pub mod kcc;
 pub use friendslop_world::{buildings, landmarks, surfaces, terrain};
 
 /// `bevy_voice_chat`'s prelude (built for the browser too, #106).

@@ -116,7 +116,7 @@ jobs:
       - name: test (nextest)
         run: >-
           cargo nextest run --locked
-          -p fusion -p friendslop-core -p friendslop-wire -p friendslop-kcc
+          -p fusion -p friendslop-core -p friendslop-wire
           -p friendslop-wfc -p friendslop-structures -p friendslop-art
           -p friendslop-data -p friendslop-world
 

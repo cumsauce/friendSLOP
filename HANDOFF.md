@@ -16,12 +16,13 @@ All three tasks from the 2026-11-08 handoff are **done and merged**: #95 (z-figh
   their PR #60 closed unmerged), so `vendor/rerecast/` carries the one-line C++-parity skip fix
   via `[patch.crates-io]` — see `vendor/rerecast/README-friendSLOP.md`. Drop the vendored copy
   once upstream ships the fix. `tests/it/navmesh.rs` is the regression test.
-- **#98 — kinematic walking (bevy_ahoy port).** `crates/kcc/` carries the controller
-  core ported from bevy_ahoy at pinned commit `630a4573` (MIT OR Apache-2.0, both licenses in
-  the directory): walk 5 / sprint 10.5, jump ~0.9 m, step-up 0.5 m, 45° slope limit, ground
-  snapping, wall sliding, all via avian's `MoveAndSlide` against the whole world — no
-  `buildings::WALKABLE` special cases left. Host stays authoritative; headless tests fall back
-  to the old terrain-height walk. `tests/it/kcc.rs` covers stepping, slopes, walls and jumps.
+- **#98 — kinematic walking (bevy_ahoy).** The host walks bodies with the `bevy_ahoy` 0.3
+  crate itself (`friendslop-base::kcc` drives it; the old hand port `crates/kcc/` is gone):
+  each player gets a server-only body (ahoy `CharacterController`, collider disabled so it is
+  pure shape queries) fed from `WalkInput` every fixed tick, its feet copied back into the
+  replicated `Walker`. Walk 5 / sprint 10.5, jump ~0.9 m, step-up 0.5 m, 45° slope limit.
+  The body is a capsule with a cone bottom (ahoy's step-up refuses a round bottom on an edge
+  at walking speed). `tests/it/kcc.rs` covers stepping, slopes, walls, jumps and climbing.
 
 ## Other known gaps
 

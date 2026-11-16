@@ -120,10 +120,10 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   uses whatever is under the crosshair (mushroom, tears, landlord, totems, pets); doors are used
   from the side you stand on; you fart where you stand; your pet follows you. Bodies can't walk
   through trees, rocks, walls, sheds, bales or crates: the host walks them with a kinematic
-  character controller (`crates/kcc`, ported from bevy_ahoy at `630a4573`, MIT OR Apache-2.0) — it
+  character controller (the `bevy_ahoy` crate, driven from `friendslop-base::kcc` each fixed tick) — it
   slides along walls, walks slopes up to 45°, steps up stairs and kerbs up to 0.5 m (village
   stairs, ramps, the tower — no special-cased floors anymore), snaps down slopes instead of
-  hopping, and jumps ~0.9 m (Space or pad South/A; a fresh press each jump, no double jump,
+  hopping, and jumps ~0.9 m (Space or pad South/A; holding it hops again on landing, no double jump,
   0.1 s coyote time off ledges, a 0.1 s buffer for presses just before landing, and letting go
   early cuts the rise for a short hop; numbers in `data/play/fps.ron`). Headless tests (no physics) fall back to a plain terrain-height
   walk. V swaps to the old

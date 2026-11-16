@@ -188,15 +188,15 @@ pub fn unbounded(feet: Vec3) -> bool {
 }
 
 /// The walker's air control for a body with feet at `feet`.
-pub fn air_at(feet: Vec3) -> friendslop_kcc::Air {
+pub fn air_at(feet: Vec3) -> crate::kcc::Air {
     let t = tuning();
     if in_hall(&t, feet).is_some() && t.max_speed > 0.0 {
-        friendslop_kcc::Air {
+        crate::kcc::Air {
             accel_hz: t.air_accel_hz,
             max_wish_speed: t.air_max_wish,
             max_speed: t.max_speed,
         }
     } else {
-        friendslop_kcc::Air::NORMAL
+        crate::kcc::Air::NORMAL
     }
 }

@@ -328,7 +328,7 @@ dependencies = [
  "objc2-foundation 0.3.2",
  "parking_lot",
  "percent-encoding",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
  "wl-clipboard-rs",
  "x11rb",
 ]
@@ -624,6 +624,27 @@ dependencies = [
  "bevy_derive",
  "bevy_ecs",
  "bevy_reflect",
+]
+
+[[package]]
+name = "bevy_ahoy"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5679d8453717442765fe3e4e475561e1f8c9b2567be3a0234e21679340436aee"
+dependencies = [
+ "avian3d",
+ "bevy_app",
+ "bevy_derive",
+ "bevy_ecs",
+ "bevy_enhanced_input",
+ "bevy_math",
+ "bevy_reflect",
+ "bevy_shape",
+ "bevy_time",
+ "bevy_transform",
+ "bevy_utils",
+ "getrandom 0.4.3",
+ "tracing",
 ]
 
 [[package]]
@@ -1046,6 +1067,30 @@ checksum = "6d462345921b71e0a046fd768dd7df65ecacbe6567d12d5ab014eb533e839453"
 dependencies = [
  "bevy_macro_utils",
  "encase_derive_impl",
+]
+
+[[package]]
+name = "bevy_enhanced_input"
+version = "0.27.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fb91b77a99df5f292eb9bb5e2f7357bbb17caa705c36870e3e9e298096a3b488"
+dependencies = [
+ "bevy",
+ "bevy_enhanced_input_macros",
+ "bitflags 2.13.2",
+ "smallvec",
+ "variadics_please",
+]
+
+[[package]]
+name = "bevy_enhanced_input_macros"
+version = "0.27.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b328604b1e3330b1798d82eeeabfefdf490c2c78d53ffc5d0961fd147b953126"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 3.0.9",
 ]
 
 [[package]]
@@ -1625,7 +1670,7 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-time",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3442,7 +3487,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3657,7 +3702,6 @@ dependencies = [
  "friendslop-base",
  "friendslop-core",
  "friendslop-data",
- "friendslop-kcc",
  "friendslop-places",
  "friendslop-play",
  "friendslop-side",
@@ -3700,7 +3744,6 @@ dependencies = [
  "friendslop-base",
  "friendslop-core",
  "friendslop-data",
- "friendslop-kcc",
  "friendslop-places",
  "friendslop-play",
  "friendslop-story",
@@ -3740,6 +3783,7 @@ dependencies = [
  "avian3d",
  "avian_rerecast",
  "bevy",
+ "bevy_ahoy",
  "bevy_landmass",
  "bevy_replicon",
  "bevy_rerecast",
@@ -3748,7 +3792,6 @@ dependencies = [
  "friendslop-art",
  "friendslop-core",
  "friendslop-data",
- "friendslop-kcc",
  "friendslop-structures",
  "friendslop-wfc",
  "friendslop-world",
@@ -3782,14 +3825,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "friendslop-kcc"
-version = "0.1.0"
-dependencies = [
- "avian3d",
- "bevy",
-]
-
-[[package]]
 name = "friendslop-places"
 version = "0.1.0"
 dependencies = [
@@ -3804,7 +3839,6 @@ dependencies = [
  "friendslop-base",
  "friendslop-core",
  "friendslop-data",
- "friendslop-kcc",
  "friendslop-play",
  "friendslop-structures",
  "friendslop-wfc",
@@ -3831,7 +3865,6 @@ dependencies = [
  "friendslop-base",
  "friendslop-core",
  "friendslop-data",
- "friendslop-kcc",
  "friendslop-structures",
  "friendslop-wfc",
  "friendslop-world",
@@ -3855,7 +3888,6 @@ dependencies = [
  "friendslop-base",
  "friendslop-core",
  "friendslop-data",
- "friendslop-kcc",
  "friendslop-places",
  "friendslop-play",
  "friendslop-side-nyc",
@@ -3903,7 +3935,6 @@ dependencies = [
  "friendslop-base",
  "friendslop-core",
  "friendslop-data",
- "friendslop-kcc",
  "friendslop-places",
  "friendslop-play",
  "friendslop-structures",
@@ -3940,7 +3971,6 @@ dependencies = [
  "friendslop-base",
  "friendslop-core",
  "friendslop-data",
- "friendslop-kcc",
  "friendslop-places",
  "friendslop-play",
  "friendslop-structures",
@@ -5191,7 +5221,7 @@ checksum = "3640c1c38b8e4e43584d8df18be5fc6b0aa314ce6ebf51b53313d4306cca8e46"
 dependencies = [
  "hermit-abi",
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -6193,7 +6223,7 @@ version = "0.50.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7957b9740744892f114936ab4a57b3f487491bbeafaf8083688b16841a4240e5"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -6798,7 +6828,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7d8fae84b431384b68627d0f9b3b1245fcf9f46f6c0e3dc902e9dce64edd1967"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -7720,7 +7750,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.12.1",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -7778,7 +7808,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -9585,7 +9615,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

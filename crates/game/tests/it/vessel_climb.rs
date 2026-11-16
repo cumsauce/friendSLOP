@@ -2,21 +2,14 @@
 //! colliders: from the plaza to the top walkway, both along one lane and
 //! switching lanes on every landing (the hairpin onto the flight above).
 
-use avian3d::character_controller::move_and_slide::MoveAndSlide;
 use avian3d::prelude::*;
-use bevy::ecs::system::RunSystemOnce;
 use bevy::prelude::*;
 use friendslop::features::vessel;
 
+use super::walking::{self, spawn, tick};
+
 fn world() -> App {
-    let mut app = App::new();
-    app.add_plugins((
-        MinimalPlugins,
-        TransformPlugin,
-        AssetPlugin::default(),
-        PhysicsPlugins::default(),
-    ));
-    app.init_asset::<Mesh>();
+    let mut app = walking::app();
     // The plaza, its top at y = 0.
     app.world_mut().spawn((
         RigidBody::Static,
@@ -31,63 +24,28 @@ fn world() -> App {
             p.transform,
         ));
     }
-    app.finish();
-    app.cleanup();
-    for _ in 0..3 {
-        app.update();
-    }
+    walking::settle(&mut app);
     app
-}
-
-#[derive(Resource)]
-struct Walk {
-    kcc: friendslop::kcc::Kcc,
-    feet: Vec3,
-    yaw: f32,
-}
-
-/// One tick walking towards `to` (in plan).
-fn tick(app: &mut App, kcc: &mut friendslop::kcc::Kcc, feet: Vec3, to: Vec3) -> Vec3 {
-    let d = to - feet;
-    // The stick's forward is -Z turned by yaw.
-    let yaw = (-d.x).atan2(-d.z);
-    app.insert_resource(Walk {
-        kcc: *kcc,
-        feet,
-        yaw,
-    });
-    app.world_mut()
-        .run_system_once(|move_and_slide: MoveAndSlide, mut w: ResMut<Walk>| {
-            let (feet, yaw) = (w.feet, w.yaw);
-            w.feet = friendslop::kcc::step(
-                &mut w.kcc,
-                feet,
-                yaw,
-                Vec2::Y,
-                false,
-                friendslop::kcc::WALK_SPEED,
-                1.0 / 60.0,
-                &move_and_slide,
-            );
-        })
-        .expect("step");
-    let Walk { kcc: out, feet, .. } = app.world_mut().remove_resource::<Walk>().expect("walk");
-    *kcc = out;
-    feet
 }
 
 /// Walk through `waypoints` in turn; returns where you got to and how far
 /// along the list.
 fn follow(app: &mut App, start: Vec3, waypoints: &[Vec3]) -> (Vec3, usize) {
-    let mut kcc = friendslop::kcc::Kcc::default();
+    let w = spawn(app, start);
     let mut feet = start;
-    for (i, w) in waypoints.iter().enumerate() {
+    for (i, to) in waypoints.iter().enumerate() {
         let mut ticks = 0;
-        while Vec2::new(w.x - feet.x, w.z - feet.z).length() > 0.3 {
-            feet = tick(app, &mut kcc, feet, *w);
+        while Vec2::new(to.x - feet.x, to.z - feet.z).length() > 0.3 {
+            let d = *to - feet;
+            // The stick's forward is -Z turned by yaw.
+            let yaw = (-d.x).atan2(-d.z);
+            feet = tick(app, w, |w, _| {
+                w.yaw = yaw;
+                w.stick = Vec2::Y;
+            });
             ticks += 1;
             // Never more than ~15 s per waypoint, and never falling off.
-            if ticks > 900 || feet.y < w.y - vessel::RISE - 1.0 {
+            if ticks > 900 || feet.y < to.y - vessel::RISE - 1.0 {
                 return (feet, i);
             }
         }

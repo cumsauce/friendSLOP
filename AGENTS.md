@@ -108,7 +108,7 @@ crates/game/src/
   perf.rs       FRIENDSLOP_PERF=1: log fps, frame time, entity/mesh/light counts every 5 s;
                 =2 also lists once which models own the meshes and lights; =3 GPU time per pass
   features/mod.rs  the ordered FeaturesProtocolPlugin / FeaturesPlugin lists (features live in the game layer)
-crates/base/src/     friendslop-base: player, assets, settings, voice, hud, music (MusicSignals the score's rules read), people, spatial, rigged, graphics,
+crates/base/src/     friendslop-base: player, assets, settings, voice, hud, kcc (walker bodies on the bevy_ahoy crate), music (MusicSignals the score's rules read), people, spatial, rigged, graphics,
                      textures; `rules/` (shared vocabulary: house odds, skills, depths, campaign events,
                      villagers, morality, Duelist, EYE); `shared` (slices of world/camera/controls/ui/zones/
                      scenery that features read); low features (bear, stillness, synth_audio, babble, ...)
@@ -122,7 +122,6 @@ crates/side/         friendslop-side: standalone ideas (affair, fusion, goat, ra
 crates/fusion/       the generated soundtrack (no Bevy): synths in code; the score (every mood's songs) and the mix
                      are data in assets/data/music/; `cargo run -p fusion --bin fusion-render -- help`
 crates/art/          friendslop-art: procedural materials/meshes/textures (`art`), mipmaps (`mips`), mesh LODs (`lod`) and the UI theme (`theme`)
-crates/kcc/          friendslop-kcc: kinematic character controller (bevy_ahoy port, own licence files)
 crates/wire/         friendslop-wire: the iroh wire format shared by the desktop and browser transports
 crates/core/         friendslop-core: AppState, DrawRange and Detail, the few types every crate shares
 crates/world/        friendslop-world: the map: terrain, buildings, landmarks, surfaces, places
@@ -141,7 +140,7 @@ The workspace has three layers, and dependencies only ever point down:
 
 1. **Foundation crates**: reusable building blocks with **no game code**. They depend only on
    Bevy, avian and std, never on `friendslop`, and on each other only as listed:
-   - `fusion`, `friendslop-wire`, `friendslop-kcc`, `friendslop-core`, `friendslop-wfc`,
+   - `fusion`, `friendslop-wire`, `friendslop-core`, `friendslop-wfc`,
      `friendslop-structures`, `friendslop-data`: nothing of ours.
    - `friendslop-art`: nothing of ours (`art`, `theme`, and the cat `palette` maths).
    - `friendslop-world`: `core`, `art`, `structures` and `data`.
@@ -152,7 +151,7 @@ The workspace has three layers, and dependencies only ever point down:
    `crate::features::fps`, `super::warehouse` unchanged.
 3. **The game** (`crates/game`, package `friendslop`): networking, menus, the UI, camera,
    controls, scenery and zones, and the ordered plugin and protocol lists in `features/mod.rs`. It re-exports the foundation crates under
-   their old module names (`crate::art`, `crate::theme`, `crate::kcc`, `crate::net_wire`,
+   their old module names (`crate::art`, `crate::theme`, `crate::net_wire`,
    `crate::AppState`, `crate::terrain`, `crate::buildings`, `crate::landmarks`,
    `crate::surfaces`), so feature code uses them like any other module.
 

@@ -10,6 +10,12 @@
     // (1.4 ms against 2.6 ms of GPU time a frame at 2560x1440). Read when
     // ambient occlusion is switched on or the game starts.
     ssao_quality: Low,
+    // How far ambient occlusion reaches, in meters: the size of the dark
+    // falloff in corners and under things. Bevy's default is 0.73.
+    ssao_radius: 1.0,
+    // How thick anything is assumed to be, in meters: bigger darkens more
+    // behind thin things (railings, poles). Bevy's default is 0.25.
+    ssao_thickness: 0.35,
     // Desktop: the most pixels, in millions, the world is ever rendered at.
     // A window with more (a Retina screen has four times the pixels of its
     // size: fullscreen on a 14" MacBook is 5.9) renders at this many and is

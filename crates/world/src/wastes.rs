@@ -5,8 +5,8 @@
 //! The ground beyond the map's north edge is a grid of [`CHUNK`]-metre
 //! chunks, each a pure function of the world seed and its coordinates
 //! ([`Chunk::generate`]), so every peer builds the same ground and nothing is
-//! sent over the wire. Chunks near any [`Viewers`] point are built (mesh and
-//! heightfield collider, at most `per_frame` a frame, nearest first) and
+//! sent over the wire. Chunks near a [`Viewers`] point are built (heightfield
+//! colliders near `sim` points, meshes near `show` points, at most `per_frame` a frame, nearest first) and
 //! dropped again once everyone is far away. [`crate::terrain::height_at`]
 //! answers for the wastes too, so everything that stands on the ground works
 //! out here unchanged.
@@ -284,24 +284,33 @@ pub fn keep_in(p: Vec2, edge: f32) -> Vec2 {
     Vec2::new(p.x.clamp(-side, side), z)
 }
 
-/// Every point the wastes stream around: players' feet and the camera,
-/// written by the game each frame.
+/// Every point the wastes stream around, written by the game each frame,
+/// split like an area's layers (`friendslop_base::areas`): `sim` gets
+/// colliders (on the host everyone's feet, on a client only yours), `show`
+/// gets meshes (only you).
 #[derive(Resource, Default, Debug, Clone)]
-pub struct Viewers(pub Vec<Vec2>);
+pub struct Viewers {
+    pub sim: Vec<Vec2>,
+    pub show: Vec<Vec2>,
+}
 
 /// Where chunks are built and dropped; fill [`Viewers`] before it.
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct StreamSet;
 
-/// The chunks built now.
+/// The chunks built now: colliders and meshes, each streamed on its own.
 #[derive(Resource, Default)]
-struct Loaded(HashMap<ChunkCoord, Entity>);
+struct Loaded {
+    sim: HashMap<ChunkCoord, Entity>,
+    show: HashMap<ChunkCoord, Entity>,
+}
 
 /// The wastes' shared ground material.
 #[derive(Resource)]
 struct Ground(Handle<StandardMaterial>);
 
-/// Marks a built chunk.
+/// Marks a built chunk's collider or mesh (the census counts these as the
+/// `wastes` line).
 #[derive(Component, Debug)]
 pub struct WasteChunk(pub ChunkCoord);
 
@@ -368,12 +377,28 @@ fn stream(
     mut materials: Option<ResMut<Assets<StandardMaterial>>>,
 ) {
     let t = tuning();
-    let (build, drop) = plan(&viewers.0, loaded.0.keys().copied(), &t);
+    let loaded = &mut *loaded;
+    // Colliders: anyone near (the host simulates for everyone).
+    let (build, drop) = plan(&viewers.sim, loaded.sim.keys().copied(), &t);
     for c in drop {
-        if let Some(e) = loaded.0.remove(&c) {
+        if let Some(e) = loaded.sim.remove(&c) {
             commands.entity(e).despawn();
         }
     }
+    for c in build {
+        let chunk = Chunk::generate(t.seed, c);
+        let e = commands.spawn((
+            Name::new("Wastes chunk collider"),
+            WasteChunk(c),
+            RigidBody::Static,
+            chunk.collider(),
+            terrain::GroundCollider,
+            Transform::from_translation(chunk.middle()),
+            DespawnOnExit(AppState::InGame),
+        ));
+        loaded.sim.insert(c, e.id());
+    }
+    // Meshes: you near (none headless).
     let material = match (&ground, materials.as_mut()) {
         (Some(g), _) => Some(g.0.clone()),
         (None, Some(m)) => {
@@ -388,30 +413,33 @@ fn stream(
         }
         (None, None) => None,
     };
+    let (Some(meshes), Some(material)) = (meshes.as_mut(), material) else {
+        return;
+    };
+    let (build, drop) = plan(&viewers.show, loaded.show.keys().copied(), &t);
+    for c in drop {
+        if let Some(e) = loaded.show.remove(&c) {
+            commands.entity(e).despawn();
+        }
+    }
     for c in build {
         let chunk = Chunk::generate(t.seed, c);
-        let mut e = commands.spawn((
+        let e = commands.spawn((
             Name::new("Wastes chunk"),
             WasteChunk(c),
+            Mesh3d(meshes.add(chunk.mesh())),
+            MeshMaterial3d(material.clone()),
             Transform::default(),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),
         ));
-        e.with_child((
-            RigidBody::Static,
-            chunk.collider(),
-            terrain::GroundCollider,
-            Transform::from_translation(chunk.middle()),
-        ));
-        if let (Some(meshes), Some(material)) = (meshes.as_mut(), material.clone()) {
-            e.insert((Mesh3d(meshes.add(chunk.mesh())), MeshMaterial3d(material)));
-        }
-        loaded.0.insert(c, e.id());
+        loaded.show.insert(c, e.id());
     }
 }
 
 fn forget(mut loaded: ResMut<Loaded>, mut commands: Commands) {
-    loaded.0.clear();
+    loaded.sim.clear();
+    loaded.show.clear();
     commands.remove_resource::<Ground>();
 }
 

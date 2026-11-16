@@ -70,10 +70,13 @@
         // stands a column where four of its cells meet. Props (models under
         // assets/models/): `Wall` ones stand against a walled side (never a
         // door) at each `slots` spot along it (m from the wall's middle) with
-        // `chance`, facing in; `Middle` ones lie somewhere within `slots[0]` m
-        // of a cell's middle (never solid). `lift` raises a model onto the
-        // floor, `size` is a wall prop's collider (along, up, out; zeros for
-        // none), `scale` its size.
+        // `chance`, facing in (`flush`: modelled with its back on the wall
+        // at z = 0, so it goes right on the wall's face); `Middle` ones lie
+        // somewhere within `slots[0]` m of a cell's middle (never solid);
+        // `Ceiling` ones hang there from the ceiling, `lift` m of them above
+        // their origin. `lift` raises a model onto the floor, `size` is a
+        // wall prop's collider (along, up, out; zeros for none), `scale` its
+        // size, `yaw` turns it (degrees).
         // L-shaped rooms: the chance a room 2x2 or bigger loses a corner
         // block (half its size each way, rounded down) back to corridor.
         l_chance: 0.35,
@@ -84,37 +87,85 @@
         tall: (chance: 0.45, sink: 1.6),
         kinds: [
             (name: "concourse", weight: 2.0, sizes: [(3, 3), (3, 2), (2, 4)], columns: true, props: [
-                (model: "props/lily_bench.gltf", chance: 0.3, slots: [0.0], lift: 0.47, size: (1.5, 0.9, 0.4)),
-                (model: "props/debris.gltf", place: Middle, chance: 0.3, slots: [1.5]),
+                (model: "features/fs_bench.gltf", chance: 0.35, slots: [-1.2, 1.2], size: (2.0, 0.95, 0.5)),
+                (model: "features/fs_trash_can.gltf", chance: 0.2, slots: [2.3], size: (0.65, 0.95, 0.65)),
+                (model: "features/fs_poster_frame.gltf", flush: true, chance: 0.3, slots: [0.0]),
+                (model: "features/fs_platform_clock.gltf", place: Ceiling, chance: 0.15, slots: [1.0]),
+                (model: "features/fs_trash_litter.gltf", place: Middle, chance: 0.3, slots: [1.5]),
             ]),
             (name: "waiting room", weight: 1.5, sizes: [(2, 2), (2, 3), (3, 2)], props: [
-                (model: "props/lily_bench.gltf", chance: 0.75, slots: [-1.3, 1.3], lift: 0.47, size: (1.5, 0.9, 0.4)),
-                (model: "props/bucket.gltf", chance: 0.15, slots: [2.3], lift: 0.04, size: (0.4, 0.45, 0.4)),
+                (model: "features/fs_bench.gltf", chance: 0.6, slots: [-1.3, 1.3], size: (2.0, 0.95, 0.5)),
+                (model: "features/fs_vending_machine.gltf", chance: 0.2, slots: [2.2], size: (1.0, 1.9, 0.6)),
+                (model: "features/fs_payphone.gltf", flush: true, chance: 0.2, slots: [-2.3], size: (0.7, 1.9, 0.4)),
+                (model: "features/fs_trash_can.gltf", chance: 0.15, slots: [0.0], size: (0.65, 0.95, 0.65)),
+                (model: "features/fs_platform_clock.gltf", place: Ceiling, chance: 0.25, slots: [0.5]),
             ]),
             (name: "token booth", weight: 1.0, sizes: [(2, 2), (3, 2), (2, 3)], columns: true, props: [
                 (model: "props/counter.gltf", chance: 0.35, slots: [0.0], lift: 0.41, size: (1.9, 1.2, 0.65), scale: 1.2),
-                (model: "props/stool.gltf", chance: 0.3, slots: [-1.8, 1.8], lift: 0.2, size: (0.35, 0.4, 0.35)),
-                (model: "props/table.gltf", chance: 0.2, slots: [1.6], lift: 0.35, size: (1.4, 0.7, 0.9)),
+                (model: "features/fs_turnstile.gltf", chance: 0.45, slots: [-1.8, 1.8], size: (0.75, 1.25, 1.2)),
+                (model: "features/fs_fare_gate.gltf", chance: 0.2, slots: [0.0], yaw: 90.0, size: (1.35, 1.2, 0.15)),
+                (model: "features/fs_call_box.gltf", flush: true, chance: 0.25, slots: [2.4]),
             ]),
             (name: "storage", weight: 1.5, sizes: [(2, 2), (2, 3), (1, 4)], props: [
                 (model: "props/crates_single.gltf", chance: 0.55, slots: [-1.7, 0.0, 1.7], lift: 0.41, size: (1.0, 0.82, 1.0)),
-                (model: "props/barrel.gltf", chance: 0.3, slots: [-0.9, 0.9], lift: 0.01, size: (0.65, 0.9, 0.65)),
-                (model: "props/sack.gltf", place: Middle, chance: 0.25, slots: [1.2]),
+                (model: "features/fs_trash_pile.gltf", chance: 0.25, slots: [-1.0, 1.0], size: (1.2, 0.67, 1.05), scale: 0.7),
+                (model: "features/fs_shopping_cart.gltf", place: Middle, chance: 0.2, slots: [1.2]),
+                (model: "features/fs_trash_bag.gltf", place: Middle, chance: 0.3, slots: [1.5]),
             ]),
             (name: "boiler room", weight: 1.0, sizes: [(2, 2), (1, 4), (2, 3)], props: [
-                (model: "features/barrel.gltf", chance: 0.5, slots: [-1.5, 1.5], lift: 0.47, size: (0.85, 0.96, 0.85), scale: 1.2),
-                (model: "props/pipe_run.gltf", chance: 0.9, slots: [-1.6, 0.4], lift: 3.3, scale: 1.2),
-                (model: "features/grate.gltf", place: Middle, chance: 0.6, slots: [0.5], lift: 0.04),
+                (model: "features/fs_pump.gltf", chance: 0.35, slots: [-1.5, 1.5], size: (1.5, 1.15, 0.75)),
+                (model: "features/fs_valve_cluster.gltf", flush: true, chance: 0.25, slots: [0.0], lift: 0.4, size: (1.4, 1.6, 0.4)),
+                (model: "features/fs_breaker_box.gltf", flush: true, chance: 0.3, slots: [2.2]),
+                (model: "features/fs_pipe_run.gltf", flush: true, chance: 0.9, slots: [-2.0, 0.0, 2.0], lift: 3.0),
+                (model: "features/fs_duct_straight.gltf", place: Ceiling, chance: 0.4, slots: [0.5], lift: 0.8),
+                (model: "features/fs_floor_drain.gltf", place: Middle, chance: 0.6, slots: [0.5]),
             ]),
             (name: "flooded hall", weight: 1.0, props: [
-                (model: "features/bath_puddle.gltf", place: Middle, chance: 0.9, slots: [0.8], lift: 0.02, scale: 4.0),
-                (model: "props/debris.gltf", place: Middle, chance: 0.5, slots: [2.0]),
-                (model: "props/bucket.gltf", chance: 0.15, slots: [1.0], lift: 0.04, size: (0.4, 0.45, 0.4)),
+                (model: "features/fs_puddle.gltf", place: Middle, chance: 0.9, slots: [0.8], scale: 1.8),
+                (model: "features/fs_ceiling_panel.gltf", place: Middle, chance: 0.4, slots: [1.8]),
+                (model: "features/fs_broken_light.gltf", place: Ceiling, chance: 0.35, slots: [1.0]),
+                (model: "features/fs_pump.gltf", chance: 0.15, slots: [1.0], size: (1.5, 1.15, 0.75)),
             ]),
             (name: "long gallery", weight: 4.0, sizes: [(1, 4)], props: [
-                (model: "props/lily_bench.gltf", chance: 0.4, slots: [0.0], lift: 0.47, size: (1.5, 0.9, 0.4)),
-                (model: "props/debris.gltf", place: Middle, chance: 0.4, slots: [1.5]),
+                (model: "features/fs_bench.gltf", chance: 0.35, slots: [0.0], size: (2.0, 0.95, 0.5)),
+                (model: "features/fs_poster_frame.gltf", flush: true, chance: 0.45, slots: [-1.8, 1.8]),
+                (model: "features/fs_wall_grille.gltf", flush: true, chance: 0.15, slots: [0.0], lift: 1.6),
+                (model: "features/fs_trash_litter.gltf", place: Middle, chance: 0.3, slots: [1.5]),
             ]),
+            // Where someone's been living down here.
+            (name: "encampment", weight: 1.0, sizes: [(2, 2), (2, 3), (3, 2)], props: [
+                (model: "features/fs_camp.gltf", flush: true, chance: 0.5, slots: [-1.2, 1.2], size: (1.6, 0.9, 1.27), scale: 0.7),
+                (model: "features/fs_shopping_cart.gltf", place: Middle, chance: 0.5, slots: [1.5]),
+                (model: "features/fs_trash_pile.gltf", chance: 0.3, slots: [2.0], size: (1.2, 0.67, 1.05), scale: 0.7),
+                (model: "features/fs_trash_litter.gltf", place: Middle, chance: 0.5, slots: [1.8]),
+            ]),
+            // Closed for works and never opened again.
+            (name: "works", weight: 1.0, sizes: [(2, 2), (1, 4), (2, 3), (3, 2)], props: [
+                (model: "features/fs_barricade.gltf", chance: 0.4, slots: [-1.2, 1.2], size: (1.8, 1.0, 0.65)),
+                (model: "features/fs_cone.gltf", chance: 0.4, slots: [-2.4, 0.0, 2.4], size: (0.4, 0.7, 0.4)),
+                (model: "features/fs_caution_tape.gltf", chance: 0.3, slots: [0.0]),
+                (model: "features/fs_cable_tray.gltf", flush: true, chance: 0.6, slots: [-2.0, 0.0, 2.0], lift: 3.0),
+                (model: "features/fs_broken_light.gltf", place: Ceiling, chance: 0.4, slots: [1.0]),
+            ]),
+        ],
+        // The plain corridor pieces' props, placed the same way (sparse: most
+        // of a level is corridor).
+        corridors: [
+            (model: "features/fs_trash_litter.gltf", place: Middle, chance: 0.12, slots: [1.8]),
+            (model: "features/fs_trash_bag.gltf", place: Middle, chance: 0.06, slots: [2.0]),
+            (model: "features/fs_puddle.gltf", place: Middle, chance: 0.06, slots: [1.2]),
+            (model: "features/fs_floor_drain.gltf", place: Middle, chance: 0.05, slots: [1.5]),
+            (model: "features/fs_ceiling_panel.gltf", place: Middle, chance: 0.03, slots: [1.5]),
+            (model: "features/fs_broken_light.gltf", place: Ceiling, chance: 0.04, slots: [0.5]),
+            (model: "features/fs_duct_straight.gltf", place: Ceiling, chance: 0.04, slots: [0.0], lift: 0.8),
+            (model: "features/fs_poster_frame.gltf", flush: true, chance: 0.06, slots: [-1.5, 1.5]),
+            (model: "features/fs_wall_grille.gltf", flush: true, chance: 0.04, slots: [-1.2], lift: 1.6),
+            (model: "features/fs_call_box.gltf", flush: true, chance: 0.02, slots: [0.0]),
+            (model: "features/fs_payphone.gltf", flush: true, chance: 0.02, slots: [1.8], size: (0.7, 1.9, 0.4)),
+            (model: "features/fs_cable_tray.gltf", flush: true, chance: 0.05, slots: [-2.0, 0.0, 2.0], lift: 3.0),
+            (model: "features/fs_trash_can.gltf", chance: 0.03, slots: [-2.2], size: (0.65, 0.95, 0.65)),
+            (model: "features/fs_vending_machine.gltf", chance: 0.015, slots: [0.0], size: (1.0, 1.9, 0.6)),
+            (model: "features/fs_cone.gltf", chance: 0.02, slots: [2.2], size: (0.4, 0.7, 0.4)),
         ],
     ),
     // Caved-in corridors, rolled for every open side between two corridor

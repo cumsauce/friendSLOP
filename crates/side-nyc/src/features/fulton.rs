@@ -186,6 +186,10 @@ pub struct Rooms {
     /// Tall rooms with mezzanines.
     #[serde(default)]
     pub tall: Tall,
+    /// Props for the plain corridor pieces (not the platform, stairs or
+    /// lockers), placed the same way as a room kind's.
+    #[serde(default)]
+    pub corridors: Vec<RoomProp>,
 }
 
 /// Tall rooms: the room's floor away from its doors sinks into the level
@@ -236,6 +240,9 @@ pub enum PropPlace {
     Wall,
     /// Around the middle of a room cell (never solid: you walk over or past it).
     Middle,
+    /// Hung from the ceiling somewhere within `slots[0]` m of a cell's
+    /// middle (never solid: it hangs well over your head).
+    Ceiling,
 }
 
 /// One kind of prop in a room.
@@ -260,6 +267,13 @@ pub struct RoomProp {
     /// Scaled this much (0 counts as 1).
     #[serde(default)]
     pub scale: f32,
+    /// Wall: modelled with its back on the wall at z = 0 (posters, pipes,
+    /// panels), so it goes right on the wall's face instead of standing off it.
+    #[serde(default)]
+    pub flush: bool,
+    /// Turned this much more about up (degrees) where it stands.
+    #[serde(default)]
+    pub yaw: f32,
 }
 
 /// Andrew's calls and the thing he sends after you (`fulton_hunt.rs`).
@@ -1449,6 +1463,7 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
     out.extend(
         room_dressing(t, li, level)
             .into_iter()
+            .chain(corridor_dressing(t, &TILES.get(), li, level))
             .filter_map(|d| d.block),
     );
     out.extend(shapes(t, li, level).into_iter().filter_map(|s| s.block));
@@ -1536,6 +1551,10 @@ pub struct Dressing {
 
 /// How far a wall prop stands off the wall (m, the wall's thickness and a gap).
 const PROP_INSET: f32 = 0.3;
+/// How far a wall's inner face is in from the cell's edge (m): flush props' backs.
+const WALL_FACE: f32 = 0.2;
+/// The ceiling's underside over a cell's floor (m): ceiling props hang from it.
+const CEILING_Y: f32 = 3.8;
 
 /// The props dressing level `li`'s big rooms, by their kinds. Wall props
 /// stand against walled sides only (never in a door), and their colliders
@@ -1553,68 +1572,139 @@ pub fn room_dressing(t: &Tuning, li: usize, level: &Level) -> Vec<Dressing> {
                 continue;
             }
             let at = cell_world(t, li, c) - Vec3::Y * level.drop(c);
-            for (pi, p) in kind.props.iter().enumerate() {
-                let scale = if p.scale > 0.0 { p.scale } else { 1.0 };
-                let roll = |side: usize, slot: usize, k: usize| {
-                    dress_roll(t, [li, ri * 64 + ci, pi * 16 + side, slot * 4 + k])
-                };
-                match p.place {
-                    PropPlace::Wall => {
-                        for s in wfc::Side::ALL {
-                            if f.mask & bit(s) != 0 {
-                                continue;
-                            }
-                            let turn = Quat::from_rotation_y(
-                                -std::f32::consts::FRAC_PI_2 * s.index() as f32,
-                            );
-                            let slots: &[f32] = if p.slots.is_empty() { &[0.0] } else { &p.slots };
-                            for (si, &along) in slots.iter().enumerate() {
-                                if roll(s.index(), si, 0) >= p.chance {
-                                    continue;
-                                }
-                                // Modelled facing +z: on the N wall it faces S, into the room.
-                                let out_from = PROP_INSET + p.size.2.max(0.0) / 2.0;
-                                let local = Vec3::new(along, p.lift, -(CELL / 2.0 - out_from));
-                                let centre = at + turn * local;
-                                let block = (p.size.0 > 0.0 && p.size.1 > 0.0 && p.size.2 > 0.0)
-                                    .then(|| Block {
-                                        centre: at
-                                            + turn * Vec3::new(along, p.size.1 / 2.0, local.z),
-                                        size: Vec3::new(p.size.0, p.size.1, p.size.2),
-                                        rotation: turn,
-                                    });
-                                out.push(Dressing {
-                                    model: p.model.clone(),
-                                    transform: Transform::from_translation(centre)
-                                        .with_rotation(turn)
-                                        .with_scale(Vec3::splat(scale)),
-                                    block,
-                                });
-                            }
-                        }
+            // A sunken cell's ceiling stays at the level's.
+            let ceiling = CEILING_Y + level.drop(c);
+            dress_cell(
+                t,
+                [li, ri * 64 + ci],
+                at,
+                ceiling,
+                f.mask,
+                &kind.props,
+                &mut out,
+            );
+        }
+    }
+    out
+}
+
+/// The props dressing level `li`'s plain corridor pieces (`rooms.corridors`):
+/// not the platform, the stairs, the landings or a piece with a hiding spot.
+pub fn corridor_dressing(t: &Tuning, set: &TileSet, li: usize, level: &Level) -> Vec<Dressing> {
+    let mut out = Vec::new();
+    if t.rooms.corridors.is_empty() {
+        return out;
+    }
+    for z in 0..level.depth {
+        for x in 0..level.width {
+            let c = (x, z);
+            let f = level.fill(c);
+            let Kind::Corridor(Some(pi)) = f.kind else {
+                continue;
+            };
+            if f.track != 0 || set.pieces.get(pi as usize).is_none_or(|p| p.hide) {
+                continue;
+            }
+            let at = cell_world(t, li, c);
+            let key = 1 << 20 | (z * level.width + x);
+            dress_cell(
+                t,
+                [li, key],
+                at,
+                CEILING_Y,
+                f.mask,
+                &t.rooms.corridors,
+                &mut out,
+            );
+        }
+    }
+    out
+}
+
+/// Every prop of `props` that lands in one cell (its floor's middle at `at`,
+/// its ceiling `ceiling` m above that, open on the sides in `mask`), rolled
+/// from `key` so every peer agrees.
+fn dress_cell(
+    t: &Tuning,
+    key: [usize; 2],
+    at: Vec3,
+    ceiling: f32,
+    mask: u8,
+    props: &[RoomProp],
+    out: &mut Vec<Dressing>,
+) {
+    for (pi, p) in props.iter().enumerate() {
+        let scale = if p.scale > 0.0 { p.scale } else { 1.0 };
+        let roll = |side: usize, slot: usize, k: usize| {
+            dress_roll(t, [key[0], key[1], pi * 16 + side, slot * 4 + k])
+        };
+        let yaw = Quat::from_rotation_y(p.yaw.to_radians());
+        match p.place {
+            PropPlace::Wall => {
+                for s in wfc::Side::ALL {
+                    if mask & bit(s) != 0 {
+                        continue;
                     }
-                    PropPlace::Middle => {
-                        if roll(4, 0, 0) >= p.chance {
+                    let turn =
+                        Quat::from_rotation_y(-std::f32::consts::FRAC_PI_2 * s.index() as f32);
+                    let slots: &[f32] = if p.slots.is_empty() { &[0.0] } else { &p.slots };
+                    for (si, &along) in slots.iter().enumerate() {
+                        if roll(s.index(), si, 0) >= p.chance {
                             continue;
                         }
-                        let off = p.slots.first().copied().unwrap_or(0.0);
-                        let jitter =
-                            Vec3::new(roll(4, 0, 1) - 0.5, 0.0, roll(4, 0, 2) - 0.5) * (2.0 * off);
+                        // Modelled facing +z: on the N wall it faces S, into the room.
+                        let depth = p.size.2.max(0.0);
+                        let (origin, middle) = if p.flush {
+                            let face = CELL / 2.0 - WALL_FACE;
+                            (face, face - depth / 2.0)
+                        } else {
+                            let off = CELL / 2.0 - PROP_INSET - depth / 2.0;
+                            (off, off)
+                        };
+                        let centre = at + turn * Vec3::new(along, p.lift, -origin);
+                        let block =
+                            (p.size.0 > 0.0 && p.size.1 > 0.0 && depth > 0.0).then(|| Block {
+                                centre: at + turn * Vec3::new(along, p.size.1 / 2.0, -middle),
+                                size: Vec3::new(p.size.0, p.size.1, depth),
+                                rotation: turn,
+                            });
                         out.push(Dressing {
                             model: p.model.clone(),
-                            transform: Transform::from_translation(at + jitter + Vec3::Y * p.lift)
-                                .with_rotation(Quat::from_rotation_y(
-                                    roll(4, 0, 3) * std::f32::consts::TAU,
-                                ))
+                            transform: Transform::from_translation(centre)
+                                .with_rotation(turn * yaw)
                                 .with_scale(Vec3::splat(scale)),
-                            block: None,
+                            block,
                         });
                     }
                 }
             }
+            PropPlace::Middle | PropPlace::Ceiling => {
+                if roll(4, 0, 0) >= p.chance {
+                    continue;
+                }
+                let off = p.slots.first().copied().unwrap_or(0.0);
+                let jitter = Vec3::new(roll(4, 0, 1) - 0.5, 0.0, roll(4, 0, 2) - 0.5) * (2.0 * off);
+                let y = if p.place == PropPlace::Ceiling {
+                    ceiling - p.lift
+                } else {
+                    p.lift
+                };
+                // Ceiling props turn by quarters (ducts run along the corridor).
+                let spin = if p.place == PropPlace::Ceiling {
+                    (roll(4, 0, 3) * 4.0).floor() * std::f32::consts::FRAC_PI_2
+                } else {
+                    roll(4, 0, 3) * std::f32::consts::TAU
+                };
+                out.push(Dressing {
+                    model: p.model.clone(),
+                    transform: Transform::from_translation(at + jitter + Vec3::Y * y)
+                        .with_rotation(Quat::from_rotation_y(spin) * yaw)
+                        .with_scale(Vec3::splat(scale)),
+                    block: None,
+                });
+            }
         }
     }
-    out
 }
 
 /// What a [`Shape`] is drawn with (the room kit's tall-room and rubble pieces).
@@ -2751,8 +2841,11 @@ fn stream_levels(
             }
             commands.spawn((model(&assets, file), Merge, sh.transform, ChildOf(root)));
         }
-        // The big rooms' dressing (benches, crates, drums, puddles...).
-        for d in room_dressing(&t, li, level) {
+        // The big rooms' and the corridors' dressing (benches, crates, trash...).
+        for d in room_dressing(&t, li, level)
+            .into_iter()
+            .chain(corridor_dressing(&t, &set, li, level))
+        {
             commands.spawn((
                 WorldAssetRoot(
                     assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{}", d.model))),
@@ -3392,6 +3485,34 @@ mod tests {
         for k in &t.rooms.kinds {
             assert!(seen.contains_key(&k.name), "no {} in {seen:?}", k.name);
         }
+    }
+
+    #[test]
+    fn corridor_props_keep_the_way_clear() {
+        let (t, set) = data();
+        let levels = generate(&t, &set);
+        let mut n = 0;
+        for (li, l) in levels.iter().enumerate() {
+            let d = corridor_dressing(&t, &set, li, l);
+            assert_eq!(d, corridor_dressing(&t, &set, li, l));
+            n += d.len();
+            for p in &d {
+                let Some(b) = p.block else { continue };
+                let o = cell_world(&t, li, (0, 0));
+                let c = (
+                    ((b.centre.x - o.x) / CELL).round() as usize,
+                    ((b.centre.z - o.z) / CELL).round() as usize,
+                );
+                let off = (b.centre - cell_world(&t, li, c)).with_y(0.0);
+                let inward = off.x.abs().max(off.z.abs()) - b.size.z / 2.0;
+                assert!(inward >= 1.5, "level {li} {p:?}");
+                assert!(
+                    matches!(l.fill(c).kind, Kind::Corridor(Some(_))),
+                    "level {li} {p:?}"
+                );
+            }
+        }
+        assert!(n > 0, "no corridor props at all");
     }
 
     #[test]

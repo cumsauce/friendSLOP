@@ -452,7 +452,9 @@ fn sound(
             Kind::Performer => {
                 let beat = 60.0 / t.bpm.max(30.0);
                 p.next = beat * 4.0 * t.bars.max(1) as f32;
-                if !near {
+                // Down in Fulton St station the music stops (the score's
+                // `hush` does the same), so the buskers go quiet too.
+                if !near || crate::rules::nyc::in_station(w.pos - Vec3::Y * 1.6) {
                     p.next = 1.0;
                     continue;
                 }

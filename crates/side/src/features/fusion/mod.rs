@@ -477,7 +477,8 @@ impl fusion::direct::Facts for Here<'_> {
 struct Facts<'w, 's> {
     state: Option<Res<'w, State<AppState>>>,
     signals: Res<'w, MusicSignals>,
-    camera: Query<'w, 's, &'static GlobalTransform, With<Camera3d>>,
+    camera:
+        Query<'w, 's, &'static GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
 }
 
 impl Facts<'_, '_> {

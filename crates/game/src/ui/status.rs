@@ -296,7 +296,7 @@ fn mic(icons: &Icons) -> impl Bundle {
             (
                 Part::MicLabel,
                 crate::input::KeyRow::new(
-                    crate::input::Hint("{mic}  mic on".into()),
+                    crate::input::Hint("mic on".into()),
                     crate::input::KeyStyle::Dark
                 ),
                 Node {
@@ -390,7 +390,10 @@ fn update(
     all: Res<crate::hud::ShowAll>,
     mut cat_seen: Local<crate::hud::Recent>,
     me: Option<Res<LocalPlayer>>,
-    muted: Option<Res<VoiceMuted>>,
+    (muted, settings): (
+        Option<Res<VoiceMuted>>,
+        Option<Res<crate::settings::Settings>>,
+    ),
     activity: Option<Res<VoiceActivity>>,
     high: Option<Res<High>>,
     players: Query<(&Player, Option<&Gas>, Option<&Stamina>)>,
@@ -421,6 +424,7 @@ fn update(
     let cat = cats.iter().find(|(c, ..)| Some(c.owner) == me);
     let fuse = cat.and_then(|(_, f, _)| f.map(|f| f.0));
     let muted = muted.is_some_and(|m| m.0);
+    let push_to_talk = settings.is_some_and(|s| s.push_to_talk);
     let talking = !muted && activity.is_some_and(|a| a.transmitting);
     // Blink like a bomb, twice a second (colour only; nothing moves).
     let blink = ((time.elapsed_secs() * 4.0) as u32).is_multiple_of(2);
@@ -516,11 +520,7 @@ fn update(
                 }
             }
             Part::MicLabel => {
-                let want = if muted {
-                    "{mic}  muted"
-                } else {
-                    "{mic}  mic on"
-                };
+                let want = crate::voice::mic_hint(!muted, push_to_talk);
                 if let Some(mut row) = key_row
                     && row.hint.0 != want
                 {

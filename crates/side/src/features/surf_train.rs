@@ -12,7 +12,8 @@
 //! train in the same place without replicating anything: it's scenery.
 //! Numbers: `data/side/surf_train.ron`; models: modeler prefabs
 //! `surf-train-*` (`models/features/surf_train_*.gltf`); colliders come from
-//! here, never the files.
+//! here, never the files. The beam and pylons are in the surf map; this is
+//! the moving cars.
 
 use avian3d::prelude::{Collider, LinearVelocity, RigidBody};
 use bevy::prelude::*;
@@ -212,19 +213,6 @@ pub fn plugin(app: &mut App) {
             .run_if(crate::areas::shown("surf"))
             .run_if(in_state(AppState::InGame)),
     );
-    // Claim the line's space before the props are laid out: now (the
-    // desktop has its data files already) and in the menu (the browser
-    // fetches them there).
-    claim();
-    app.add_systems(Update, claim.run_if(in_state(AppState::Menu)));
-}
-
-fn claim() {
-    let t = tuning();
-    let d = TRAIN.get();
-    for (c, h) in claims(&rail(&t, &d), &d) {
-        crate::features::surf_props::claim(c, h);
-    }
 }
 
 /// A car of the train (which one, from the tail).
@@ -242,41 +230,6 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
     let d = TRAIN.get();
     let o = hall_at(&t);
     let line = rail(&t, &d);
-    for (top, rot, len) in beams(&line) {
-        commands.spawn((
-            model(&assets, "surf_train_beam.gltf"),
-            Transform::from_translation(o + top)
-                .with_rotation(rot)
-                .with_scale(Vec3::new(1.0, 1.0, len / d.segment.max(0.1))),
-            DespawnOnExit(AppState::InGame),
-        ));
-        commands.spawn((
-            Transform::from_translation(o + top - rot * Vec3::Y * (d.beam.1 / 2.0))
-                .with_rotation(rot),
-            RigidBody::Static,
-            Collider::cuboid(d.beam.0, d.beam.1, len),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
-    for (top, height) in pylons(&line, &d) {
-        let foot = top - Vec3::Y * height;
-        commands.spawn((
-            model(&assets, "surf_train_pylon.gltf"),
-            Transform::from_translation(o + foot).with_scale(Vec3::new(1.0, height / 10.0, 1.0)),
-            DespawnOnExit(AppState::InGame),
-        ));
-        commands.spawn((
-            model(&assets, "surf_train_head.gltf"),
-            Transform::from_translation(o + top),
-            DespawnOnExit(AppState::InGame),
-        ));
-        commands.spawn((
-            Transform::from_translation(o + (top + foot) / 2.0),
-            RigidBody::Static,
-            Collider::cuboid(d.pylon_width, height, d.pylon_width),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
     let now = crate::settings::since_epoch().as_secs_f64();
     for (i, (at, rot, _)) in cars(&line, &d, now).into_iter().enumerate() {
         // The two ends are noses (the tail's turned round); the rest coaches.
@@ -331,6 +284,7 @@ mod tests {
     use crate::rules::surf::city;
 
     fn load() -> (std::sync::Arc<Tuning>, std::sync::Arc<Train>) {
+        crate::features::surf_map::load_course_for_tests();
         for path in [crate::rules::surf::TUNING.path(), TRAIN.path()] {
             let full = format!("{}/../game/assets/{}", env!("CARGO_MANIFEST_DIR"), path);
             let Ok(bytes) = std::fs::read(&full) else {

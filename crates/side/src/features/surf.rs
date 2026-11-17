@@ -81,9 +81,18 @@ pub fn posts(t: &Tuning) -> [Vec3; 2] {
 #[derive(Event, Serialize, Deserialize, Clone, Copy, Debug)]
 pub struct LeaveSurf;
 
+/// Client → server: send me back (R). `start` goes to the start pad; without
+/// it, to the last checkpoint pad reached.
+#[derive(Event, Serialize, Deserialize, Clone, Copy, Debug)]
+pub struct RestartSurf {
+    pub start: bool,
+}
+
 pub fn protocol(app: &mut App) {
     app.add_client_event::<LeaveSurf>(Channel::Ordered)
+        .add_client_event::<RestartSurf>(Channel::Ordered)
         .add_observer(leave)
+        .add_observer(restart)
         .add_systems(Update, move_bodies.run_if(in_state(ServerState::Running)));
 }
 
@@ -135,6 +144,41 @@ fn move_bodies(mut commands: Commands, mut bodies: Query<(Entity, Body, Option<&
     }
 }
 
+/// Where a restart puts you: the start pad, or the stage's pad you reached.
+pub fn restart_at(t: &Tuning, start: bool, stage: usize) -> Vec3 {
+    if start {
+        start_at(t)
+    } else {
+        stage_spawn(t, stage).unwrap_or_else(|| start_at(t))
+    }
+}
+
+/// Server: R in the hall sends you to your checkpoint, or the start.
+fn restart(
+    ev: On<FromClient<RestartSurf>>,
+    mut commands: Commands,
+    mut bodies: Query<(Entity, Body, Option<&OnStage>)>,
+) {
+    let owner = match ev.client_id {
+        ClientId::Server => None,
+        ClientId::Client(c) => Some(c),
+    };
+    let Some((e, (_, mut walker, input, kcc), stage)) =
+        bodies.iter_mut().find(|b| b.1.0.0 == owner)
+    else {
+        return;
+    };
+    let t = tuning();
+    if in_hall(&t, walker.pos).is_none() {
+        return;
+    }
+    let at = restart_at(&t, ev.start, stage.map_or(0, |s| s.0));
+    put(at, &mut walker, input, kcc);
+    if ev.start {
+        commands.entity(e).insert(OnStage(0));
+    }
+}
+
 fn leave(ev: On<FromClient<LeaveSurf>>, mut commands: Commands, mut bodies: Query<Body>) {
     let owner = match ev.client_id {
         ClientId::Server => None,
@@ -163,11 +207,12 @@ fn starts() -> Vec<(String, Vec3)> {
 
 pub fn plugin(app: &mut App) {
     crate::features::start::provide(starts);
-    app.add_systems(Update, facades.run_if(any_with_component::<FacadeSwatch>));
     app.add_observer(click)
         .spawn_into("surf", build)
         .spawn_into("nyc", build_sign)
+        .init_resource::<Run>()
         .add_systems(Update, timer.run_if(in_state(AppState::InGame)))
+        .add_systems(Update, restart_input.run_if(in_state(AppState::InGame)))
         .add_systems(
             Update,
             music_signals
@@ -180,7 +225,7 @@ pub fn plugin(app: &mut App) {
 /// And `airborne` while your own body is in the hall and not standing on
 /// anything (in the air or sliding a ramp): the arp follows it.
 fn music_signals(
-    camera: Query<&GlobalTransform, With<Camera3d>>,
+    camera: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     me: Option<Res<LocalPlayer>>,
     walkers: Query<(&Player, &Walker)>,
     signals: Option<ResMut<crate::music::MusicSignals>>,
@@ -231,55 +276,9 @@ fn build(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    assets: Res<AssetServer>,
 ) {
     let t = tuning();
-    let o = hall_at(&t);
-    commands.spawn((
-        model(&assets, "surf-hall.gltf"),
-        Transform::from_translation(o),
-        DespawnOnExit(AppState::InGame),
-    ));
-    // Colliders never wait on the model: the ramps' pieces and the boxes
-    // come from the data file the model was made from.
-    let ramps = t.stages.iter().flat_map(|s| s.ramps.iter());
-    for ramp in ramps {
-        for piece in pieces(ramp, t.ramp_samples, t.ramp_half_width, t.ramp_height) {
-            let Some(hull) = avian3d::prelude::Collider::convex_hull(&piece) else {
-                continue;
-            };
-            commands.spawn((
-                Transform::from_translation(o),
-                avian3d::prelude::RigidBody::Static,
-                hull,
-                DespawnOnExit(AppState::InGame),
-            ));
-        }
-    }
-    for (c, s) in t.blocks.iter().map(|&b| pad(b)) {
-        commands.spawn((
-            Transform::from_translation(o + c),
-            avian3d::prelude::RigidBody::Static,
-            avian3d::prelude::Collider::cuboid(s.x, s.y, s.z),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
-    build_city(&mut commands, &mut meshes, &mut materials, &t);
-    // Out under the sky; a light over the start and the finish.
-    for at in [start_pad(&t).0, finish_pad(&t).0] {
-        commands.spawn((
-            PointLight {
-                color: Color::srgb(1.0, 0.6, 0.95),
-                intensity: 400_000.0,
-                range: 30.0,
-                ..default()
-            },
-            Transform::from_translation(o + at + Vec3::Y * 6.0),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
     let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
-    dress(&mut commands, &cube, &mut materials, &t, o);
     let pole = materials.add(Color::srgb(0.2, 0.2, 0.3));
     let sign = materials.add(Color::srgb(1.0, 0.3, 0.85));
     for at in posts(&t) {
@@ -401,422 +400,13 @@ pub fn lane_lights(t: &Tuning, d: &Dressing, ramp: &[(f32, f32, f32)]) -> Vec<Ve
     out
 }
 
-fn neon(materials: &mut Assets<StandardMaterial>, c: Vec3, glow: f32) -> Handle<StandardMaterial> {
-    materials.add(StandardMaterial {
-        base_color: Color::srgb(c.x, c.y, c.z),
-        emissive: LinearRgba::rgb(c.x * glow, c.y * glow, c.z * glow),
-        unlit: true,
-        ..default()
-    })
-}
-
-fn neon_box(
-    commands: &mut Commands,
-    cube: &Handle<Mesh>,
-    m: &Handle<StandardMaterial>,
-    at: Vec3,
-    size: Vec3,
-) {
-    commands.spawn((
-        Mesh3d(cube.clone()),
-        MeshMaterial3d(m.clone()),
-        Transform::from_translation(at).with_scale(size),
-        DespawnOnExit(AppState::InGame),
-    ));
-}
-
-/// Neon round the pads, a numbered marker and a light on each, lane lights
-/// along the ramps and an arch over the finish. Local looks only.
-fn dress(
-    commands: &mut Commands,
-    cube: &Handle<Mesh>,
-    materials: &mut Assets<StandardMaterial>,
-    t: &Tuning,
-    o: Vec3,
-) {
-    let d = DRESSING.get();
-    let post = materials.add(Color::srgb(0.12, 0.12, 0.18));
-    for (i, stage) in t.stages.iter().enumerate() {
-        let col = stage_colour(&d, i);
-        let m = neon(materials, col, d.glow);
-        let p = pad(stage.pad);
-        for (c, s) in edge_strips(p, d.strip) {
-            neon_box(commands, cube, &m, o + c, s);
-        }
-        // The marker on the back corner: a post and one block per stage.
-        let (c, s) = p;
-        let top = c.y + s.y / 2.0;
-        let corner = o + Vec3::new(c.x - s.x / 2.0 + 0.6, top, c.z + s.z / 2.0 - 0.6);
-        let h = d.marker_height;
-        neon_box(
-            commands,
-            cube,
-            &post,
-            corner + Vec3::Y * h / 2.0,
-            Vec3::new(0.2, h, 0.2),
-        );
-        for n in 0..=i {
-            let at = corner + Vec3::Y * (h + 0.35 + n as f32 * 0.55);
-            neon_box(commands, cube, &m, at, Vec3::splat(0.4));
-        }
-        commands.spawn((
-            PointLight {
-                color: Color::srgb(col.x, col.y, col.z),
-                intensity: d.pad_light,
-                range: d.pad_light_range,
-                ..default()
-            },
-            Transform::from_translation(o + c + Vec3::Y * 4.0),
-            DespawnOnExit(AppState::InGame),
-        ));
-        for ramp in &stage.ramps {
-            for at in lane_lights(t, &d, ramp) {
-                neon_box(commands, cube, &m, o + at, Vec3::splat(d.lane_size));
-            }
-        }
-    }
-    // The finish: gold strips and an arch over the pad.
-    let gold = neon(materials, Vec3::from(d.finish_colour), d.glow);
-    let f = pad(t.finish);
-    for (c, s) in edge_strips(f, d.strip * 1.5) {
-        neon_box(commands, cube, &gold, o + c, s);
-    }
-    let (c, s) = f;
-    let top = c.y + s.y / 2.0;
-    let (h, w) = (d.arch_height, d.arch_width);
-    for side in [-1.0, 1.0] {
-        let at = o + Vec3::new(c.x + side * w / 2.0, top + h / 2.0, c.z);
-        neon_box(commands, cube, &gold, at, Vec3::new(0.4, h, 0.4));
-    }
-    neon_box(
-        commands,
-        cube,
-        &gold,
-        o + Vec3::new(c.x, top + h, c.z),
-        Vec3::new(w + 0.4, 0.5, 0.4),
-    );
-}
-
-/// A wedge (a kicker) as a mesh: its six corners, flat shaded.
-fn wedge_mesh(c: [Vec3; 6]) -> Mesh {
-    use bevy::asset::RenderAssetUsages;
-    use bevy::mesh::{Indices, PrimitiveTopology};
-    // Corners: 0..4 the base (-z pair, +z pair), 4, 5 the high +z edge.
-    let faces: [&[usize]; 5] = [
-        &[0, 2, 3, 1], // underside
-        &[0, 1, 5, 4], // the slope
-        &[2, 4, 5, 3], // the tall back
-        &[0, 4, 2],    // left side
-        &[1, 3, 5],    // right side
-    ];
-    let mut pos = Vec::new();
-    let mut nor = Vec::new();
-    let mut idx = Vec::new();
-    let mid = c.iter().copied().sum::<Vec3>() / 6.0;
-    for f in faces {
-        let v: Vec<Vec3> = f.iter().map(|&i| c[i]).collect();
-        let mut n = (v[1] - v[0]).cross(v[2] - v[0]).normalize_or_zero();
-        let mut v = v;
-        if n.dot(v[0] - mid) < 0.0 {
-            v.reverse();
-            n = -n;
-        }
-        let base = pos.len() as u32;
-        for p in &v {
-            pos.push(p.to_array());
-            nor.push(n.to_array());
-        }
-        for i in 1..v.len() as u32 - 1 {
-            idx.extend([base, base + i, base + i + 1]);
-        }
-    }
-    Mesh::new(
-        PrimitiveTopology::TriangleList,
-        RenderAssetUsages::default(),
-    )
-    .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, pos)
-    .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, nor)
-    .with_inserted_indices(Indices::U32(idx))
-}
-
-/// The city the course weaves through: solid boxes from [`city`], flat
-/// placeholder colours (glass towers, concrete sites, yellow steel).
-fn build_city(
-    commands: &mut Commands,
-    meshes: &mut Assets<Mesh>,
-    materials: &mut Assets<StandardMaterial>,
-    t: &Tuning,
-) {
-    use avian3d::prelude::{Collider, RigidBody};
-    let o = hall_at(t);
-    let d = DRESSING.get();
-    let cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
-    let mat = |m: &mut Assets<StandardMaterial>, c: Color, rough: f32, glow: f32| {
-        m.add(StandardMaterial {
-            base_color: c,
-            perceptual_roughness: rough,
-            metallic: if rough < 0.4 { 0.6 } else { 0.0 },
-            emissive: c.to_linear() * glow,
-            ..default()
-        })
-    };
-    // Textured surfaces: one material per skin, flat until its swatch loads.
-    let mut skin = |s: &Skin| {
-        let c = Color::srgb(s.colour.0, s.colour.1, s.colour.2);
-        let h = mat(materials, c, s.rough, 0.0);
-        if let Some(mut m) = materials.get_mut(&h) {
-            m.uv_transform = bevy::math::Affine2::from_scale(Vec2::splat(1.0 / s.tile.max(0.01)));
-        }
-        commands.spawn(FacadeSwatch {
-            file: s.file.clone(),
-            material: h.clone(),
-            glow: s.glow,
-        });
-        h
-    };
-    let glass: Vec<_> = d.facades.iter().map(&mut skin).collect();
-    let roof = skin(&d.roof);
-    let concrete = skin(&d.deck);
-    let band = mat(materials, Color::srgb(1.0, 0.45, 0.85), 0.5, 4.0);
-    let netting = mat(materials, Color::srgb(1.0, 0.45, 0.1), 0.8, 0.6);
-    let steel = mat(materials, Color::srgb(0.95, 0.75, 0.1), 0.6, 0.0);
-    let ply = mat(materials, Color::srgb(0.8, 0.62, 0.38), 0.85, 0.0);
-    let pallet = mat(materials, Color::srgb(0.5, 0.36, 0.22), 0.9, 0.0);
-    let Some(fallback) = glass.first().cloned() else {
-        return;
-    };
-    // Textured boxes get a metric-uv mesh per size (cm buckets, shared), so
-    // windows stay window-sized; flat ones stay a scaled unit cube.
-    let mut boxes: std::collections::HashMap<[i32; 3], Handle<Mesh>> = default();
-    let blocks = city(t);
-    let wedges: Vec<Option<Handle<Mesh>>> = (blocks.iter())
-        .map(|b| (b.piece == Piece::Kicker).then(|| meshes.add(wedge_mesh(b.wedge()))))
-        .collect();
-    let mut part = |c: &mut Commands,
-                    b: &Block,
-                    m: &Handle<StandardMaterial>,
-                    at: Vec3,
-                    size: Vec3,
-                    textured: bool| {
-        let tf = Transform::from_translation(o + b.centre + b.rotation() * at)
-            .with_rotation(b.rotation());
-        let (mesh, tf) = if textured {
-            let key = (size * 100.0).round().as_ivec3().to_array();
-            let mesh = boxes
-                .entry(key)
-                .or_insert_with(|| {
-                    meshes.add(metric_box(Vec3::from(key.map(|k| k as f32)) / 100.0))
-                })
-                .clone();
-            (mesh, tf)
-        } else {
-            (cube.clone(), tf.with_scale(size))
-        };
-        c.spawn((
-            Mesh3d(mesh),
-            MeshMaterial3d(m.clone()),
-            tf,
-            DespawnOnExit(AppState::InGame),
-        ));
-    };
-    for (b, wedge) in blocks.into_iter().zip(wedges) {
-        let tf = Transform::from_translation(o + b.centre).with_rotation(b.rotation());
-        if let Some(wedge) = wedge {
-            let corners = b.wedge();
-            commands.spawn((
-                Mesh3d(wedge),
-                MeshMaterial3d(ply.clone()),
-                tf,
-                RigidBody::Static,
-                Collider::convex_hull(&corners)
-                    .unwrap_or(Collider::cuboid(b.size.x, b.size.y, b.size.z)),
-                DespawnOnExit(AppState::InGame),
-            ));
-            continue;
-        }
-        commands.spawn((
-            tf,
-            RigidBody::Static,
-            Collider::cuboid(b.size.x, b.size.y, b.size.z),
-            DespawnOnExit(AppState::InGame),
-        ));
-        let top = b.size.y / 2.0;
-        match b.piece {
-            Piece::Tower { style } => {
-                let m = glass.get(style as usize % glass.len()).unwrap_or(&fallback);
-                part(commands, &b, m, Vec3::ZERO, b.size, true);
-                part(
-                    commands,
-                    &b,
-                    &roof,
-                    Vec3::Y * (top + 0.15),
-                    b.size.with_y(0.3) - Vec3::new(0.4, 0.0, 0.4),
-                    true,
-                );
-                // A neon band under the roof, and a parapet.
-                if style % 2 == 0 {
-                    part(
-                        commands,
-                        &b,
-                        &band,
-                        Vec3::Y * (top - 2.5),
-                        b.size.with_y(0.5) + Vec3::new(0.2, 0.0, 0.2),
-                        false,
-                    );
-                }
-            }
-            Piece::Site => {
-                part(
-                    commands,
-                    &b,
-                    &concrete,
-                    Vec3::ZERO,
-                    b.size - Vec3::new(0.6, 0.0, 0.6),
-                    true,
-                );
-                // The open top floors: columns at the corners and a slab.
-                part(
-                    commands,
-                    &b,
-                    &concrete,
-                    Vec3::Y * (top - 0.3),
-                    b.size.with_y(0.6),
-                    true,
-                );
-                for (x, z) in [(-1.0, -1.0), (1.0, -1.0), (-1.0, 1.0), (1.0, 1.0)] {
-                    let at = Vec3::new(
-                        x * (b.size.x / 2.0 - 0.6),
-                        top - 5.0,
-                        z * (b.size.z / 2.0 - 0.6),
-                    );
-                    part(commands, &b, &concrete, at, Vec3::new(0.8, 9.4, 0.8), true);
-                }
-                // Safety netting round the floors under the deck.
-                part(
-                    commands,
-                    &b,
-                    &netting,
-                    Vec3::Y * (top - 6.0),
-                    b.size.with_y(5.0) + Vec3::new(0.1, 0.0, 0.1),
-                    false,
-                );
-            }
-            Piece::Steel => part(commands, &b, &steel, Vec3::ZERO, b.size, false),
-            Piece::Clutter => part(commands, &b, &pallet, Vec3::ZERO, b.size, false),
-            Piece::Kicker => {}
-        }
-    }
-}
-
-/// A city material waiting for its modeler swatch's textures.
-#[derive(Component)]
-struct FacadeSwatch {
-    file: String,
-    material: Handle<StandardMaterial>,
-    glow: f32,
-}
-
-/// A box `size` (m) about its centre with uvs in metres from its top-left,
-/// so a tiled texture keeps its real size on any box. Tangents point along
-/// u, bitangents up (sides) or towards -z (top and bottom).
-fn metric_box(size: Vec3) -> Mesh {
-    use bevy::asset::RenderAssetUsages;
-    use bevy::mesh::{Indices, PrimitiveTopology};
-    let h = size / 2.0;
-    let (mut pos, mut nor, mut uv, mut tan, mut idx) =
-        (Vec::new(), Vec::new(), Vec::new(), Vec::new(), Vec::new());
-    for n in [Vec3::X, -Vec3::X, Vec3::Z, -Vec3::Z, Vec3::Y, -Vec3::Y] {
-        let side = n.y == 0.0;
-        // u along t, v along -up.
-        let (t, up) = if side {
-            (Vec3::Y.cross(n), Vec3::Y)
-        } else {
-            (Vec3::X, -Vec3::Z)
-        };
-        let (ht, hu) = (t.abs().dot(h), up.abs().dot(h));
-        let base = pos.len() as u32;
-        for (a, b) in [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)] {
-            let p = n * n.abs().dot(h) + t * a * ht + up * b * hu;
-            pos.push(p.to_array());
-            nor.push(n.to_array());
-            uv.push([(a + 1.0) * ht, (1.0 - b) * hu]);
-            let w = if n.cross(t).dot(up) > 0.0 { 1.0 } else { -1.0 };
-            tan.push([t.x, t.y, t.z, w]);
-        }
-        let quad = [base, base + 1, base + 2, base, base + 2, base + 3];
-        let (p0, p1, p2) = (
-            Vec3::from(pos[base as usize]),
-            Vec3::from(pos[base as usize + 1]),
-            Vec3::from(pos[base as usize + 2]),
-        );
-        if (p1 - p0).cross(p2 - p0).dot(n) >= 0.0 {
-            idx.extend(quad);
-        } else {
-            idx.extend(quad.iter().rev());
-        }
-    }
-    Mesh::new(
-        PrimitiveTopology::TriangleList,
-        RenderAssetUsages::default(),
-    )
-    .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, pos)
-    .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, nor)
-    .with_inserted_attribute(Mesh::ATTRIBUTE_UV_0, uv)
-    .with_inserted_attribute(Mesh::ATTRIBUTE_TANGENT, tan)
-    .with_inserted_indices(Indices::U32(idx))
-}
-
-/// Put each city swatch's textures on its material once the file loads;
-/// with no file (no LFS data) the flat colour stays.
-fn facades(
-    mut commands: Commands,
-    mut files: Local<std::collections::HashMap<String, Handle<bevy::gltf::Gltf>>>,
-    waiting: Query<(Entity, &FacadeSwatch)>,
-    assets: Res<AssetServer>,
-    gltfs: Res<Assets<bevy::gltf::Gltf>>,
-    looks: Res<Assets<bevy::gltf::GltfMaterial>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    for (e, w) in &waiting {
-        let h = files
-            .entry(w.file.clone())
-            .or_insert_with(|| assets.load(w.file.clone()))
-            .clone();
-        if assets.load_state(&h).is_failed() {
-            commands.entity(e).despawn();
-            continue;
-        }
-        if !assets.is_loaded_with_dependencies(&h) {
-            continue;
-        }
-        commands.entity(e).despawn();
-        let look = (gltfs.get(&h))
-            .and_then(|g| g.materials.first())
-            .and_then(|m| looks.get(m));
-        let (Some(look), Some(mut m)) = (look, materials.get_mut(&w.material)) else {
-            continue;
-        };
-        let Some(base) = look.base_color_texture.clone() else {
-            continue;
-        };
-        m.base_color = Color::WHITE;
-        m.base_color_texture = Some(base);
-        m.metallic_roughness_texture = look.metallic_roughness_texture.clone();
-        m.normal_map_texture = look.normal_map_texture.clone();
-        m.perceptual_roughness = 1.0;
-        m.metallic = look.metallic;
-        if let Some(em) = look.emissive_texture.clone() {
-            m.emissive_texture = Some(em);
-            m.emissive = LinearRgba::WHITE * w.glow;
-        }
-    }
-}
-
 /// This screen's run: when it left the start pad, and its best time.
-#[derive(Default)]
+#[derive(Resource, Default)]
 struct Run {
     inside: bool,
     started: Option<f32>,
+    /// It reached the finish and hasn't left the finish since: R goes again.
+    finished: bool,
     best: Option<f32>,
 }
 
@@ -852,10 +442,12 @@ fn run_step(
     match run.started {
         None if !on_start && l.z < start.0.z - start.1.z / 2.0 => {
             run.started = Some(now);
+            run.finished = false;
             None
         }
         Some(t0) if on_start => {
             run.started = None;
+            run.finished = false;
             Some(RunEvent::WipedOut(now - t0))
         }
         Some(t0) if through_checkpoint(finish, l, tuning().checkpoint_reach) => {
@@ -863,9 +455,63 @@ fn run_step(
             let secs = now - t0;
             let best = run.best.map_or(secs, |b| b.min(secs));
             run.best = Some(best);
+            run.finished = true;
             Some(RunEvent::Finished { secs, best })
         }
         _ => None,
+    }
+}
+
+/// Does a press of the restart button go to the start? A hold does; a tap
+/// goes to the checkpoint, or to the start again once you've finished.
+pub fn restart_to_start(held: bool, finished: bool) -> bool {
+    held || finished
+}
+
+/// Local: R (or the pad's button) in the hall. Hold it to go to the start;
+/// tap it for your last checkpoint (or the start again after the finish).
+fn restart_input(
+    time: Res<Time>,
+    actions: crate::input::Actions,
+    me: Option<Res<LocalPlayer>>,
+    walkers: Query<(&Player, &Walker)>,
+    run: Res<Run>,
+    ctx: Option<ResMut<crate::input::InputContexts>>,
+    mut commands: Commands,
+    mut down: Local<Option<f32>>,
+    mut sent: Local<bool>,
+) {
+    const RESET: crate::input::Act = crate::input::Act("surf_reset");
+    let t = tuning();
+    let inside = me
+        .and_then(|me| walkers.iter().find(|(p, _)| p.id == me.0))
+        .is_some_and(|(_, w)| in_hall(&t, w.pos).is_some());
+    if let Some(mut ctx) = ctx {
+        crate::input::switch(&mut ctx, "surf", inside);
+    }
+    if !inside {
+        *down = None;
+        return;
+    }
+    let now = time.elapsed_secs();
+    if actions.just_pressed(RESET) {
+        *down = Some(now);
+        *sent = false;
+    }
+    let Some(since) = *down else { return };
+    if actions.pressed(RESET) {
+        if !*sent && now - since >= t.restart_hold {
+            *sent = true;
+            commands.client_trigger(RestartSurf { start: true });
+        }
+        return;
+    }
+    // Let go: a tap.
+    *down = None;
+    if !*sent {
+        commands.client_trigger(RestartSurf {
+            start: restart_to_start(false, run.finished),
+        });
     }
 }
 
@@ -875,7 +521,7 @@ fn timer(
     me: Option<Res<LocalPlayer>>,
     walkers: Query<(&Player, &Walker)>,
     toast: Option<ResMut<crate::hud::Toast>>,
-    mut run: Local<Run>,
+    mut run: ResMut<Run>,
 ) {
     let (Some(me), Some(mut toast)) = (me, toast) else {
         return;
@@ -903,6 +549,7 @@ mod tests {
     use super::*;
 
     fn t() -> Tuning {
+        crate::features::surf_map::load_course_for_tests();
         let path = format!(
             "{}/../game/assets/{}",
             env!("CARGO_MANIFEST_DIR"),
@@ -912,7 +559,7 @@ mod tests {
             panic!("no {path}");
         };
         assert!(TUNING.set_bytes(&bytes), "{path} doesn't parse");
-        (*TUNING.get()).clone()
+        (*tuning()).clone()
     }
 
     #[test]
@@ -1095,6 +742,39 @@ mod tests {
         assert!(!entering(&t, street_at(&t)));
         assert!(air_at(street_at(&t)) == crate::kcc::Air::NORMAL);
         assert!(air_at(start_at(&t)).accel_hz > crate::kcc::Air::NORMAL.accel_hz);
+    }
+
+    #[test]
+    fn restart_goes_to_the_checkpoint_or_the_start() {
+        let t = t();
+        // A hold is the start; a tap is the checkpoint, until you've finished.
+        assert!(restart_to_start(true, false));
+        assert!(!restart_to_start(false, false));
+        assert!(restart_to_start(false, true));
+        assert_eq!(restart_at(&t, true, 3), start_at(&t));
+        assert_eq!(
+            restart_at(&t, false, 3),
+            stage_spawn(&t, 3).unwrap_or_default()
+        );
+        assert_ne!(restart_at(&t, false, 3), start_at(&t));
+        assert_eq!(restart_at(&t, false, 99), start_at(&t));
+        assert!(t.restart_hold > 0.0);
+    }
+
+    #[test]
+    fn finishing_marks_the_run_finished_until_you_set_off_again() {
+        let t = t();
+        let pads = [start_pad(&t), finish_pad(&t)];
+        let mut run = Run::default();
+        let start = Vec3::new(0.0, -0.5, -5.0);
+        run_step(&mut run, pads, Some(start), 0.0);
+        run_step(&mut run, pads, Some(Vec3::new(0.0, -34.0, -60.0)), 2.0);
+        assert!(run.started.is_some() && !run.finished);
+        let f = finish_pad(&t).0;
+        run_step(&mut run, pads, Some(f + Vec3::Y), 30.0);
+        assert!(run.finished && run.started.is_none());
+        run_step(&mut run, pads, Some(Vec3::new(0.0, -34.0, -60.0)), 31.0);
+        assert!(!run.finished || run.started.is_none());
     }
 
     #[test]

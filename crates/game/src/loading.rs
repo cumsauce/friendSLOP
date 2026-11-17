@@ -92,7 +92,7 @@ pub const TIPS: [&str; 4] = [
     "Pet your cat before it becomes everyone’s problem.",
     "Hold {journal} (or press {journal_keep}) for the commune journal.",
     "{fart} farts once the gas meter says READY.",
-    "{mic} mutes your mic. Your friends can still hear the cat.",
+    "Mute your mic or switch to push-to-talk ({talk}) in settings. Your friends can still hear the cat.",
 ];
 
 /// How far along loading is, `0..=1`: models loaded, then frames settling.

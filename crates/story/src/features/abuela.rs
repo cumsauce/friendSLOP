@@ -708,7 +708,7 @@ pub fn by_the_chair(at: Vec3) -> bool {
 
 /// For the music: the camera's up in heaven by Abuela's chair.
 fn music_signals(
-    camera: Query<&GlobalTransform, With<Camera3d>>,
+    camera: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     signals: Option<ResMut<crate::music::MusicSignals>>,
 ) {
     let Some(mut signals) = signals else { return };

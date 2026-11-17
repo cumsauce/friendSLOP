@@ -351,7 +351,9 @@ fn spawn(
     }
 }
 
-fn camera(cam: &Query<&GlobalTransform, With<Camera3d>>) -> Option<Vec3> {
+fn camera(
+    cam: &Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
+) -> Option<Vec3> {
     crate::music::camera_at(cam)
 }
 
@@ -372,7 +374,7 @@ fn awake(t: &Tuning, cam: Option<Vec3>) -> Vec<bool> {
 /// Local: birds whose turn it is re-think the rules (on a grid per flock).
 fn think(
     time: Res<Time>,
-    cam: Query<&GlobalTransform, With<Camera3d>>,
+    cam: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     mut birds: Query<&mut Pigeon>,
 ) {
     let t = tuning();
@@ -420,7 +422,7 @@ fn think(
 fn fly_all(
     mut commands: Commands,
     time: Res<Time>,
-    cam: Query<&GlobalTransform, With<Camera3d>>,
+    cam: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     looks: Option<Res<Looks>>,
     offset: Option<Res<crate::features::stillness::SessionOffset>>,
     mut birds: Query<(

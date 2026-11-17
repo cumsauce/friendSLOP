@@ -11,7 +11,7 @@
 //! # the 9 s "CHAPTER 1" card is gone)
 //! FRIENDSLOP_SCREENSHOT_WAIT=12
 //! # optional: force a HUD state for visual checks against the Figma frames
-//! # (play, busy, full, clickable, chapter, tab, pause, journal; title, settings, join, creator,
+//! # (play, busy, full, clickable, chapter, tab, pause, journal, map; title, settings, join, creator,
 //! # fault and kori run without `host`; see `Scene`)
 //! FRIENDSLOP_SCREENSHOT_SHOTS=shots.txt  (lines `out.png x,y,z,lx,ly,lz`; edit and save it
 //!   while the game runs to take more pictures without restarting)
@@ -71,6 +71,8 @@ pub enum Scene {
     Kori,
     /// The journal kept open on its first tab.
     Journal,
+    /// The map (M) open.
+    Map,
     /// The pause screen (Esc in game).
     Pause,
     /// The loading curtain, shot before it lifts.
@@ -96,6 +98,7 @@ impl Scene {
             "fault" => Scene::Fault,
             "kori" => Scene::Kori,
             "journal" => Scene::Journal,
+            "map" => Scene::Map,
             "pause" => Scene::Pause,
             "loading" => Scene::Loading,
             "clean" => Scene::Clean,
@@ -110,6 +113,7 @@ impl Scene {
             // After the chapter card (9 s).
             Scene::Play
             | Scene::Journal
+            | Scene::Map
             | Scene::Pause
             | Scene::Tab
             | Scene::Busy
@@ -441,6 +445,14 @@ impl Plugin for ScreenshotPlugin {
             }
             Scene::Pause => {
                 app.add_systems(Update, open_pause.run_if(in_state(AppState::InGame)));
+            }
+            Scene::Map => {
+                app.add_systems(
+                    Update,
+                    (|mut map: ResMut<crate::ui::map::MapView>| map.open = true)
+                        .before(crate::ui::map::MapSet)
+                        .run_if(in_state(AppState::InGame)),
+                );
             }
             Scene::Journal => {
                 app.add_systems(

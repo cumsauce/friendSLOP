@@ -50,7 +50,7 @@ subway platforms every few levels, and big train-tunnel rings you must cross, so
 Andrew calls, gets angry, and sends something after you (hide in lockers). Everyone carries
 $100; going down may drop your wallet somewhere in the station: find it (and strangers'
 wallets), or press I for an insurance drone that keeps 70%. B brags: coins fall out for others. Or step into the
-brownstone with the neon SURF sign: a surf map, a 2.4 km five-stage course of bending ramps between sky towers to a timed finish.
+brownstone with the neon SURF sign: a surf map, a 3.7 km seven-stage course of bending ramps between sky towers to a timed finish.
 The streets and stations have tweakers screaming at nobody, preachers telling you you're
 going to hell, and bucket drummers (thickest on the PATH platform and round Fulton St).
 Step in front of a cab and you're punted and ragdoll for a couple of seconds before getting up.
@@ -91,6 +91,12 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
 ## What exists
 
 - A grassy meadow floor (see "Nicer look" below).
+- **A map (M).** A live top-down view of the area you're in, painted like a paper map: ink lines,
+  flat colours, a burnt edge, a pin on each player and the area's place names. Indoors the
+  ceiling is cut away. `crates/game/src/ui/map.rs`, `data/game/map.ron`, `shaders/paper_map.wesl`.
+- **Mic is a setting.** There's no mute key any more: "Microphone" and "Push to talk (V)" sit in
+  settings. The first-person / overview camera moved from V to C (C copies the invite only while
+  the journal is open).
 - **Ways in and out are marked.** Every entrance, exit, stair, ladder and hatch gets one glowing
   threshold marker with a label within 10 m (mint in, butter out, lilac up/down); markers only
   show the way. `crates/play/src/features/doorway.rs`, `data/play/doorway.ron`.
@@ -152,7 +158,9 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   Plus sound effects, an ambient bed, and rare Night whispers behind you at night
   (`features/whispers.rs`).
 - **3D sound** (`spatial.rs`). World sounds are heard where they are (distance, panning, muffling
-  behind colliders). Voice chat is proximity-based but never fully silent. CC0 assets come from
+  behind colliders). On headphones the loudest few sounds (12, `data/base/spatial.ron`) also get a
+  head-related filter (`friendslop-hrtf`), so you can hear a sound above, below and behind you;
+  Settings has a "3D sound (headphones)" switch. Voice chat is proximity-based but never fully silent. CC0 assets come from
   Git LFS and fall back to procedural looks if missing (`crates/game/assets/CREDITS.md`).
 - **Currency: organs** (#22, #135, #217). Players hold an organ purse (creature worth × organ
   importance), refilled each chapter, that pays the landlord's rent. Wendy's butcher buys your
@@ -245,7 +253,7 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   lines. `data/side/miami.ron` (`features/miami.rs`).
 - **Surf map** (#306). A brownstone's neon-signed door leads to a sky surf course with five
   stages, checkpoints, strong air control and a best-time timer. Inside the hall you move like a Counter-Strike surf server (Source units at 0.0254 m: sv_airaccelerate 150, the 30 u/s air wish cap, 800 u/s² gravity, accelerate 10, friction 4, stopspeed 75, 250 u/s wish speed, 3500 u/s top speed): faces steeper than 45° aren't ground, so you slide along them with your velocity clipped onto the face and no friction, and strafing while you turn adds speed (`kcc::Air`, ahoy's PM_AirAccelerate). A generated city crowds the ramps: towers rising past them on both sides, cranes, girders overhead, and building sites under the ramps with kickers to launch back on. Each stage has its own neon colour (pad edge strips, a light, a marker post with one block per stage number, lane lights floating beside the ramps) and a gold arch stands over the finish (`data/side/surf_dressing.ron`, no colliders). `data/side/surf.ron`,
-  `rules/surf.rs` (`features/surf.rs`). Big set pieces (doomy) are placed around the course from the city and the ramps: neon arches, truss portals and floating rings over the ramps, a FINISH gantry, rooftop water towers, billboards, helipads, masts, pools and tower cranes, sky bridges between towers, and blimps, hot-air balloons, giant arrows, disco balls and floating rest platforms beside it (`data/side/surf_props.ron`, `features/surf_props.rs`). The sky follows the camera up there, so day and night look right.
+  `rules/surf.rs` (`features/surf.rs`). Big set pieces (doomy) are placed around the course from the city and the ramps: neon arches, truss portals and floating rings over the ramps, a FINISH gantry, rooftop water towers, billboards, helipads, masts, pools and tower cranes, sky bridges between towers, and blimps, hot-air balloons, giant arrows, disco balls and floating rest platforms beside it (`data/side/surf_props.ron`, `features/surf_props.rs`). The sky follows the camera up there, so day and night look right. The pillar run: stage 3's long curving ramp is planted with neon pillars in its faces, left then right, to weave between (`data/side/surf_pillars.ron`, `features/surf_pillars.rs`). Three more stretches (`data/side/surf_runs.ron`, `features/surf_runs.rs`): a fin chicane (neon walls filling one whole face, left then right, on stage 5's first ramp), an orb garden (floating glowing orbs to weave between, on stage 1's first ramp) and a gate run (neon frames to surf through, on stage 3's last ramp). Past the old finish there's a sixth stage: the office tower (`data/side/surf_office.ron`, `features/surf_office.rs`): one long ramp runs in through a huge glass wall, down a glass-roofed lobby with giant trees and gardens far below, on into one huge integrated atrium: tiers of glass executive offices (desks, sofas, shelves) built into both long walls from the garden floor up to the glass roof, with the ramp running between them. The old finish is now a stage-7 pad leading on into the mall (`data/side/surf_mall.ron`, `features/surf_mall.rs`): one ramp winding in two big S-bends through a huge glass-roofed mall, with tiers of storefronts, balconies and neon signs up both walls, a food court on the floor far below, FOOD COURT signs, and catwalks across the hall to go over, under or duck, then the finish.
 - **Ragdolling** (#320). A cab hit punts you and you tumble as a physics body for a moment before
   getting up. `data/play/ragdoll.ron` (`crates/play/src/features/ragdoll.rs`).
 - **Fulton St station** (no issue number). A subway entrance leads down a 40-level maze of
@@ -270,13 +278,23 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   ... curves and straight sections ... forced to use them if a tunnel is collapsed ... fatal to
   be chased with no stamina"). Every 4th level (from level 2, never a platform level or the one
   under one) is a tunnel level: a ring of 12 m double-track tiles (2x2 cells; straights and
-  curves, `fs-tunnel-*`) round the edge, with centre columns. Stairs land on one side and the way
-  down is across the ring, so there are two arms of at least three tiles. Straights can cave in
+  curves, `fs-tunnel-*`) round the edge, with centre columns. The stairs are off the tracks (friend: the rails covered them): they land
+  in a small tiled hall in the ring's empty middle, behind a 6 m doorway in a straight tile, and
+  the way down is another doorway on the far side, a hall cell and the stairs, so there are two
+  arms of at least three tiles. The level above a ring is short (its stairs must be in that hall). Straights can cave in
   across their middle (rubble, or a squeeze when it would cut something off): one arm shut means
   the other is the only way. Nothing else is down there, so a long run with no stamina is the
   level. Read as: forced because the stairs drop you in; no extra stamina cost invented.
   `fulton.ron` (`tunnels`), `fulton_tiles.ron` (`tunnel`); open: tunnels don't yet connect to the
   platforms' track mouths.
+- **Fulton St depth tilesets** (friend: "even MORE tilesets for fulton ... multiple ... weirder the
+  further you get down"). The plain corridor pieces (closed, end, straight, corner, tee, cross)
+  come in five skins that take over with depth: service (level 6: bare concrete, green pipes),
+  sewer (12: mossy stone, sewage floors, green light), liminal (20: checkerboard walls, terrazzo,
+  yellow hum), flesh (28: meat walls, skin floors, eyes for columns, red light), hell (35: hellrock,
+  glowing red). Skins only, layout and colliders unchanged; lockers, platforms, stairs, rooms and
+  tunnels keep the station look (open question: should they follow too?). `themes` in
+  `fulton_tiles.ron`; sources `fs-tile-<piece>-<theme>` made by `.modeler/gen/fs_themes.py`.
 - **Fulton St lighting**. Station is dark with fluorescent fittings per cell and some shadows.
   `fulton.ron` (`light`).
 - **Reflections**. Shiny things reflect baked environment maps (world and Fulton St), baked with

@@ -392,58 +392,12 @@ pub fn origin(d: &Tower) -> Vec3 {
     Vec3::new((min.x + max.x) / 2.0, min.y, (min.z + max.z) / 2.0)
 }
 
-pub fn plugin(app: &mut App) {
-    let (c, h) = bounds(&TOWER.get());
-    crate::features::surf_props::claim(c, h);
-    app.spawn_into("surf", build);
-}
-
-fn build(mut commands: Commands, assets: Res<AssetServer>) {
-    let t = tuning();
-    let d = TOWER.get();
-    let (c, h) = bounds(&d);
-    crate::features::surf_props::claim(c, h);
-    let o = hall_at(&t);
-    let at = o + origin(&d);
-    for name in ["surf_tower_shell.gltf", "surf_tower_interior.gltf"] {
-        commands.spawn((
-            WorldAssetRoot(
-                assets.load(GltfAssetLabel::Scene(0).from_asset(format!("models/features/{name}"))),
-            ),
-            Transform::from_translation(at),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
-    let (parts, lights) = layout(&t, &d);
-    for p in parts.into_iter().filter(|p| p.kind.solid()) {
-        commands.spawn((
-            Transform::from_translation(o + p.centre),
-            avian3d::prelude::RigidBody::Static,
-            avian3d::prelude::Collider::cuboid(p.size.x, p.size.y, p.size.z),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
-    let (r, g, b) = d.light_colour;
-    for l in lights {
-        commands.spawn((
-            PointLight {
-                color: Color::srgb(r, g, b),
-                intensity: d.light_intensity,
-                range: d.light_range,
-                shadow_maps_enabled: false,
-                ..default()
-            },
-            Transform::from_translation(o + l),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     fn load() -> (std::sync::Arc<Tuning>, std::sync::Arc<Tower>) {
+        crate::features::surf_map::load_course_for_tests();
         for path in [crate::rules::surf::TUNING.path(), TOWER.path()] {
             let full = format!("{}/../game/assets/{}", env!("CARGO_MANIFEST_DIR"), path);
             let Ok(bytes) = std::fs::read(&full) else {

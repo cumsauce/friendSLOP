@@ -11,6 +11,12 @@
 //!   arrival-time difference (up to ~0.66 ms) and head shadow (the far ear
 //!   hears it duller), so left/right is clear on headphones and speakers;
 //! - front/back: sounds behind you are a touch darker and quieter;
+//! - HRTF (headphones, the loudest few sounds only, [`TUNING`]): a short
+//!   head-related filter per ear (`friendslop-hrtf`, baked from the SADIE II
+//!   KU100 head) takes over the level difference and head shadow and adds
+//!   what the outer ears do, so a sound above, below or behind you sounds it.
+//!   Everything else, and everything if the file is missing, keeps the cheap
+//!   model above;
 //! - air: far sounds lose their top end;
 //! - occlusion: a hill, wall or building between you and the sound muffles it
 //!   (a ray against the physics colliders);
@@ -22,6 +28,7 @@
 //! click. The listener ("ears") is your head when you have a body, facing the
 //! way the camera looks. Voice chat listens from the same ears.
 
+use friendslop_hrtf::{Fir, Hrir, HrirSet, TAPS};
 use std::f32::consts::TAU;
 use std::num::NonZero;
 use std::sync::Arc;
@@ -40,6 +47,7 @@ use crate::rules::Duelist;
 use crate::rules::EYE;
 use crate::voice_chat::VoiceListener;
 use crate::world::MainCamera;
+use friendslop_data::Data;
 
 /// How far a sound carries: full level within `near` metres, 1/distance
 /// beyond, fading out to silence at `far`.
@@ -120,6 +128,73 @@ impl Default for Room {
     }
 }
 
+/// Tuning for the head-related sound (`data/base/spatial.ron`).
+#[derive(serde::Deserialize, Default)]
+pub struct Tuning {
+    /// Head-related filtering at all (the player's own setting also applies).
+    pub enabled: bool,
+    /// At most this many sounds are filtered at once: the loudest ones.
+    pub max_hrtf: usize,
+    /// Seconds a sound takes to fade into (or out of) the filter.
+    pub fade_secs: f32,
+}
+
+pub static TUNING: Data<Tuning> = Data::ron("data/base/spatial.ron");
+
+/// The baked head-related responses (`scripts/hrtf-bake.py`). `None` while
+/// the file is missing or isn't one (a Git LFS pointer): sounds then use the
+/// cheap model.
+pub static HRIR: Data<Option<HrirSet>> =
+    Data::new("audio/hrtf/sadie_ku100.hrir", |b| Ok(HrirSet::parse(b)));
+
+/// The responses for each sample rate a clip comes in.
+#[derive(Resource, Default)]
+struct Hrtf {
+    from: Option<Arc<Option<HrirSet>>>,
+    by_rate: HashMap<u32, Arc<HrirSet>>,
+}
+
+impl Hrtf {
+    /// Follow the data file (it can change while we run).
+    fn refresh(&mut self) {
+        let now = HRIR.get();
+        if self.from.as_ref().is_none_or(|f| !Arc::ptr_eq(f, &now)) {
+            self.by_rate.clear();
+            self.from = Some(now);
+        }
+    }
+
+    fn available(&self) -> bool {
+        self.from.as_ref().is_some_and(|f| f.is_some())
+    }
+
+    fn for_rate(&mut self, rate: u32) -> Option<Arc<HrirSet>> {
+        let from = self.from.clone()?;
+        let set = from.as_ref().as_ref()?;
+        Some(
+            self.by_rate
+                .entry(rate)
+                .or_insert_with(|| Arc::new(set.resampled(rate)))
+                .clone(),
+        )
+    }
+}
+
+/// Which sounds get the head-related filter: the `max` loudest audible
+/// ones, if it's on at all. `levels` are what each sound would be heard at.
+pub fn budget(levels: &[f32], max: usize, on: bool) -> Vec<bool> {
+    let mut want = vec![false; levels.len()];
+    if !on || max == 0 {
+        return want;
+    }
+    let mut ranked: Vec<usize> = (0..levels.len()).filter(|&i| levels[i] > 1e-3).collect();
+    ranked.sort_by(|&a, &b| levels[b].total_cmp(&levels[a]));
+    for &i in ranked.iter().take(max) {
+        want[i] = true;
+    }
+    want
+}
+
 /// The entity voice chat listens from: kept on [`Ears`] every frame.
 #[derive(Component)]
 struct EarsEntity;
@@ -140,6 +215,10 @@ pub struct Shape {
     pub cutoff: [f32; 2],
     /// Send to the diffuse tail.
     pub wet: f32,
+    /// How much of the head-related filter this sound has, 0..=1.
+    pub hrtf: f32,
+    /// Which way it is from the head (a unit vector, -Z ahead, +X right).
+    pub dir: [f32; 3],
 }
 
 fn smoothstep(a: f32, b: f32, x: f32) -> f32 {
@@ -150,6 +229,14 @@ fn smoothstep(a: f32, b: f32, x: f32) -> f32 {
 /// How a sound at `at` reaches `ears`. `occluded` 0..=1: how blocked the
 /// straight line is.
 pub fn shape(ears: &Ears, at: Vec3, carry: Carry, occluded: f32) -> Shape {
+    shape_hrtf(ears, at, carry, occluded, 0.0)
+}
+
+/// [`shape`] for a sound that is `hrtf` (0..=1) of the way into the
+/// head-related filter, which carries the level difference and the head
+/// shadow itself, so those fade out of the cheap model as it fades in.
+pub fn shape_hrtf(ears: &Ears, at: Vec3, carry: Carry, occluded: f32, hrtf: f32) -> Shape {
+    let h = hrtf.clamp(0.0, 1.0);
     let near = carry.near.max(0.1);
     let far = carry.far.max(near + 1.0);
     let v = at - ears.pos;
@@ -170,7 +257,7 @@ pub fn shape(ears: &Ears, at: Vec3, carry: Carry, occluded: f32) -> Shape {
     let occ = occluded.clamp(0.0, 1.0);
     let level = spread * fade * (1.0 - 0.12 * behind) * (1.0 - 0.5 * occ);
     // Equal power: the near ear up to +3 dB, the far one down.
-    let ild = 0.6;
+    let ild = 0.6 * (1.0 - h);
     let gain = [
         (1.0 - ild * p).max(0.0).sqrt() * level,
         (1.0 + ild * p).max(0.0).sqrt() * level,
@@ -181,8 +268,8 @@ pub fn shape(ears: &Ears, at: Vec3, carry: Carry, occluded: f32) -> Shape {
     let delay = if p > 0.0 { [itd, 0.0] } else { [0.0, itd] };
     // Air eats the highs with distance; behind you and through walls, more.
     let air = 20_000.0 / (1.0 + d / 35.0);
-    let base = air * (1.0 - 0.45 * behind) * (1.0 - 0.85 * occ);
-    let shadow = 1.0 - 0.75 * side.powf(1.3);
+    let base = air * (1.0 - 0.45 * (1.0 - h) * behind) * (1.0 - 0.85 * occ);
+    let shadow = 1.0 - 0.75 * (1.0 - h) * side.powf(1.3);
     let cutoff = if p > 0.0 {
         [base * shadow, base]
     } else {
@@ -193,12 +280,14 @@ pub fn shape(ears: &Ears, at: Vec3, carry: Carry, occluded: f32) -> Shape {
         delay,
         cutoff,
         wet: REVERB * fade * (1.0 + 0.6 * occ),
+        hrtf: h,
+        dir: local.to_array(),
     }
 }
 
 /// One sound's live parameters, shared with the audio thread.
 #[derive(Default, Debug)]
-pub struct Link([AtomicU32; 7]);
+pub struct Link([AtomicU32; 11]);
 
 impl Link {
     pub fn store(&self, s: &Shape) {
@@ -210,6 +299,10 @@ impl Link {
             s.cutoff[0],
             s.cutoff[1],
             s.wet,
+            s.hrtf,
+            s.dir[0],
+            s.dir[1],
+            s.dir[2],
         ];
         for (slot, x) in self.0.iter().zip(v) {
             let x = if x.is_finite() { x } else { 0.0 };
@@ -224,6 +317,8 @@ impl Link {
             delay: [v(2), v(3)],
             cutoff: [v(4), v(5)],
             wet: v(6),
+            hrtf: v(7),
+            dir: [v(8), v(9), v(10)],
         }
     }
 }
@@ -271,13 +366,16 @@ pub struct SpatialSound {
     link: Arc<Link>,
     looping: bool,
     rt60: f32,
+    hrir: Option<Arc<HrirSet>>,
 }
 
 impl Decodable for SpatialSound {
     type Decoder = SpatialSource;
 
     fn decoder(&self) -> SpatialSource {
-        SpatialSource::new(self.clip.clone(), self.link.clone(), self.looping).with_rt60(self.rt60)
+        SpatialSource::new(self.clip.clone(), self.link.clone(), self.looping)
+            .with_rt60(self.rt60)
+            .with_hrir(self.hrir.clone())
     }
 }
 
@@ -356,6 +454,15 @@ pub struct SpatialSource {
     after_end: usize,
     peak: f32,
     right: Option<f32>,
+    /// The head-related responses at this clip's rate, if there are any.
+    hrir: Option<Arc<HrirSet>>,
+    fir: [Fir; 2],
+    taps: [[f32; TAPS]; 2],
+    tap_step: [[f32; TAPS]; 2],
+    /// How much of the filtered signal is heard, gliding like the gains.
+    mix: f32,
+    mix_step: f32,
+    fir_on: bool,
 }
 
 impl SpatialSource {
@@ -381,6 +488,13 @@ impl SpatialSource {
             after_end: 0,
             peak: 0.0,
             right: None,
+            hrir: None,
+            fir: [Fir::default(), Fir::default()],
+            taps: [[0.0; TAPS]; 2],
+            tap_step: [[0.0; TAPS]; 2],
+            mix: 0.0,
+            mix_step: 0.0,
+            fir_on: false,
         };
         // Start right where the game says, no glide from silence.
         let now = s.link.load();
@@ -394,6 +508,18 @@ impl SpatialSource {
         if (rt60 - Room::OPEN.rt60).abs() > 1e-3 {
             self.tail = Tail::new(self.clip.rate, rt60);
             self.tail_secs = TAIL_SECS.max(rt60 * 1.2);
+        }
+        self
+    }
+
+    /// Filter with these head-related responses (for this clip's rate)
+    /// whenever the game asks for it.
+    pub fn with_hrir(mut self, hrir: Option<Arc<HrirSet>>) -> Self {
+        self.hrir = hrir.filter(|h| h.rate() == self.clip.rate);
+        if let Some(h) = &self.hrir {
+            let now = self.link.load();
+            self.mix = now.hrtf;
+            self.taps = h.lookup(now.dir).ear;
         }
         self
     }
@@ -421,6 +547,21 @@ impl SpatialSource {
             self.coef[ear] = 1.0 - (-TAU * fc / self.clip.rate as f32).exp();
         }
         self.wet = want.wet;
+        self.fir_on = self.hrir.is_some() && (want.hrtf > 1e-3 || self.mix > 1e-3);
+        self.mix_step = if self.fir_on {
+            (want.hrtf - self.mix) / n
+        } else {
+            self.mix = 0.0;
+            0.0
+        };
+        if let (true, Some(hrir)) = (self.fir_on, &self.hrir) {
+            let to: Hrir = hrir.lookup(want.dir);
+            for ear in 0..2 {
+                for k in 0..TAPS {
+                    self.tap_step[ear][k] = (to.ear[ear][k] - self.taps[ear][k]) / n;
+                }
+            }
+        }
         self.peak = 0.0;
         self.left_in_block = BLOCK;
         true
@@ -450,7 +591,14 @@ impl SpatialSource {
             let frac = d - back;
             let i0 = (self.w + ITD_LEN - back as usize) % ITD_LEN;
             let i1 = (i0 + ITD_LEN - 1) % ITD_LEN;
-            let y = self.ring[i0] + frac * (self.ring[i1] - self.ring[i0]);
+            let mut y = self.ring[i0] + frac * (self.ring[i1] - self.ring[i0]);
+            if self.fir_on {
+                let f = self.fir[ear].tick(y, &self.taps[ear]);
+                y += self.mix * (f - y);
+                for (t, d) in self.taps[ear].iter_mut().zip(&self.tap_step[ear]) {
+                    *t += d;
+                }
+            }
             // Two one-poles: a gentle 12 dB/octave roll-off.
             let a = self.coef[ear];
             let lp = &mut self.lp[ear];
@@ -459,6 +607,9 @@ impl SpatialSource {
             *out = lp[1] * self.gain[ear];
             self.gain[ear] += self.gain_step[ear];
             self.delay[ear] += self.delay_step[ear];
+        }
+        if self.fir_on {
+            self.mix = (self.mix + self.mix_step).clamp(0.0, 1.0);
         }
         let (tl, tr) = self.tail.tick(x * self.wet);
         let l = out[0] + tl;
@@ -525,6 +676,8 @@ pub struct Emitter {
     occluded: f32,
     /// The last ray's answer (rays are cast every few frames, #151).
     blocked: bool,
+    /// Smoothed 0..=1: how far it is into the head-related filter.
+    hrtf: f32,
 }
 
 fn spawn_pending(
@@ -718,6 +871,7 @@ pub fn plugin(app: &mut App) {
     }
     app.add_audio_source::<SpatialSound>()
         .init_resource::<Clips>()
+        .init_resource::<Hrtf>()
         .add_systems(
             PostUpdate,
             (start_sounds, occlude, steer, sleep_sounds)
@@ -787,7 +941,9 @@ fn start_sounds(
     server: Option<Res<AssetServer>>,
     mut clips: ResMut<Clips>,
     mut sounds: ResMut<Assets<SpatialSound>>,
+    mut hrtf: ResMut<Hrtf>,
 ) {
+    hrtf.refresh();
     for (entity, mut p, at) in &mut pending {
         let clip = match &mut p.from {
             Pending::Asset(handle) => {
@@ -812,11 +968,13 @@ fn start_sounds(
         let room = room.as_deref().copied().unwrap_or_default();
         let link = Arc::new(Link::default());
         link.store(&room.apply(shape(&ears, at.translation(), p.carry, 0.0)));
+        let hrir = hrtf.for_rate(clip.rate);
         let handle = sounds.add(SpatialSound {
             clip,
             link: link.clone(),
             looping: p.looping,
             rt60: room.rt60,
+            hrir,
         });
         // A looping source never ends, so `ONCE` (Bevy's `LOOP` would buffer
         // the stream and freeze its position).
@@ -833,6 +991,7 @@ fn start_sounds(
                 carry: p.carry,
                 occluded: 0.0,
                 blocked: false,
+                hrtf: 0.0,
             },
         ));
     }
@@ -877,11 +1036,40 @@ fn occlude(
     }
 }
 
-fn steer(ears: Res<Ears>, room: Option<Res<Room>>, emitters: Query<(&GlobalTransform, &Emitter)>) {
+fn steer(
+    time: Res<Time>,
+    ears: Res<Ears>,
+    room: Option<Res<Room>>,
+    settings: Option<Res<crate::settings::Settings>>,
+    mut hrtf: ResMut<Hrtf>,
+    mut emitters: Query<(&GlobalTransform, &mut Emitter)>,
+    mut levels: Local<Vec<f32>>,
+) {
     let room = room.as_deref().copied().unwrap_or_default();
+    hrtf.refresh();
+    let tuning = TUNING.get();
+    let on = tuning.enabled && hrtf.available() && settings.is_none_or(|s| s.hrtf);
+    // The loudest few get the filter; the rest keep the cheap model.
+    levels.clear();
     for (at, e) in &emitters {
-        e.link
-            .store(&room.apply(shape(&ears, at.translation(), e.carry, e.occluded)));
+        let s = shape(&ears, at.translation(), e.carry, e.occluded);
+        levels.push(s.gain[0] + s.gain[1]);
+    }
+    let want = budget(&levels, tuning.max_hrtf, on);
+    let k = 1.0 - (-time.delta_secs() / tuning.fade_secs.max(0.02)).exp();
+    for ((at, mut e), want) in emitters.iter_mut().zip(want) {
+        let to = if want { 1.0 } else { 0.0 };
+        e.hrtf += (to - e.hrtf) * k;
+        if e.hrtf < 1e-3 && !want {
+            e.hrtf = 0.0;
+        }
+        e.link.store(&room.apply(shape_hrtf(
+            &ears,
+            at.translation(),
+            e.carry,
+            e.occluded,
+            e.hrtf,
+        )));
     }
 }
 
@@ -1014,6 +1202,168 @@ mod tests {
         assert!(hall_e > open_e * 10.0, "{hall_e} vs {open_e}");
     }
 
+    fn noise(n: usize) -> Vec<f32> {
+        let mut x = 7u32;
+        (0..n)
+            .map(|_| {
+                x ^= x << 13;
+                x ^= x >> 17;
+                x ^= x << 5;
+                x as f32 / u32::MAX as f32 - 0.5
+            })
+            .collect()
+    }
+
+    /// Render a looping noise source at `at` with the filter fully in.
+    fn heard(at: Vec3, hrir: Option<Arc<HrirSet>>) -> Vec<f32> {
+        let rate = 48_000;
+        let clip = Arc::new(Clip::new(noise(4800), rate));
+        let link = Arc::new(Link::default());
+        link.store(&shape_hrtf(&ears(), at, Carry::CALL, 0.0, 1.0));
+        let mut src = SpatialSource::new(clip, link, true).with_hrir(hrir);
+        render(&mut src, 20_000)
+    }
+
+    fn energy(out: &[f32], ch: usize) -> f32 {
+        out.chunks(2).map(|f| f[ch] * f[ch]).sum()
+    }
+
+    #[test]
+    fn the_filter_fades_the_cheap_cues_out() {
+        let side = Vec3::new(5.0, 0.0, 0.0);
+        let cheap = shape_hrtf(&ears(), side, Carry::CALL, 0.0, 0.0);
+        let full = shape_hrtf(&ears(), side, Carry::CALL, 0.0, 1.0);
+        assert_eq!(cheap, shape(&ears(), side, Carry::CALL, 0.0));
+        assert!(
+            (full.gain[0] - full.gain[1]).abs() < 1e-6,
+            "level difference is the filter's"
+        );
+        assert_eq!(full.cutoff[0], full.cutoff[1], "so is the head shadow");
+        assert!(full.delay[0] > 0.0005, "the arrival time stays ours");
+        assert!(full.dir[0] > 0.9, "{:?}", full.dir);
+        let up = shape_hrtf(&ears(), Vec3::new(0.0, 5.0, 0.0), Carry::CALL, 0.0, 1.0);
+        assert!(up.dir[1] > 0.99, "overhead is up: {:?}", up.dir);
+    }
+
+    #[test]
+    fn hrtf_places_a_sound_on_its_side_and_above() {
+        let set = Arc::new(friendslop_hrtf::synthetic(48_000));
+        let right = heard(Vec3::new(5.0, 0.0, 0.0), Some(set.clone()));
+        assert!(right.iter().all(|s| s.is_finite() && s.abs() < 2.0));
+        assert!(
+            energy(&right, 1) > energy(&right, 0) * 1.5,
+            "right ear louder"
+        );
+        // The cheap model can't tell ahead from overhead; the filter can.
+        let ahead = heard(Vec3::new(0.0, 0.0, -5.0), Some(set.clone()));
+        let above = heard(Vec3::new(0.0, 5.0, 0.0), Some(set.clone()));
+        let differ = |a: &[f32], b: &[f32]| {
+            let d: f32 = a.iter().zip(b).map(|(x, y)| (x - y).powi(2)).sum();
+            d / a.iter().map(|x| x * x).sum::<f32>()
+        };
+        assert!(differ(&ahead, &above) > 0.1, "up and ahead sound different");
+        let cheap_ahead = heard(Vec3::new(0.0, 0.0, -5.0), None);
+        let cheap_above = heard(Vec3::new(0.0, 5.0, 0.0), None);
+        assert!(
+            differ(&cheap_ahead, &cheap_above) < 1e-6,
+            "the cheap model can't tell"
+        );
+    }
+
+    #[test]
+    fn a_wrong_rate_or_missing_set_is_just_the_cheap_model() {
+        let at = Vec3::new(5.0, 0.0, -2.0);
+        let none = heard(at, None);
+        let odd = heard(at, Some(Arc::new(friendslop_hrtf::synthetic(44_100))));
+        assert_eq!(none, odd, "a set for another rate isn't used");
+    }
+
+    #[test]
+    fn moving_through_the_filter_stays_smooth() {
+        let set = Arc::new(friendslop_hrtf::synthetic(48_000));
+        let clip = Arc::new(Clip::new(noise(4800), 48_000));
+        let link = Arc::new(Link::default());
+        link.store(&shape_hrtf(
+            &ears(),
+            Vec3::NEG_Z * 4.0,
+            Carry::CALL,
+            0.0,
+            0.0,
+        ));
+        let mut src = SpatialSource::new(clip, link.clone(), true).with_hrir(Some(set));
+        let mut last = 0.0f32;
+        let mut worst = 0.0f32;
+        for step in 0..400 {
+            // Circle round the head while fading into the filter and out.
+            let a = step as f32 * 0.05;
+            let h = (a * 0.5).sin().abs();
+            link.store(&shape_hrtf(
+                &ears(),
+                Vec3::new(a.sin() * 4.0, (a * 0.7).sin() * 3.0, -a.cos() * 4.0),
+                Carry::CALL,
+                0.0,
+                h,
+            ));
+            for _ in 0..64 {
+                let (Some(l), Some(_)) = (src.next(), src.next()) else {
+                    return;
+                };
+                assert!(l.is_finite() && l.abs() < 3.0);
+                worst = worst.max((l - last).abs());
+                last = l;
+            }
+        }
+        // Noise at this level steps up to ~0.5 between samples by itself.
+        assert!(worst < 1.5, "a click: {worst}");
+    }
+
+    #[test]
+    fn only_the_loudest_get_the_filter() {
+        let levels = [0.2, 0.0, 0.9, 0.5, 0.0005, 0.7];
+        assert_eq!(
+            budget(&levels, 2, true),
+            [false, false, true, false, false, true]
+        );
+        assert_eq!(
+            budget(&levels, 10, true),
+            [true, false, true, true, false, true]
+        );
+        assert_eq!(budget(&levels, 2, false), [false; 6], "off means off");
+        assert_eq!(budget(&levels, 0, true), [false; 6]);
+        assert!(budget(&[], 3, true).is_empty());
+    }
+
+    #[test]
+    fn spatial_data_parses() {
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../game/assets/data/base/spatial.ron"
+        );
+        let bytes = std::fs::read(path).unwrap_or_default();
+        assert!(TUNING.set_bytes(&bytes), "{path} doesn't parse");
+        let t = TUNING.get();
+        assert!(t.enabled && t.max_hrtf > 0 && t.fade_secs > 0.0);
+    }
+
+    #[test]
+    fn the_shipped_head_loads_for_every_clip_rate() {
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../game/assets/audio/hrtf/sadie_ku100.hrir"
+        );
+        let bytes = std::fs::read(path).unwrap_or_default();
+        if !bytes.starts_with(b"HRIR") {
+            return; // a Git LFS pointer
+        }
+        assert!(HRIR.set_bytes(&bytes));
+        let mut h = Hrtf::default();
+        h.refresh();
+        assert!(h.available());
+        for rate in [16_000, 22_050, 44_100, 48_000] {
+            assert_eq!(h.for_rate(rate).map(|s| s.rate()), Some(rate));
+        }
+    }
+
     #[test]
     fn loops_never_end() {
         let clip = Arc::new(Clip::new(vec![0.1; 100], 22_050));
@@ -1040,9 +1390,11 @@ mod tests {
     }
 }
 
-/// `SPATIAL_DEMO=out.wav cargo test -p friendslop --lib spatial_demo -- --ignored`
-/// renders a crow cawing as it circles your head, then flies off behind a
-/// wall (for checking on headphones).
+/// `SPATIAL_DEMO=out.wav cargo test -p friendslop-base --lib spatial_demo -- --ignored`
+/// renders a crow cawing as it circles your head, then swings over the top
+/// of it (front, overhead, behind) and flies off behind a wall (for checking
+/// on headphones). `SPATIAL_DEMO_CHEAP=1` renders the same without the
+/// head-related filter, to hear what it adds.
 #[cfg(test)]
 #[test]
 #[ignore]
@@ -1050,7 +1402,11 @@ fn spatial_demo() {
     let Ok(out) = std::env::var("SPATIAL_DEMO") else {
         return;
     };
-    let bytes = std::fs::read("assets/audio/sfx/crow_caw.wav").unwrap_or_default();
+    let bytes = std::fs::read(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../game/assets/audio/sfx/crow_caw.wav"
+    ))
+    .unwrap_or_default();
     let caw = Clip::decode(&AudioSource {
         bytes: Arc::from(bytes),
     })
@@ -1062,27 +1418,43 @@ fn spatial_demo() {
     let clip = Arc::new(Clip::new(samples, rate));
     let link = Arc::new(Link::default());
     let ears = Ears::default();
-    let secs = 16.0;
+    let hrtf = if std::env::var_os("SPATIAL_DEMO_CHEAP").is_some() {
+        0.0
+    } else {
+        1.0
+    };
+    let head = std::fs::read(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../game/assets/audio/hrtf/sadie_ku100.hrir"
+    ))
+    .ok()
+    .and_then(|b| HrirSet::parse(&b))
+    .map(|s| Arc::new(s.resampled(rate)));
+    let secs = 24.0;
     let at = |t: f32| -> (Vec3, f32) {
         if t < 8.0 {
             // Circle at 5 m: front, right, behind, left, front...
             let a = t / 8.0 * TAU;
             (Vec3::new(a.sin() * 5.0, 0.0, -a.cos() * 5.0), 0.0)
+        } else if t < 16.0 {
+            // Over the top, front to back, in the middle of the head.
+            let a = (t - 8.0) / 8.0 * TAU / 2.0;
+            (Vec3::new(0.0, a.sin() * 5.0, -a.cos() * 5.0), 0.0)
         } else {
-            // Fly straight away ahead, a wall coming between at 12 s.
-            let d = 5.0 + (t - 8.0) * 9.0;
-            (Vec3::new(0.0, 0.0, -d), ((t - 12.0) / 0.3).clamp(0.0, 1.0))
+            // Fly straight away ahead, a wall coming between at 20 s.
+            let d = 5.0 + (t - 16.0) * 9.0;
+            (Vec3::new(0.0, 0.0, -d), ((t - 20.0) / 0.3).clamp(0.0, 1.0))
         }
     };
     let (p, o) = at(0.0);
-    link.store(&shape(&ears, p, Carry::CALL, o));
-    let mut src = SpatialSource::new(clip, link.clone(), true);
+    link.store(&shape_hrtf(&ears, p, Carry::CALL, o, hrtf));
+    let mut src = SpatialSource::new(clip, link.clone(), true).with_hrir(head);
     let frames = (secs * rate as f32) as usize;
     let mut pcm = Vec::with_capacity(frames * 2);
     for f in 0..frames {
         if f % 256 == 0 {
             let (p, o) = at(f as f32 / rate as f32);
-            link.store(&shape(&ears, p, Carry::CALL, o));
+            link.store(&shape_hrtf(&ears, p, Carry::CALL, o, hrtf));
         }
         let Some(l) = src.next() else { break };
         let Some(r) = src.next() else { break };

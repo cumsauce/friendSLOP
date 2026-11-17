@@ -397,84 +397,12 @@ pub fn layout(t: &Tuning, p: &Props) -> Vec<Placed> {
     out
 }
 
-pub fn plugin(app: &mut App) {
-    app.spawn_into("surf", build).add_systems(
-        Update,
-        drift
-            .run_if(crate::areas::shown("surf"))
-            .run_if(in_state(AppState::InGame)),
-    );
-}
-
-/// A floater's motion: where it rests and its phase.
-#[derive(Component)]
-struct Drift {
-    rest: Vec3,
-    motion: Motion,
-    phase: f32,
-}
-
-fn build(mut commands: Commands, assets: Res<AssetServer>) {
-    let t = tuning();
-    let p = PROPS.get();
-    let o = hall_at(&t);
-    for (i, piece) in layout(&t, &p).into_iter().enumerate() {
-        let rot = Quat::from_rotation_y(piece.yaw);
-        let at = o + piece.at;
-        if !piece.model.is_empty() {
-            let mut e = commands.spawn((
-                WorldAssetRoot(assets.load(
-                    GltfAssetLabel::Scene(0).from_asset(format!("models/features/{}", piece.model)),
-                )),
-                Transform::from_translation(at)
-                    .with_rotation(rot)
-                    .with_scale(Vec3::new(piece.stretch, 1.0, 1.0)),
-                DespawnOnExit(AppState::InGame),
-            ));
-            if piece.motion != Motion::Still {
-                e.insert(Drift {
-                    rest: at,
-                    motion: piece.motion,
-                    phase: i as f32 * 1.7,
-                });
-            }
-        }
-        // Moving things stay ghosts; everything else blocks.
-        if piece.motion != Motion::Still {
-            continue;
-        }
-        for (c, s) in piece.solids {
-            commands.spawn((
-                Transform::from_translation(at + rot * c).with_rotation(rot),
-                avian3d::prelude::RigidBody::Static,
-                avian3d::prelude::Collider::cuboid(s.x, s.y, s.z),
-                DespawnOnExit(AppState::InGame),
-            ));
-        }
-    }
-}
-
-/// Floaters bob and the disco balls turn (local looks only).
-fn drift(time: Res<Time>, mut q: Query<(&Drift, &mut Transform)>) {
-    let p = PROPS.get();
-    let s = time.elapsed_secs();
-    for (d, mut tf) in &mut q {
-        match d.motion {
-            Motion::Bob => {
-                tf.translation = d.rest
-                    + Vec3::Y * p.bob.0 * (s * p.bob.1 * std::f32::consts::TAU + d.phase).sin();
-            }
-            Motion::Spin => tf.rotate_y(p.spin * time.delta_secs()),
-            Motion::Still => {}
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     fn load() -> (std::sync::Arc<Tuning>, std::sync::Arc<Props>) {
+        crate::features::surf_map::load_course_for_tests();
         for path in [crate::rules::surf::TUNING.path(), PROPS.path()] {
             let full = format!("{}/../game/assets/{}", env!("CARGO_MANIFEST_DIR"), path);
             let Ok(bytes) = std::fs::read(&full) else {

@@ -1,5 +1,6 @@
-//! Player settings (#25): master volume and voice volume. Mic mute lives in
-//! [`crate::voice::VoiceMuted`]. Local to each player; nothing is replicated.
+//! Player settings (#25): master volume, voice volume and the mic (on or
+//! muted, open or push-to-talk). [`crate::voice::VoiceMuted`] follows
+//! [`Settings::mic_on`]. Local to each player; nothing is replicated.
 
 use crate::voice_chat::*;
 use bevy::audio::Volume;
@@ -12,6 +13,13 @@ pub struct Settings {
     pub voice_volume: f32,
     /// HALT may use your OS username in the window title and HUD.
     pub halt_real_name: bool,
+    /// World sounds are placed with head-related filters (headphones), so
+    /// you can hear above, below and behind. See [`crate::spatial`].
+    pub hrtf: bool,
+    /// Your mic is on. Off mutes you (there's no hotkey: it's a setting).
+    pub mic_on: bool,
+    /// Your mic only sends while you hold the `talk` action (V).
+    pub push_to_talk: bool,
 }
 
 impl Default for Settings {
@@ -20,6 +28,9 @@ impl Default for Settings {
             master_volume: 0.8,
             voice_volume: 1.0,
             halt_real_name: true,
+            hrtf: true,
+            mic_on: true,
+            push_to_talk: false,
         }
     }
 }
@@ -32,10 +43,13 @@ impl Settings {
     /// Saved as `key=value` lines.
     pub fn to_text(self) -> String {
         format!(
-            "master={}\nvoice={}\nhalt_name={}\n",
+            "master={}\nvoice={}\nhalt_name={}\nhrtf={}\nmic={}\nptt={}\n",
             self.master_volume,
             self.voice_volume,
-            u8::from(self.halt_real_name)
+            u8::from(self.halt_real_name),
+            u8::from(self.hrtf),
+            u8::from(self.mic_on),
+            u8::from(self.push_to_talk)
         )
     }
 
@@ -50,6 +64,9 @@ impl Settings {
                 "master" => s.master_volume = volume().unwrap_or(s.master_volume),
                 "voice" => s.voice_volume = volume().unwrap_or(s.voice_volume),
                 "halt_name" => s.halt_real_name = v != "0",
+                "hrtf" => s.hrtf = v != "0",
+                "mic" => s.mic_on = v != "0",
+                "ptt" => s.push_to_talk = v != "0",
                 _ => {}
             }
         }
@@ -195,14 +212,19 @@ mod tests {
             master_volume: 0.2,
             voice_volume: 0.55,
             halt_real_name: false,
+            hrtf: false,
+            mic_on: false,
+            push_to_talk: true,
         };
         assert_eq!(Settings::from_text(&s.to_text()), s);
         // Missing keys keep the defaults; junk and out-of-range values are tamed.
         assert_eq!(Settings::from_text(""), Settings::default());
-        let odd = Settings::from_text("master=9\nvoice=nan\nhalt_name=0\nstray\n");
+        let odd = Settings::from_text("master=9\nvoice=nan\nhalt_name=0\nhrtf=0\nstray\n");
         assert_eq!(odd.master_volume, 1.0);
         assert_eq!(odd.voice_volume, Settings::default().voice_volume);
         assert!(!odd.halt_real_name);
+        assert!(!odd.hrtf);
+        assert!(Settings::from_text("").hrtf, "on unless turned off");
     }
 
     #[test]

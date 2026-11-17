@@ -1,0 +1,69 @@
+// The map (M, crates/game/src/ui/map.rs): a live top-down picture of the
+// area you're in, painted like a paper map, with a pin on every player.
+// Edit and save: the running game picks it up within a second.
+(
+    // The picture's size (px, square) on High / Medium, and on Low.
+    image: 96,
+    image_low: 96,
+    // Re-shoot the picture every this many frames while the map is open
+    // (1 = every frame; 3 is about 20 times a second at 60 fps).
+    every: 3,
+    // The biggest stretch of ground (m) the map shows: a smaller area fits
+    // whole, a bigger one (the surf course) scrolls with you.
+    view_max: 240.0,
+    // The smallest (m), so a tiny place isn't drawn a few pixels wide.
+    view_min: 30.0,
+    // Outdoors the camera looks down from this high (m) over your feet...
+    sky: 80.0,
+    // ...indoors (a stacked place like the warehouse or the tunnels, or a
+    // walk-in interior) from this high, so the ceiling over you is cut away.
+    ceiling_clear: 2.6,
+    // How far (m) under your feet it sees, outdoors.
+    depth: 80.0,
+    // The camera's exposure (ev100; lower is brighter), and how many stops
+    // brighter it gets at night (when the ambient light drops under `day_ambient`).
+    ev100: 10.2,
+    night_lift: 3.0,
+    day_ambient: 1100.0,
+    // Pins: the ball's width as a share of the map's width, yours this much
+    // bigger, and their bob (px up and down /10, per second).
+    pin: 0.04,
+    pin_mine: 1.4,
+    bob: 0.3,
+    bob_speed: 2.2,
+    // Pin colours by player (wraps round): host first.
+    pins: [
+        (0.93, 0.33, 0.42),
+        (0.29, 0.62, 0.95),
+        (0.98, 0.78, 0.25),
+        (0.45, 0.82, 0.48),
+        (0.72, 0.48, 0.92),
+        (0.98, 0.56, 0.28),
+    ],
+    // The painting: the paper's colour, the ink's, and the few colours the
+    // world is pulled toward (meadow, forest, water, path, roof, walls).
+    paper: (0.95, 0.89, 0.74),
+    ink: (0.24, 0.17, 0.13),
+    palette: [
+        (0.62, 0.80, 0.42),
+        (0.27, 0.52, 0.32),
+        (0.36, 0.66, 0.86),
+        (0.93, 0.83, 0.58),
+        (0.86, 0.33, 0.30),
+        (0.97, 0.93, 0.84),
+    ],
+    // Construction paper: the picture is tiny (`image`) so places become blobs,
+    // each cut from the nearest palette colour. How strong the cut edges'
+    // shadows are (0..1, `ink_strength`), fibre texture (`grain`) and how
+    // torn the sheet's edge is (`edge`). (`ink_edge`, `bands` and
+    // `palette_mix` aren't used by the paper look.)
+    ink_strength: 1.0,
+    ink_edge: 2.2,
+    grain: 0.06,
+    bands: 5.0,
+    palette_mix: 0.65,
+    edge: 0.5,
+    // At most this many place names (nearest the middle first). None are
+    // hidden: one that would overlap another moves to a clear spot nearby.
+    labels: 30,
+)

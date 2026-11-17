@@ -90,9 +90,62 @@
       "type": "friendslop_world::map::Lamp",
       "fields": {
         "lumens": "f32",
-        "range": "f32"
+        "range": "f32",
+        "r": "f32",
+        "g": "f32",
+        "b": "f32"
       },
-      "doc": "A point light at the marker: lumens and reach (m)."
+      "doc": "A point light at the marker: lumens and reach (m); r, g, b its colour (all 0: white)."
+    },
+    "GltfSource": {
+      "type": "jackdaw_scene_types::types::GltfSource",
+      "fields": {
+        "path": "string",
+        "scene_index": "u32"
+      },
+      "doc": "A model file placed as is, at the marker's position and yaw (no scale: use a prefab instance for that). path is under the asset folder (models/features/x.gltf)."
+    },
+    "Body": {
+      "type": "friendslop_world::map::Body",
+      "fields": {
+        "sx": "f32",
+        "sy": "f32",
+        "sz": "f32",
+        "ox": "f32",
+        "oy": "f32",
+        "oz": "f32"
+      },
+      "doc": "A static box collider on a placed model (a prefab instance): sx x sy x sz metres, its middle ox, oy, oz from the instance's origin along its own axes (so it turns and tilts with it)."
+    },
+    "Bob": {
+      "type": "friendslop_world::map::Bob",
+      "fields": {
+        "height": "f32",
+        "hz": "f32",
+        "phase": "f32"
+      },
+      "doc": "Bobs up and down height metres at hz bobs a second, phase radians along (a floating blimp)."
+    },
+    "Pad": {
+      "type": "friendslop_world::map::Pad",
+      "fields": {
+        "stage": "u32",
+        "finish": "bool"
+      },
+      "doc": "A surf course pad (the box is the marker's size): stage `stage` (from 0) starts here, or the course's finish."
+    },
+    "Ridge": {
+      "type": "friendslop_world::map::Ridge",
+      "fields": {
+        "stage": "u32",
+        "ramp": "u32",
+        "order": "u32"
+      },
+      "doc": "One point of a surf ramp's ridge: ramp `ramp` of stage `stage`, point `order` along it. A smooth curve runs through them."
+    },
+    "Wedge": {
+      "type": "friendslop_world::map::Wedge",
+      "doc": "A wedge-shaped static collider (a surf kicker): the marker's box, low at -z rising to its full height at +z, turned by the marker's yaw."
     }
   }
 }

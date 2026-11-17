@@ -725,6 +725,7 @@ fn hunt(
     mut hunted: ResMut<Hunted>,
     mut hunters: Query<(Entity, &mut Hunter, &mut Brain)>,
     mut players: Query<(
+        Entity,
         &Player,
         &PlayerOwner,
         &mut Walker,
@@ -738,14 +739,21 @@ fn hunt(
     let t = tuning();
     let set = TILES.get();
     let spots = hiding_spots(&t, &set, station.levels());
-    // Walk out of a locker and you're out.
+    // Walk out of a locker and you're out (headless and fallback walking;
+    // with the controller the walker can't move while `Hiding`). And whoever
+    // isn't in the map any more isn't hidden: drop their pin.
     let mut left_locker = Vec::new();
-    for (p, owner, w, _, _) in &players {
-        if let Some(spot) = hunted.hiding.get(&p.id)
-            && w.pos.xz().distance(spot.xz()) > 0.9
-        {
-            left_locker.push(p.id);
-            tell(&mut commands, owner, Phone::Hidden(false));
+    for (e, p, owner, w, _, _) in &players {
+        match hunted.hiding.get(&p.id) {
+            Some(spot) if w.pos.xz().distance(spot.xz()) > 0.9 => {
+                left_locker.push(p.id);
+                commands.entity(e).remove::<Hiding>();
+                tell(&mut commands, owner, Phone::Hidden(false));
+            }
+            Some(_) => {}
+            None => {
+                commands.entity(e).remove::<Hiding>();
+            }
         }
     }
     for id in left_locker {
@@ -753,8 +761,8 @@ fn hunt(
     }
     let prey: Vec<Prey> = players
         .iter()
-        .filter(|(_, _, w, _, _)| in_station(w.pos))
-        .map(|(p, _, w, _, _)| Prey {
+        .filter(|(_, _, _, w, _, _)| in_station(w.pos))
+        .map(|(_, p, _, w, _, _)| Prey {
             id: p.id,
             feet: w.pos,
             hidden: hunted.hiding.get(&p.id).copied(),
@@ -780,7 +788,7 @@ fn hunt(
             Outcome::Nothing => {}
             Outcome::Gone => commands.entity(e).despawn(),
             Outcome::Spotted(id) => {
-                if let Some((_, owner, ..)) = players.iter().find(|p| p.0.id == id) {
+                if let Some((_, _, owner, ..)) = players.iter().find(|p| p.1.id == id) {
                     tell(&mut commands, owner, Phone::Seen);
                 }
             }
@@ -788,8 +796,8 @@ fn hunt(
                 hunted.hiding.remove(&id);
                 // Andrew starts over from the top.
                 hunted.calls.remove(&id);
-                if let Some((_, owner, mut w, mut input, mut kcc)) =
-                    players.iter_mut().find(|p| p.0.id == id)
+                if let Some((pe, _, owner, mut w, mut input, mut kcc)) =
+                    players.iter_mut().find(|p| p.1.id == id)
                 {
                     let yaw = w.yaw;
                     teleport(
@@ -799,6 +807,7 @@ fn hunt(
                         street_at(&t) + Vec3::Y * 0.05,
                         yaw,
                     );
+                    commands.entity(pe).remove::<Hiding>();
                     tell(&mut commands, owner, Phone::Caught);
                 }
                 if id == brain.target {
@@ -815,46 +824,53 @@ fn hide(
     mut commands: Commands,
     station: Option<Res<Station>>,
     mut hunted: ResMut<Hunted>,
-    mut players: Query<(&Player, &PlayerOwner, &mut Walker)>,
+    mut players: Query<(Entity, &Player, &PlayerOwner, &mut Walker)>,
 ) {
     let Some(station) = station else { return };
     let owner = match ev.client_id {
         ClientId::Server => None,
         ClientId::Client(c) => Some(c),
     };
-    let Some((p, o, mut w)) = players.iter_mut().find(|b| b.1.0 == owner) else {
+    let Some((e, p, o, mut w)) = players.iter_mut().find(|b| b.2.0 == owner) else {
         return;
     };
     let t = tuning();
     if let Some(spot) = hunted.hiding.remove(&p.id) {
-        // Out the locker's door, a step forward.
-        let out = (w.pos - spot).xz();
+        // Out the locker's door, a step towards the cell's middle.
+        let out = node_at(&t, station.levels(), spot)
+            .map_or(Vec2::ZERO, |n| (node_pos(&t, n) - spot).xz().normalize());
         let yaw = w.yaw;
-        teleport(
-            &mut w,
-            None,
-            None,
-            spot + Vec3::new(out.x, 0.0, out.y).normalize_or(Vec3::Z) * 1.2,
-            yaw,
-        );
+        teleport(&mut w, None, None, spot + out.extend(0.0) * 1.2, yaw);
+        commands.entity(e).remove::<Hiding>();
         tell(&mut commands, o, Phone::Hidden(false));
         return;
     }
     let spots = hiding_spots(&t, &TILES.get(), station.levels());
-    let Some(&(_, spot)) = spots
+    let Some(&(n, spot)) = spots
         .iter()
         .filter(|(_, s)| (s.y - w.pos.y).abs() < 1.5)
         .min_by(|a, b| a.1.distance(w.pos).total_cmp(&b.1.distance(w.pos)))
     else {
         return;
     };
-    if spot.xz().distance(w.pos.xz()) > 3.5 {
+    // In reach is measured to the bank's nearest door (what you clicked),
+    // not to the middle locker you end up in.
+    let cell = cell_world(&t, n.0, (n.1, n.2));
+    let turn = station.levels()[n.0].fill((n.1, n.2)).rotation();
+    let in_reach = LOCKER_DOORS_X.iter().any(|&x| {
+        let door = cell + turn * Vec3::new(x, 0.0, HIDE_AT.z);
+        door.xz().distance(w.pos.xz()) <= crate::features::interact::REACH
+    });
+    if !in_reach {
         crate::features::interact::deny(&mut commands, ev.client_id, "too far away: walk closer");
         return;
     }
     let yaw = w.yaw;
     teleport(&mut w, None, None, spot + Vec3::Y * 0.05, yaw);
     hunted.hiding.insert(p.id, spot);
+    // The bank is solid now: the controller pins the body here until they
+    // climb back out (`Hiding` in `fps`).
+    commands.entity(e).insert(Hiding);
     tell(&mut commands, o, Phone::Hidden(true));
 }
 

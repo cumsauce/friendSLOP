@@ -84,9 +84,10 @@ crates/game/src/
   main.rs       DefaultPlugins + RepliconPlugins + PhysicsPlugins + GamePlugin; `host` / `join <code>` CLI
   net.rs        iroh host/join, NetStatus, clipboard join codes
   player.rs     server spawns a replicated `Player { id }` per connection (id 0 = host)
-  voice.rs      voice chat driving (M = mute); speakers tagged on Player entities
+  voice.rs      voice chat driving (mic on/off + push-to-talk on V are settings); speakers tagged on Player entities
   menu.rs       placeholder keyboard menu
   world.rs      camera, light, floor, HUD
+  ui/map.rs     M: live top-down map of your area (MapCamera, paper-map UI shader, player pins)
   assets.rs     handles for the files in assets/ (sound effects; missing files degrade quietly)
   spatial.rs    3D sound mixer (play_at / play_on / loop_at / play_wav_at) and the listener
   loading.rs    "Loading" curtain on entering the game until models load and frames settle
@@ -130,6 +131,7 @@ crates/data/         friendslop-data: data files (maps, tuning, writing, music) 
                      `Many<T>` for a folder of them listed by an index (the songs)
                      (the Bevy plugin is its default `plugin` feature; fusion uses it without)
 crates/wfc/          friendslop-wfc: generic seeded wave function collapse (sockets, pins, retry, grid graph helpers, multi-cell rooms)
+crates/hrtf/         friendslop-hrtf: baked head-related impulse responses (SADIE II KU100, `scripts/hrtf-bake.py`), direction lookup and a FIR; `spatial.rs` filters the loudest few world sounds with it on headphones (`data/base/spatial.ron`, Settings "3D sound")
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)
 crates/game/tests/it/ headless multiplayer tests (replicon test_app, no sockets)
 ```
@@ -140,7 +142,7 @@ The workspace has three layers, and dependencies only ever point down:
 
 1. **Foundation crates**: reusable building blocks with **no game code**. They depend only on
    Bevy, avian and std, never on `friendslop`, and on each other only as listed:
-   - `fusion`, `friendslop-wire`, `friendslop-core`, `friendslop-wfc`,
+   - `fusion`, `friendslop-wire`, `friendslop-core`, `friendslop-wfc`, `friendslop-hrtf`,
      `friendslop-structures`, `friendslop-data`: nothing of ours.
    - `friendslop-art`: nothing of ours (`art`, `theme`, and the cat `palette` maths).
    - `friendslop-world`: `core`, `art`, `structures` and `data`.
@@ -238,7 +240,7 @@ Rules for growing it:
   `height_at` uses them on every peer. The whole world's ground is `commune-map`'s hidden `ground` terrain (hills
   noise, flat pads for the commune, village and ruins, pads that raise the hill and ridge and sink
   the lake and quarry): reshape it there. Only the edge-of-world rim hills are added in code, and
-  `procedural_height_at` is the fallback when the heights file is missing. The commune's picnic corner (`commune-map`) is the example. The map's whole layout is markers there, read by
+  `procedural_height_at` is the fallback when the heights file is missing. The commune's picnic corner (`commune-map`) is the example. The whole surf course is one: the modeler document `surf-map` (`maps/surf.bsn`, hall coordinates, loaded by `surf_map.rs`) holds its pads, ridge points, ramps' neighbours, city, props, sections (slalom, tower, train beam, pillars, runs, office, mall), colliders and lights; change the course in the modeler and re-export. `cargo run -p friendslop-side --example surf_map_ops` regenerates its ops from the old layout code (the surf sections' modules and `data/side/surf_*.ron`), which no longer runs in the game. The map's whole layout is markers there, read by
   `friendslop_world::places` from `commune.map.json` (a data file): `Spot` (every fixed place, `<name>_at()`;
   a test checks each name in `places::PLACES`), `Feature` (a spot's sizes: pond, hill, lake,
   quarry, arena, village flat), `Path` (the ground's paths), `District` (zone boxes),

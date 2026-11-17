@@ -689,7 +689,7 @@ fn steer_agent(
 fn record(
     mut bot: Option<ResMut<Bot>>,
     time: Res<Time<Real>>,
-    cam: Query<&GlobalTransform, With<Camera3d>>,
+    cam: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
 ) {
     let Some(bot) = bot.as_deref_mut() else {
         return;

@@ -40,7 +40,7 @@ const FAMILY_PREFIXES: &[&str] = &[
 
 /// Files under `assets/` that are fine as plain git blobs; anything else must
 /// be covered by a root `.gitattributes` LFS pattern.
-const TEXT_EXTS: &[&str] = &["ron", "json", "bsn", "md", "txt"];
+const TEXT_EXTS: &[&str] = &["ron", "json", "bsn", "md", "txt", "wesl"];
 
 /// Junk file names/`*.tmp` never belong under `assets/`.
 const JUNK_NAMES: &[&str] = &[".DS_Store", "Thumbs.db"];

@@ -22,6 +22,7 @@ pub mod danger;
 pub mod feed;
 pub mod journal;
 pub mod kit;
+pub mod map;
 pub mod menu_back;
 pub mod pad_nav;
 pub mod pause;
@@ -116,6 +117,7 @@ pub fn plugin(app: &mut App) {
             annotations::plugin,
             prompt::plugin,
             journal::plugin,
+            map::plugin,
             chapter::plugin,
             settings_panel::plugin,
             menu_back::plugin,

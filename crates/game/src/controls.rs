@@ -328,7 +328,7 @@ const BUTTONS: &[TouchButton] = &[
         corner: Corner::TopRight,
         at: Vec2::new(170.0, 40.0),
         radius: 26.0,
-        action: Action::Key(KeyCode::KeyV),
+        action: Action::Key(KeyCode::KeyC),
     },
     TouchButton {
         label: "Leave",
@@ -456,8 +456,9 @@ pub fn plugin(app: &mut App) {
         .add_systems(PostUpdate, save_pad_settings);
 }
 
-/// Keys the journal and the settings notebook still read, or that walk.
-const NOTEBOOK_KEYS: [KeyCode; 19] = [
+/// Keys the journal, the map and the settings notebook still read, or that
+/// walk (and V, push-to-talk).
+const NOTEBOOK_KEYS: [KeyCode; 21] = [
     KeyCode::Escape,
     KeyCode::Tab,
     KeyCode::KeyJ,
@@ -477,6 +478,8 @@ const NOTEBOOK_KEYS: [KeyCode; 19] = [
     KeyCode::ShiftRight,
     KeyCode::F3,
     KeyCode::KeyM,
+    KeyCode::KeyV,
+    KeyCode::KeyC,
 ];
 
 /// Behind the journal or the notebook only walking and the notebook's own keys
@@ -488,7 +491,7 @@ pub fn silence_world_keys(
     state: Res<State<AppState>>,
     mut keys: ResMut<ButtonInput<KeyCode>>,
 ) {
-    if *state.get() != AppState::InGame || !(overlay.journal || overlay.settings) {
+    if *state.get() != AppState::InGame || !(overlay.journal || overlay.map || overlay.settings) {
         return;
     }
     let stray: Vec<KeyCode> = keys

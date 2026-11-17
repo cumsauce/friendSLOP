@@ -316,7 +316,10 @@ fn fill(
     keys: Res<ButtonInput<KeyCode>>,
     me: Option<Res<LocalPlayer>>,
     net: Option<Res<NetStatus>>,
-    muted: Option<Res<VoiceMuted>>,
+    (muted, settings): (
+        Option<Res<VoiceMuted>>,
+        Option<Res<crate::settings::Settings>>,
+    ),
     activity: Option<Res<VoiceActivity>>,
     players: Query<(
         &Player,
@@ -375,11 +378,11 @@ fn fill(
         .iter()
         .find(|(p, ..)| talking(p.id))
         .map(|(p, ..)| super::team::name_for(p.id, Some(p.id) == me));
-    let mic = crate::input::fill(if muted.is_some_and(|m| m.0) {
-        "{mic}  muted"
-    } else {
-        "{mic}  mic on"
-    });
+    let s = settings.map(|s| *s).unwrap_or_default();
+    let mic = crate::input::fill(crate::voice::mic_hint(
+        !muted.is_some_and(|m| m.0),
+        s.push_to_talk,
+    ));
     let mut status = format!("{} friends     ·     {mic}", ps.len());
     if let Some(s) = speaker {
         status.push_str(&format!(

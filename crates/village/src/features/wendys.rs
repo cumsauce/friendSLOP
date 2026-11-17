@@ -591,7 +591,7 @@ fn build_restaurant(
 /// For the music: the camera's inside Wendy's, and up in its attic (whose
 /// floor is 3.6 m up: the eye is past 4.2 m there).
 fn music_signals(
-    camera: Query<&GlobalTransform, With<Camera3d>>,
+    camera: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     signals: Option<ResMut<crate::music::MusicSignals>>,
 ) {
     let Some(mut signals) = signals else { return };

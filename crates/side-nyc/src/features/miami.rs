@@ -440,7 +440,7 @@ fn trip(
     mut commands: Commands,
     time: Res<Time>,
     mut trip: ResMut<Trip>,
-    mut cameras: Query<&mut Projection, With<Camera3d>>,
+    mut cameras: Query<&mut Projection, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     mut tints: Query<(Entity, &mut BackgroundColor), With<TripTint>>,
     toast: Option<ResMut<crate::hud::Toast>>,
 ) {
@@ -530,7 +530,7 @@ fn venue_line(
 
 /// For the music: the camera's in Miami (`miami`) or in Factory Town (`factory_town`).
 fn music_signals(
-    camera: Query<&GlobalTransform, With<Camera3d>>,
+    camera: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     signals: Option<ResMut<crate::music::MusicSignals>>,
 ) {
     let Some(mut signals) = signals else { return };

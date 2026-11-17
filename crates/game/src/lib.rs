@@ -162,6 +162,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     files.push(&atmosphere::DAY_NIGHT);
     files.push(&zones::SCENERY);
     files.push(&probes::TUNING);
+    files.push(&ui::map::TUNING);
     files.push(&lod::TREES);
     files.push(&controls::PAD);
     files.push(&bot::ROUTES);

@@ -82,11 +82,11 @@ now and then they all poop at once.
 Gangs of baby kittens prowl the avenue: get close and they charge, meowing, and swat your
 ankles until they knock you flying. Run: they're slower than you.
 
-**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, the bear (north forest), the goat (pond), Discord dates, rat twins, saying hi (T), toilets of feces that pop up near you (eat for 20 s of double speed), the Lily Garden by the pond (carry love letters between two shy women until they get together). Farts and feces pay Kori coins, spent on claw machines (by the gambling table, in every boba shop and on every subway platform) where you steer a real claw over a pit of tumbling figures and drop it, for little figures you keep between games (main menu: Kori prizes) and can hold in your hand (the . key) for a little speed.
+**Just for fun:** Mei, smoking (joints stack a wobbly, colour-shifting high), lex pile, the bear (north forest), the goat (pond), Discord dates, rat twins, saying hi (T), toilets of feces that pop up near you (eat for 20 s of double speed), the Lily Garden by the pond (carry love letters between two shy women until they get together). Farts (1 in 20) and feces pay KoriCoins™, spent on claw machines (by the gambling table, in every boba shop and on every subway platform) where you steer a real claw over a pit of tumbling figures and drop it, for little figures you keep between games (main menu: Kori prizes) and can hold in your hand (the . key) for a little speed.
 
 **Where it's thin:** what you carry back only ticks the checklist; organs only come from the
 chapter refill and the landlord. Spells, stats and being shot don't change play. Gambling is
-free, and dollars only buy boba, joints and hats so far (and Wendy's butcher turns spare organs into dollars). Six players beat the landlord fast. Only the RPG, a 10x cat, systemd and the lake can kill you. The wastes are empty.
+free, and organ dollars only buy boba, joints and hats so far (and Wendy's butcher turns spare organs into dollars). Six players beat the landlord fast. Only the RPG, a 10x cat, systemd and the lake can kill you. The wastes are empty.
 
 ## What exists
 
@@ -162,9 +162,10 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   head-related filter (`friendslop-hrtf`), so you can hear a sound above, below and behind you;
   Settings has a "3D sound (headphones)" switch. Voice chat is proximity-based but never fully silent. CC0 assets come from
   Git LFS and fall back to procedural looks if missing (`crates/game/assets/CREDITS.md`).
-- **Currency: organs** (#22, #135, #217). Players hold an organ purse (creature worth × organ
-  importance), refilled each chapter, that pays the landlord's rent. Wendy's butcher buys your
-  cheapest organ for dollars at the chopping block. `features/organ_butcher.rs`,
+- **Currency: organ dollars** (#22, #135, #217). One money: organ dollars (`$`). An organ is worth
+  its organ dollars (creature worth × organ importance); players hold an organ purse, refilled each
+  chapter, that pays the landlord's rent. Wendy's butcher buys your cheapest organ for exactly its
+  value in organ dollars at the chopping block. `features/organ_butcher.rs`,
   `data/side/organ_butcher.ron`.
 - **Crows** (#2). Three black crows hop around and caw with a sound; server spawns them.
 - **The bear** (#4). One cute brown bear ambles about and growls every ~13 s. Nothing else yet.
@@ -484,7 +485,7 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   speed boost and brown tint. `data/side/toilets.ron`, `features/toilets.rs`.
 - **Emotes with friends** (#383). U picks an emote, O offers it to a friend within 3 m, who
   accepts with O; both get a toast. No animation yet. `data/side/emotes.ron`.
-- **Kori coins and the claw machines** (#382, #459). Farts and feces earn coins. Claw machines
+- **KoriCoins™ and the claw machines** (#382, #459). Feces always and farts 1 time in 20 earn coins (Fulton St's stranger wallets sometimes hold 1-2 too; coins show with your money in one bubble). Claw machines
   stand by the gambling table, in every boba shop and on every subway platform. A go (5 coins)
   puts your eyes on the glass: steer the claw (walk keys / stick), drop it (Space / A), it closes,
   lifts and carries back to the bin, and its grip slips. The figures are local physics balls you
@@ -612,7 +613,7 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
 - Kori.exe (#379): random feces toilets; eat for 20 s speed; +100%, one eater.
 - doomy: a Ceiling Fan Museum on the outskirts, every fan spinning, and a wall of signed fan celebs.
 - #377: The Jokah, laughing Michael Jackson impersonator walking Wendy's to J station; Fulton St loop.
-- catherine (#382): Kori coins from farts and poop buy claw machine figures; hold one for speed.
+- catherine (#382): KoriCoins™ from farts and poop buy claw machine figures; hold one for speed.
 - catherine (#459): a fully built claw machine game with physics, like Yakuza 0; one in every boba store and subway station.
 
 ## Open questions

@@ -1,4 +1,4 @@
-//! Kori coins and the claw machine (#382, catherine): "a currency in the game
+//! KoriCoins™ and the claw machine (#382, catherine): "a currency in the game
 //! named kori coins that u earn from interacting with farts and poop and other
 //! things of that nature that let u play a claw machine for little collectible
 //! figures and stuff. spot in main menu for tracking what kori coin claw
@@ -12,7 +12,7 @@
 //!
 //! - **Earning** (server): every fart pays [`KoriCoins`] (more if an NPC was
 //!   shamed by it), and eating a toilet's feces pays more (`toilets.rs`).
-//!   Amounts: `data/base/kori.ron`. Your coins show bottom left.
+//!   Amounts: `data/base/kori.ron`. Your coins show in the money bubble (wallet.rs).
 //! - **The machines** ([`machine_spots`]): one by the gambling table, one in
 //!   every boba shop and one on the platform of every subway station (every
 //!   stop of a train line). Each is a replicated [`ClawMachine`].
@@ -112,8 +112,6 @@ pub struct Tuning {
     pub miss_line: String,
     /// Shown when you can't pay: `{price}`, `{coins}`.
     pub broke_line: String,
-    /// The coins line, bottom left: `{coins}`.
-    pub coins_line: String,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/side/kori.ron");
@@ -323,12 +321,18 @@ fn place_machines(mut commands: Commands, machines: Query<(), With<ClawMachine>>
 }
 
 /// Server: every fart pays (it's a server event the host hears too).
-fn fart_pays(ev: On<crate::features::fart::Farted>, mut purses: Query<(&Player, &mut KoriCoins)>) {
+fn fart_pays(
+    ev: On<crate::features::fart::Farted>,
+    time: Res<Time>,
+    mut purses: Query<(&Player, &mut KoriCoins)>,
+) {
     let e = crate::rules::kori::earnings();
     let Some((_, coins)) = purses.iter_mut().find(|(p, _)| p.id == ev.player) else {
         return;
     };
-    let n = e.fart + if ev.shamed { e.shameful_fart } else { 0 };
+    let seed =
+        time.elapsed().as_nanos() as u64 ^ ev.player.rotate_left(32) ^ ev.at.x.to_bits() as u64;
+    let n = crate::rules::kori::fart_coins(&e, ev.shamed, unit(seed));
     crate::rules::kori::pay(Some(coins), n);
 }
 
@@ -1128,17 +1132,19 @@ fn spawn_ui(mut commands: Commands) {
 
 fn show_coins(
     me: Option<Res<LocalPlayer>>,
-    purses: Query<(&Player, &KoriCoins, &HeldPrize)>,
+    purses: Query<(&Player, &HeldPrize)>,
     mut text: Query<&mut Text, With<CoinsText>>,
 ) {
     let Some(me) = me else { return };
-    let Some((_, coins, held)) = purses.iter().find(|p| p.0.id == me.0) else {
+    let Some((_, held)) = purses.iter().find(|p| p.0.id == me.0) else {
         return;
     };
     let t = tuning();
-    let mut want = fill(&t.coins_line, &[("coins", coins.0.to_string())]);
+    // The coins themselves show in the money bubble (wallet.rs); this just
+    // names the figure in your hand.
+    let mut want = String::new();
     if let Some(p) = held.prize.and_then(|i| t.prizes.get(i as usize)) {
-        want += &format!("  ·  holding {}", p.name);
+        want = format!("holding {}", p.name);
     }
     for mut line in &mut text {
         if line.0 != want {
@@ -1265,7 +1271,7 @@ mod tests {
             assert!(p.model.ends_with(".gltf"));
         }
         assert!(!t.win_line.is_empty() && !t.miss_line.is_empty());
-        assert!(!t.broke_line.is_empty() && t.coins_line.contains("{coins}"));
+        assert!(!t.broke_line.is_empty());
     }
 
     fn two() -> Tuning {

@@ -34,6 +34,17 @@
 //! `room` pieces: floor, a wall on each outside side, a column wherever four
 //! room cells meet.
 //!
+//! Train tunnels ("create some new tiles for train tunnels ... much larger
+//! tile size ... curves and straight sections ... forced to use them if a
+//! tunnel is collapsed ... fatal to be chased with no stamina"): every
+//! [`Tunnels::every`] levels the stairs drop you into a tunnel level instead
+//! of a hall maze. It is a ring of 12 m double-track tiles (2x2 cells; straights
+//! and curves, `fs-tunnel-*`) round the edge of the grid, with the stairs
+//! landing on one side of the ring and the way down on the other: two arms
+//! that each run at least 36 m. A cave-in ([`Tunnels::blocked`]) fills one arm;
+//! then that arm is shut and the other is the only way. Nothing else is down
+//! there, so a long run with no stamina is the whole level.
+//!
 //! The reward (server): reaching the J platform raises your Pelf (the stats'
 //! wealth, `stats.rs`) by [`Tuning::reward_pelf`], once per player per game.
 //! A post on the platform rides the J back up to the street, and one on the
@@ -112,6 +123,9 @@ pub struct Tuning {
     /// Cars left standing on the platforms' tracks.
     #[serde(default)]
     pub trains: Trains,
+    /// Train tunnel levels: a ring of big tiles with cave-ins.
+    #[serde(default)]
+    pub tunnels: Tunnels,
     /// Pelf for reaching the J.
     pub reward_pelf: u8,
     /// Toast on entering.
@@ -163,6 +177,22 @@ pub struct Lights {
     /// The nearest this many cell lights cast shadows (0: none; off when the
     /// video settings turn shadows off).
     pub shadow_lights: usize,
+    /// The share of cells whose ceiling light still works (the rest are broken).
+    pub working: f32,
+    /// From this level down (0 is the top), a level may be pitch dark: no
+    /// working lights at all, no glow around you, only your flashlight.
+    pub dark_from: usize,
+    /// The chance a level from `dark_from` down is pitch dark.
+    pub dark_chance: f32,
+    /// Your flashlight in the station: lumens, reach (m), and its cone's
+    /// outer and inner half-angles (degrees).
+    pub flashlight_lumens: f32,
+    pub flashlight_range: f32,
+    pub flashlight_outer: f32,
+    pub flashlight_inner: f32,
+    /// A broken light's skin: its tubes stop glowing and their colour is
+    /// scaled by this (dead, dusty glass).
+    pub broken_tint: f32,
 }
 
 /// Big rooms: rectangles of cells with no walls between them, stamped on a
@@ -217,6 +247,21 @@ pub struct Collapse {
     pub squeeze: f32,
     /// A squeeze's gap (m).
     pub gap: f32,
+}
+
+/// Train tunnel levels (`fs-tunnel-*` tiles, [`TUNNEL_CELLS`] cells across).
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct Tunnels {
+    /// Every this many levels is a tunnel level (0: none)...
+    pub every: usize,
+    /// ...counting from this level (0 is the top). Pick one that isn't a
+    /// platform level's neighbour below (their track beds sink into it).
+    pub offset: usize,
+    /// The chance each straight tile has caved in across (only where the
+    /// other arm of the ring is still open; elsewhere it's a squeeze).
+    pub blocked: f32,
+    /// The chance each straight tile is a squeeze instead.
+    pub squeeze: f32,
 }
 
 /// Cars left standing on the tracks (models 18 m long along x, 3.05 m
@@ -326,6 +371,17 @@ pub struct Hunt {
     /// wanders to a cell within this many cells of you.
     pub director_secs: f32,
     pub director_radius: u32,
+    /// Hold it in clear sight this long and it stops walking: it curls into
+    /// a ball and rolls at you, faster than you can run.
+    pub roll_sight_secs: f32,
+    /// How fast the ball rolls (m/s).
+    pub roll_speed: f32,
+    /// How long a roll lasts before it breaks back into a run.
+    pub roll_secs: f32,
+    /// Seconds before it may roll again.
+    pub roll_cooldown_secs: f32,
+    /// How fast the hunter turns to face where it's going (degrees a second).
+    pub turn_speed: f32,
     /// Lose sight of you and it keeps coming to where it saw you for this long.
     pub lose_secs: f32,
     /// Then it searches hiding spots within this many cells for this long...
@@ -404,6 +460,12 @@ pub const COLUMNS: [(f32, f32); 2] = [(-1.5, -1.5), (1.5, -1.5)];
 
 /// Where a hiding piece's hiding spot is, in its own frame (inside the middle locker).
 pub const HIDE_AT: Vec3 = Vec3::new(0.0, 0.0, 2.48);
+/// The x of each of the lockers bank's seven doors, in the piece's own frame
+/// (each 0.66 m wide, spaced 0.7 m, against the piece's S wall).
+pub const LOCKER_DOORS_X: [f32; 7] = [-2.1, -1.4, -0.7, 0.0, 0.7, 1.4, 2.1];
+/// The bank's collider, in the piece's own frame: its centre, then its full
+/// size (the seven doors, their backs against the wall).
+pub const LOCKERS_BLOCK: (Vec3, Vec3) = (Vec3::new(0.0, 1.05, 2.48), Vec3::new(4.9, 2.1, 0.64));
 
 /// The tile kit (`assets/data/side/fulton_tiles.ron`).
 #[derive(Deserialize, Default, Debug, Clone)]
@@ -422,6 +484,30 @@ pub struct TileSet {
     /// The big rooms' pieces.
     #[serde(default)]
     pub room: RoomKit,
+    /// The train tunnels' tiles.
+    #[serde(default)]
+    pub tunnel: TunnelKit,
+}
+
+/// The tunnel tiles: each a model [`TUNNEL_CELLS`] cells across (12 m), walls,
+/// rails and columns only (the floor and ceiling are the room floor's, a
+/// cell at a time), centred on the tile's middle with its floor at y = 0.
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct TunnelKit {
+    /// Open N and S as modelled; tracks at x = -3 and 3, columns down the middle.
+    pub straight: String,
+    /// Open N and E as modelled: tracks bend round its NE corner, the outer
+    /// corner (SW) rounded off with a 6 m radius.
+    pub curve: String,
+}
+
+impl TunnelKit {
+    pub fn file(&self, piece: TunnelPiece) -> &str {
+        match piece {
+            TunnelPiece::Straight => &self.straight,
+            TunnelPiece::Curve => &self.curve,
+        }
+    }
 }
 
 /// The pieces a big room is drawn with (each a model one cell across).
@@ -497,6 +583,46 @@ pub enum Kind {
     Under,
     /// A cell of a big room (index into the level's rooms).
     Room(u8),
+    /// A cell of a train tunnel tile (see [`Level::tunnel`]); open on every
+    /// side inside its tile.
+    Tunnel,
+}
+
+/// How many cells across a tunnel tile is.
+pub const TUNNEL_CELLS: usize = 2;
+/// The tunnel tile's size (m).
+pub const TUNNEL_TILE: f32 = CELL * TUNNEL_CELLS as f32;
+
+/// A tunnel tile's shape.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TunnelPiece {
+    Straight,
+    /// A quarter turn.
+    Curve,
+}
+
+/// One tunnel tile on a level: its top-left cell, its shape and quarter turns
+/// clockwise (like a [`Fill`]'s).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct TunnelTile {
+    pub at: wfc::Cell,
+    pub piece: TunnelPiece,
+    pub turns: u8,
+}
+
+impl TunnelTile {
+    /// The sides it carries on through, as modelled (N-S; N-E) and turned.
+    pub fn mask(self) -> u8 {
+        let m = match self.piece {
+            TunnelPiece::Straight => bit(wfc::Side::North) | bit(wfc::Side::South),
+            TunnelPiece::Curve => bit(wfc::Side::North) | bit(wfc::Side::East),
+        };
+        turned(m, self.turns)
+    }
+
+    pub fn rotation(self) -> Quat {
+        Quat::from_rotation_y(-std::f32::consts::FRAC_PI_2 * self.turns as f32)
+    }
 }
 
 /// One filled cell: its open sides, what it is and how far it's turned.
@@ -547,6 +673,8 @@ pub struct Level {
     pub stairs: Vec<u8>,
     /// How far sunken cells are sunk (m).
     pub sink: f32,
+    /// A tunnel level's tiles (the ring); empty on every other level.
+    pub tunnel: Vec<TunnelTile>,
 }
 
 impl Level {
@@ -566,6 +694,7 @@ impl Level {
             sunk: Vec::new(),
             stairs: Vec::new(),
             sink: 0.0,
+            tunnel: Vec::new(),
         }
     }
 
@@ -770,6 +899,8 @@ struct LevelAsk<'a> {
     /// ...and at most.
     platform_max: usize,
     rooms: &'a Rooms,
+    /// The level below is a tunnel level: the stairs go where its ring is.
+    ring_below: bool,
 }
 
 /// A level's big rooms and their doors: up to `ask.max` rooms on cells
@@ -808,6 +939,7 @@ fn plan_level(rng: &mut wfc::Rng, (w, h): (usize, usize), ask: &LevelAsk, vars: 
         platform_cells,
         platform_max,
         rooms: room_ask,
+        ring_below,
     } = *ask;
     let goal_kind = if last { Kind::Platform } else { Kind::Stairs };
     let platforms = platform_cells > 0;
@@ -825,7 +957,10 @@ fn plan_level(rng: &mut wfc::Rng, (w, h): (usize, usize), ask: &LevelAsk, vars: 
         if goal == arrive || is_under(goal) {
             continue;
         }
-        let sides = entries(w, h, goal, last);
+        let sides: Vec<wfc::Side> = entries(w, h, goal, last)
+            .into_iter()
+            .filter(|&s| !ring_below || ring_stairs(w, h, goal, s))
+            .collect();
         if sides.is_empty() {
             continue;
         }
@@ -999,6 +1134,166 @@ fn plan_level(rng: &mut wfc::Rng, (w, h): (usize, usize), ask: &LevelAsk, vars: 
     fallback(w, h, ask)
 }
 
+// ------------------------------------------------------------ train tunnels
+
+/// The tunnel ring's tiles in order round the grid (clockwise from the top
+/// left): curves at the corners, straights between. `None` when the grid is
+/// too small for a ring (under 3x3 tiles).
+pub fn tunnel_ring(w: usize, h: usize) -> Option<Vec<TunnelTile>> {
+    let (bw, bh) = (w / TUNNEL_CELLS, h / TUNNEL_CELLS);
+    if bw < 3 || bh < 3 {
+        return None;
+    }
+    let mut blocks: Vec<(usize, usize)> = (0..bw).map(|x| (x, 0)).collect();
+    blocks.extend((1..bh).map(|z| (bw - 1, z)));
+    blocks.extend((0..bw - 1).rev().map(|x| (x, bh - 1)));
+    blocks.extend((1..bh - 1).rev().map(|z| (0, z)));
+    Some(
+        blocks
+            .into_iter()
+            .map(|(x, z)| {
+                let (cx, cz) = (x == 0 || x == bw - 1, z == 0 || z == bh - 1);
+                let (piece, turns) = match (cx, cz) {
+                    (true, true) => (
+                        TunnelPiece::Curve,
+                        // Curves open N+E; which corner needs which turn.
+                        match (x == 0, z == 0) {
+                            (true, true) => 1,
+                            (false, true) => 2,
+                            (false, false) => 3,
+                            (true, false) => 0,
+                        },
+                    ),
+                    // Along the top and bottom: E-W; down the sides: N-S.
+                    (false, true) => (TunnelPiece::Straight, 1),
+                    _ => (TunnelPiece::Straight, 0),
+                };
+                TunnelTile {
+                    at: (x * TUNNEL_CELLS, z * TUNNEL_CELLS),
+                    piece,
+                    turns,
+                }
+            })
+            .collect(),
+    )
+}
+
+/// Is `c` a cell of the tunnel ring?
+fn ring_cell(w: usize, h: usize, c: wfc::Cell) -> bool {
+    let (bw, bh) = (w / TUNNEL_CELLS, h / TUNNEL_CELLS);
+    let (x, z) = (c.0 / TUNNEL_CELLS, c.1 / TUNNEL_CELLS);
+    bw >= 3 && bh >= 3 && x < bw && z < bh && (x == 0 || z == 0 || x == bw - 1 || z == bh - 1)
+}
+
+/// Can stairs at `goal`, entered from `entry`, land in a tunnel ring below?
+/// The stairs' cell and the cell the landing opens onto are both on it.
+fn ring_stairs(w: usize, h: usize, goal: wfc::Cell, entry: wfc::Side) -> bool {
+    ring_cell(w, h, goal)
+        && wfc::neighbour(w, h, goal, entry.opposite()).is_some_and(|n| ring_cell(w, h, n))
+        && wfc::neighbour(w, h, goal, entry).is_some_and(|n| ring_cell(w, h, n))
+}
+
+/// Does level `l` have a ring of train tunnels instead of corridors? Every
+/// [`Tunnels::every`] levels from [`Tunnels::offset`]; never the top (nothing
+/// to land from), the J's, a platform level, or the one under a platform
+/// level (its track beds sink into it).
+pub fn tunnel_level(t: &Tuning, l: usize) -> bool {
+    let tn = &t.tunnels;
+    tn.every > 0
+        && l > 0
+        && l >= tn.offset
+        && (l - tn.offset).is_multiple_of(tn.every)
+        && l + 1 < t.levels.max(1)
+        && !platform_level(t, l)
+        && !platform_level(t, l - 1)
+        && tunnel_ring(t.width.max(3), t.depth.max(3)).is_some()
+}
+
+/// A tunnel level: the ring of tiles, the stairs landing on it and the way
+/// down across the ring from it (at least three tiles round either way), so
+/// when one arm caves in the other is still there. `None` when the landing
+/// doesn't fit the ring (the level above checks, so only if it settled).
+fn plan_tunnel(rng: &mut wfc::Rng, (w, h): (usize, usize), ask: &LevelAsk) -> Option<Level> {
+    let tiles = tunnel_ring(w, h)?;
+    let (arrive, landing) = (ask.arrive, ask.landing?);
+    if ask.last || !ring_cell(w, h, arrive) {
+        return None;
+    }
+    let onto = wfc::neighbour(w, h, arrive, landing).filter(|&n| ring_cell(w, h, n))?;
+    let solid = Fill {
+        mask: 0,
+        track: 0,
+        kind: Kind::Corridor(None),
+        turns: 0,
+    };
+    let mut cells = vec![solid; w * h];
+    let mut tile_of = vec![usize::MAX; w * h];
+    for (ti, tile) in tiles.iter().enumerate() {
+        for dz in 0..TUNNEL_CELLS {
+            for dx in 0..TUNNEL_CELLS {
+                let c = (tile.at.0 + dx, tile.at.1 + dz);
+                let mut mask = 0;
+                for s in wfc::Side::ALL {
+                    let (ox, oz) = s.offset();
+                    let (nx, nz) = (dx as i32 + ox, dz as i32 + oz);
+                    let inside = (0..TUNNEL_CELLS as i32).contains(&nx)
+                        && (0..TUNNEL_CELLS as i32).contains(&nz);
+                    if inside || tile.mask() & bit(s) != 0 {
+                        mask |= bit(s);
+                    }
+                }
+                cells[c.1 * w + c.0] = Fill {
+                    mask,
+                    track: 0,
+                    kind: Kind::Tunnel,
+                    turns: tile.turns,
+                };
+                tile_of[c.1 * w + c.0] = ti;
+            }
+        }
+    }
+    let ring_dist = |a: usize, b: usize| {
+        let d = a.abs_diff(b);
+        d.min(tiles.len() - d)
+    };
+    let from = tile_of[arrive.1 * w + arrive.0];
+    let goals: Vec<(wfc::Cell, wfc::Side)> = (0..w * h)
+        .map(|i| (i % w, i / w))
+        .filter(|&c| tile_of[c.1 * w + c.0] != usize::MAX && c != arrive)
+        .filter(|&c| ring_dist(from, tile_of[c.1 * w + c.0]) >= 3)
+        .flat_map(|c| {
+            wfc::Side::ALL
+                .into_iter()
+                .filter(move |&s| ring_stairs(w, h, c, s))
+                .map(move |s| (c, s))
+        })
+        .collect();
+    if goals.is_empty() {
+        return None;
+    }
+    let (goal, entry) = goals[rng.below(goals.len())];
+    cells[arrive.1 * w + arrive.0] = special(Kind::Landing, landing).1;
+    cells[goal.1 * w + goal.0] = special(Kind::Stairs, entry).1;
+    // The cells next to the stairs and the landing open onto them.
+    cells[onto.1 * w + onto.0].mask |= bit(landing.opposite());
+    if let Some(n) = wfc::neighbour(w, h, goal, entry) {
+        cells[n.1 * w + n.0].mask |= bit(entry.opposite());
+    }
+    let mut level = Level {
+        width: w,
+        depth: h,
+        cells,
+        arrive,
+        goal,
+        goal_entry: entry,
+        tunnel: tiles,
+        ..Level::empty(w, h)
+    };
+    let d = level.distances();
+    level.path = path_to(&level, &d);
+    (!level.path.is_empty()).then_some(level)
+}
+
 /// One open hall (never needed in practice; keeps generation total).
 fn fallback(w: usize, h: usize, ask: &LevelAsk) -> Level {
     let LevelAsk {
@@ -1094,7 +1389,8 @@ fn shape_level(t: &Tuning, li: usize, l: &mut Level) {
     l.sink = t.rooms.tall.sink.clamp(0.0, 1.9);
     let reach = |l: &Level| -> Vec<bool> { l.distances().iter().map(|d| d.is_some()).collect() };
     let before = reach(l);
-    if l.sink > 0.2 {
+    // (Not above a tunnel level: its floor under the sunken cells would be tunnel.)
+    if l.sink > 0.2 && !tunnel_level(t, li + 1) {
         for ri in 0..l.rooms.len() {
             if dress_roll(t, [li, ri, usize::MAX - 1, 0]) < t.rooms.tall.chance {
                 make_tall(l, ri, |k| dress_roll(t, [li, ri, usize::MAX - 1, k + 1]));
@@ -1136,8 +1432,75 @@ fn shape_level(t: &Tuning, li: usize, l: &mut Level) {
             }
         }
     }
+    cave_in_tunnels(t, li, l, &before);
     let d = l.distances();
     l.path = path_to(l, &d);
+}
+
+/// Train tunnel cave-ins: a straight tile may fill across its middle, both
+/// cells wide (never the tiles with the stairs, and never so that anything
+/// is cut off: there it's a squeeze, a gap in the heaps). With the ring's two
+/// arms, one caved in means the other is the only way.
+fn cave_in_tunnels(t: &Tuning, li: usize, l: &mut Level, before: &[bool]) {
+    let tc = &t.tunnels;
+    let w = l.width;
+    for (ti, tile) in l.tunnel.clone().into_iter().enumerate() {
+        if tile.piece != TunnelPiece::Straight {
+            continue;
+        }
+        let (x0, z0) = tile.at;
+        let cells = [(x0, z0), (x0 + 1, z0), (x0, z0 + 1), (x0 + 1, z0 + 1)];
+        if cells.iter().any(|&c| l.fill(c).kind != Kind::Tunnel) {
+            continue;
+        }
+        let roll = dress_roll(t, [li, ti, 0x7a77, 11]);
+        if roll >= tc.blocked + tc.squeeze {
+            continue;
+        }
+        // The two pairs of cells across the tile's middle, and the side
+        // between them (from the first of each).
+        let (s, pairs) = if tile.turns.is_multiple_of(2) {
+            (
+                wfc::Side::South,
+                [((x0, z0), (x0, z0 + 1)), ((x0 + 1, z0), (x0 + 1, z0 + 1))],
+            )
+        } else {
+            (
+                wfc::Side::East,
+                [((x0, z0), (x0 + 1, z0)), ((x0, z0 + 1), (x0 + 1, z0 + 1))],
+            )
+        };
+        let mark = |v: &mut Vec<u8>, on: bool| {
+            for (a, b) in pairs {
+                let (i, j) = (a.1 * w + a.0, b.1 * w + b.0);
+                if on {
+                    v[i] |= bit(s);
+                    v[j] |= bit(s.opposite());
+                } else {
+                    v[i] &= !bit(s);
+                    v[j] &= !bit(s.opposite());
+                }
+            }
+        };
+        let mut squeeze = roll >= tc.blocked;
+        if !squeeze {
+            let mut rubble = std::mem::take(&mut l.rubble);
+            mark(&mut rubble, true);
+            l.rubble = rubble;
+            let after: Vec<bool> = l.distances().iter().map(|d| d.is_some()).collect();
+            if before.iter().zip(&after).any(|(b, a)| *b && !*a) {
+                let mut rubble = std::mem::take(&mut l.rubble);
+                mark(&mut rubble, false);
+                l.rubble = rubble;
+                squeeze = true;
+            }
+        }
+        if squeeze {
+            let mut sq = std::mem::take(&mut l.squeeze);
+            mark(&mut sq, true);
+            l.squeeze = sq;
+        }
+    }
 }
 
 /// Make room `ri` tall if it can be: the cells with a door stay up as
@@ -1292,8 +1655,16 @@ impl StationPlan {
             },
             platform_max: t.platform_max.max(t.platform_cells.max(2)),
             rooms: &t.rooms,
+            ring_below: tunnel_level(t, l + 1),
         };
-        let level = if self.vars.is_empty() {
+        let tunnel = if tunnel_level(t, l) {
+            plan_tunnel(&mut self.rng, self.size, &ask)
+        } else {
+            None
+        };
+        let level = if let Some(level) = tunnel {
+            level
+        } else if self.vars.is_empty() {
             fallback(self.size.0, self.size.1, &ask)
         } else {
             plan_level(&mut self.rng, self.size, &ask, &self.vars)
@@ -1401,6 +1772,7 @@ pub struct Block {
 /// The colliders of one level, from its plan.
 pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
     let mut out = Vec::new();
+    let set = TILES.get();
     let half = CELL / 2.0;
     for z in 0..level.depth {
         for x in 0..level.width {
@@ -1493,6 +1865,22 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
                         rotation: r,
                     });
                 }
+                Kind::Corridor(Some(i)) => {
+                    // A hiding piece's lockers bank is solid: seven doors
+                    // against the wall (`LOCKERS_BLOCK`, in the piece's own
+                    // frame, turned with the piece).
+                    if set
+                        .pieces
+                        .get(i as usize)
+                        .is_some_and(|p| p.hide)
+                    {
+                        out.push(Block {
+                            centre: at + r * LOCKERS_BLOCK.0,
+                            size: LOCKERS_BLOCK.1,
+                            rotation: r,
+                        });
+                    }
+                }
                 _ => {}
             }
         }
@@ -1500,17 +1888,114 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
     out.extend(
         room_dressing(t, li, level)
             .into_iter()
-            .chain(corridor_dressing(t, &TILES.get(), li, level))
+            .chain(corridor_dressing(t, &set, li, level))
             .filter_map(|d| d.block),
     );
     out.extend(parked_cars(t, li, level).into_iter().flat_map(|c| c.blocks));
     out.extend(shapes(t, li, level).into_iter().filter_map(|s| s.block));
-    for at in room_columns(t, li, level) {
+    out.extend(tunnel_walls(t, li, level));
+    for at in room_columns(t, li, level)
+        .into_iter()
+        .chain(tunnel_columns(t, li, level))
+    {
         out.push(Block {
             centre: at + Vec3::Y * (ROOM_H / 2.0),
             size: Vec3::new(COLUMN_SIZE, ROOM_H, COLUMN_SIZE),
             rotation: Quat::IDENTITY,
         });
+    }
+    out
+}
+
+/// Where a tunnel tile's middle is, on the floor.
+pub fn tunnel_centre(t: &Tuning, li: usize, tile: &TunnelTile) -> Vec3 {
+    let (a, b) = (
+        cell_world(t, li, tile.at),
+        cell_world(
+            t,
+            li,
+            (tile.at.0 + TUNNEL_CELLS - 1, tile.at.1 + TUNNEL_CELLS - 1),
+        ),
+    );
+    (a + b) / 2.0
+}
+
+/// How many wall segments a curve's rounded corner is cut into, and its radius (m).
+const CURVE_SEGMENTS: usize = 5;
+const CURVE_RADIUS: f32 = TUNNEL_TILE / 2.0;
+/// A curved wall's thickness (m).
+const CURVE_WALL: f32 = 0.4;
+
+/// A tunnel curve's rounded outer corner, as wall boxes (the tile is open N
+/// and E in its own frame, so the outer corner is SW: an arc of 6 m round its
+/// middle from the W edge to the S edge). The straight walls come from the
+/// plan like any cell's.
+pub fn tunnel_walls(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
+    let mut out = Vec::new();
+    for tile in level
+        .tunnel
+        .iter()
+        .filter(|p| p.piece == TunnelPiece::Curve)
+    {
+        let (mid, r) = (tunnel_centre(t, li, tile), tile.rotation());
+        let at = |k: usize| {
+            let a = std::f32::consts::PI * (1.0 - 0.5 * k as f32 / CURVE_SEGMENTS as f32);
+            Vec2::new(CURVE_RADIUS * a.cos(), CURVE_RADIUS * a.sin())
+        };
+        for k in 0..CURVE_SEGMENTS {
+            let (p, q) = (at(k), at(k + 1));
+            let d = q - p;
+            // The chord's middle, pushed out onto the arc (and a little past it).
+            let m = (p + q) / 2.0;
+            let m = m.normalize() * (CURVE_RADIUS + CURVE_WALL / 2.0);
+            out.push(Block {
+                centre: mid + r * Vec3::new(m.x, ROOM_H / 2.0, m.y),
+                size: Vec3::new(CURVE_WALL, ROOM_H, d.length() + 0.1),
+                rotation: r * Quat::from_rotation_y(d.x.atan2(d.y)),
+            });
+        }
+    }
+    out
+}
+
+/// Where a tunnel's columns stand (on the floor): a row down the middle of
+/// every tile, between the two tracks, three to a straight and two along a
+/// curve. None where they'd stand in the stairs or the landing.
+pub fn tunnel_columns(t: &Tuning, li: usize, level: &Level) -> Vec<Vec3> {
+    let mut out = Vec::new();
+    for tile in &level.tunnel {
+        let (mid, r) = (tunnel_centre(t, li, tile), tile.rotation());
+        let local: Vec<Vec3> = match tile.piece {
+            TunnelPiece::Straight => [-4.0, 0.0, 4.0]
+                .into_iter()
+                .map(|z| Vec3::new(0.0, 0.0, z))
+                .collect(),
+            // Round the NE corner at 30 and 60 degrees, 6 m out.
+            TunnelPiece::Curve => [30.0_f32, 60.0]
+                .into_iter()
+                .map(|deg| {
+                    let a = deg.to_radians();
+                    Vec3::new(
+                        TUNNEL_TILE / 2.0 - CURVE_RADIUS * a.cos(),
+                        0.0,
+                        -TUNNEL_TILE / 2.0 + CURVE_RADIUS * a.sin(),
+                    )
+                })
+                .collect(),
+        };
+        for p in local {
+            let at = mid + r * p;
+            // Clear of the cells that aren't plain tunnel floor.
+            let clear = [(-0.6, -0.6), (0.6, -0.6), (-0.6, 0.6), (0.6, 0.6)]
+                .into_iter()
+                .all(|(dx, dz)| {
+                    cell_of(t, at + Vec3::new(dx, 0.0, dz))
+                        .is_none_or(|c| level.fill(c).kind == Kind::Tunnel)
+                });
+            if clear {
+                out.push(at);
+            }
+        }
     }
     out
 }
@@ -1538,6 +2023,51 @@ pub fn room_columns(t: &Tuning, li: usize, level: &Level) -> Vec<Vec3> {
         })
         .map(|c| cell_world(t, li, c) + Vec3::new(CELL / 2.0, 0.0, CELL / 2.0))
         .collect()
+}
+
+/// Whether a level is pitch dark (no working lights): never the top levels,
+/// then by chance from [`Lights::dark_from`] down. Seeded, the same on every peer.
+pub fn dark_level(t: &Tuning, level: usize) -> bool {
+    level >= t.light.dark_from.max(1) && dress_roll(t, [level, 0xda7c, 1, 0]) < t.light.dark_chance
+}
+
+/// Whether a cell's ceiling light still works: most are broken, and none on a
+/// pitch-dark level. Seeded, the same on every peer.
+pub fn cell_lit(t: &Tuning, level: usize, c: wfc::Cell) -> bool {
+    !dark_level(t, level) && dress_roll(t, [level, c.0, c.1, 0x116]) < t.light.working
+}
+
+/// The cell a point on a level lies in (the inverse of [`cell_world`]), if
+/// it's on the grid.
+pub fn cell_of(t: &Tuning, p: Vec3) -> Option<wfc::Cell> {
+    let (w, h) = (t.width.max(3), t.depth.max(3));
+    let x = ((p.x - t.station_at.0) / CELL + (w as f32 - 1.0) / 2.0).round();
+    let z = ((p.z - t.station_at.1) / CELL + (h as f32 - 1.0) / 2.0).round();
+    (x >= 0.0 && z >= 0.0 && (x as usize) < w && (z as usize) < h)
+        .then_some((x as usize, z as usize))
+}
+
+/// A broken light's skin of a glowing material: no glow, the colour dimmed
+/// by `tint` (dead, dusty tubes). Anything that doesn't glow is left alone.
+pub fn broken_skin(m: &StandardMaterial, tint: f32) -> Option<StandardMaterial> {
+    let e = m.emissive;
+    if e.red.max(e.green).max(e.blue) <= 0.01 && m.emissive_texture.is_none() {
+        return None;
+    }
+    let c = m.base_color.to_linear();
+    let tint = tint.clamp(0.0, 1.0);
+    Some(StandardMaterial {
+        emissive: LinearRgba::BLACK,
+        emissive_texture: None,
+        base_color: Color::LinearRgba(LinearRgba::new(
+            c.red * tint,
+            c.green * tint,
+            c.blue * tint,
+            c.alpha,
+        )),
+        perceptual_roughness: m.perceptual_roughness.max(0.6),
+        ..m.clone()
+    })
 }
 
 /// A number from 0 to 1 for this station, level, room, cell and slot (the
@@ -2603,6 +3133,7 @@ pub fn plugin(app: &mut App) {
                 merge_levels.after(stream_levels),
                 hide_surface,
                 follow_light,
+                flashlight,
                 light_shadows,
                 station_look.in_set(crate::place::PlaceSet),
                 toasts,
@@ -2969,7 +3500,12 @@ fn stream_levels(
                     "fulton",
                     mid + Vec3::Y * (ROOM_H / 2.0),
                     Vec3::new(w, ROOM_H + 0.4, d),
-                    t.light.probe,
+                    // A pitch-dark level reflects nothing.
+                    if dark_level(&t, li) {
+                        0.0
+                    } else {
+                        t.light.probe
+                    },
                 ),
                 ChildOf(root),
             ));
@@ -2981,14 +3517,15 @@ fn stream_levels(
                     Kind::Corridor(Some(i)) => set.pieces.get(i as usize).map(|p| p.model.as_str()),
                     Kind::Stairs => Some(set.stairs.as_str()),
                     Kind::Platform => Some(set.platform.as_str()),
-                    Kind::Room(_) => Some(set.room.floor.as_str()),
+                    Kind::Room(_) | Kind::Tunnel => Some(set.room.floor.as_str()),
                     Kind::Corridor(None) | Kind::Landing | Kind::Under => None,
                 };
                 let Some(file) = file else { continue };
                 let at = cell_world(&t, li, (x, z));
                 let sunk = level.sunk((x, z));
-                // Its ceiling tubes light it (no shadows: there are a lot of them).
-                if t.light.cell_lumens > 0.0 {
+                // Its ceiling tubes light it, if they still work (most are
+                // broken; no shadows: there can still be a lot of them).
+                if t.light.cell_lumens > 0.0 && cell_lit(&t, li, (x, z)) {
                     commands.spawn((
                         CellLight,
                         PointLight {
@@ -3042,6 +3579,20 @@ fn stream_levels(
                 }
             }
         }
+        // A tunnel level's tiles (walls, rails; the floor is the cells').
+        for tile in &level.tunnel {
+            let file = set.tunnel.file(tile.piece);
+            if file.is_empty() {
+                continue;
+            }
+            commands.spawn((
+                model(&assets, file),
+                Merge,
+                Transform::from_translation(tunnel_centre(&t, li, tile))
+                    .with_rotation(tile.rotation()),
+                ChildOf(root),
+            ));
+        }
         // Tall rooms (sunken floors, decks, stairs, railings) and rubble.
         for sh in shapes(&t, li, level) {
             let file = set.room.file(sh.piece);
@@ -3074,7 +3625,10 @@ fn stream_levels(
             ));
         }
         if !set.room.column.is_empty() {
-            for at in room_columns(&t, li, level) {
+            for at in room_columns(&t, li, level)
+                .into_iter()
+                .chain(tunnel_columns(&t, li, level))
+            {
                 commands.spawn((
                     model(&assets, &set.room.column),
                     Merge,
@@ -3187,7 +3741,7 @@ fn to_root(
 #[allow(clippy::type_complexity)]
 fn merge_levels(
     mut commands: Commands,
-    levels: Query<(Entity, &Children), (With<LevelModels>, Without<LevelMerged>)>,
+    levels: Query<(Entity, &Children, &LevelModels), Without<LevelMerged>>,
     pieces: Query<Has<MergeReady>, With<Merge>>,
     children: Query<&Children>,
     nodes: Query<(&Transform, Option<&ChildOf>)>,
@@ -3200,16 +3754,26 @@ fn merge_levels(
     >,
     mesh_of: Query<&Mesh3d>,
     mut meshes: ResMut<Assets<Mesh>>,
-    materials: Res<Assets<StandardMaterial>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut skins: Local<
+        bevy::platform::collections::HashMap<AssetId<StandardMaterial>, Handle<StandardMaterial>>,
+    >,
 ) {
     use friendslop_structures::batch::{MeshBatch, layout};
-    for (root, kids) in &levels {
+    let t = tuning();
+    for (root, kids, level) in &levels {
         let roots: Vec<Entity> = kids.iter().filter(|&e| pieces.contains(e)).collect();
         if roots.iter().any(|&e| !matches!(pieces.get(e), Ok(true))) {
             continue;
         }
         let mut groups: Vec<(String, Handle<StandardMaterial>, MeshBatch)> = Vec::new();
         for &r in &roots {
+            // A piece under a broken light wears the broken skin (no glow).
+            let broken = nodes
+                .get(r)
+                .ok()
+                .and_then(|(tf, _)| cell_of(&t, tf.translation))
+                .is_some_and(|c| !cell_lit(&t, level.0, c));
             let mut all = true;
             let mut merged = Vec::new();
             for e in children.iter_descendants(r) {
@@ -3220,7 +3784,24 @@ fn merge_levels(
                     all = false;
                     continue;
                 };
-                let (Some(mesh), Some(material)) = (meshes.get(&m.0), materials.get(&mat.0)) else {
+                let mut handle = mat.0.clone();
+                if broken {
+                    if let Some(h) = skins.get(&handle.id()) {
+                        handle = h.clone();
+                    } else if let Some(dead) = materials
+                        .get(&handle)
+                        .and_then(|m| broken_skin(m, t.light.broken_tint))
+                    {
+                        let h = materials.add(dead);
+                        skins.insert(handle.id(), h.clone());
+                        handle = h;
+                    }
+                    if handle != mat.0 {
+                        commands.entity(e).insert(MeshMaterial3d(handle.clone()));
+                    }
+                }
+                let (Some(mesh), Some(material)) = (meshes.get(&m.0), materials.get(&handle))
+                else {
                     all = false;
                     continue;
                 };
@@ -3232,7 +3813,7 @@ fn merge_levels(
                 let i = match groups.iter().position(|g| g.0 == key) {
                     Some(i) => i,
                     None => {
-                        groups.push((key, mat.0.clone(), MeshBatch::default()));
+                        groups.push((key, handle.clone(), MeshBatch::default()));
                         groups.len() - 1
                     }
                 };
@@ -3298,20 +3879,28 @@ fn light_shadows(
 /// The station's look (`data/base/place_looks.ron`): no sky, little light, a dim haze.
 pub const LOOK: &str = "fulton";
 
-/// Local: inside the station the sky is out (`place.rs`).
+/// The pitch-dark levels' look (`data/base/place_looks.ron`): no light at all.
+pub const LOOK_DARK: &str = "fulton_dark";
+
+/// Local: inside the station the sky is out (`place.rs`); on a pitch-dark
+/// level everything is.
 fn station_look(here: Res<crate::place::Here>, mut looks: ResMut<crate::place::PlaceLooks>) {
     if in_station(here.0) {
         looks.push(LOOK);
+        if dark_level(&tuning(), level_at(here.0.y)) {
+            looks.push(LOOK_DARK);
+        }
     }
 }
 
-/// Local: a light that goes with you down there.
+/// Local: a faint glow that goes with you down there (not on a pitch-dark level).
 fn follow_light(
     camera: Query<&GlobalTransform, With<crate::world::MainCamera>>,
     mut light: Query<(&mut Transform, &mut Visibility), With<StationLight>>,
 ) {
     let Some(at) = camera_at(&camera) else { return };
-    let here = in_station(at - Vec3::Y * 1.6);
+    let feet = at - Vec3::Y * 1.6;
+    let here = in_station(feet) && !dark_level(&tuning(), level_at(feet.y));
     for (mut tf, mut vis) in &mut light {
         tf.translation = at + Vec3::Y * 0.8;
         vis.set_if_neq(if here {
@@ -3320,6 +3909,51 @@ fn follow_light(
             Visibility::Hidden
         });
     }
+}
+
+/// Your flashlight while you're in the station (as in the warehouse).
+#[derive(Component)]
+struct StationFlashlight;
+
+/// Local: going down hands you a flashlight; coming up takes it away.
+fn flashlight(
+    mut commands: Commands,
+    here: Res<crate::place::Here>,
+    cameras: Query<Entity, With<crate::world::MainCamera>>,
+    lights: Query<Entity, With<StationFlashlight>>,
+    quality: Option<Res<crate::graphics::GraphicsQuality>>,
+) {
+    let want = in_station(here.0);
+    let have = !lights.is_empty();
+    if want == have {
+        return;
+    }
+    if !want {
+        for e in &lights {
+            commands.entity(e).despawn();
+        }
+        return;
+    }
+    let Ok(camera) = cameras.single() else { return };
+    let t = tuning();
+    let l = &t.light;
+    commands.spawn((
+        StationFlashlight,
+        SpotLight {
+            color: Color::srgb(1.0, 0.95, 0.85),
+            intensity: l.flashlight_lumens,
+            range: l.flashlight_range,
+            outer_angle: l.flashlight_outer.to_radians(),
+            inner_angle: l
+                .flashlight_inner
+                .to_radians()
+                .min(l.flashlight_outer.to_radians()),
+            shadow_maps_enabled: quality.is_some_and(|q| q.shadows),
+            ..default()
+        },
+        Transform::from_xyz(0.25, -0.2, 0.0),
+        ChildOf(camera),
+    ));
 }
 
 /// Local: the station's tiled halls ring (every world sound gets a long
@@ -3416,6 +4050,77 @@ mod tests {
     }
 
     #[test]
+    fn tunnel_levels_are_a_ring_with_two_arms() {
+        let (t, set) = data();
+        assert!(
+            t.tunnels.every > 0 && !set.tunnel.straight.is_empty() && !set.tunnel.curve.is_empty()
+        );
+        let levels = generate(&t, &set);
+        let mut seen = 0;
+        for (li, l) in levels.iter().enumerate() {
+            assert_eq!(tunnel_level(&t, li), !l.tunnel.is_empty(), "level {li}");
+            if l.tunnel.is_empty() {
+                continue;
+            }
+            seen += 1;
+            let d = l.distances();
+            assert!(d[l.goal.1 * l.width + l.goal.0].is_some(), "level {li}");
+            assert!(l.fill(l.arrive).kind == Kind::Landing);
+            assert!(l.fill(l.goal).kind == Kind::Stairs);
+            // Without the caved-in tiles the other arm is always there: every
+            // reachable cell stays reachable (shape_level guarantees it), and
+            // the way is at least three tiles long.
+            assert!(
+                l.path.len() >= 3 * TUNNEL_CELLS,
+                "level {li} path {}",
+                l.path.len()
+            );
+            // Walls from the plan: tunnel cells are open inside their tile.
+            for tile in &l.tunnel {
+                let (x, z) = tile.at;
+                for c in [(x, z), (x + 1, z), (x, z + 1), (x + 1, z + 1)] {
+                    assert!(matches!(
+                        l.fill(c).kind,
+                        Kind::Tunnel | Kind::Landing | Kind::Stairs
+                    ));
+                }
+            }
+            assert!(!colliders(&t, li, l).is_empty());
+        }
+        assert!(seen > 0, "no tunnel levels");
+    }
+
+    #[test]
+    fn the_ring_has_curves_at_the_corners() {
+        let ring = tunnel_ring(6, 6).expect("a 6x6 grid has a ring");
+        assert_eq!(ring.len(), 8);
+        assert_eq!(
+            ring.iter()
+                .filter(|t| t.piece == TunnelPiece::Curve)
+                .count(),
+            4
+        );
+        // Every tile's open sides meet its neighbour's round the ring.
+        for (i, a) in ring.iter().enumerate() {
+            let b = &ring[(i + 1) % ring.len()];
+            let step = (b.at.0 as i32 - a.at.0 as i32, b.at.1 as i32 - a.at.1 as i32);
+            let side = wfc::Side::ALL
+                .into_iter()
+                .find(|s| {
+                    let (ox, oz) = s.offset();
+                    (ox * TUNNEL_CELLS as i32, oz * TUNNEL_CELLS as i32) == step
+                })
+                .expect("neighbours");
+            assert!(a.mask() & bit(side) != 0, "tile {i} opens onto the next");
+            assert!(
+                b.mask() & bit(side.opposite()) != 0,
+                "tile {} opens back",
+                i + 1
+            );
+        }
+    }
+
+    #[test]
     fn the_station_fits_its_depth_limit() {
         let (t, _) = data();
         assert!(t.levels <= crate::rules::nyc::STATION_MAX_LEVELS);
@@ -3462,9 +4167,9 @@ mod tests {
                     "level {li}: {pair:?}"
                 );
             }
-            // ...and it's long.
+            // ...and it's long (a tunnel ring's arm is at least three tiles).
             assert!(
-                l.path.len() as u32 > t.min_path,
+                l.path.len() as u32 > t.min_path || !l.tunnel.is_empty(),
                 "level {li}: {}",
                 l.path.len()
             );
@@ -3536,8 +4241,9 @@ mod tests {
                     assert_eq!(below.fill(c).mask, 0);
                 }
             }
-            // Corridor sides never open onto track sides.
-            for z in 0..l.depth {
+            // Corridor sides never open onto track sides (a tunnel level has
+            // no corridors: its notches for the stairs break the pairing).
+            for z in 0..if l.tunnel.is_empty() { l.depth } else { 0 } {
                 for x in 0..l.width {
                     for s in wfc::Side::ALL {
                         if let Some(n) = wfc::neighbour(l.width, l.depth, (x, z), s) {
@@ -3820,6 +4526,57 @@ mod tests {
     }
 
     #[test]
+    fn most_lights_are_broken_and_a_few_deep_levels_are_pitch_dark() {
+        let (t, _) = data();
+        let dark: Vec<usize> = (0..t.levels).filter(|&l| dark_level(&t, l)).collect();
+        assert!(
+            dark.iter().all(|&l| l >= t.light.dark_from),
+            "the top stays lit: {dark:?}"
+        );
+        assert!(
+            !dark.is_empty() && dark.len() < t.levels / 2,
+            "a few deep levels go dark, not most: {dark:?}"
+        );
+        let lit_level = (0..t.levels).find(|&l| !dark_level(&t, l)).unwrap_or(0);
+        let cells: Vec<bool> = (0..t.width)
+            .flat_map(|x| (0..t.depth).map(move |z| (x, z)))
+            .map(|c| cell_lit(&t, lit_level, c))
+            .collect();
+        let share = cells.iter().filter(|&&b| b).count() as f32 / cells.len() as f32;
+        assert!(
+            share > 0.0 && share < 0.5,
+            "some lights work, most don't: {share}"
+        );
+        for &l in &dark {
+            assert!(
+                (0..t.width).all(|x| !cell_lit(&t, l, (x, 0))),
+                "nothing works on a dark level"
+            );
+        }
+    }
+
+    #[test]
+    fn a_broken_light_wears_a_dead_skin() {
+        let (t, _) = data();
+        // cell_of undoes cell_world
+        for c in [(0, 0), (t.width - 1, t.depth - 1), (2, 3)] {
+            assert_eq!(cell_of(&t, cell_world(&t, 5, c)), Some(c));
+        }
+        let glowing = StandardMaterial {
+            base_color: Color::WHITE,
+            emissive: LinearRgba::rgb(4.0, 4.0, 4.0),
+            ..default()
+        };
+        let dead = broken_skin(&glowing, 0.35).expect("a glowing tube gets the dead skin");
+        assert_eq!(dead.emissive, LinearRgba::BLACK);
+        assert!(dead.base_color.to_linear().red < 0.5);
+        assert!(
+            broken_skin(&StandardMaterial::default(), 0.35).is_none(),
+            "walls are left alone"
+        );
+    }
+
+    #[test]
     fn the_same_seed_builds_the_same_station() {
         let (t, set) = data();
         let a = generate(&t, &set);
@@ -3891,7 +4648,7 @@ mod tests {
                 for s in wfc::Side::ALL {
                     if l.rubble(c, s) {
                         assert!(!l.open(c, s));
-                        assert!(matches!(l.fill(c).kind, Kind::Corridor(_)));
+                        assert!(matches!(l.fill(c).kind, Kind::Corridor(_) | Kind::Tunnel));
                         assert!(
                             !crate::features::fulton_hunt::neighbours(&levels, (li, c.0, c.1))
                                 .iter()

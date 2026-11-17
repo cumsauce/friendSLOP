@@ -128,17 +128,27 @@ pub fn plugin(app: &mut App) {
 }
 
 /// Server: work out every walker's noise for this frame.
-fn listen(mut noises: ResMut<Noises>, walkers: Query<(&Walker, &WalkInput, Option<&Kcc>)>) {
+fn listen(
+    mut noises: ResMut<Noises>,
+    walkers: Query<(
+        &Walker,
+        &WalkInput,
+        Option<&Kcc>,
+        Option<&super::stamina::Stamina>,
+    )>,
+) {
     let t = TUNING.get();
     noises.0 = walkers
         .iter()
-        .filter_map(|(w, input, kcc)| {
+        .filter_map(|(w, input, kcc, stamina)| {
             // Without a controller (headless tests) a body on the floor is
             // judged by its stick alone.
             let airborne = kcc
                 .map(|k| k.grounded.is_none() && k.velocity != Vec3::ZERO)
                 .unwrap_or(false);
-            made(&t, input.stick, input.is_running(), airborne).map(|mut n| {
+            // Out of breath, Shift doesn't make you loud: you're walking.
+            let running = input.is_running() && stamina.is_none_or(|s| s.can_sprint());
+            made(&t, input.stick, running, airborne).map(|mut n| {
                 n.at = w.pos;
                 n
             })

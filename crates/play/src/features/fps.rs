@@ -338,12 +338,15 @@ pub fn kcc_move_walkers(
         Option<&crate::rules::skills::Skills>,
         Option<&crate::rules::boba::Buzz>,
         Option<&crate::rules::kori::HeldPrize>,
+        Option<&super::stamina::Stamina>,
     )>,
 ) {
     let frozen = super::stillness::is_frozen(&still); // the world stands still, and so do you
     let jump: crate::kcc::Jump = tuning().jump.into();
-    for (player, walker, mut input, mut w, ragdoll, skills, buzz, held) in &mut walkers {
-        let speed = if input.run {
+    for (player, walker, mut input, mut w, ragdoll, skills, buzz, held, stamina) in &mut walkers {
+        // Out of breath: the controller walks, however hard Shift is held.
+        let running = input.run && stamina.is_none_or(super::stamina::Stamina::can_sprint);
+        let speed = if running {
             crate::kcc::RUN_SPEED
         } else {
             crate::kcc::WALK_SPEED

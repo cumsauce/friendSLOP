@@ -2,7 +2,8 @@
 //! meter, mic chip and your fat cat's size. At critical mass the cat card
 //! becomes the butter "PET. THE. CAT." fuse card, in its own slot above the
 //! gas meter, never in the toast queue. The stoned meter (#369) sits above
-//! the gas meter while you're high.
+//! the gas meter while you're high, and the stamina card above that while
+//! you're sprinting or climbing and getting your breath back.
 
 use bevy::prelude::*;
 
@@ -10,6 +11,7 @@ use super::{Icons, at, body, glyph, head, mmss};
 use crate::AppState;
 use crate::features::fart::Gas;
 use crate::features::fat_cat::{FatCat, Fuse, Lapping, MAX_SIZE};
+use crate::features::stamina::Stamina;
 use crate::features::weed::High;
 use crate::player::{LocalPlayer, Player};
 use crate::theme::kit::{
@@ -27,6 +29,7 @@ const TRACK: f32 = 204.0;
 enum Card {
     Bomb,
     Stoned,
+    Stamina,
     Gas,
     Mic,
     Cat,
@@ -39,6 +42,8 @@ enum Part {
     GasHint,
     StonedLabel,
     StonedFill,
+    StaminaLabel,
+    StaminaFill,
     MicIcon,
     MicSlash,
     MicLabel,
@@ -82,6 +87,27 @@ pub fn gas_shown(gas: u8, min_gas: u8, show_percent: f32) -> bool {
     gas >= min_gas || gas as f32 >= show_percent
 }
 
+/// The stamina card's label and fill: nothing without a [`Stamina`].
+pub fn stamina_line(stamina: Option<&Stamina>) -> Option<(String, f32)> {
+    let s = stamina?;
+    let frac = s.fraction();
+    let pct = frac * 100.0;
+    Some((
+        if s.exhausted {
+            format!("Stamina {pct:.0}% · exhausted")
+        } else {
+            format!("Stamina {pct:.0}%")
+        },
+        frac,
+    ))
+}
+
+/// Is the stamina card up: while any is missing (being spent or coming back),
+/// and never once you're full again.
+pub fn stamina_shown(stamina: Option<&Stamina>) -> bool {
+    stamina.is_some_and(|s| s.exhausted || s.fraction() < 0.999)
+}
+
 /// Is your cat big enough that its size must stay on screen.
 pub fn cat_urgent(size: f32, urgent_percent: f32) -> bool {
     size / MAX_SIZE * 100.0 >= urgent_percent
@@ -116,6 +142,7 @@ fn fill_mount(
         commands.entity(mount).with_children(|c| {
             c.spawn(bomb(&icons));
             c.spawn(stoned());
+            c.spawn(stamina());
             c.spawn(gas(&icons));
             c.spawn(mic(&icons));
             c.spawn(cat(&icons));
@@ -217,6 +244,41 @@ fn stoned() -> impl Bundle {
 
 /// The stoned meter's fill: slime green, like every meter.
 const STONED: Color = SLOP_400;
+
+fn stamina() -> impl Bundle {
+    let b = 2.0;
+    (
+        shell(Card::Stamina, 58.0, 14.0, SOOT_800, SOOT_500),
+        children![
+            (
+                Part::StaminaLabel,
+                Text::new(""),
+                body(size::LABEL, TEXT_DIM),
+                at(12.0, 8.0, b)
+            ),
+            (
+                Node {
+                    width: px(TRACK),
+                    height: px(10),
+                    border_radius: BorderRadius::all(px(5)),
+                    overflow: Overflow::clip(),
+                    ..at(12.0, 34.0, b)
+                },
+                BackgroundColor(SOOT_700),
+                children![(
+                    Part::StaminaFill,
+                    Node {
+                        width: px(0),
+                        height: percent(100),
+                        border_radius: BorderRadius::all(px(5)),
+                        ..default()
+                    },
+                    BackgroundColor(SLOP_400),
+                )],
+            ),
+        ],
+    )
+}
 
 fn mic(icons: &Icons) -> impl Bundle {
     let b = 2.0;
@@ -331,7 +393,7 @@ fn update(
     muted: Option<Res<VoiceMuted>>,
     activity: Option<Res<VoiceActivity>>,
     high: Option<Res<High>>,
-    players: Query<(&Player, Option<&Gas>)>,
+    players: Query<(&Player, Option<&Gas>, Option<&Stamina>)>,
     cats: Query<(&FatCat, Option<&Fuse>, Has<Lapping>)>,
     mut cards: Query<(&Card, &mut Node, &mut BackgroundColor), Without<Part>>,
     mut parts: Query<
@@ -346,15 +408,16 @@ fn update(
     >,
 ) {
     let me = me.map(|m| m.0);
-    let gas = players
-        .iter()
-        .find(|(p, _)| Some(p.id) == me)
-        .and_then(|(_, g)| g.map(|g| g.0))
-        .unwrap_or(0);
+    let mine = players.iter().find(|(p, ..)| Some(p.id) == me);
+    let gas = mine.and_then(|(_, g, _)| g.map(|g| g.0)).unwrap_or(0);
+    let stamina = mine.and_then(|(_, _, s)| s);
     let stoned = high.map_or(0.0, |h| {
         crate::features::weed::meter(h.level, &crate::features::weed::TUNING.get())
     });
     let (stoned_label, stoned_frac) = stoned_line(stoned);
+    let (stamina_label, stamina_frac) = stamina_line(stamina).unwrap_or_default();
+    let stamina_show = stamina_shown(stamina);
+    let stamina_exhausted = stamina.is_some_and(|s| s.exhausted);
     let cat = cats.iter().find(|(c, ..)| Some(c.owner) == me);
     let fuse = cat.and_then(|(_, f, _)| f.map(|f| f.0));
     let muted = muted.is_some_and(|m| m.0);
@@ -379,6 +442,7 @@ fn update(
             Card::Bomb => fuse.is_some(),
             Card::Cat => cat_up && fuse.is_none(),
             Card::Stoned => all.0 || stoned > 0.0,
+            Card::Stamina => stamina_show || (all.0 && stamina.is_some()),
             Card::Gas => gas_up,
             Card::Mic => mic_up,
         };
@@ -433,6 +497,22 @@ fn update(
                 let w = px(TRACK * stoned_frac);
                 if node.width != w {
                     node.width = w;
+                }
+            }
+            Part::StaminaLabel => set(stamina_label.clone()),
+            Part::StaminaFill => {
+                let w = px(TRACK * stamina_frac);
+                if node.width != w {
+                    node.width = w;
+                }
+                if let Some(mut bg) = bg {
+                    // Butter while you can't sprint or climb: the "no" colour.
+                    let want = if stamina_exhausted {
+                        BUTTER_400
+                    } else {
+                        SLOP_400
+                    };
+                    bg.set_if_neq(BackgroundColor(want));
                 }
             }
             Part::MicLabel => {
@@ -498,6 +578,37 @@ mod tests {
         assert_eq!(stoned_line(0.1), ("Stoned 10% · buzzed".to_string(), 0.1));
         assert!(stoned_line(0.5).0.ends_with("stoned"));
         assert_eq!(stoned_line(2.0), ("Stoned 100% · baked".to_string(), 1.0));
+    }
+
+    #[test]
+    fn the_stamina_card_is_only_up_while_spent_or_catching_up() {
+        use crate::features::stamina::Stamina;
+        assert_eq!(stamina_line(None), None, "no player, no card");
+        assert!(!stamina_shown(None));
+        let full = Stamina::full(100.0);
+        assert_eq!(
+            stamina_line(Some(&full)),
+            Some(("Stamina 100%".to_string(), 1.0))
+        );
+        assert!(!stamina_shown(Some(&full)), "full: nothing to show");
+        let half = Stamina {
+            value: 50.0,
+            ..full
+        };
+        assert_eq!(
+            stamina_line(Some(&half)),
+            Some(("Stamina 50%".to_string(), 0.5))
+        );
+        assert!(stamina_shown(Some(&half)), "still catching up");
+        let spent = Stamina {
+            value: 0.0,
+            exhausted: true,
+            ..full
+        };
+        let (label, frac) = stamina_line(Some(&spent)).expect("a spent walker has a card");
+        assert_eq!(frac, 0.0);
+        assert!(label.ends_with("exhausted"), "{label}");
+        assert!(stamina_shown(Some(&spent)));
     }
 
     #[test]

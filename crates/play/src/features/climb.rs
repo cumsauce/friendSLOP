@@ -128,7 +128,8 @@ pub fn plugin(app: &mut App) {
 fn climb_help(mut commands: Commands) {
     commands.spawn((
         Text::new(crate::input::fill(
-            "climbing: hold {move} and {jump} against a wall, rock or tree to climb it.",
+            "climbing: hold {move} and {jump} against a wall, rock or tree to climb it. \
+             climbing burns stamina: rest on the ground to get it back.",
         )),
         crate::hud::slot(crate::hud::HudSlot::Help),
         DespawnOnExit(AppState::InGame),
@@ -218,19 +219,28 @@ pub fn climb_step(
 }
 
 /// Host: bodies holding W + Space against something steep climb it; the
-/// kinematic controller leaves those bodies alone this tick.
-fn climb(
+/// kinematic controller leaves those bodies alone this tick. A walker out of
+/// stamina (see `stamina.rs`) can't hold on: they fall, and get their breath
+/// back on the ground.
+pub(crate) fn climb(
     time: Res<Time>,
     still: Query<&super::stillness::Stillness>,
     duelists: Query<&Duelist>,
     move_and_slide: MoveAndSlide,
-    mut walkers: Query<(&Player, &mut Walker, &mut WalkInput, &mut crate::kcc::Kcc)>,
+    mut walkers: Query<(
+        &Player,
+        &mut Walker,
+        &mut WalkInput,
+        &mut crate::kcc::Kcc,
+        Option<&super::stamina::Stamina>,
+    )>,
 ) {
     let frozen = super::stillness::is_frozen(&still);
     let dt = time.delta_secs().min(0.1);
-    for (player, mut walker, mut input, mut kcc) in &mut walkers {
+    for (player, mut walker, mut input, mut kcc, stamina) in &mut walkers {
         let duelling = duelists.iter().any(|d| d.player == player.id);
-        let step = (!frozen && !duelling && input.jump)
+        let has_breath = stamina.is_none_or(super::stamina::Stamina::can_climb);
+        let step = (!frozen && !duelling && input.jump && has_breath)
             .then(|| climb_step(&move_and_slide, walker.pos, walker.yaw, input.stick, dt))
             .flatten();
         input.climbing = step.is_some();

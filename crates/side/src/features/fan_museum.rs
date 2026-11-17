@@ -55,11 +55,12 @@ pub struct Tuning {
 pub static TUNING: friendslop_data::Data<Tuning> =
     friendslop_data::Data::ron("data/side/fan_museum.ron");
 
-/// The front doors, from the museum's floor centre: where walking in (from
+/// The front doors, from the museum's floor centre (outside: the compact
+/// `cfm-museum-exterior`, its doors at z -10; inside: the lobby at z -14): where walking in (from
 /// outside) and walking out (from the lobby) take you through, and where
 /// you come out on the other side.
-const OUTSIDE_DOOR: Vec3 = Vec3::new(0.0, 0.0, -14.3);
-const OUTSIDE_STEP: Vec3 = Vec3::new(0.0, 0.1, -16.6);
+const OUTSIDE_DOOR: Vec3 = Vec3::new(0.0, 0.0, -10.3);
+const OUTSIDE_STEP: Vec3 = Vec3::new(0.0, 0.1, -12.6);
 const INSIDE_DOOR: Vec3 = Vec3::new(0.0, 0.0, -13.4);
 const INSIDE_STEP: Vec3 = Vec3::new(0.0, 0.1, -11.4);
 
@@ -313,7 +314,7 @@ fn build_entrance(mut commands: Commands) {
     use crate::features::doorway::{Doorway, spawn, yaw_towards};
     let door = spawn(
         &mut commands,
-        outside() + Vec3::new(0.0, 0.1, -14.15),
+        outside() + Vec3::new(0.0, 0.1, -10.15),
         yaw_towards(Vec2::Y),
         Doorway::way_in("The Ceiling Fan Museum").size(4.0, 3.5),
     );
@@ -418,7 +419,7 @@ mod tests {
         };
         assert!(through_door(back, out, ins, 1.3).is_none());
         // Walking past the building isn't going in.
-        assert!(through_door(out + Vec3::new(8.0, 0.0, -15.0), out, ins, 1.3).is_none());
+        assert!(through_door(out + Vec3::new(8.0, 0.0, -11.0), out, ins, 1.3).is_none());
     }
 
     #[test]

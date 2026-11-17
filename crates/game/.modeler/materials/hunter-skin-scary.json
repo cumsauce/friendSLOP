@@ -1,0 +1,3149 @@
+{
+  "name": "hunter_skin_scary",
+  "format_version": 1,
+  "domain": "object",
+  "tile": 1.0,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "name": "pos",
+      "of": "position",
+      "type": "input"
+    },
+    {
+      "input": "pos",
+      "name": "ps",
+      "type": "split"
+    },
+    {
+      "name": "mottle",
+      "octaves": 4,
+      "seed": 3,
+      "size": 0.22,
+      "type": "noise"
+    },
+    {
+      "name": "fine",
+      "octaves": 3,
+      "seed": 5,
+      "size": 0.04,
+      "type": "noise"
+    },
+    {
+      "name": "bruise_n",
+      "octaves": 3,
+      "seed": 17,
+      "size": 0.35,
+      "type": "noise"
+    },
+    {
+      "input": "bruise_n",
+      "name": "bruise",
+      "stops": [
+        [
+          0.58,
+          0
+        ],
+        [
+          0.75,
+          1
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "#a3a291",
+      "b": "#69725e",
+      "mode": "normal",
+      "name": "c0",
+      "opacity": "mottle",
+      "type": "blend"
+    },
+    {
+      "a": "c0",
+      "b": "#9a9886",
+      "mode": "multiply",
+      "name": "c1",
+      "opacity": "fine",
+      "type": "blend"
+    },
+    {
+      "a": "c1",
+      "b": "#5b4150",
+      "mode": "normal",
+      "name": "c2",
+      "opacity": "bruise",
+      "type": "blend"
+    },
+    {
+      "name": "vw",
+      "seed": 9,
+      "size": 0.04,
+      "type": "worley"
+    },
+    {
+      "input": "vw.edge",
+      "name": "vline",
+      "stops": [
+        [
+          0,
+          0.8
+        ],
+        [
+          0.035,
+          0
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "name": "vpatch_n",
+      "seed": 23,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "input": "vpatch_n",
+      "name": "vpatch",
+      "stops": [
+        [
+          0.45,
+          0
+        ],
+        [
+          0.65,
+          1
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "vline",
+      "b": "vpatch",
+      "name": "veins",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "c2",
+      "b": "#33404e",
+      "mode": "normal",
+      "name": "c3",
+      "opacity": "veins",
+      "type": "blend"
+    },
+    {
+      "input": "ps.y",
+      "name": "feet",
+      "stops": [
+        [
+          0.05,
+          1
+        ],
+        [
+          0.55,
+          0
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "ps.x",
+      "b": "ps.x",
+      "name": "xx",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "input": "xx",
+      "name": "handsx",
+      "stops": [
+        [
+          0.06,
+          0
+        ],
+        [
+          0.09,
+          1
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "input": "ps.y",
+      "name": "handsy",
+      "stops": [
+        [
+          1.55,
+          0
+        ],
+        [
+          1.7,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2.1,
+          0
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "handsx",
+      "b": "handsy",
+      "name": "hands",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "feet",
+      "b": "hands",
+      "name": "ext",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "c3",
+      "b": "#2e2626",
+      "mode": "multiply",
+      "name": "c4",
+      "opacity": "ext",
+      "type": "blend"
+    },
+    {
+      "name": "ao",
+      "radius": 0.08,
+      "samples": 32,
+      "type": "mesh_ao"
+    },
+    {
+      "input": "ao",
+      "name": "crease",
+      "stops": [
+        [
+          0.45,
+          1
+        ],
+        [
+          0.85,
+          0
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "c4",
+      "b": "#3b2420",
+      "mode": "normal",
+      "name": "c5",
+      "opacity": "crease",
+      "type": "blend"
+    },
+    {
+      "gain": 1,
+      "name": "curv",
+      "radius": 0.03,
+      "type": "mesh_curvature"
+    },
+    {
+      "input": "curv",
+      "name": "ridge",
+      "stops": [
+        [
+          0.55,
+          0
+        ],
+        [
+          0.8,
+          1
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "c5",
+      "b": "#d9d5c4",
+      "mode": "normal",
+      "name": "c6",
+      "opacity": "ridge",
+      "type": "blend"
+    },
+    {
+      "center": [
+        0.045,
+        3.255,
+        0.24
+      ],
+      "name": "eye_l_s",
+      "radius": 0.07,
+      "type": "sphere"
+    },
+    {
+      "center": [
+        -0.045,
+        3.255,
+        0.24
+      ],
+      "name": "eye_r_s",
+      "radius": 0.07,
+      "type": "sphere"
+    },
+    {
+      "a": "eye_l_s",
+      "b": "eye_r_s",
+      "name": "eyes_s",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "sockets",
+      "sdf": "eyes_all",
+      "softness": 0.03,
+      "type": "mask"
+    },
+    {
+      "a": "c6",
+      "b": "#0b0708",
+      "mode": "normal",
+      "name": "c7",
+      "opacity": "sockets",
+      "type": "blend"
+    },
+    {
+      "name": "bwarp",
+      "seed": 31,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "amount": 0.025,
+      "by": "bwarp",
+      "centered": true,
+      "coords": "pos",
+      "name": "bpos",
+      "type": "warp"
+    },
+    {
+      "a": [
+        -0.055,
+        3.125,
+        0.27
+      ],
+      "b": [
+        0.055,
+        3.125,
+        0.27
+      ],
+      "coords": "bpos",
+      "name": "blood_s",
+      "radius": 0.05,
+      "type": "capsule"
+    },
+    {
+      "name": "blood",
+      "sdf": "bl_all",
+      "softness": 0.012,
+      "type": "mask"
+    },
+    {
+      "a": "c7",
+      "b": "#3a0609",
+      "mode": "normal",
+      "name": "c8",
+      "opacity": "blood",
+      "type": "blend"
+    },
+    {
+      "a": 0.82,
+      "b": 0.6,
+      "mode": "normal",
+      "name": "r0",
+      "opacity": "mottle",
+      "type": "blend"
+    },
+    {
+      "a": "r0",
+      "b": 0.45,
+      "mode": "normal",
+      "name": "r1",
+      "opacity": "crease",
+      "type": "blend"
+    },
+    {
+      "a": "r1",
+      "b": 0.18,
+      "mode": "normal",
+      "name": "rough",
+      "opacity": "blood",
+      "type": "blend"
+    },
+    {
+      "mode": "ridged",
+      "name": "wrink",
+      "seed": 41,
+      "size": 0.015,
+      "type": "noise"
+    },
+    {
+      "a": "wrink",
+      "b": 0.0025,
+      "name": "h0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "veins",
+      "b": 0.0015,
+      "name": "h1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "h0",
+      "b": "h1",
+      "name": "height",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "base_color": "c8",
+      "height": "height",
+      "metallic": 0,
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    },
+    {
+      "a": [
+        0.05,
+        3.22,
+        0.25
+      ],
+      "b": [
+        0.06,
+        3.1,
+        0.25
+      ],
+      "coords": "bpos",
+      "name": "tear_l",
+      "radius": 0.02,
+      "type": "capsule"
+    },
+    {
+      "a": [
+        -0.05,
+        3.22,
+        0.25
+      ],
+      "b": [
+        -0.045,
+        3.13,
+        0.26
+      ],
+      "coords": "bpos",
+      "name": "tear_r",
+      "radius": 0.017,
+      "type": "capsule"
+    },
+    {
+      "a": "eyes_s",
+      "b": "tear_l",
+      "name": "eyes_t",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "eyes_t",
+      "b": "tear_r",
+      "name": "eyes_all",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": [
+        0.035,
+        3.08,
+        0.25
+      ],
+      "b": [
+        0.03,
+        2.98,
+        0.14
+      ],
+      "coords": "bpos",
+      "name": "drip1",
+      "radius": 0.022,
+      "type": "capsule"
+    },
+    {
+      "a": [
+        -0.03,
+        3.08,
+        0.25
+      ],
+      "b": [
+        -0.035,
+        3,
+        0.15
+      ],
+      "coords": "bpos",
+      "name": "drip2",
+      "radius": 0.02,
+      "type": "capsule"
+    },
+    {
+      "a": [
+        0.03,
+        2.98,
+        0.14
+      ],
+      "b": [
+        0.02,
+        2.72,
+        0.07
+      ],
+      "coords": "bpos",
+      "name": "drip3",
+      "radius": 0.016,
+      "type": "capsule"
+    },
+    {
+      "a": "blood_s",
+      "b": "drip1",
+      "name": "bl_a",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "bl_a",
+      "b": "drip2",
+      "name": "bl_b",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "a": "bl_b",
+      "b": "drip3",
+      "name": "bl_all",
+      "op": "union",
+      "type": "sdf_op"
+    }
+  ],
+  "params": {},
+  "version": 5,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "hunter_skin_scary",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "pos",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "input": "pos",
+              "name": "ps",
+              "type": "split"
+            },
+            {
+              "name": "mottle",
+              "octaves": 4,
+              "seed": 3,
+              "size": 0.22,
+              "type": "noise"
+            },
+            {
+              "name": "fine",
+              "octaves": 3,
+              "seed": 5,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "name": "bruise_n",
+              "octaves": 3,
+              "seed": 17,
+              "size": 0.35,
+              "type": "noise"
+            },
+            {
+              "input": "bruise_n",
+              "name": "bruise",
+              "stops": [
+                [
+                  0.58,
+                  0
+                ],
+                [
+                  0.75,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#bdbcac",
+              "b": "#848c78",
+              "mode": "normal",
+              "name": "c0",
+              "opacity": "mottle",
+              "type": "blend"
+            },
+            {
+              "a": "c0",
+              "b": "#9a9886",
+              "mode": "multiply",
+              "name": "c1",
+              "opacity": "fine",
+              "type": "blend"
+            },
+            {
+              "a": "c1",
+              "b": "#5b4150",
+              "mode": "normal",
+              "name": "c2",
+              "opacity": "bruise",
+              "type": "blend"
+            },
+            {
+              "name": "vw",
+              "seed": 9,
+              "size": 0.06,
+              "type": "worley"
+            },
+            {
+              "input": "vw.edge",
+              "name": "vline",
+              "stops": [
+                [
+                  0,
+                  1
+                ],
+                [
+                  0.06,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "name": "vpatch_n",
+              "seed": 23,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "vpatch_n",
+              "name": "vpatch",
+              "stops": [
+                [
+                  0.45,
+                  0
+                ],
+                [
+                  0.65,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "vline",
+              "b": "vpatch",
+              "name": "veins",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#33404e",
+              "mode": "normal",
+              "name": "c3",
+              "opacity": "veins",
+              "type": "blend"
+            },
+            {
+              "input": "ps.y",
+              "name": "feet",
+              "stops": [
+                [
+                  0.05,
+                  1
+                ],
+                [
+                  0.55,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "ps.x",
+              "b": "ps.x",
+              "name": "xx",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "input": "xx",
+              "name": "handsx",
+              "stops": [
+                [
+                  0.06,
+                  0
+                ],
+                [
+                  0.09,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "input": "ps.y",
+              "name": "handsy",
+              "stops": [
+                [
+                  1.55,
+                  0
+                ],
+                [
+                  1.7,
+                  1
+                ],
+                [
+                  2,
+                  1
+                ],
+                [
+                  2.1,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "handsx",
+              "b": "handsy",
+              "name": "hands",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "feet",
+              "b": "hands",
+              "name": "ext",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#2e2626",
+              "mode": "multiply",
+              "name": "c4",
+              "opacity": "ext",
+              "type": "blend"
+            },
+            {
+              "name": "ao",
+              "radius": 0.08,
+              "samples": 32,
+              "type": "mesh_ao"
+            },
+            {
+              "input": "ao",
+              "name": "crease",
+              "stops": [
+                [
+                  0.45,
+                  1
+                ],
+                [
+                  0.85,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c4",
+              "b": "#3b2420",
+              "mode": "normal",
+              "name": "c5",
+              "opacity": "crease",
+              "type": "blend"
+            },
+            {
+              "gain": 1,
+              "name": "curv",
+              "radius": 0.03,
+              "type": "mesh_curvature"
+            },
+            {
+              "input": "curv",
+              "name": "ridge",
+              "stops": [
+                [
+                  0.55,
+                  0
+                ],
+                [
+                  0.8,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c5",
+              "b": "#d9d5c4",
+              "mode": "normal",
+              "name": "c6",
+              "opacity": "ridge",
+              "type": "blend"
+            },
+            {
+              "center": [
+                0.045,
+                3.255,
+                0.24
+              ],
+              "name": "eye_l_s",
+              "radius": 0.055,
+              "type": "sphere"
+            },
+            {
+              "center": [
+                -0.045,
+                3.255,
+                0.24
+              ],
+              "name": "eye_r_s",
+              "radius": 0.055,
+              "type": "sphere"
+            },
+            {
+              "a": "eye_l_s",
+              "b": "eye_r_s",
+              "name": "eyes_s",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "sockets",
+              "sdf": "eyes_s",
+              "softness": 0.04,
+              "type": "mask"
+            },
+            {
+              "a": "c6",
+              "b": "#140d10",
+              "mode": "normal",
+              "name": "c7",
+              "opacity": "sockets",
+              "type": "blend"
+            },
+            {
+              "name": "bwarp",
+              "seed": 31,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "amount": 0.03,
+              "by": "bwarp",
+              "coords": "pos",
+              "name": "bpos",
+              "type": "warp"
+            },
+            {
+              "a": [
+                0,
+                3.13,
+                0.29
+              ],
+              "b": [
+                0,
+                2.93,
+                0.24
+              ],
+              "coords": "bpos",
+              "name": "blood_s",
+              "radius": 0.045,
+              "type": "capsule"
+            },
+            {
+              "name": "blood",
+              "sdf": "blood_s",
+              "softness": 0.02,
+              "type": "mask"
+            },
+            {
+              "a": "c7",
+              "b": "#4a0b0e",
+              "mode": "normal",
+              "name": "c8",
+              "opacity": "blood",
+              "type": "blend"
+            },
+            {
+              "a": 0.82,
+              "b": 0.6,
+              "mode": "normal",
+              "name": "r0",
+              "opacity": "mottle",
+              "type": "blend"
+            },
+            {
+              "a": "r0",
+              "b": 0.45,
+              "mode": "normal",
+              "name": "r1",
+              "opacity": "crease",
+              "type": "blend"
+            },
+            {
+              "a": "r1",
+              "b": 0.18,
+              "mode": "normal",
+              "name": "rough",
+              "opacity": "blood",
+              "type": "blend"
+            },
+            {
+              "mode": "ridged",
+              "name": "wrink",
+              "seed": 41,
+              "size": 0.015,
+              "type": "noise"
+            },
+            {
+              "a": "wrink",
+              "b": 0.0025,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "veins",
+              "b": 0.0015,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "height",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "c8",
+              "height": "height",
+              "metallic": 0,
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+pos +ps +mottle +fine +bruise_n +bruise +c0 +c1 +c2 +vw +vline +vpatch_n +vpatch +veins +c3 +feet +xx +handsx +handsy +hands +ext +c4 +ao +crease +c5 +curv +ridge +c6 +eye_l_s +eye_r_s +eyes_s +sockets +c7 +bwarp +bpos +blood_s +blood +c8 +r0 +r1 +rough +wrink +h0 +h1 +height +out"
+      },
+      {
+        "model": {
+          "name": "hunter_skin_scary",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "pos",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "input": "pos",
+              "name": "ps",
+              "type": "split"
+            },
+            {
+              "name": "mottle",
+              "octaves": 4,
+              "seed": 3,
+              "size": 0.22,
+              "type": "noise"
+            },
+            {
+              "name": "fine",
+              "octaves": 3,
+              "seed": 5,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "name": "bruise_n",
+              "octaves": 3,
+              "seed": 17,
+              "size": 0.35,
+              "type": "noise"
+            },
+            {
+              "input": "bruise_n",
+              "name": "bruise",
+              "stops": [
+                [
+                  0.58,
+                  0
+                ],
+                [
+                  0.75,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#a3a291",
+              "b": "#69725e",
+              "mode": "normal",
+              "name": "c0",
+              "opacity": "mottle",
+              "type": "blend"
+            },
+            {
+              "a": "c0",
+              "b": "#9a9886",
+              "mode": "multiply",
+              "name": "c1",
+              "opacity": "fine",
+              "type": "blend"
+            },
+            {
+              "a": "c1",
+              "b": "#5b4150",
+              "mode": "normal",
+              "name": "c2",
+              "opacity": "bruise",
+              "type": "blend"
+            },
+            {
+              "name": "vw",
+              "seed": 9,
+              "size": 0.04,
+              "type": "worley"
+            },
+            {
+              "input": "vw.edge",
+              "name": "vline",
+              "stops": [
+                [
+                  0,
+                  0.8
+                ],
+                [
+                  0.035,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "name": "vpatch_n",
+              "seed": 23,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "vpatch_n",
+              "name": "vpatch",
+              "stops": [
+                [
+                  0.45,
+                  0
+                ],
+                [
+                  0.65,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "vline",
+              "b": "vpatch",
+              "name": "veins",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#33404e",
+              "mode": "normal",
+              "name": "c3",
+              "opacity": "veins",
+              "type": "blend"
+            },
+            {
+              "input": "ps.y",
+              "name": "feet",
+              "stops": [
+                [
+                  0.05,
+                  1
+                ],
+                [
+                  0.55,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "ps.x",
+              "b": "ps.x",
+              "name": "xx",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "input": "xx",
+              "name": "handsx",
+              "stops": [
+                [
+                  0.06,
+                  0
+                ],
+                [
+                  0.09,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "input": "ps.y",
+              "name": "handsy",
+              "stops": [
+                [
+                  1.55,
+                  0
+                ],
+                [
+                  1.7,
+                  1
+                ],
+                [
+                  2,
+                  1
+                ],
+                [
+                  2.1,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "handsx",
+              "b": "handsy",
+              "name": "hands",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "feet",
+              "b": "hands",
+              "name": "ext",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#2e2626",
+              "mode": "multiply",
+              "name": "c4",
+              "opacity": "ext",
+              "type": "blend"
+            },
+            {
+              "name": "ao",
+              "radius": 0.08,
+              "samples": 32,
+              "type": "mesh_ao"
+            },
+            {
+              "input": "ao",
+              "name": "crease",
+              "stops": [
+                [
+                  0.45,
+                  1
+                ],
+                [
+                  0.85,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c4",
+              "b": "#3b2420",
+              "mode": "normal",
+              "name": "c5",
+              "opacity": "crease",
+              "type": "blend"
+            },
+            {
+              "gain": 1,
+              "name": "curv",
+              "radius": 0.03,
+              "type": "mesh_curvature"
+            },
+            {
+              "input": "curv",
+              "name": "ridge",
+              "stops": [
+                [
+                  0.55,
+                  0
+                ],
+                [
+                  0.8,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c5",
+              "b": "#d9d5c4",
+              "mode": "normal",
+              "name": "c6",
+              "opacity": "ridge",
+              "type": "blend"
+            },
+            {
+              "center": [
+                0.045,
+                3.255,
+                0.24
+              ],
+              "name": "eye_l_s",
+              "radius": 0.07,
+              "type": "sphere"
+            },
+            {
+              "center": [
+                -0.045,
+                3.255,
+                0.24
+              ],
+              "name": "eye_r_s",
+              "radius": 0.07,
+              "type": "sphere"
+            },
+            {
+              "a": "eye_l_s",
+              "b": "eye_r_s",
+              "name": "eyes_s",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "sockets",
+              "sdf": "eyes_all",
+              "softness": 0.03,
+              "type": "mask"
+            },
+            {
+              "a": "c6",
+              "b": "#0b0708",
+              "mode": "normal",
+              "name": "c7",
+              "opacity": "sockets",
+              "type": "blend"
+            },
+            {
+              "name": "bwarp",
+              "seed": 31,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "amount": 0.045,
+              "by": "bwarp",
+              "coords": "pos",
+              "name": "bpos",
+              "type": "warp"
+            },
+            {
+              "a": [
+                -0.05,
+                3.12,
+                0.29
+              ],
+              "b": [
+                0.05,
+                3.12,
+                0.29
+              ],
+              "coords": "bpos",
+              "name": "blood_s",
+              "radius": 0.028,
+              "type": "capsule"
+            },
+            {
+              "name": "blood",
+              "sdf": "bl_all",
+              "softness": 0.012,
+              "type": "mask"
+            },
+            {
+              "a": "c7",
+              "b": "#3a0609",
+              "mode": "normal",
+              "name": "c8",
+              "opacity": "blood",
+              "type": "blend"
+            },
+            {
+              "a": 0.82,
+              "b": 0.6,
+              "mode": "normal",
+              "name": "r0",
+              "opacity": "mottle",
+              "type": "blend"
+            },
+            {
+              "a": "r0",
+              "b": 0.45,
+              "mode": "normal",
+              "name": "r1",
+              "opacity": "crease",
+              "type": "blend"
+            },
+            {
+              "a": "r1",
+              "b": 0.18,
+              "mode": "normal",
+              "name": "rough",
+              "opacity": "blood",
+              "type": "blend"
+            },
+            {
+              "mode": "ridged",
+              "name": "wrink",
+              "seed": 41,
+              "size": 0.015,
+              "type": "noise"
+            },
+            {
+              "a": "wrink",
+              "b": 0.0025,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "veins",
+              "b": 0.0015,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "height",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "c8",
+              "height": "height",
+              "metallic": 0,
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            },
+            {
+              "a": [
+                0.05,
+                3.23,
+                0.26
+              ],
+              "b": [
+                0.058,
+                3.07,
+                0.26
+              ],
+              "coords": "bpos",
+              "name": "tear_l",
+              "radius": 0.012,
+              "type": "capsule"
+            },
+            {
+              "a": [
+                -0.05,
+                3.23,
+                0.26
+              ],
+              "b": [
+                -0.04,
+                3.1,
+                0.27
+              ],
+              "coords": "bpos",
+              "name": "tear_r",
+              "radius": 0.01,
+              "type": "capsule"
+            },
+            {
+              "a": "eyes_s",
+              "b": "tear_l",
+              "name": "eyes_t",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "eyes_t",
+              "b": "tear_r",
+              "name": "eyes_all",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": [
+                0.03,
+                3.1,
+                0.29
+              ],
+              "b": [
+                0.035,
+                2.9,
+                0.22
+              ],
+              "coords": "bpos",
+              "name": "drip1",
+              "radius": 0.011,
+              "type": "capsule"
+            },
+            {
+              "a": [
+                -0.02,
+                3.1,
+                0.29
+              ],
+              "b": [
+                -0.03,
+                2.97,
+                0.25
+              ],
+              "coords": "bpos",
+              "name": "drip2",
+              "radius": 0.009,
+              "type": "capsule"
+            },
+            {
+              "a": [
+                0,
+                3.08,
+                0.29
+              ],
+              "b": [
+                0.005,
+                2.72,
+                0.16
+              ],
+              "coords": "bpos",
+              "name": "drip3",
+              "radius": 0.008,
+              "type": "capsule"
+            },
+            {
+              "a": "blood_s",
+              "b": "drip1",
+              "name": "bl_a",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "bl_a",
+              "b": "drip2",
+              "name": "bl_b",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "bl_b",
+              "b": "drip3",
+              "name": "bl_all",
+              "op": "union",
+              "type": "sdf_op"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "+tear_l +tear_r +eyes_t +eyes_all +drip1 +drip2 +drip3 +bl_a +bl_b +bl_all ~c0 ~vw ~vline ~eye_l_s ~eye_r_s ~sockets ~c7 ~bpos ~blood_s ~blood ~c8"
+      },
+      {
+        "model": {
+          "name": "hunter_skin_scary",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "pos",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "input": "pos",
+              "name": "ps",
+              "type": "split"
+            },
+            {
+              "name": "mottle",
+              "octaves": 4,
+              "seed": 3,
+              "size": 0.22,
+              "type": "noise"
+            },
+            {
+              "name": "fine",
+              "octaves": 3,
+              "seed": 5,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "name": "bruise_n",
+              "octaves": 3,
+              "seed": 17,
+              "size": 0.35,
+              "type": "noise"
+            },
+            {
+              "input": "bruise_n",
+              "name": "bruise",
+              "stops": [
+                [
+                  0.58,
+                  0
+                ],
+                [
+                  0.75,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#a3a291",
+              "b": "#69725e",
+              "mode": "normal",
+              "name": "c0",
+              "opacity": "mottle",
+              "type": "blend"
+            },
+            {
+              "a": "c0",
+              "b": "#9a9886",
+              "mode": "multiply",
+              "name": "c1",
+              "opacity": "fine",
+              "type": "blend"
+            },
+            {
+              "a": "c1",
+              "b": "#5b4150",
+              "mode": "normal",
+              "name": "c2",
+              "opacity": "bruise",
+              "type": "blend"
+            },
+            {
+              "name": "vw",
+              "seed": 9,
+              "size": 0.04,
+              "type": "worley"
+            },
+            {
+              "input": "vw.edge",
+              "name": "vline",
+              "stops": [
+                [
+                  0,
+                  0.8
+                ],
+                [
+                  0.035,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "name": "vpatch_n",
+              "seed": 23,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "vpatch_n",
+              "name": "vpatch",
+              "stops": [
+                [
+                  0.45,
+                  0
+                ],
+                [
+                  0.65,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "vline",
+              "b": "vpatch",
+              "name": "veins",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#33404e",
+              "mode": "normal",
+              "name": "c3",
+              "opacity": "veins",
+              "type": "blend"
+            },
+            {
+              "input": "ps.y",
+              "name": "feet",
+              "stops": [
+                [
+                  0.05,
+                  1
+                ],
+                [
+                  0.55,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "ps.x",
+              "b": "ps.x",
+              "name": "xx",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "input": "xx",
+              "name": "handsx",
+              "stops": [
+                [
+                  0.06,
+                  0
+                ],
+                [
+                  0.09,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "input": "ps.y",
+              "name": "handsy",
+              "stops": [
+                [
+                  1.55,
+                  0
+                ],
+                [
+                  1.7,
+                  1
+                ],
+                [
+                  2,
+                  1
+                ],
+                [
+                  2.1,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "handsx",
+              "b": "handsy",
+              "name": "hands",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "feet",
+              "b": "hands",
+              "name": "ext",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#2e2626",
+              "mode": "multiply",
+              "name": "c4",
+              "opacity": "ext",
+              "type": "blend"
+            },
+            {
+              "name": "ao",
+              "radius": 0.08,
+              "samples": 32,
+              "type": "mesh_ao"
+            },
+            {
+              "input": "ao",
+              "name": "crease",
+              "stops": [
+                [
+                  0.45,
+                  1
+                ],
+                [
+                  0.85,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c4",
+              "b": "#3b2420",
+              "mode": "normal",
+              "name": "c5",
+              "opacity": "crease",
+              "type": "blend"
+            },
+            {
+              "gain": 1,
+              "name": "curv",
+              "radius": 0.03,
+              "type": "mesh_curvature"
+            },
+            {
+              "input": "curv",
+              "name": "ridge",
+              "stops": [
+                [
+                  0.55,
+                  0
+                ],
+                [
+                  0.8,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c5",
+              "b": "#d9d5c4",
+              "mode": "normal",
+              "name": "c6",
+              "opacity": "ridge",
+              "type": "blend"
+            },
+            {
+              "center": [
+                0.045,
+                3.255,
+                0.24
+              ],
+              "name": "eye_l_s",
+              "radius": 0.07,
+              "type": "sphere"
+            },
+            {
+              "center": [
+                -0.045,
+                3.255,
+                0.24
+              ],
+              "name": "eye_r_s",
+              "radius": 0.07,
+              "type": "sphere"
+            },
+            {
+              "a": "eye_l_s",
+              "b": "eye_r_s",
+              "name": "eyes_s",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "sockets",
+              "sdf": "eyes_all",
+              "softness": 0.03,
+              "type": "mask"
+            },
+            {
+              "a": "c6",
+              "b": "#0b0708",
+              "mode": "normal",
+              "name": "c7",
+              "opacity": "sockets",
+              "type": "blend"
+            },
+            {
+              "name": "bwarp",
+              "seed": 31,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "amount": 0.025,
+              "by": "bwarp",
+              "centered": true,
+              "coords": "pos",
+              "name": "bpos",
+              "type": "warp"
+            },
+            {
+              "a": [
+                -0.05,
+                3.12,
+                0.29
+              ],
+              "b": [
+                0.05,
+                3.12,
+                0.29
+              ],
+              "coords": "bpos",
+              "name": "blood_s",
+              "radius": 0.028,
+              "type": "capsule"
+            },
+            {
+              "name": "blood",
+              "sdf": "bl_all",
+              "softness": 0.012,
+              "type": "mask"
+            },
+            {
+              "a": "c7",
+              "b": "#3a0609",
+              "mode": "normal",
+              "name": "c8",
+              "opacity": "blood",
+              "type": "blend"
+            },
+            {
+              "a": 0.82,
+              "b": 0.6,
+              "mode": "normal",
+              "name": "r0",
+              "opacity": "mottle",
+              "type": "blend"
+            },
+            {
+              "a": "r0",
+              "b": 0.45,
+              "mode": "normal",
+              "name": "r1",
+              "opacity": "crease",
+              "type": "blend"
+            },
+            {
+              "a": "r1",
+              "b": 0.18,
+              "mode": "normal",
+              "name": "rough",
+              "opacity": "blood",
+              "type": "blend"
+            },
+            {
+              "mode": "ridged",
+              "name": "wrink",
+              "seed": 41,
+              "size": 0.015,
+              "type": "noise"
+            },
+            {
+              "a": "wrink",
+              "b": 0.0025,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "veins",
+              "b": 0.0015,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "height",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "c8",
+              "height": "height",
+              "metallic": 0,
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            },
+            {
+              "a": [
+                0.05,
+                3.23,
+                0.26
+              ],
+              "b": [
+                0.058,
+                3.07,
+                0.26
+              ],
+              "coords": "bpos",
+              "name": "tear_l",
+              "radius": 0.012,
+              "type": "capsule"
+            },
+            {
+              "a": [
+                -0.05,
+                3.23,
+                0.26
+              ],
+              "b": [
+                -0.04,
+                3.1,
+                0.27
+              ],
+              "coords": "bpos",
+              "name": "tear_r",
+              "radius": 0.01,
+              "type": "capsule"
+            },
+            {
+              "a": "eyes_s",
+              "b": "tear_l",
+              "name": "eyes_t",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "eyes_t",
+              "b": "tear_r",
+              "name": "eyes_all",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": [
+                0.03,
+                3.1,
+                0.29
+              ],
+              "b": [
+                0.035,
+                2.9,
+                0.22
+              ],
+              "coords": "bpos",
+              "name": "drip1",
+              "radius": 0.011,
+              "type": "capsule"
+            },
+            {
+              "a": [
+                -0.02,
+                3.1,
+                0.29
+              ],
+              "b": [
+                -0.03,
+                2.97,
+                0.25
+              ],
+              "coords": "bpos",
+              "name": "drip2",
+              "radius": 0.009,
+              "type": "capsule"
+            },
+            {
+              "a": [
+                0,
+                3.08,
+                0.29
+              ],
+              "b": [
+                0.005,
+                2.72,
+                0.16
+              ],
+              "coords": "bpos",
+              "name": "drip3",
+              "radius": 0.008,
+              "type": "capsule"
+            },
+            {
+              "a": "blood_s",
+              "b": "drip1",
+              "name": "bl_a",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "bl_a",
+              "b": "drip2",
+              "name": "bl_b",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "bl_b",
+              "b": "drip3",
+              "name": "bl_all",
+              "op": "union",
+              "type": "sdf_op"
+            }
+          ],
+          "params": {},
+          "version": 3
+        },
+        "parent": 1,
+        "children": [
+          3
+        ],
+        "label": "~bpos"
+      },
+      {
+        "model": {
+          "name": "hunter_skin_scary",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "pos",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "input": "pos",
+              "name": "ps",
+              "type": "split"
+            },
+            {
+              "name": "mottle",
+              "octaves": 4,
+              "seed": 3,
+              "size": 0.22,
+              "type": "noise"
+            },
+            {
+              "name": "fine",
+              "octaves": 3,
+              "seed": 5,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "name": "bruise_n",
+              "octaves": 3,
+              "seed": 17,
+              "size": 0.35,
+              "type": "noise"
+            },
+            {
+              "input": "bruise_n",
+              "name": "bruise",
+              "stops": [
+                [
+                  0.58,
+                  0
+                ],
+                [
+                  0.75,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#a3a291",
+              "b": "#69725e",
+              "mode": "normal",
+              "name": "c0",
+              "opacity": "mottle",
+              "type": "blend"
+            },
+            {
+              "a": "c0",
+              "b": "#9a9886",
+              "mode": "multiply",
+              "name": "c1",
+              "opacity": "fine",
+              "type": "blend"
+            },
+            {
+              "a": "c1",
+              "b": "#5b4150",
+              "mode": "normal",
+              "name": "c2",
+              "opacity": "bruise",
+              "type": "blend"
+            },
+            {
+              "name": "vw",
+              "seed": 9,
+              "size": 0.04,
+              "type": "worley"
+            },
+            {
+              "input": "vw.edge",
+              "name": "vline",
+              "stops": [
+                [
+                  0,
+                  0.8
+                ],
+                [
+                  0.035,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "name": "vpatch_n",
+              "seed": 23,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "vpatch_n",
+              "name": "vpatch",
+              "stops": [
+                [
+                  0.45,
+                  0
+                ],
+                [
+                  0.65,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "vline",
+              "b": "vpatch",
+              "name": "veins",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#33404e",
+              "mode": "normal",
+              "name": "c3",
+              "opacity": "veins",
+              "type": "blend"
+            },
+            {
+              "input": "ps.y",
+              "name": "feet",
+              "stops": [
+                [
+                  0.05,
+                  1
+                ],
+                [
+                  0.55,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "ps.x",
+              "b": "ps.x",
+              "name": "xx",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "input": "xx",
+              "name": "handsx",
+              "stops": [
+                [
+                  0.06,
+                  0
+                ],
+                [
+                  0.09,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "input": "ps.y",
+              "name": "handsy",
+              "stops": [
+                [
+                  1.55,
+                  0
+                ],
+                [
+                  1.7,
+                  1
+                ],
+                [
+                  2,
+                  1
+                ],
+                [
+                  2.1,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "handsx",
+              "b": "handsy",
+              "name": "hands",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "feet",
+              "b": "hands",
+              "name": "ext",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#2e2626",
+              "mode": "multiply",
+              "name": "c4",
+              "opacity": "ext",
+              "type": "blend"
+            },
+            {
+              "name": "ao",
+              "radius": 0.08,
+              "samples": 32,
+              "type": "mesh_ao"
+            },
+            {
+              "input": "ao",
+              "name": "crease",
+              "stops": [
+                [
+                  0.45,
+                  1
+                ],
+                [
+                  0.85,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c4",
+              "b": "#3b2420",
+              "mode": "normal",
+              "name": "c5",
+              "opacity": "crease",
+              "type": "blend"
+            },
+            {
+              "gain": 1,
+              "name": "curv",
+              "radius": 0.03,
+              "type": "mesh_curvature"
+            },
+            {
+              "input": "curv",
+              "name": "ridge",
+              "stops": [
+                [
+                  0.55,
+                  0
+                ],
+                [
+                  0.8,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c5",
+              "b": "#d9d5c4",
+              "mode": "normal",
+              "name": "c6",
+              "opacity": "ridge",
+              "type": "blend"
+            },
+            {
+              "center": [
+                0.045,
+                3.255,
+                0.24
+              ],
+              "name": "eye_l_s",
+              "radius": 0.07,
+              "type": "sphere"
+            },
+            {
+              "center": [
+                -0.045,
+                3.255,
+                0.24
+              ],
+              "name": "eye_r_s",
+              "radius": 0.07,
+              "type": "sphere"
+            },
+            {
+              "a": "eye_l_s",
+              "b": "eye_r_s",
+              "name": "eyes_s",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "sockets",
+              "sdf": "eyes_all",
+              "softness": 0.03,
+              "type": "mask"
+            },
+            {
+              "a": "c6",
+              "b": "#0b0708",
+              "mode": "normal",
+              "name": "c7",
+              "opacity": "sockets",
+              "type": "blend"
+            },
+            {
+              "name": "bwarp",
+              "seed": 31,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "amount": 0.025,
+              "by": "bwarp",
+              "centered": true,
+              "coords": "pos",
+              "name": "bpos",
+              "type": "warp"
+            },
+            {
+              "a": [
+                -0.05,
+                3.12,
+                0.29
+              ],
+              "b": [
+                0.05,
+                3.12,
+                0.29
+              ],
+              "coords": "bpos",
+              "name": "blood_s",
+              "radius": 0.1,
+              "type": "capsule"
+            },
+            {
+              "name": "blood",
+              "sdf": "bl_all",
+              "softness": 0.012,
+              "type": "mask"
+            },
+            {
+              "a": "c7",
+              "b": "#3a0609",
+              "mode": "normal",
+              "name": "c8",
+              "opacity": "blood",
+              "type": "blend"
+            },
+            {
+              "a": 0.82,
+              "b": 0.6,
+              "mode": "normal",
+              "name": "r0",
+              "opacity": "mottle",
+              "type": "blend"
+            },
+            {
+              "a": "r0",
+              "b": 0.45,
+              "mode": "normal",
+              "name": "r1",
+              "opacity": "crease",
+              "type": "blend"
+            },
+            {
+              "a": "r1",
+              "b": 0.18,
+              "mode": "normal",
+              "name": "rough",
+              "opacity": "blood",
+              "type": "blend"
+            },
+            {
+              "mode": "ridged",
+              "name": "wrink",
+              "seed": 41,
+              "size": 0.015,
+              "type": "noise"
+            },
+            {
+              "a": "wrink",
+              "b": 0.0025,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "veins",
+              "b": 0.0015,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "height",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "c8",
+              "height": "height",
+              "metallic": 0,
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            },
+            {
+              "a": [
+                0.05,
+                3.23,
+                0.26
+              ],
+              "b": [
+                0.058,
+                3.07,
+                0.26
+              ],
+              "coords": "bpos",
+              "name": "tear_l",
+              "radius": 0.012,
+              "type": "capsule"
+            },
+            {
+              "a": [
+                -0.05,
+                3.23,
+                0.26
+              ],
+              "b": [
+                -0.04,
+                3.1,
+                0.27
+              ],
+              "coords": "bpos",
+              "name": "tear_r",
+              "radius": 0.01,
+              "type": "capsule"
+            },
+            {
+              "a": "eyes_s",
+              "b": "tear_l",
+              "name": "eyes_t",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "eyes_t",
+              "b": "tear_r",
+              "name": "eyes_all",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": [
+                0.03,
+                3.1,
+                0.29
+              ],
+              "b": [
+                0.035,
+                2.9,
+                0.22
+              ],
+              "coords": "bpos",
+              "name": "drip1",
+              "radius": 0.011,
+              "type": "capsule"
+            },
+            {
+              "a": [
+                -0.02,
+                3.1,
+                0.29
+              ],
+              "b": [
+                -0.03,
+                2.97,
+                0.25
+              ],
+              "coords": "bpos",
+              "name": "drip2",
+              "radius": 0.009,
+              "type": "capsule"
+            },
+            {
+              "a": [
+                0,
+                3.08,
+                0.29
+              ],
+              "b": [
+                0.005,
+                2.72,
+                0.16
+              ],
+              "coords": "bpos",
+              "name": "drip3",
+              "radius": 0.008,
+              "type": "capsule"
+            },
+            {
+              "a": "blood_s",
+              "b": "drip1",
+              "name": "bl_a",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "bl_a",
+              "b": "drip2",
+              "name": "bl_b",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "bl_b",
+              "b": "drip3",
+              "name": "bl_all",
+              "op": "union",
+              "type": "sdf_op"
+            }
+          ],
+          "params": {},
+          "version": 4
+        },
+        "parent": 2,
+        "children": [
+          4
+        ],
+        "label": "~blood_s"
+      },
+      {
+        "model": {
+          "name": "hunter_skin_scary",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "pos",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "input": "pos",
+              "name": "ps",
+              "type": "split"
+            },
+            {
+              "name": "mottle",
+              "octaves": 4,
+              "seed": 3,
+              "size": 0.22,
+              "type": "noise"
+            },
+            {
+              "name": "fine",
+              "octaves": 3,
+              "seed": 5,
+              "size": 0.04,
+              "type": "noise"
+            },
+            {
+              "name": "bruise_n",
+              "octaves": 3,
+              "seed": 17,
+              "size": 0.35,
+              "type": "noise"
+            },
+            {
+              "input": "bruise_n",
+              "name": "bruise",
+              "stops": [
+                [
+                  0.58,
+                  0
+                ],
+                [
+                  0.75,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#a3a291",
+              "b": "#69725e",
+              "mode": "normal",
+              "name": "c0",
+              "opacity": "mottle",
+              "type": "blend"
+            },
+            {
+              "a": "c0",
+              "b": "#9a9886",
+              "mode": "multiply",
+              "name": "c1",
+              "opacity": "fine",
+              "type": "blend"
+            },
+            {
+              "a": "c1",
+              "b": "#5b4150",
+              "mode": "normal",
+              "name": "c2",
+              "opacity": "bruise",
+              "type": "blend"
+            },
+            {
+              "name": "vw",
+              "seed": 9,
+              "size": 0.04,
+              "type": "worley"
+            },
+            {
+              "input": "vw.edge",
+              "name": "vline",
+              "stops": [
+                [
+                  0,
+                  0.8
+                ],
+                [
+                  0.035,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "name": "vpatch_n",
+              "seed": 23,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "vpatch_n",
+              "name": "vpatch",
+              "stops": [
+                [
+                  0.45,
+                  0
+                ],
+                [
+                  0.65,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "vline",
+              "b": "vpatch",
+              "name": "veins",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#33404e",
+              "mode": "normal",
+              "name": "c3",
+              "opacity": "veins",
+              "type": "blend"
+            },
+            {
+              "input": "ps.y",
+              "name": "feet",
+              "stops": [
+                [
+                  0.05,
+                  1
+                ],
+                [
+                  0.55,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "ps.x",
+              "b": "ps.x",
+              "name": "xx",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "input": "xx",
+              "name": "handsx",
+              "stops": [
+                [
+                  0.06,
+                  0
+                ],
+                [
+                  0.09,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "input": "ps.y",
+              "name": "handsy",
+              "stops": [
+                [
+                  1.55,
+                  0
+                ],
+                [
+                  1.7,
+                  1
+                ],
+                [
+                  2,
+                  1
+                ],
+                [
+                  2.1,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "handsx",
+              "b": "handsy",
+              "name": "hands",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "feet",
+              "b": "hands",
+              "name": "ext",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#2e2626",
+              "mode": "multiply",
+              "name": "c4",
+              "opacity": "ext",
+              "type": "blend"
+            },
+            {
+              "name": "ao",
+              "radius": 0.08,
+              "samples": 32,
+              "type": "mesh_ao"
+            },
+            {
+              "input": "ao",
+              "name": "crease",
+              "stops": [
+                [
+                  0.45,
+                  1
+                ],
+                [
+                  0.85,
+                  0
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c4",
+              "b": "#3b2420",
+              "mode": "normal",
+              "name": "c5",
+              "opacity": "crease",
+              "type": "blend"
+            },
+            {
+              "gain": 1,
+              "name": "curv",
+              "radius": 0.03,
+              "type": "mesh_curvature"
+            },
+            {
+              "input": "curv",
+              "name": "ridge",
+              "stops": [
+                [
+                  0.55,
+                  0
+                ],
+                [
+                  0.8,
+                  1
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "c5",
+              "b": "#d9d5c4",
+              "mode": "normal",
+              "name": "c6",
+              "opacity": "ridge",
+              "type": "blend"
+            },
+            {
+              "center": [
+                0.045,
+                3.255,
+                0.24
+              ],
+              "name": "eye_l_s",
+              "radius": 0.07,
+              "type": "sphere"
+            },
+            {
+              "center": [
+                -0.045,
+                3.255,
+                0.24
+              ],
+              "name": "eye_r_s",
+              "radius": 0.07,
+              "type": "sphere"
+            },
+            {
+              "a": "eye_l_s",
+              "b": "eye_r_s",
+              "name": "eyes_s",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "sockets",
+              "sdf": "eyes_all",
+              "softness": 0.03,
+              "type": "mask"
+            },
+            {
+              "a": "c6",
+              "b": "#0b0708",
+              "mode": "normal",
+              "name": "c7",
+              "opacity": "sockets",
+              "type": "blend"
+            },
+            {
+              "name": "bwarp",
+              "seed": 31,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "amount": 0.025,
+              "by": "bwarp",
+              "centered": true,
+              "coords": "pos",
+              "name": "bpos",
+              "type": "warp"
+            },
+            {
+              "a": [
+                -0.055,
+                3.125,
+                0.27
+              ],
+              "b": [
+                0.055,
+                3.125,
+                0.27
+              ],
+              "coords": "bpos",
+              "name": "blood_s",
+              "radius": 0.05,
+              "type": "capsule"
+            },
+            {
+              "name": "blood",
+              "sdf": "bl_all",
+              "softness": 0.012,
+              "type": "mask"
+            },
+            {
+              "a": "c7",
+              "b": "#3a0609",
+              "mode": "normal",
+              "name": "c8",
+              "opacity": "blood",
+              "type": "blend"
+            },
+            {
+              "a": 0.82,
+              "b": 0.6,
+              "mode": "normal",
+              "name": "r0",
+              "opacity": "mottle",
+              "type": "blend"
+            },
+            {
+              "a": "r0",
+              "b": 0.45,
+              "mode": "normal",
+              "name": "r1",
+              "opacity": "crease",
+              "type": "blend"
+            },
+            {
+              "a": "r1",
+              "b": 0.18,
+              "mode": "normal",
+              "name": "rough",
+              "opacity": "blood",
+              "type": "blend"
+            },
+            {
+              "mode": "ridged",
+              "name": "wrink",
+              "seed": 41,
+              "size": 0.015,
+              "type": "noise"
+            },
+            {
+              "a": "wrink",
+              "b": 0.0025,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "veins",
+              "b": 0.0015,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "height",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "c8",
+              "height": "height",
+              "metallic": 0,
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            },
+            {
+              "a": [
+                0.05,
+                3.22,
+                0.25
+              ],
+              "b": [
+                0.06,
+                3.1,
+                0.25
+              ],
+              "coords": "bpos",
+              "name": "tear_l",
+              "radius": 0.02,
+              "type": "capsule"
+            },
+            {
+              "a": [
+                -0.05,
+                3.22,
+                0.25
+              ],
+              "b": [
+                -0.045,
+                3.13,
+                0.26
+              ],
+              "coords": "bpos",
+              "name": "tear_r",
+              "radius": 0.017,
+              "type": "capsule"
+            },
+            {
+              "a": "eyes_s",
+              "b": "tear_l",
+              "name": "eyes_t",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "eyes_t",
+              "b": "tear_r",
+              "name": "eyes_all",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": [
+                0.035,
+                3.08,
+                0.25
+              ],
+              "b": [
+                0.03,
+                2.98,
+                0.14
+              ],
+              "coords": "bpos",
+              "name": "drip1",
+              "radius": 0.022,
+              "type": "capsule"
+            },
+            {
+              "a": [
+                -0.03,
+                3.08,
+                0.25
+              ],
+              "b": [
+                -0.035,
+                3,
+                0.15
+              ],
+              "coords": "bpos",
+              "name": "drip2",
+              "radius": 0.02,
+              "type": "capsule"
+            },
+            {
+              "a": [
+                0.03,
+                2.98,
+                0.14
+              ],
+              "b": [
+                0.02,
+                2.72,
+                0.07
+              ],
+              "coords": "bpos",
+              "name": "drip3",
+              "radius": 0.016,
+              "type": "capsule"
+            },
+            {
+              "a": "blood_s",
+              "b": "drip1",
+              "name": "bl_a",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "bl_a",
+              "b": "drip2",
+              "name": "bl_b",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "a": "bl_b",
+              "b": "drip3",
+              "name": "bl_all",
+              "op": "union",
+              "type": "sdf_op"
+            }
+          ],
+          "params": {},
+          "version": 5
+        },
+        "parent": 3,
+        "children": [],
+        "label": "~blood_s ~drip1 ~drip2 ~drip3 ~tear_l ~tear_r"
+      }
+    ],
+    "current": 4
+  }
+}

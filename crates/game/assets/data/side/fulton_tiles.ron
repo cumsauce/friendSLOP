@@ -39,6 +39,16 @@
     sign_turn: "fs_sign_turn.gltf",
     sign_ahead: "fs_sign_ahead.gltf",
     sign_down: "fs_sign_down.gltf",
+    // The train tunnels' tiles (sources `fs-tunnel-*`; 12 m, two cells across,
+    // walls and rails only: each cell's floor and ceiling are the room floor's,
+    // the columns down the middle are the room column). Both stand on their
+    // middle with the floor at y = 0.
+    tunnel: (
+        // Open N and S; a track either side of the columns at x = -3 and 3.
+        straight: "fs_tunnel_straight.gltf",
+        // Open N and E; the tracks bend round the NE corner, the SW corner is rounded off.
+        curve: "fs_tunnel_curve.gltf",
+    ),
     // The big rooms' pieces (sources `fs-room-*`): a room cell's floor and
     // ceiling with no walls, one cell's wall modelled along its N edge (turned
     // onto every walled side), and a column stood where four room cells meet.

@@ -34,7 +34,9 @@ chapter and its ticks, so hosting again (even after an update) carries on where 
 
 **Always going on:** the Stillness freezes everything for 75 s every 16 minutes. Fart near an
 NPC and get caught 4 times: villagers chase you and float you. Villagers fart and blame you.
-Low morality brings a helicopter. 5% of actions fail sillily. Marmalade's wheel bends a rule. Your fat cat grows unwatched and drinks pee; at 10x
+Sprinting and climbing burn stamina (climbing much faster): run dry and you can't sprint until
+you've caught your breath, and a spent climber drops off the wall. The stamina card (bottom right)
+only shows while it's being spent or coming back. Low morality brings a helicopter. 5% of actions fail sillily. Marmalade's wheel bends a rule. Your fat cat grows unwatched and drinks pee; at 10x
 it gobbles up you or anyone in its mouth.
 Say "mute" at a friend (Q) and they're silenced until they RPG you. Stand still 3 min
 and systemd (PID 1) kills you; wade out of your depth in the lake for 12 s and you drown. Tiny notes under the Cat card (bottom right) say which world-wide effect is on right now. Say hi (T), or high five, dap up or rock paper scissors a friend (U, O). Pointless achievements pop up for walking, spinning and standing around.
@@ -44,7 +46,7 @@ or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava
 golden, nights are dark blue with stars, a moon, and a city whose windows and street lamps light up. Some nights you hear whispers behind you.
 Every way in or out (doors, stairs, manholes, train doors) glows and names where it goes.
 **In New York:** find the J to Brooklyn in Fulton St station, 40 levels down (past empty
-subway platforms every few levels), for Pelf, while
+subway platforms every few levels, and big train-tunnel rings you must cross, sometimes round a cave-in: don't get caught with no stamina), for Pelf, while
 Andrew calls, gets angry, and sends something after you (hide in lockers). Everyone carries
 $100; going down may drop your wallet somewhere in the station: find it (and strangers'
 wallets), or press I for an insurance drone that keeps 70%. B brags: coins fall out for others. Or step into the
@@ -111,6 +113,11 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
 - **Climbing and floating islands** (#99). Hold W and Space against anything steep to climb it;
   three grassy islands float above the south-east meadow, reached by climbing rock spires.
   Nothing is up there yet but the view.
+- **Stamina.** Sprinting and climbing spend a shared stamina bar (climbing costs about twice as
+  much a second), shown as a card in the bottom-right stack only while it's being spent or
+  recovering. At zero you're exhausted: no sprinting or climbing until it's back to 30%, and a
+  climber lets go and falls. It comes back only with your feet on the ground.
+  `crates/play/src/features/stamina.rs`, `data/play/stamina.ron`.
 - **Make your own character** (#100). The menu's Character button opens a creator with a live
   3D preview (body type, size, colours, eyes, ears, horns, tail, accessory); it's saved locally,
   sent to the host and seen by everyone. Bodies are procedural rigs shared with villagers.
@@ -259,6 +266,17 @@ free, and dollars only buy boba, joints and hats so far (and Wendy's butcher tur
   hunter uses the stairs. Some corridor joins have caved in: rubble only where there's
   another way round, otherwise a squeeze between two heaps. Chances in `fulton.ron`
   (`rooms.l_chance`, `rooms.tall`, `collapse`).
+- **Fulton St train tunnels** (friend: "new tiles for train tunnels ... much larger tile size
+  ... curves and straight sections ... forced to use them if a tunnel is collapsed ... fatal to
+  be chased with no stamina"). Every 4th level (from level 2, never a platform level or the one
+  under one) is a tunnel level: a ring of 12 m double-track tiles (2x2 cells; straights and
+  curves, `fs-tunnel-*`) round the edge, with centre columns. Stairs land on one side and the way
+  down is across the ring, so there are two arms of at least three tiles. Straights can cave in
+  across their middle (rubble, or a squeeze when it would cut something off): one arm shut means
+  the other is the only way. Nothing else is down there, so a long run with no stamina is the
+  level. Read as: forced because the stairs drop you in; no extra stamina cost invented.
+  `fulton.ron` (`tunnels`), `fulton_tiles.ron` (`tunnel`); open: tunnels don't yet connect to the
+  platforms' track mouths.
 - **Fulton St lighting**. Station is dark with fluorescent fittings per cell and some shadows.
   `fulton.ron` (`light`).
 - **Reflections**. Shiny things reflect baked environment maps (world and Fulton St), baked with

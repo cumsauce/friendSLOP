@@ -41,11 +41,11 @@ use friendslop_wfc as wfc;
 use serde::{Deserialize, Serialize};
 
 use super::fulton::{
-    CELL, HIDE_AT, Kind, Level, LevelModels, Station, TILES, TileSet, Tuning, cell_world, floor_at,
-    level_at, street_at, tuning,
+    CELL, HIDE_AT, Kind, LOCKER_DOORS_X, Level, LevelModels, Station, TILES, TileSet, Tuning,
+    cell_world, floor_at, level_at, street_at, tuning,
 };
 use crate::AppState;
-use crate::features::fps::{WalkInput, Walker, teleport};
+use crate::features::fps::{Hiding, WalkInput, Walker, teleport};
 use crate::features::interact::{Clickable, Clicked};
 use crate::features::noise::{Level as Loud, Noise};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
@@ -239,6 +239,9 @@ pub enum Mode {
     Chase,
     /// Checking lockers where it lost you.
     Search,
+    /// It has had eyes on you long enough: curled into a ball and rolling
+    /// at you, faster than you run. Breaks back into a run at the end.
+    Roll,
     /// Backing off for a while.
     Retreat,
 }
@@ -261,6 +264,12 @@ pub struct Brain {
     pub last_seen: Option<Node>,
     pub searched: Vec<Node>,
     pub rng: wfc::Rng,
+    /// Seconds it has had you in clear sight without blinking.
+    pub sighted: f32,
+    /// Seconds left of the roll it is in.
+    pub rolling: f32,
+    /// Seconds before it may roll again.
+    pub roll_cd: f32,
 }
 
 impl Brain {
@@ -272,6 +281,9 @@ impl Brain {
             last_seen: None,
             searched: Vec::new(),
             rng: wfc::Rng::new(seed | 1),
+            sighted: 0.0,
+            rolling: 0.0,
+            roll_cd: 0.0,
         }
     }
 }
@@ -331,11 +343,28 @@ pub fn think(
             return Outcome::Caught(p.id);
         }
     }
+    brain.roll_cd = (brain.roll_cd - dt).max(0.0);
     // Its eyes.
     let seen = prey
         .iter()
         .filter(|p| p.hidden.is_none())
         .find(|p| sees(t, levels, hunter.pos, hunter.yaw, p.feet));
+    // Clear sight for long enough and it stops pretending to be a person.
+    if seen.is_some() && hunter.mode != Mode::Roll {
+        brain.sighted += dt;
+    } else if seen.is_none() {
+        brain.sighted = 0.0;
+    }
+    if seen.is_some()
+        && hunter.mode != Mode::Roll
+        && brain.sighted >= h.roll_sight_secs
+        && brain.roll_cd <= 0.0
+    {
+        hunter.mode = Mode::Roll;
+        brain.rolling = h.roll_secs;
+        brain.roll_cd = h.roll_cooldown_secs;
+        brain.route.clear();
+    }
     if let Some(p) = seen {
         let at = node_at(t, levels, p.feet);
         if hunter.mode != Mode::Chase {
@@ -344,7 +373,9 @@ pub fn think(
         if hunter.mode != Mode::Chase || brain.last_seen != at {
             brain.route = at.and_then(|a| route(levels, me, a)).unwrap_or_default();
         }
-        hunter.mode = Mode::Chase;
+        if hunter.mode != Mode::Roll {
+            hunter.mode = Mode::Chase;
+        }
         brain.last_seen = at;
         brain.timer = h.lose_secs;
     }
@@ -389,6 +420,23 @@ pub fn think(
             }
         }
         Mode::Chase => {}
+        Mode::Roll => {
+            brain.rolling -= dt;
+            // Out of the roll and straight back into the run at you.
+            if brain.rolling <= 0.0 {
+                hunter.mode = if seen.is_some() {
+                    Mode::Chase
+                } else {
+                    Mode::Search
+                };
+                brain.timer = if seen.is_some() {
+                    h.lose_secs
+                } else {
+                    h.search_secs
+                };
+                brain.sighted = 0.0;
+            }
+        }
         Mode::Search => {
             if brain.route.is_empty() {
                 // At a locker? Try it.
@@ -455,6 +503,24 @@ pub fn think(
             }
         }
     }
+    // A rolling ball doesn't path around corners: it goes at you.
+    if hunter.mode == Mode::Roll {
+        let to = match (seen, brain.last_seen) {
+            (Some(p), _) => Some(p.feet),
+            (None, Some(n)) => Some(node_floor(t, levels, n)),
+            _ => None,
+        };
+        if let Some(to) = to {
+            let d = (to - hunter.pos).xz();
+            if d.length() > 0.05 {
+                hunter.yaw = d.x.atan2(d.y);
+                let step = d.normalize() * (h.roll_speed * dt).min(d.length());
+                hunter.pos += Vec3::new(step.x, 0.0, step.y);
+                hunter.pos.y = floor_at(t, levels, hunter.pos);
+            }
+        }
+        return out;
+    }
     walk(t, levels, hunter, brain, dt);
     // In the same cell as whoever it's chasing: straight at them.
     if let Some(p) = seen
@@ -486,10 +552,10 @@ pub fn node_floor(t: &Tuning, levels: &[Level], n: Node) -> Vec3 {
 
 /// Move along the route (on the floor: up and down a tall room's stairs).
 fn walk(t: &Tuning, levels: &[Level], hunter: &mut Hunter, brain: &mut Brain, dt: f32) {
-    let speed = if hunter.mode == Mode::Chase {
-        t.hunt.chase_speed
-    } else {
-        t.hunt.walk_speed
+    let speed = match hunter.mode {
+        Mode::Roll => t.hunt.roll_speed,
+        Mode::Chase => t.hunt.chase_speed,
+        _ => t.hunt.walk_speed,
     };
     let mut left = speed * dt;
     while left > 0.0 {
@@ -1006,14 +1072,20 @@ fn place_lockers(
     let set = TILES.get();
     let spots = hiding_spots(&t, &set, station.levels());
     for (root, l) in &levels {
-        for (_, at) in spots.iter().filter(|(n, _)| n.0 == l.0) {
-            commands.spawn((
-                Locker,
-                Transform::from_translation(*at),
-                Visibility::default(),
-                Clickable::at_height(1.2).radius(60.0).labelled(label),
-                ChildOf(root),
-            ));
+        // One clickable per door, so any locker of the bank takes the click
+        // (they all climb into the same hiding spot: the middle locker).
+        for (n, at) in spots.iter().filter(|(n, _)| n.0 == l.0) {
+            let level = &station.levels()[n.0];
+            let turn = level.fill((n.1, n.2)).rotation();
+            for &x in &LOCKER_DOORS_X {
+                commands.spawn((
+                    Locker,
+                    Transform::from_translation(*at + turn * Vec3::new(x, 0.0, 0.0)),
+                    Visibility::default(),
+                    Clickable::at_height(1.2).radius(60.0).labelled(label),
+                    ChildOf(root),
+                ));
+            }
         }
     }
 }
@@ -1025,9 +1097,12 @@ fn click_locker(ev: On<Clicked>, mut commands: Commands, lockers: Query<(), With
 }
 
 /// Local: draw each hunter (a child in New York's visuals; the hunter is replicated).
+/// Only once: a hunter that already has its rig keeps the clip `hunt_clips` picked
+/// (the rig's scene child isn't a `Dress`, so without this it was reset to the
+/// walk every frame and never ran or rolled).
 fn dress_hunters(
     mut commands: Commands,
-    hunters: Query<(Entity, Option<&Children>), With<Hunter>>,
+    hunters: Query<(Entity, Option<&Children>), (With<Hunter>, Without<crate::rigged::Rigged>)>,
     dresses: Query<(), With<crate::area::Dress>>,
 ) {
     for (e, children) in &hunters {
@@ -1086,10 +1161,10 @@ fn hunt_clips(
                 .insert((Catching(CATCH_SECS), crate::rigged::RigClip::once("catch")));
             continue;
         }
-        let want = if hunter.mode == Mode::Chase {
-            "run"
-        } else {
-            "walk"
+        let want = match hunter.mode {
+            Mode::Roll => "roll",
+            Mode::Chase => "run",
+            _ => "walk",
         };
         if let Some(mut clip) = clip {
             if playing != Some(want) {
@@ -1106,20 +1181,37 @@ fn hunt_clips(
 /// Local: put the hunter where the server says, smoothly, with a loping sway.
 fn move_hunters(time: Res<Time>, mut hunters: Query<(&Hunter, &mut Transform)>) {
     let k = (time.delta_secs() * 12.0).min(1.0);
+    let turn_speed = tuning().hunt.turn_speed.max(1.0);
     let t = time.elapsed_secs();
     for (h, mut tf) in &mut hunters {
-        let fast = if h.mode == Mode::Chase { 2.0 } else { 1.0 };
-        let target = h.pos + Vec3::Y * ((t * 5.0 * fast).sin().abs() * 0.08);
+        let rolling = h.mode == Mode::Roll;
+        let fast = if h.mode == Mode::Chase || rolling {
+            2.0
+        } else {
+            1.0
+        };
+        let bob = if rolling {
+            0.0
+        } else {
+            (t * 5.0 * fast).sin().abs() * 0.08
+        };
+        let target = h.pos + Vec3::Y * bob;
         if tf.translation.distance(target) > 6.0 {
             tf.translation = target;
         } else {
             tf.translation = tf.translation.lerp(target, k);
         }
-        let lean = if h.mode == Mode::Chase { 0.25 } else { 0.05 };
+        let lean = match h.mode {
+            Mode::Roll => 0.0,
+            Mode::Chase => 0.25,
+            _ => 0.05,
+        };
         let want = Quat::from_rotation_y(h.yaw)
             * Quat::from_rotation_x(lean)
             * Quat::from_rotation_z((t * 2.5 * fast).sin() * 0.06);
-        tf.rotation = tf.rotation.slerp(want, k);
+        // It swings round at its own pace rather than snapping to face you.
+        let step = turn_speed.to_radians() * time.delta_secs();
+        tf.rotation = tf.rotation.rotate_towards(want, step);
     }
 }
 
@@ -1239,6 +1331,77 @@ mod tests {
             }
         }
         None
+    }
+
+    #[test]
+    fn held_in_sight_it_rolls_then_backs_off_the_roll_for_a_while() {
+        let (t, set, levels) = data();
+        let spots = hiding_spots(&t, &set, &levels);
+        let Some((a, b)) = corridor(&levels) else {
+            panic!("no corridor")
+        };
+        let mut h = hunter_at(&t, a);
+        let start = node_pos(&t, a);
+        let d = node_pos(&t, b) - start;
+        let yaw = d.x.atan2(d.z);
+        h.yaw = yaw;
+        let you = Prey {
+            id: 7,
+            feet: node_pos(&t, b),
+            hidden: None,
+        };
+        let mut brain = Brain::new(7, 1);
+        let h_t = t.hunt.clone();
+
+        // a first tick starts the chase; after `roll_sight_secs` of clear sight
+        // it stops walking and rolls
+        let mut rolled_at = None;
+        for i in 0..400 {
+            let out = think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05);
+            if out == Outcome::Caught(7) {
+                break;
+            }
+            h.pos = start;
+            h.yaw = yaw;
+            if h.mode == Mode::Roll {
+                rolled_at = Some(i);
+                break;
+            }
+        }
+        let rolled_at = rolled_at.expect("it should roll when it keeps seeing us");
+        let ticks = rolled_at as f32 * 0.05;
+        assert!(
+            (ticks - h_t.roll_sight_secs).abs() < 0.25,
+            "rolled after {ticks}s, wanted about {}",
+            h_t.roll_sight_secs
+        );
+        assert!(brain.rolling > h_t.roll_secs - 0.1, "a full roll is queued");
+        assert!(brain.roll_cd > 0.0, "the roll goes on cooldown");
+
+        // it comes out of the roll into a run/sweep, not straight back into one
+        let mut left_roll_after = 0.0;
+        for _ in 0..(h_t.roll_secs / 0.05).ceil() as usize + 2 {
+            think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05);
+            h.pos = start;
+            left_roll_after += 0.05;
+            if h.mode != Mode::Roll {
+                break;
+            }
+        }
+        assert_ne!(h.mode, Mode::Roll, "the roll has to end");
+        assert!(
+            (left_roll_after - h_t.roll_secs).abs() < 0.2,
+            "rolled for {left_roll_after}s, wanted {}",
+            h_t.roll_secs
+        );
+
+        // and it can't roll again until the cooldown has run down
+        assert!(brain.roll_cd > h_t.roll_cooldown_secs - h_t.roll_secs - 0.5);
+        for _ in 0..10 {
+            think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05);
+            h.pos = start;
+            assert_ne!(h.mode, Mode::Roll, "on cooldown");
+        }
     }
 
     #[test]

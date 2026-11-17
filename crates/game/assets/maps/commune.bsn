@@ -477,59 +477,20 @@ bevy_ecs::hierarchy::Children [
     #fan_museum_block
     jackdaw_scene_types::node_id::SceneNodeId(5822761249613833957)
     bevy_transform::components::transform::Transform {
-        translation: glam::Vec3 { x: 62.0, y: 4.5, z: -56.0 },
+        translation: glam::Vec3 { x: 62.0, y: 3.75, z: -55.9 },
     }
     friendslop_world::map::Block {
         round: false,
     }
     --
-    #"fan_museum_bollard_(-5)"
-    jackdaw_scene_types::node_id::SceneNodeId(6988330107193489100)
-    bevy_transform::components::transform::Transform {
-        translation: glam::Vec3 { x: 57.0, y: 0.45, z: -73.0 },
-    }
-    friendslop_world::map::Block {
-        round: true,
-    }
-    --
-    #fan_museum_bollard_5
-    jackdaw_scene_types::node_id::SceneNodeId(8676782795588065465)
-    bevy_transform::components::transform::Transform {
-        translation: glam::Vec3 { x: 67.0, y: 0.45, z: -73.0 },
-    }
-    friendslop_world::map::Block {
-        round: true,
-    }
-    --
     #fan_museum_fan
     jackdaw_scene_types::node_id::SceneNodeId(4836433144351363709)
     bevy_transform::components::transform::Transform {
-        translation: glam::Vec3 { x: 62.0, y: 10.72, z: -71.7 },
+        translation: glam::Vec3 { x: 73.0, y: 5.0, z: -66.85 },
     }
     jackdaw_scene_types::types::GltfSource {
         path: "models/prefabs/cfm-exterior-fan.gltf",
         scene_index: 0,
-    }
-    friendslop_world::map::Spin {
-        rpm: -6.0,
-    }
-    --
-    #"fan_museum_lamp_(-12)"
-    jackdaw_scene_types::node_id::SceneNodeId(1020271547097395723)
-    bevy_transform::components::transform::Transform {
-        translation: glam::Vec3 { x: 50.0, y: 3.5, z: -81.6 },
-    }
-    friendslop_world::map::Block {
-        round: true,
-    }
-    --
-    #fan_museum_lamp_12
-    jackdaw_scene_types::node_id::SceneNodeId(7497885722271015003)
-    bevy_transform::components::transform::Transform {
-        translation: glam::Vec3 { x: 74.0, y: 3.5, z: -81.6 },
-    }
-    friendslop_world::map::Block {
-        round: true,
     }
     --
     #fan_museum_outside
@@ -540,6 +501,37 @@ bevy_ecs::hierarchy::Children [
     jackdaw_scene_types::types::GltfSource {
         path: "models/prefabs/cfm-museum-exterior.gltf",
         scene_index: 0,
+    }
+    --
+    #fan_museum_roof_fan
+    jackdaw_scene_types::node_id::SceneNodeId(1786441757149238814)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 62.0, y: 12.4, z: -53.0 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/cfm-roof-fan-rotor.gltf",
+        scene_index: 0,
+    }
+    friendslop_world::map::Spin {
+        rpm: 18.0,
+    }
+    --
+    #fan_museum_wing_e
+    jackdaw_scene_types::node_id::SceneNodeId(1428229726706371091)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 72.0, y: 3.0, z: -55.5 },
+    }
+    friendslop_world::map::Block {
+        round: false,
+    }
+    --
+    #fan_museum_wing_w
+    jackdaw_scene_types::node_id::SceneNodeId(1428237423287768568)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 52.0, y: 3.0, z: -55.5 },
+    }
+    friendslop_world::map::Block {
+        round: false,
     }
     --
     #forest_clearing

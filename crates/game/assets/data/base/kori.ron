@@ -1,8 +1,10 @@
-// Kori coins (#382): what each gross thing pays. Spend them on the claw
+// KoriCoins™ (#382): what each gross thing pays. Spend them on the claw
 // machine by the gambling table (data/side/kori.ron has its price).
 (
-    // A fart, on purpose (F) or bursting out.
+    // A fart, on purpose (F) or bursting out, pays this...
     fart: 1,
+    // ...but only this share of farts (0..1) have a KoriCoin™ in them.
+    fart_chance: 0.05,
     // On top of that, when an NPC was near enough to be shamed.
     shameful_fart: 2,
     // Eating the feces out of a toilet.

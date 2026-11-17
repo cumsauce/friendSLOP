@@ -39,6 +39,7 @@ use crate::features::fps::Walker;
 use crate::features::fulton::{self, Station};
 use crate::hud::Toast;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
+use crate::rules::kori::KoriCoins;
 use crate::rules::nyc::in_station;
 
 /// Tuning and writing: `assets/data/side/wallet.ron` (read at run time).
@@ -52,8 +53,11 @@ pub struct Tuning {
     pub lose_levels: usize,
     /// Strangers' wallets scattered through the station at the start.
     pub strangers: usize,
-    /// ...each holding between these many dollars.
+    /// ...each holding between these many organ dollars...
     pub stranger_cash: (u32, u32),
+    /// ...or, with chance `stranger_kori_chance` (0..1), between these many KoriCoins™ instead.
+    pub stranger_kori: (u32, u32),
+    pub stranger_kori_chance: f32,
     /// ...on levels 0..this.
     pub stranger_levels: usize,
     /// Walk this close (m) to a wallet or coin to pick it up.
@@ -108,6 +112,8 @@ pub struct Cash {
 pub struct Wallet {
     pub owner: Option<u64>,
     pub dollars: u32,
+    /// KoriCoins™ inside (strangers' wallets hold these instead of money, sometimes).
+    pub kori: u32,
     pub at: Vec3,
 }
 
@@ -160,6 +166,26 @@ pub fn drop_chance(brags: u8, base: f32, max_brags: u8) -> f32 {
 /// What the insurance drone brings back.
 pub fn payout(lost: u32, share: f32) -> u32 {
     (lost as f32 * share.clamp(0.0, 1.0)).floor() as u32
+}
+
+/// What a stranger's wallet holds: organ dollars, or (less often) KoriCoins™.
+/// `pick` and `amount` are rolls in 0..1; returns `(dollars, kori)`.
+pub fn stranger_contents(
+    pick: f32,
+    amount: f32,
+    dollars: (u32, u32),
+    kori: (u32, u32),
+    kori_chance: f32,
+) -> (u32, u32) {
+    let between = |(a, b): (u32, u32)| {
+        let (lo, hi) = (a.min(b), a.max(b));
+        (lo + (amount.clamp(0.0, 0.999) * (hi - lo + 1) as f32) as u32).min(hi)
+    };
+    if pick < kori_chance {
+        (0, between(kori))
+    } else {
+        (between(dollars), 0)
+    }
 }
 
 /// A random walkable spot in the station on levels `0..levels`.
@@ -282,12 +308,19 @@ fn scatter(
         else {
             return;
         };
-        let dollars = lo + dice.0.below((hi - lo + 1) as usize) as u32;
+        let (dollars, kori) = stranger_contents(
+            dice.0.roll(),
+            dice.0.roll(),
+            (lo, hi),
+            t.stranger_kori,
+            t.stranger_kori_chance,
+        );
         commands.spawn((
             Replicated,
             Wallet {
                 owner: None,
                 dollars,
+                kori,
                 at,
             },
             DespawnOnExit(AppState::InGame),
@@ -332,6 +365,7 @@ fn lose(
             Wallet {
                 owner: Some(p.id),
                 dollars,
+                kori: 0,
                 at,
             },
             DespawnOnExit(AppState::InGame),
@@ -349,20 +383,21 @@ fn pick_up(
     mut commands: Commands,
     wallets: Query<(Entity, &Wallet)>,
     coins: Query<(Entity, &Coin)>,
-    mut players: Query<(&Player, &Walker, &mut Cash)>,
+    mut players: Query<(&Player, &Walker, &mut Cash, Option<&mut KoriCoins>)>,
 ) {
     let t = tuning();
     let near =
         |a: Vec3, b: Vec3| (a.y - b.y).abs() < 2.0 && a.xz().distance(b.xz()) < t.pickup_reach;
     for (e, wallet) in &wallets {
-        let Some((p, _, _)) = players.iter().find(|(_, w, _)| near(w.pos, wallet.at)) else {
+        let Some((p, ..)) = players.iter().find(|(_, w, ..)| near(w.pos, wallet.at)) else {
             continue;
         };
         let finder = p.id;
         commands.entity(e).despawn();
-        for (q, _, mut cash) in &mut players {
+        for (q, _, mut cash, kori) in &mut players {
             if q.id == finder {
                 cash.dollars += wallet.dollars;
+                crate::rules::kori::pay(kori, wallet.kori);
             }
             if Some(q.id) == wallet.owner && q.id == finder {
                 cash.lost = 0;
@@ -381,13 +416,14 @@ fn pick_up(
                 wallet.dollars,
                 wallet.owner.unwrap_or(0),
                 t.insurance_share,
-            ),
+            )
+            .replace("{kori}", &wallet.kori.to_string()),
         );
     }
     for (e, coin) in &coins {
-        let Some((_, _, mut cash)) = players
+        let Some((_, _, mut cash, _)) = players
             .iter_mut()
-            .find(|(p, w, _)| p.id != coin.from && near(w.pos, coin.at))
+            .find(|(p, w, ..)| p.id != coin.from && near(w.pos, coin.at))
         else {
             continue;
         };
@@ -580,10 +616,10 @@ fn spawn_ui(mut commands: Commands) {
 }
 
 /// Pure: the money line. Yours, then everyone who's bragging.
-pub fn cash_line(me: u64, all: &[(u64, Cash)]) -> String {
+pub fn cash_line(me: u64, all: &[(u64, Cash)], kori: u32) -> String {
     let mut out = String::new();
     if let Some((_, c)) = all.iter().find(|(id, _)| *id == me) {
-        out = format!("${}", c.dollars);
+        out = format!("${}  ·  {kori} KoriCoins™", c.dollars);
         if c.lost > 0 {
             out += &format!(
                 "  (wallet lost in Fulton St: ${}{})",
@@ -606,12 +642,17 @@ pub fn cash_line(me: u64, all: &[(u64, Cash)]) -> String {
 
 fn show_cash(
     me: Option<Res<LocalPlayer>>,
-    purses: Query<(&Player, &Cash)>,
+    purses: Query<(&Player, &Cash, Option<&KoriCoins>)>,
     mut text: Query<&mut Text, With<CashText>>,
 ) {
     let Some(me) = me else { return };
-    let all: Vec<(u64, Cash)> = purses.iter().map(|(p, c)| (p.id, *c)).collect();
-    let want = cash_line(me.0, &all);
+    let all: Vec<(u64, Cash)> = purses.iter().map(|(p, c, _)| (p.id, *c)).collect();
+    let kori = purses
+        .iter()
+        .find(|(p, ..)| p.id == me.0)
+        .and_then(|(_, _, k)| k.map(|k| k.0))
+        .unwrap_or(0);
+    let want = cash_line(me.0, &all, kori);
     for mut t in &mut text {
         if t.0 != want {
             t.0.clone_from(&want);
@@ -700,6 +741,7 @@ mod tests {
         let t = TUNING.get();
         assert!(t.start_cash > 0 && t.lose_chance > 0.0 && t.strangers > 0);
         assert!(t.insurance_share > 0.0 && t.insurance_share < 1.0);
+        assert!(t.stranger_kori.0 > 0 && t.stranger_kori_chance > 0.0);
         assert!(t.drone_speed > 0.0 && t.pickup_reach > 0.0 && t.coin_value > 0);
         for l in [
             &t.lost_line,
@@ -713,6 +755,14 @@ mod tests {
         ] {
             assert!(!l.is_empty());
         }
+    }
+
+    #[test]
+    fn strangers_hold_money_or_a_few_kori_coins() {
+        assert_eq!(stranger_contents(0.5, 0.0, (10, 20), (1, 2), 0.2), (10, 0));
+        assert_eq!(stranger_contents(0.5, 0.99, (10, 20), (1, 2), 0.2), (20, 0));
+        assert_eq!(stranger_contents(0.1, 0.0, (10, 20), (1, 2), 0.2), (0, 1));
+        assert_eq!(stranger_contents(0.1, 0.99, (10, 20), (1, 2), 0.2), (0, 2));
     }
 
     #[test]
@@ -748,8 +798,8 @@ mod tests {
             brags: 2,
             ..default()
         };
-        let line = cash_line(0, &[(0, quiet), (1, quiet), (2, loud)]);
-        assert!(line.starts_with("$70"));
+        let line = cash_line(0, &[(0, quiet), (1, quiet), (2, loud)], 3);
+        assert!(line.starts_with("$70  ·  3 KoriCoins™"));
         assert!(!line.contains("player 1") && line.contains("player 2 brags: $90"));
     }
 }

@@ -1,4 +1,4 @@
-//! Kori coins (#382, catherine): the currency you earn from farts, feces and
+//! KoriCoins™ (#382, catherine): the currency you earn from farts, feces and
 //! things of that nature. Spent on the claw machine (`side::kori`). Shared here
 //! so the features that pay out (fart, toilets) can add to your purse,
 //! and the walk can read the speed of a prize in your hand.
@@ -32,8 +32,10 @@ impl HeldPrize {
 /// What things pay: `assets/data/base/kori.ron` (read at run time).
 #[derive(Deserialize, Default, Debug, Clone)]
 pub struct Earnings {
-    /// Coins for a fart (on purpose or not).
+    /// Coins for a fart (on purpose or not) that has one in it...
     pub fart: u32,
+    /// ...which is this share (0..1) of them.
+    pub fart_chance: f32,
     /// Extra coins when an NPC was close enough to be shamed by it.
     pub shameful_fart: u32,
     /// Coins for eating the feces out of a toilet.
@@ -45,6 +47,14 @@ pub static EARNINGS: friendslop_data::Data<Earnings> =
 
 pub fn earnings() -> std::sync::Arc<Earnings> {
     EARNINGS.get()
+}
+
+/// Pure: coins a fart pays given a roll in 0..1 (only `fart_chance` of them pay).
+pub fn fart_coins(e: &Earnings, shamed: bool, roll: f32) -> u32 {
+    if roll >= e.fart_chance {
+        return 0;
+    }
+    e.fart + if shamed { e.shameful_fart } else { 0 }
 }
 
 /// Server: add `n` coins to a purse, if the body has one.
@@ -70,6 +80,19 @@ mod tests {
     }
 
     #[test]
+    fn only_some_farts_pay() {
+        let e = Earnings {
+            fart: 1,
+            fart_chance: 0.05,
+            shameful_fart: 2,
+            feces: 5,
+        };
+        assert_eq!(fart_coins(&e, false, 0.01), 1);
+        assert_eq!(fart_coins(&e, true, 0.01), 3);
+        assert_eq!(fart_coins(&e, true, 0.5), 0);
+    }
+
+    #[test]
     fn the_data_file_parses_and_has_everything() {
         let path = format!(
             "{}/../game/assets/{}",
@@ -81,6 +104,6 @@ mod tests {
         };
         assert!(EARNINGS.set_bytes(&bytes), "{path} doesn't parse");
         let e = EARNINGS.get();
-        assert!(e.fart > 0 && e.feces > 0 && e.shameful_fart > 0);
+        assert!(e.fart > 0 && e.feces > 0 && e.shameful_fart > 0 && e.fart_chance > 0.0);
     }
 }

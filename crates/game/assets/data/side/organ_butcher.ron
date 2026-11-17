@@ -2,9 +2,9 @@
 // chopping block in Wendy's backroom buys your cheapest organ for dollars.
 // Edit and save: the running game picks it up within a second.
 (
-    // Organ value that buys one dollar (at least one dollar is always paid).
-    value_per_dollar: 4,
+    // Organ value that buys one organ dollar (1: an organ is worth exactly its organ dollars).
+    value_per_dollar: 1,
     // {organ}, {dollars} are filled in.
-    sold_line: "the butcher weighs your {organ}, nods and slides you ${dollars}. no questions. that's Wendy's.",
+    sold_line: "the butcher weighs your {organ}, nods and slides you ${dollars} organ dollars. no questions. that's Wendy's.",
     empty_line: "the butcher looks you over. you have nothing left to sell.",
 )

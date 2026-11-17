@@ -283,64 +283,12 @@ pub fn surfable_gap(p: Vec3, side: f32, half: f32, band: (f32, f32), boxes: &[So
     best.max(end - at)
 }
 
-pub fn plugin(app: &mut App) {
-    app.add_systems(PreUpdate, claim_space)
-        .spawn_into("surf", build);
-}
-
-/// Keep surf_props' generated pieces out of the canyon (once the data's in).
-fn claim_space(mut done: Local<bool>) {
-    if *done {
-        return;
-    }
-    let s = SLALOM.get();
-    if s.bridges.is_empty() {
-        return;
-    }
-    let (c, h) = layout(&tuning(), &s).claim;
-    crate::features::surf_props::claim(c, h);
-    *done = true;
-}
-
-fn build(mut commands: Commands, assets: Res<AssetServer>) {
-    let t = tuning();
-    let s = SLALOM.get();
-    let o = hall_at(&t);
-    let l = layout(&t, &s);
-    crate::features::surf_props::claim(l.claim.0, l.claim.1);
-    let mut scenes = std::collections::HashMap::new();
-    for p in l.pieces {
-        let scene = scenes
-            .entry(p.model.clone())
-            .or_insert_with(|| {
-                assets.load(
-                    GltfAssetLabel::Scene(0).from_asset(format!("models/features/{}", p.model)),
-                )
-            })
-            .clone();
-        commands.spawn((
-            WorldAssetRoot(scene),
-            Transform::from_translation(o + p.at)
-                .with_rotation(Quat::from_rotation_y(p.yaw))
-                .with_scale(Vec3::new(p.stretch, 1.0, 1.0)),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
-    for b in l.solids {
-        commands.spawn((
-            Transform::from_translation(o + b.centre),
-            avian3d::prelude::RigidBody::Static,
-            avian3d::prelude::Collider::cuboid(b.size.x, b.size.y, b.size.z),
-            DespawnOnExit(AppState::InGame),
-        ));
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     fn load() -> (std::sync::Arc<Tuning>, std::sync::Arc<Slalom>) {
+        crate::features::surf_map::load_course_for_tests();
         for path in [crate::rules::surf::TUNING.path(), SLALOM.path()] {
             let full = format!("{}/../game/assets/{}", env!("CARGO_MANIFEST_DIR"), path);
             let Ok(bytes) = std::fs::read(&full) else {

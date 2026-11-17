@@ -5,8 +5,8 @@
 //! walks around the meadow: WASD to walk, mouse to look, Space to jump, Shift
 //! to run. The camera sits in your eyes and the cursor is locked; left click
 //! uses whatever is under the crosshair (the same things you used to click
-//! with the mouse pointer). Press V to swap back to the old overview camera
-//! (pan with WASD, free cursor) and V again to return to your body.
+//! with the mouse pointer). Press C to swap back to the old overview camera
+//! (pan with WASD, free cursor) and C again to return to your body.
 //!
 //! The server is authoritative: clients send stick/look/jump input, the server
 //! moves the body, and `Walker.pos` replicates. On the host the body is moved
@@ -110,6 +110,13 @@ pub struct WalkInput {
     /// controller.
     pub climbing: bool,
 }
+
+/// Server: this walker is tucked into something solid (a locker, see
+/// `fulton_hunt`): the controller pins the body where it was put instead of
+/// pushing it out of the thing around it, and its input does nothing until
+/// they climb back out.
+#[derive(Component, Debug)]
+pub struct Hiding;
 
 impl WalkInput {
     /// Running (a private field, read by things like `noise`).
@@ -335,6 +342,7 @@ pub fn kcc_move_walkers(
         &mut WalkInput,
         &mut crate::kcc::Walking,
         Has<super::ragdoll::Ragdoll>,
+        Has<Hiding>,
         Option<&crate::rules::skills::Skills>,
         Option<&crate::rules::boba::Buzz>,
         Option<&crate::rules::kori::HeldPrize>,
@@ -343,7 +351,9 @@ pub fn kcc_move_walkers(
 ) {
     let frozen = super::stillness::is_frozen(&still); // the world stands still, and so do you
     let jump: crate::kcc::Jump = tuning().jump.into();
-    for (player, walker, mut input, mut w, ragdoll, skills, buzz, held, stamina) in &mut walkers {
+    for (player, walker, mut input, mut w, ragdoll, hiding, skills, buzz, held, stamina) in
+        &mut walkers
+    {
         // Out of breath: the controller walks, however hard Shift is held.
         let running = input.run && stamina.is_none_or(super::stamina::Stamina::can_sprint);
         let speed = if running {
@@ -362,9 +372,11 @@ pub fn kcc_move_walkers(
             // The surf map's air control (#306), else the usual.
             air: crate::rules::surf::air_at(walker.pos),
             jump_tuning: jump,
-            // Climbing (see `climb.rs`), ragdolling, or your duel body is moving.
+            // Climbing (see `climb.rs`), ragdolling, hiding in something
+            // solid, or your duel body is moving.
             skip: frozen
                 || ragdoll
+                || hiding
                 || input.climbing
                 || duelists.iter().any(|d| d.player == player.id),
         };
@@ -544,13 +556,15 @@ fn free_cursor(mut cursor: Query<&mut CursorOptions, With<PrimaryWindow>>) {
 
 fn toggle_view(
     keys: Res<ButtonInput<KeyCode>>,
+    overlay: Option<Res<crate::ui::Overlay>>,
     mut view: ResMut<FpsView>,
     mut rig: ResMut<CameraRig>,
     me: Option<Res<LocalPlayer>>,
     walkers: Query<(&Player, &Walker)>,
     duelists: Query<&Duelist>,
 ) {
-    if !keys.just_pressed(KeyCode::KeyV) {
+    // C, unless the journal (C copies the invite there) or settings are up.
+    if !keys.just_pressed(KeyCode::KeyC) || overlay.is_some_and(|o| o.journal || o.settings) {
         return;
     }
     view.first_person = !view.first_person;

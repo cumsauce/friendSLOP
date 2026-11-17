@@ -38,6 +38,10 @@ pub struct MapEntity {
     pub translation: [f32; 3],
     /// Facing in degrees about +y (0 faces +z).
     pub yaw: f32,
+    /// Its full turn (x, y, z, w), if the modeler wrote one (placed models).
+    pub rotation: Option<[f32; 4]>,
+    /// Its scale, if the modeler wrote one (placed models).
+    pub scale: Option<[f32; 3]>,
     /// A marker's box (x, y, z), if it has one.
     pub size: Option<[f32; 3]>,
     /// The model it places, if any.

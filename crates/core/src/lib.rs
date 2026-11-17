@@ -109,3 +109,9 @@ impl WorldSeed {
         x ^ (x >> 16)
     }
 }
+
+/// On a 3D camera that isn't the player's view of the world (the map's
+/// top-down camera): code asking "where is the camera?" leaves it out with
+/// `Without<MapCamera>`.
+#[derive(bevy::prelude::Component, Default, Debug, Clone, Copy)]
+pub struct MapCamera;

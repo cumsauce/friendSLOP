@@ -61,7 +61,20 @@ pub fn main() -> AppExit {
     .init_resource::<Churn>()
     .add_systems(Update, (churn, bench).chain().run_if(bench_enabled))
     .add_plugins(PipelineLog)
+    .add_plugins(Pacing)
     .run()
+}
+
+/// Frame pacing on desktop (not while benchmarking, which runs uncapped, and not in the
+/// browser, which paces itself).
+struct Pacing;
+impl Plugin for Pacing {
+    fn build(&self, _app: &mut App) {
+        #[cfg(not(target_arch = "wasm32"))]
+        if !bench_enabled() {
+            _app.add_plugins(bevy_framepace::FramepacePlugin);
+        }
+    }
 }
 
 struct PipelineLog;

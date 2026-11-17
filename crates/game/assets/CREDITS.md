@@ -131,6 +131,12 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
   by isaiah658, CC0 (file: https://opengameart.org/sites/default/files/birds-isaiah658_0.ogg).
 - `audio/ambience/fire_crackle.ogg` — "[Fire Crackling](https://opengameart.org/content/fire-crackling)"
   by AntumDeluge, CC0 (file: https://opengameart.org/sites/default/files/fire-1_0.ogg).
+- `audio/hrtf/sadie_ku100.hrir` — head-related impulse responses of the KU100 dummy head (subject D1)
+  from the **SADIE II** database, Copyright 2018 University of York, Apache License 2.0
+  (https://zenodo.org/records/12092466; Armstrong et al., "A Perceptual Evaluation of Individual
+  and Non-Individual HRTFs: A Case Study of the SADIE II Database", Applied Sciences 8(11), 2018,
+  doi:10.3390/app8112029). Modified: nearest measurement per 10 degree grid node, minimum-phase,
+  cut to 48 taps and normalised (`scripts/hrtf-bake.py`).
 - The wind bed is synthesized in code (`features/ambience.rs`), no file.
 - `audio/voice/grains.wav` — the gibberish voice bank: 50 short voiced syllables (90 ms each)
   cut by `scripts/voice_grains.py` from five **CC0** recordings on Wikimedia Commons (only the
@@ -161,3 +167,8 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
 - `ui/logo.png` (the illustrated friendSLOP logo) and `ui/check.png` (the checkbox tick) —
   exported from the same Figma UI kit, **CC0**. A missing logo just leaves its space empty on
   the title screen and loading curtain; a missing tick leaves checked boxes plain indigo.
+
+## Shaders (`shaders/`)
+
+- `shaders/paper_map.wesl` — the map's paper-map look (ink lines, flat colours, grain, burnt
+  edge), written for friendSLOP, **CC0**. Plain text, not in LFS.

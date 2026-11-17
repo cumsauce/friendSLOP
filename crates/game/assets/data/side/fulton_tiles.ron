@@ -29,6 +29,63 @@
         (model: "fs_tile_track_end.gltf", open: [E], track: [E], weight: 1.0),
         (model: "fs_tile_track_end_w.gltf", open: [W], track: [W], weight: 1.0),
     ],
+    // Depth looks (themes): from this level down (0 is the top) the plain corridor
+    // pieces are drawn in another skin, each weirder than the last. The latest
+    // `from` reached wins. `swap` pairs a piece's model with the theme's; `light`
+    // tints the cell lights. Lockers, track pieces, stairs and rooms stay as they are.
+    // Sources: `.modeler/gen/fs_themes.py` (`fs-tile-<piece>-<theme>`).
+    themes: [
+        // bare concrete, galvanized trim, green pipes
+        (name: "service", from: 6,
+         swap: [
+            ("fs_tile_closed.gltf", "fs_tile_closed_service.gltf"),
+            ("fs_tile_end.gltf", "fs_tile_end_service.gltf"),
+            ("fs_tile_straight.gltf", "fs_tile_straight_service.gltf"),
+            ("fs_tile_corner.gltf", "fs_tile_corner_service.gltf"),
+            ("fs_tile_tee.gltf", "fs_tile_tee_service.gltf"),
+            ("fs_tile_cross.gltf", "fs_tile_cross_service.gltf"),
+        ]),
+        // mossy stonework, sewage floor, sickly green light
+        (name: "sewer", from: 12, light: Some((0.75, 1.0, 0.6)),
+         swap: [
+            ("fs_tile_closed.gltf", "fs_tile_closed_sewer.gltf"),
+            ("fs_tile_end.gltf", "fs_tile_end_sewer.gltf"),
+            ("fs_tile_straight.gltf", "fs_tile_straight_sewer.gltf"),
+            ("fs_tile_corner.gltf", "fs_tile_corner_sewer.gltf"),
+            ("fs_tile_tee.gltf", "fs_tile_tee_sewer.gltf"),
+            ("fs_tile_cross.gltf", "fs_tile_cross_sewer.gltf"),
+        ]),
+        // checkerboard walls, terrazzo, humming yellow light
+        (name: "liminal", from: 20, light: Some((1.0, 0.95, 0.55)),
+         swap: [
+            ("fs_tile_closed.gltf", "fs_tile_closed_liminal.gltf"),
+            ("fs_tile_end.gltf", "fs_tile_end_liminal.gltf"),
+            ("fs_tile_straight.gltf", "fs_tile_straight_liminal.gltf"),
+            ("fs_tile_corner.gltf", "fs_tile_corner_liminal.gltf"),
+            ("fs_tile_tee.gltf", "fs_tile_tee_liminal.gltf"),
+            ("fs_tile_cross.gltf", "fs_tile_cross_liminal.gltf"),
+        ]),
+        // meat walls, skin floors, eyes for columns
+        (name: "flesh", from: 28, light: Some((1.0, 0.45, 0.4)),
+         swap: [
+            ("fs_tile_closed.gltf", "fs_tile_closed_flesh.gltf"),
+            ("fs_tile_end.gltf", "fs_tile_end_flesh.gltf"),
+            ("fs_tile_straight.gltf", "fs_tile_straight_flesh.gltf"),
+            ("fs_tile_corner.gltf", "fs_tile_corner_flesh.gltf"),
+            ("fs_tile_tee.gltf", "fs_tile_tee_flesh.gltf"),
+            ("fs_tile_cross.gltf", "fs_tile_cross_flesh.gltf"),
+        ]),
+        // hellrock everywhere, glowing red trim
+        (name: "hell", from: 35, light: Some((1.0, 0.25, 0.1)),
+         swap: [
+            ("fs_tile_closed.gltf", "fs_tile_closed_hell.gltf"),
+            ("fs_tile_end.gltf", "fs_tile_end_hell.gltf"),
+            ("fs_tile_straight.gltf", "fs_tile_straight_hell.gltf"),
+            ("fs_tile_corner.gltf", "fs_tile_corner_hell.gltf"),
+            ("fs_tile_tee.gltf", "fs_tile_tee_hell.gltf"),
+            ("fs_tile_cross.gltf", "fs_tile_cross_hell.gltf"),
+        ]),
+    ],
     // The stairs down: entered from N on its own level, it lands facing S on
     // the level below (that cell is the landing, drawn by this same model).
     stairs: "fs_tile_stairs.gltf",
@@ -48,6 +105,11 @@
         straight: "fs_tunnel_straight.gltf",
         // Open N and E; the tracks bend round the NE corner, the SW corner is rounded off.
         curve: "fs_tunnel_curve.gltf",
+        // A straight with a doorway (6 m wide) in its W wall's N half, onto the hall
+        // inside the ring where the stairs are; and its mirror (S half). Turned so the
+        // doorway lands on the hall's side.
+        door: "fs_tunnel_straight_door.gltf",
+        door_mirror: "fs_tunnel_straight_door_mirror.gltf",
     ),
     // The big rooms' pieces (sources `fs-room-*`): a room cell's floor and
     // ceiling with no walls, one cell's wall modelled along its N edge (turned

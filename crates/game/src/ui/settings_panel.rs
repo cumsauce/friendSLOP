@@ -28,7 +28,6 @@ pub fn help_column(i: usize, device: crate::input::InputDevice) -> String {
         .join("\n")
 }
 use crate::theme::kit as t;
-use crate::voice::VoiceMuted;
 
 const B: f32 = 2.0;
 /// Text on soot, rows on a panel, the one slime-green accent, ink on slime, soot borders.
@@ -265,7 +264,9 @@ impl Volume {
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Check {
     Mic,
+    PushToTalk,
     Halt,
+    Hrtf,
     Video(VideoOption),
 }
 
@@ -404,21 +405,23 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
             c.spawn((Part::Pct(v), label("", 19.0, ACCENT, 313.0, y, 0.0)));
             slider(c, v, 20.0, y + 32.0);
         }
-        check_row(c, check, Check::Mic, "Microphone (M)", 20.0, 268.0);
+        check_row(c, check, Check::Mic, "Microphone", 20.0, 258.0);
+        check_row(c, check, Check::PushToTalk, "Push to talk (V)", 17.0, 306.0);
         check_row(
             c,
             check,
             Check::Halt,
             "Let HALT use my username",
             17.0,
-            326.0,
+            354.0,
         );
+        check_row(c, check, Check::Hrtf, "3D sound (headphones)", 17.0, 402.0);
         c.spawn(label(
             "Voice is always connected.\nMute your mic, not your friends.",
             15.0,
             TEXT,
             20.0,
-            378.0,
+            446.0,
             0.0,
         ));
     });
@@ -708,12 +711,12 @@ fn check_row(
         ],
     ))
     .observe(
-        move |_: On<PointerClick>, mut s: ResMut<Settings>, mut muted: ResMut<VoiceMuted>| {
-            match what {
-                Check::Mic => muted.0 = !muted.0,
-                Check::Halt => s.halt_real_name = !s.halt_real_name,
-                Check::Video(_) => {}
-            }
+        move |_: On<PointerClick>, mut s: ResMut<Settings>| match what {
+            Check::Mic => s.mic_on = !s.mic_on,
+            Check::PushToTalk => s.push_to_talk = !s.push_to_talk,
+            Check::Halt => s.halt_real_name = !s.halt_real_name,
+            Check::Hrtf => s.hrtf = !s.hrtf,
+            Check::Video(_) => {}
         },
     );
 }
@@ -750,7 +753,6 @@ fn refresh(
     s: Res<Settings>,
     pad: Res<PadSettings>,
     device: Res<crate::input::InputDevice>,
-    muted: Res<VoiceMuted>,
     q: Res<GraphicsQuality>,
     mut nodes: Query<&mut Node>,
     mut parts: Query<(
@@ -839,8 +841,10 @@ fn refresh(
             }
             Part::Box(what) => {
                 let (on, disabled) = match what {
-                    Check::Mic => (!muted.0, false),
+                    Check::Mic => (s.mic_on, false),
+                    Check::PushToTalk => (s.push_to_talk, !s.mic_on),
                     Check::Halt => (s.halt_real_name, false),
+                    Check::Hrtf => (s.hrtf, false),
                     Check::Video(o) => (checked(*q, o), q.value(o) == "N/A"),
                 };
                 let (fill, edge) = match (disabled, on) {

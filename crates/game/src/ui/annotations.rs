@@ -95,7 +95,8 @@ fn update(
     let day = DAY_NIGHT.get();
     let now = crate::settings::since_epoch().as_secs_f64();
     let start = started.iter().next().map_or(now, |d| d.0);
-    let t = time_of_day(now - start, day.day_minutes, day.start_hour);
+    let t = crate::atmosphere::frozen_time()
+        .unwrap_or_else(|| time_of_day(now - start, day.day_minutes, day.start_hour));
     let fx = Effects {
         stillness: still.iter().next().copied(),
         night: daylight(sun_height(t)) < 0.05,

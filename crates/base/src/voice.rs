@@ -11,13 +11,16 @@ use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 
 use crate::player::{LocalPlayer, Player, PlayerOwner};
+use crate::settings::Settings;
 use serde::{Deserialize, Serialize};
 
-/// Press M to toggle. Muting stops your mic; you still hear others.
+/// Your mic is muted (the Microphone setting, [`Settings::mic_on`]). Muting
+/// stops your mic; you still hear others. Push-to-talk isn't muting: you
+/// show as muted only when the setting is off.
 #[derive(Resource, Default, Debug)]
 pub struct VoiceMuted(pub bool);
 
-/// Replicated on every [`Player`]: their mic is muted (M), so the team strip
+/// Replicated on every [`Player`]: their mic is muted (the setting), so the team strip
 /// can show it on everyone's badge, not just your own.
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct MicMuted(pub bool);
@@ -53,7 +56,7 @@ fn set_mic_muted(
     }
 }
 
-/// Tell the server when M flips (and once our player exists).
+/// Tell the server when the setting flips (and once our player exists).
 fn send_mic_state(
     mut commands: Commands,
     muted: Res<VoiceMuted>,
@@ -72,7 +75,7 @@ fn send_mic_state(
         return;
     };
     // Send when what everyone sees differs from the truth (covers joining,
-    // M presses, and a lost first message); at most once per change.
+    // the setting flipping, and a lost first message); at most once per change.
     if shown.map(|m| m.0).unwrap_or(false) != muted.0 && (muted.is_changed() || shown.is_none()) {
         commands.client_trigger(SetMicMuted { muted: muted.0 });
     }
@@ -177,28 +180,51 @@ fn keep_everyone_audible(
     }
 }
 
+/// How the mic sends this frame: (muted, mode, talk held). Muted wins;
+/// push-to-talk sends only while `held`; otherwise voice activity.
+pub fn mic_mode(mic_on: bool, push_to_talk: bool, held: bool) -> (bool, TalkMode, bool) {
+    if !mic_on {
+        (true, TalkMode::PushToTalk, false)
+    } else if push_to_talk {
+        (false, TalkMode::PushToTalk, held)
+    } else {
+        (false, TalkMode::VoiceActivity, false)
+    }
+}
+
+/// What the HUD says about your mic (filled through `input::fill`).
+pub fn mic_hint(mic_on: bool, push_to_talk: bool) -> &'static str {
+    match (mic_on, push_to_talk) {
+        (false, _) => "mic muted",
+        (true, true) => "{talk}  to talk",
+        (true, false) => "mic on",
+    }
+}
+
+/// The action held for push-to-talk.
+pub const TALK: crate::input::Act = crate::input::Act("talk");
+
 pub fn drive_voice(
-    keys: Res<ButtonInput<KeyCode>>,
+    actions: crate::input::Actions,
+    settings: Option<Res<Settings>>,
     server: Res<State<ServerState>>,
     client: Res<State<ClientState>>,
     app_state: Option<Res<State<crate::AppState>>>,
     mut muted: ResMut<VoiceMuted>,
     mut input: ResMut<VoiceInput>,
 ) {
-    if keys.just_pressed(KeyCode::KeyM) {
-        muted.0 = !muted.0;
+    let s = settings.map(|s| *s).unwrap_or_default();
+    let (mute, mode, held) = mic_mode(s.mic_on, s.push_to_talk, actions.pressed(TALK));
+    if muted.0 != mute {
+        muted.0 = mute;
     }
     let in_session =
         *server.get() == ServerState::Running || *client.get() == ClientState::Connected;
     input.enabled = in_session;
     // Where people stand only means something in the world.
     input.positional = app_state.is_some_and(|s| *s.get() == crate::AppState::InGame);
-    if muted.0 {
-        input.mode = TalkMode::PushToTalk;
-        input.talk_held = false;
-    } else {
-        input.mode = TalkMode::VoiceActivity;
-    }
+    input.mode = mode;
+    input.talk_held = held;
 }
 
 fn tag_speaker(add: On<Add<Player>>, players: Query<&Player>, mut commands: Commands) {
@@ -223,6 +249,22 @@ mod tests {
             range.unwrap_or(c.range),
             c.rolloff,
         )
+    }
+
+    #[test]
+    fn mic_setting_and_push_to_talk() {
+        let held = |m: (bool, TalkMode, bool)| (m.0, m.2);
+        assert_eq!(held(mic_mode(false, true, true)), (true, false), "off wins");
+        assert_eq!(held(mic_mode(true, true, true)), (false, true));
+        assert_eq!(held(mic_mode(true, true, false)), (false, false));
+        assert!(matches!(
+            mic_mode(true, false, false).1,
+            TalkMode::VoiceActivity
+        ));
+        assert!(matches!(
+            mic_mode(true, true, false).1,
+            TalkMode::PushToTalk
+        ));
     }
 
     #[test]

@@ -41,6 +41,8 @@ pub struct Tuning {
     pub wipeout_line: String,
     /// `{secs}`, `{best}`.
     pub finish_line: String,
+    /// Seconds the restart button is held to go back to the start.
+    pub restart_hold: f32,
     pub exit_label: String,
     /// The hall's inside relative to its origin (min, max).
     pub hall: ((f32, f32, f32), (f32, f32, f32)),
@@ -56,13 +58,18 @@ pub struct Tuning {
     /// counts too.
     pub checkpoint_reach: (f32, f32),
     /// The course: each stage's pad and ramps. The first pad is the start.
+    /// Not in the data file: it comes from the modeler map (`COURSE`).
+    #[serde(default)]
     pub stages: Vec<Stage>,
     /// Speed checks: (stage, ramp), the gap after that ramp of that stage,
     /// cleared only carrying speed ([`speed_needed`]).
     pub speed_gaps: Vec<(usize, usize)>,
-    /// The finish pad (centre, size).
+    /// The finish pad (centre, size). From the map.
+    #[serde(default)]
     pub finish: Pad,
-    /// Solid boxes (centre, size): pads, towers, the skyline.
+    /// Solid boxes (centre, size): the pads and their pillars. From the map's
+    /// `course_block` markers.
+    #[serde(default)]
     pub blocks: Vec<Pad>,
     /// The city the course weaves through: towers, building sites, cranes.
     pub city: City,
@@ -608,8 +615,92 @@ pub fn stage_step(t: &Tuning, stage: usize, local: Vec3) -> (usize, bool) {
 
 pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/side/surf.ron");
 
+/// The course as the modeler made it (`maps/surf.map.json`): its pads, ridge
+/// points and `course_block` boxes become [`Tuning::stages`], `finish` and
+/// `blocks`.
+pub static COURSE: friendslop_data::Data<friendslop_world::places::MapFile> =
+    friendslop_data::Data::json("maps/surf.map.json");
+
+/// The course out of the map's markers: stages (pad and ramps), the finish
+/// pad and the solid boxes.
+pub fn course(map: &friendslop_world::places::MapFile) -> (Vec<Stage>, Pad, Vec<Pad>) {
+    let boxed = |e: &friendslop_world::places::MapEntity| -> Pad {
+        (
+            (e.translation[0], e.translation[1], e.translation[2]),
+            e.size.map_or((1.0, 1.0, 1.0), |s| (s[0], s[1], s[2])),
+        )
+    };
+    let mut stages: Vec<(u32, Pad)> = Vec::new();
+    let mut finish = Pad::default();
+    let mut ridge: Vec<(u32, u32, u32, (f32, f32, f32))> = Vec::new();
+    let mut blocks = Vec::new();
+    for e in &map.entities {
+        if e.has("Pad") {
+            if e.flag("Pad", "finish") {
+                finish = boxed(e);
+            } else {
+                stages.push((e.num("Pad", "stage") as u32, boxed(e)));
+            }
+        }
+        if e.has("Ridge") {
+            let n = |f: &str| e.num("Ridge", f) as u32;
+            let p = (e.translation[0], e.translation[1], e.translation[2]);
+            ridge.push((n("stage"), n("ramp"), n("order"), p));
+        }
+        if e.kind == "course_block" {
+            blocks.push(boxed(e));
+        }
+    }
+    stages.sort_by_key(|s| s.0);
+    ridge.sort_by_key(|r| (r.0, r.1, r.2));
+    let stages = stages
+        .into_iter()
+        .map(|(i, pad)| {
+            let mut ramps: Vec<Vec<(f32, f32, f32)>> = Vec::new();
+            let mut last = None;
+            for r in ridge.iter().filter(|r| r.0 == i) {
+                if last != Some(r.1) {
+                    ramps.push(Vec::new());
+                    last = Some(r.1);
+                }
+                if let Some(v) = ramps.last_mut() {
+                    v.push(r.3);
+                }
+            }
+            Stage { pad, ramps }
+        })
+        .collect();
+    (stages, finish, blocks)
+}
+
+/// The tuning with the course from the map (rebuilt only when either file is
+/// re-read).
 pub fn tuning() -> std::sync::Arc<Tuning> {
-    TUNING.get()
+    use std::sync::{Arc, Mutex};
+    type Merged = (
+        Arc<Tuning>,
+        Arc<friendslop_world::places::MapFile>,
+        Arc<Tuning>,
+    );
+    static CACHE: Mutex<Option<Merged>> = Mutex::new(None);
+    let ron = TUNING.get();
+    let map = COURSE.get();
+    let Ok(mut cache) = CACHE.lock() else {
+        return ron;
+    };
+    if let Some((r, m, merged)) = cache.as_ref()
+        && Arc::ptr_eq(r, &ron)
+        && Arc::ptr_eq(m, &map)
+    {
+        return merged.clone();
+    }
+    let mut t = (*ron).clone();
+    if t.stages.is_empty() {
+        (t.stages, t.finish, t.blocks) = course(&map);
+    }
+    let merged = Arc::new(t);
+    *cache = Some((ron, map, merged.clone()));
+    merged
 }
 
 /// The hall's origin (the start pad's top, middle of its front edge).
@@ -783,7 +874,15 @@ mod tests {
             panic!("no {path}");
         };
         assert!(TUNING.set_bytes(&bytes), "{path} doesn't parse");
-        let t = TUNING.get();
+        let course = format!(
+            "{}/../game/assets/maps/surf.map.json",
+            env!("CARGO_MANIFEST_DIR")
+        );
+        let Ok(bytes) = std::fs::read(&course) else {
+            panic!("no {course}");
+        };
+        assert!(COURSE.set_bytes(&bytes), "{course} doesn't parse");
+        let t = tuning();
         assert!((3..=5).contains(&t.speed_gaps.len()));
         // Fly it tick by tick: from the ramp's end along its ridge.
         let fly = |g: &Gap, speed: f32| {

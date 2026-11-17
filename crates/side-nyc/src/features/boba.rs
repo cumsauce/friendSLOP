@@ -453,7 +453,7 @@ fn show_buzz(
 
 /// Step into a shop and its line shows.
 fn step_in(
-    camera: Query<&GlobalTransform, With<Camera3d>>,
+    camera: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     toast: Option<ResMut<crate::hud::Toast>>,
     mut was: Local<Option<usize>>,
 ) {
@@ -470,7 +470,7 @@ fn step_in(
 
 /// For the music: the camera's in a boba shop (`boba`).
 fn music_signals(
-    camera: Query<&GlobalTransform, With<Camera3d>>,
+    camera: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     signals: Option<ResMut<crate::music::MusicSignals>>,
 ) {
     let Some(mut signals) = signals else { return };

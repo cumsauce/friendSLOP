@@ -17,7 +17,7 @@
         (id: "jump", label: "jump", keys: ["Space"], pad: ["South"], group: "move"),
         (id: "run", label: "run", keys: ["ShiftLeft"], pad: ["LeftTrigger", "LeftThumb"], group: "move"),
         (id: "use", label: "use what's under the crosshair", keys: ["Mouse:Left"], pad: ["East", "RightTrigger2"], group: "move"),
-        (id: "camera", label: "first person / overview camera", keys: ["KeyV"], pad: ["North"], group: "move"),
+        (id: "camera", label: "first person / overview camera", keys: ["KeyC"], pad: ["North"], group: "move"),
         (id: "wheel", label: "action wheel (hold, point, let go)", pad: ["RightTrigger"], group: "move"),
 
         (id: "fart", label: "fart", keys: ["KeyF"], pad: ["West"], group: "body"),
@@ -27,7 +27,7 @@
         (id: "kill_cat", label: "let your cat go (when close)", keys: ["Delete"], group: "body"),
         (id: "smoke", label: "smoke", keys: ["KeyP"], group: "body"),
 
-        (id: "mic", label: "mute / unmute your mic", keys: ["KeyM"], pad: ["DPadUp"], group: "people"),
+        (id: "talk", label: "hold to talk (push-to-talk, in settings)", keys: ["KeyV"], group: "people"),
         (id: "hi", label: "say hi", keys: ["KeyT"], pad: ["DPadDown"], group: "people"),
         (id: "emote", label: "emote", keys: ["KeyU"], pad: ["DPadLeft"], group: "people"),
         (id: "offer", label: "offer / accept", keys: ["KeyO"], pad: ["DPadRight"], group: "people"),
@@ -46,13 +46,15 @@
         (id: "pry", label: "pry at HALT", keys: ["KeyG"], group: "story"),
         (id: "totem", label: "cast the totem spell", keys: ["KeyR"], group: "story"),
         (id: "mute_spell", label: "mute spell", keys: ["KeyQ"], group: "story"),
+        (id: "surf_reset", label: "surf: tap for your checkpoint, hold for the start (after the finish: again)", keys: ["KeyR"], group: "story"),
         (id: "answer", label: "answer the phone", keys: ["KeyE"], group: "story"),
         (id: "draw", label: "draw", keys: ["Mouse:Left"], group: ""),
 
         (id: "journal", label: "journal (hold) / scoreboard", keys: ["Tab"], pad: ["Select"], group: "screens"),
+        (id: "map", label: "map of where you are", keys: ["KeyM"], pad: ["DPadUp"], group: "screens"),
         (id: "journal_keep", label: "keep the journal open", keys: ["KeyJ"], group: "screens"),
         (id: "help", label: "controls (this)", keys: ["KeyH"], group: "screens"),
-        (id: "copy", label: "copy the invite code", keys: ["KeyC"], pad: ["LeftTrigger2"], group: ""),
+        (id: "copy", label: "copy the invite code (journal open)", keys: ["KeyC"], pad: ["LeftTrigger2"], group: ""),
         (id: "confirm", label: "continue", keys: ["Enter"], pad: ["RightThumb"], group: "screens"),
         (id: "claw_drop", label: "drop the claw", keys: ["Space"], group: ""),
         (id: "claw_quit", label: "walk away from the claw machine", keys: ["Enter"], group: ""),
@@ -69,6 +71,7 @@
         (id: "smoking", binds: [("South", "draw"), ("RightTrigger2", "draw")], prompt: ["draw"]),
         (id: "claw", binds: [("South", "claw_drop")], prompt: ["claw_drop", "claw_quit"]),
         (id: "asleep", binds: [("South", "sleep")], prompt: ["sleep"]),
+        (id: "surf", binds: [("West", "surf_reset")], prompt: ["surf_reset"]),
     ],
     // The action wheel (hold RB): pages of up to 8, clockwise from the top.
     // LB flips the page while it's open.

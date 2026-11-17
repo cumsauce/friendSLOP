@@ -70,6 +70,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::random_dialogue::RANDOM_WORDS,
         &rules::villagers::NAMES,
         &rules::surf::TUNING,
+        &rules::surf::COURSE,
         &rules::kori::EARNINGS,
         &textures::GLASS,
         &night_lights::NIGHT_LIGHTS,
@@ -79,5 +80,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &sites::SITES,
         &areas::AREAS,
         &areas::BUDGET,
+        &spatial::TUNING,
+        &spatial::HRIR,
     ]
 }

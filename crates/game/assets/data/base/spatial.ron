@@ -1,0 +1,14 @@
+// Head-related 3D sound for world sounds (crates/base/src/spatial.rs).
+// Headphones: a short filter per ear (the baked SADIE II KU100 head) lets you
+// hear a sound above, below and behind you. Only the loudest few sounds get
+// it; the rest use the cheaper left/right model. The player can switch it
+// off in Settings.
+(
+    // Switch it off for everyone.
+    enabled: true,
+    // At most this many sounds are filtered at once (each costs ~100 multiplies
+    // per sample per ear on the audio thread).
+    max_hrtf: 12,
+    // Seconds a sound takes to fade into or out of the filter.
+    fade_secs: 0.12,
+)

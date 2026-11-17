@@ -1,0 +1,80 @@
+// The mall at the end of the surf map (crates/side/src/features/surf_mall.rs,
+// #306): stage 7 winds in two big S-bends through a huge glass-roofed mall
+// (storefronts and balconies up both walls, a food court far below, catwalks
+// to dodge) to the finish. Hall coordinates, metres. The ramp is in surf.ron.
+(
+    // The ramp that winds through it: stage 7 (0-based 6), its first ramp.
+    stage: 6,
+    ramp: 0,
+    // The building's box (min, max corners). Its floor top is `min.y`, below
+    // the stage's fall line, so you can never land on it.
+    min: (1100.0, -770.0, -2038.0),
+    max: (1870.0, -590.0, -1838.0),
+    // Wall, floor and roof thickness (m), and the biggest glass pane (m).
+    wall: 1.0,
+    glass_max: (30.0, 35.0),
+    // The west wall's opening for the ramp: half width, and how far below
+    // and above the ridge (m).
+    opening: (24.0, 20.0, 28.0),
+    // The storefront columns lining the north and south walls (12 storeys of
+    // shops with balconies, 20 m wide, 12 m deep): from x, to x.
+    shops: (1110.0, 1850.0),
+    // The food court far below the ramp, in the middle: x, how much bigger
+    // than the model (72 m across), and the model.
+    food_court: (1450.0, 1.6),
+    // The FOOD COURT signs on both long walls: x, how high over the ridge
+    // (m), and how much bigger than the model (26 m wide).
+    sign: (1450.0, 12.0, 2.0),
+    // Catwalk kinds (as the skybridge slalom's): a 10 m segment along +x, its
+    // collar, the solid's half width and how far it reaches below and above
+    // its deck line.
+    kinds: [
+        // 0: glass sky bridge
+        (segment: "surf_skybridge_segment.gltf", end: None, half_width: 3.3, below: 0.95, above: 4.7),
+        // 1: steel truss
+        (segment: "surf_truss_bridge_segment.gltf", end: None, half_width: 2.15, below: 0.5, above: 3.8),
+        // 2: catwalk
+        (segment: "surf_catwalk_segment.gltf", end: None, half_width: 1.1, below: 1.0, above: 1.25),
+        // 3: low bridge: its belly skims the ridge, so you drop down the face
+        (segment: "surf_slalom_low_bridge_segment.gltf", end: None, half_width: 3.45, below: 1.05, above: 3.65),
+    ],
+    // The catwalks over and under the winding ramp: x, kind, span (Across
+    // the whole mall, or a stub from the North / South balconies stopping
+    // short of the ridge), and the deck's height over the ridge there (m;
+    // lift 2 puts a low bridge's belly about a metre over the ridge; below -13 a
+    // catwalk crosses beneath the ramp).
+    catwalks: [
+        (x: 1150.0, kind: 0, span: Across, lift: 12.0),
+        (x: 1190.0, kind: 3, span: Across, lift: 2.0),
+        (x: 1230.0, kind: 1, span: Across, lift: -15.0),
+        (x: 1270.0, kind: 2, span: Across, lift: 9.0),
+        (x: 1310.0, kind: 3, span: Across, lift: 2.0),
+        (x: 1350.0, kind: 0, span: Across, lift: -17.0),
+        (x: 1390.0, kind: 1, span: Across, lift: 14.0),
+        (x: 1510.0, kind: 3, span: Across, lift: 2.0),
+        (x: 1550.0, kind: 2, span: North, lift: 4.0),
+        (x: 1590.0, kind: 1, span: Across, lift: -15.0),
+        (x: 1630.0, kind: 3, span: Across, lift: 2.0),
+        (x: 1670.0, kind: 0, span: Across, lift: 12.0),
+        (x: 1710.0, kind: 2, span: South, lift: -3.0),
+        (x: 1710.0, kind: 1, span: Across, lift: -16.0),
+        (x: 1750.0, kind: 3, span: Across, lift: 2.0),
+    ],
+    // A stub stops this far (m) from the ridge, across the ground.
+    stub_reach: 9.0,
+    // A surfer needs this much (m) of open face to get by, in the band from
+    // 10 m under the ridge to 3 m over it.
+    gap_needed: 3.0,
+    band: (-10.0, 3.0),
+    // Lights over the ridge: one every this many metres, this high over it,
+    // colour (r, g, b), lumens and range (m). No shadows.
+    light_every: 40.0,
+    light_up: 12.0,
+    light_colour: (1.0, 0.85, 0.75),
+    light_intensity: 5000000.0,
+    light_range: 80.0,
+    // The ramp's tunnel nothing but the catwalks may enter: sideways from the
+    // ridge, and above it (m).
+    clear_side: 13.0,
+    clear_up: 26.0,
+)

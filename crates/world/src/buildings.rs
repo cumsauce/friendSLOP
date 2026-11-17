@@ -62,7 +62,7 @@ pub fn room_light_on(light: Vec3, cam: Vec3) -> bool {
 }
 
 fn near_lights(
-    cam: Query<&GlobalTransform, With<Camera3d>>,
+    cam: Query<&GlobalTransform, (With<Camera3d>, Without<friendslop_core::MapCamera>)>,
     mut lights: Query<(&Transform, &mut Visibility), With<RoomLight>>,
 ) {
     let Some(c) = cam.iter().next().map(GlobalTransform::translation) else {

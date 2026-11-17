@@ -429,7 +429,7 @@ const NEAR_LANDLORD: f32 = 12.0;
 /// as it's won.
 fn music_signals(
     tenancy: Query<&Tenancy>,
-    camera: Query<&GlobalTransform, With<Camera3d>>,
+    camera: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     mut act_before: Local<Option<Act3>>,
     signals: Option<ResMut<crate::music::MusicSignals>>,
 ) {

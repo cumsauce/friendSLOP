@@ -1,0 +1,44 @@
+// More themed stretches of the surf map (#306), each one a run of neon
+// things planted along one ramp (crates/side/src/features/surf_runs.rs).
+// Hall coordinates, metres. Models are modeler prefabs `surf-runs-*`.
+(
+    runs: [
+        // The fin chicane: 5 m wide walls fill one whole face, left then
+        // right, so you swap faces round every fin. Stage 5's first ramp
+        // (a speed gap follows it: `to` stops well short of its end).
+        (
+            name: "fins",
+            kind: Fin,
+            stage: 4, ramp: 0,
+            from: 40.0, to: 320.0, spacing: 24.0,
+            // Across the face from the ridge (m) to the middle, and the
+            // middle's height over the ridge.
+            lateral: 4.0, lift: -2.0,
+            // Half size (across, up, along) of the solid; the model is 5 x 20 x 1.
+            half: (2.5, 10.0, 0.5),
+            model: "surf_runs_fin.gltf",
+        ),
+        // The gate run: neon frames over the ridge, one every 22 m. You
+        // surf through each; the posts stand off the faces, the beam high.
+        (
+            name: "gates",
+            kind: Gate,
+            stage: 2, ramp: 2,
+            from: 20.0, to: 115.0, spacing: 22.0,
+            // lift is the posts' middle (m over the ridge); half the posts'
+            // size; the beam's middle, size, and the posts' distance out.
+            lateral: 0.0, lift: -0.5,
+            half: (0.5, 11.5, 0.5),
+            beam_lift: 10.0, beam_half: (7.5, 1.0, 0.5), post_x: 7.0,
+            model: "surf_runs_gate.gltf",
+        ),
+    ],
+    // A free face needs this much room (m) clear beside the path, and the
+    // surfable band's height range over the ridge (m).
+    free_gap: 2.0,
+    band: (-10.0, 3.0),
+    // Where a face's lane runs across it (m from the ridge).
+    lane: 3.5,
+    // Extra room around each run kept free of surf_props' pieces.
+    claim_margin: 5.0,
+)

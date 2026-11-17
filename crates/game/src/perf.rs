@@ -205,7 +205,7 @@ fn report(
     meshes: Query<&ViewVisibility, With<Mesh3d>>,
     batches: Query<(&Mesh3d, &MeshMaterial3d<StandardMaterial>, &ViewVisibility)>,
     lights: Query<(), Or<(With<PointLight>, With<SpotLight>)>>,
-    cam: Query<&GlobalTransform, With<Camera3d>>,
+    cam: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     images: Res<Assets<Image>>,
     counts: Res<DrawCounts>,
     quality: Option<Res<crate::graphics::GraphicsQuality>>,
@@ -296,7 +296,7 @@ fn report(
 /// the bot's step, to the log and the CSV.
 fn hitch(
     time: Res<Time<Real>>,
-    cam: Query<&GlobalTransform, With<Camera3d>>,
+    cam: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     mark: Option<Res<crate::bot::PerfMark>>,
 ) {
     let ms = time.delta_secs() * 1000.0;

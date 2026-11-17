@@ -91,6 +91,23 @@ fn day_start_at() -> f64 {
     now - elapsed_for(target, tuning.day_minutes, tuning.start_hour)
 }
 
+/// `FRIENDSLOP_TIME_FREEZE=1` (with `FRIENDSLOP_TIME`) keeps the clock still at that time
+/// of day for this run: the sky never moves. Local to this process, for screenshots and
+/// looking around; it is not replicated.
+pub fn frozen_time() -> Option<f32> {
+    static FROZEN: std::sync::OnceLock<Option<f32>> = std::sync::OnceLock::new();
+    *FROZEN.get_or_init(|| {
+        let on =
+            std::env::var("FRIENDSLOP_TIME_FREEZE").is_ok_and(|v| !matches!(v.trim(), "" | "0"));
+        let t = std::env::var("FRIENDSLOP_TIME")
+            .ok()?
+            .trim()
+            .parse::<f32>()
+            .ok()?;
+        (on && t.is_finite()).then(|| t.rem_euclid(1.0))
+    })
+}
+
 /// Seconds after [`DayStart`] at which [`time_of_day`] reads `target` (0..1).
 fn elapsed_for(target: f64, day_minutes: f32, start_hour: f32) -> f64 {
     let len = (day_minutes.max(0.1) as f64) * 60.0;
@@ -261,7 +278,8 @@ fn day_night(
     let tuning = DAY_NIGHT.get();
     let now = crate::settings::since_epoch().as_secs_f64();
     let start = started.iter().next().map_or(now, |d| d.0);
-    let t = time_of_day(now - start, tuning.day_minutes, tuning.start_hour);
+    let t = frozen_time()
+        .unwrap_or_else(|| time_of_day(now - start, tuning.day_minutes, tuning.start_hour));
     let h = sun_height(t);
     let day = daylight(h);
     let dark = 1.0 - day;

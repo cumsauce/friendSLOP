@@ -100,7 +100,7 @@ pub fn district_levels(at: Vec3) -> (f32, f32) {
 /// Fade the beds towards the district's mix (a few seconds per crossfade).
 fn district_mix(
     time: Res<Time>,
-    camera: Query<&GlobalTransform, With<Camera3d>>,
+    camera: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     mut beds: Query<(&Bed, &mut AudioSink)>,
 ) {
     let Some(cam) = camera.iter().next() else {

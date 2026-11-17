@@ -354,7 +354,7 @@ pub fn on_an_island(at: Vec3) -> bool {
 
 /// For the music: the camera's up on a sky island.
 fn music_signals(
-    camera: Query<&GlobalTransform, With<Camera3d>>,
+    camera: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     signals: Option<ResMut<crate::music::MusicSignals>>,
 ) {
     let Some(mut signals) = signals else { return };

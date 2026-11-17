@@ -383,7 +383,7 @@ fn glide_kittens(
 fn meow(
     mut commands: Commands,
     time: Res<Time>,
-    camera: Query<&GlobalTransform, With<Camera3d>>,
+    camera: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     audio: Option<Res<Assets<AudioSource>>>,
     kittens: Query<&Kitten>,
     mut seed: Local<u32>,

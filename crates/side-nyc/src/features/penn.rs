@@ -637,7 +637,7 @@ fn penn_look(here: Res<crate::place::Here>, mut looks: ResMut<crate::place::Plac
 
 /// For the music: the camera's on the NJ Transit side (`penn_njt`) or the LIRR side (`penn_lirr`).
 fn music_signals(
-    camera: Query<&GlobalTransform, With<Camera3d>>,
+    camera: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
     signals: Option<ResMut<crate::music::MusicSignals>>,
 ) {
     let Some(mut signals) = signals else { return };

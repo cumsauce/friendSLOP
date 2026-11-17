@@ -36,6 +36,11 @@ impl Plugin for MapPlugin {
             .register_type::<Hole>()
             .register_type::<Spin>()
             .register_type::<Lamp>()
+            .register_type::<Body>()
+            .register_type::<Bob>()
+            .register_type::<Wedge>()
+            .register_type::<Pad>()
+            .register_type::<Ridge>()
             .add_systems(Update, (spawn_maps, load_gltf_sources).chain());
     }
 }
@@ -162,6 +167,60 @@ pub struct Spin {
 pub struct Lamp {
     pub lumens: f32,
     pub range: f32,
+    /// The light's colour (0..1 each); all zero means white.
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+}
+
+/// A static box collider on a placed model: `sx` x `sy` x `sz` metres, its
+/// middle `ox`, `oy`, `oz` from the entity's origin along the entity's own
+/// axes (so it turns, pitches and tilts with the model). The entity's scale
+/// is not applied to it.
+#[derive(Component, Reflect, Clone, Copy, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Body {
+    pub sx: f32,
+    pub sy: f32,
+    pub sz: f32,
+    pub ox: f32,
+    pub oy: f32,
+    pub oz: f32,
+}
+
+/// A wedge-shaped static collider (a surf kicker): the marker's box, low at
+/// -z rising to its full height at +z, turned by the marker's yaw.
+#[derive(Component, Reflect, Clone, Copy, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Wedge;
+
+/// A surf course pad (the box is the marker's size): stage `stage` (from 0)
+/// starts here, or `finish` is the course's end.
+#[derive(Component, Reflect, Clone, Copy, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Pad {
+    pub stage: u32,
+    pub finish: bool,
+}
+
+/// One point of a surf ramp's ridge: ramp `ramp` of stage `stage`, point
+/// number `order` along it. A smooth curve runs through them.
+#[derive(Component, Reflect, Clone, Copy, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Ridge {
+    pub stage: u32,
+    pub ramp: u32,
+    pub order: u32,
+}
+
+/// Bobs up and down `height` metres at `hz` bobs a second, `phase` radians
+/// along (a floating blimp). Local looks only.
+#[derive(Component, Reflect, Clone, Copy, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Bob {
+    pub height: f32,
+    pub hz: f32,
+    pub phase: f32,
 }
 
 /// A `.bsn` file's text.

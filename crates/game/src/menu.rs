@@ -1429,13 +1429,16 @@ pub(crate) fn leave(
     next.set(AppState::Menu);
 }
 
+/// C copies the invite again, while the journal (which shows it) is open:
+/// the rest of the time C is the camera.
 fn copy_code_again(
     keys: Res<ButtonInput<KeyCode>>,
+    overlay: Res<crate::ui::Overlay>,
     status: Res<NetStatus>,
     clip: Res<Clipboard>,
     mut toast: ResMut<Toast>,
 ) {
-    if !keys.just_pressed(KeyCode::KeyC) {
+    if !overlay.journal || !keys.just_pressed(KeyCode::KeyC) {
         return;
     }
     match &status.join_code {

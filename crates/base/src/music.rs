@@ -64,7 +64,9 @@ impl MusicSignals {
 pub struct MusicSignalSet;
 
 /// Where the camera is (what the place signals measure from).
-pub fn camera_at(camera: &Query<&GlobalTransform, With<Camera3d>>) -> Option<Vec3> {
+pub fn camera_at(
+    camera: &Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
+) -> Option<Vec3> {
     camera.iter().next().map(|g| g.translation())
 }
 

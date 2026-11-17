@@ -18,6 +18,8 @@ pub mod world {
     #[derive(Component)]
     pub struct MainCamera;
 
+    pub use friendslop_core::MapCamera;
+
     /// Whether a ball `radius` metres round `center` is in the main camera's
     /// view. Animation nobody can see is wasted transform propagation, so
     /// stateless animators (sway, walk cycles) skip what this rules out; with
@@ -168,6 +170,8 @@ pub mod ui {
     #[derive(Resource, Default, Debug, Clone, Copy)]
     pub struct Overlay {
         pub journal: bool,
+        /// The map of where you are (M).
+        pub map: bool,
         pub intro: bool,
         /// The settings notebook, opened with Esc in game (#317).
         pub settings: bool,
@@ -175,7 +179,7 @@ pub mod ui {
 
     impl Overlay {
         pub fn any(self) -> bool {
-            self.journal || self.intro || self.settings
+            self.journal || self.map || self.intro || self.settings
         }
     }
 

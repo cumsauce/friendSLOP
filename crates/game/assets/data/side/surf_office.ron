@@ -1,0 +1,54 @@
+// The office tower at the end of the surf map (crates/side/src/features/
+// surf_office.rs, #306): stage 6 runs through a huge glass lobby with giant
+// trees far below, then on into an atrium lined with tiers of glass executive offices to the
+// finish. Hall coordinates, metres. The ramp itself is in surf.ron (stage 6).
+(
+    // The ramp that runs through it: stage 6 (0-based 5), its first ramp.
+    stage: 5,
+    ramp: 0,
+    // The building's box (min, max corners). Its floor top is `min.y`; the
+    // floor is below your stage's lowest ridge minus the fall margin, so a
+    // fall is a wipe-out (back to the pad), never a landing.
+    min: (520.0, -660.0, -2008.0),
+    max: (1090.0, -520.0, -1868.0),
+    // Wall, floor and roof thickness (m).
+    wall: 1.0,
+    // The biggest glass piece (length, height; m): wall panes are stretched
+    // to tile the walls in pieces no bigger than this.
+    glass_max: (30.0, 35.0),
+    // The west wall's opening for the ramp: half width, and how far below
+    // and above the ridge (m).
+    opening: (24.0, 20.0, 28.0),
+    // Where the lobby's garden stands: along the ridge from x to x, and how
+    // far from the ridge sideways (m, min to max), a tree's size range
+    // (times the model, which is ~6 m tall), how far below the ridge its
+    // top stays, and how many trees, bushes and flowers (seeded).
+    garden_x: (540.0, 1060.0),
+    garden_side: (18.0, 55.0),
+    tree_scale: (4.5, 7.5),
+    tree_below: 14.0,
+    trees: 40,
+    bushes: 70,
+    flowers: 60,
+    seed: 306,
+    tree_models: ["nature/tree_1.gltf", "nature/tree_2.gltf", "nature/tree_3.gltf"],
+    bush_models: ["nature/bush_1.gltf", "nature/bush_2.gltf", "nature/fern.gltf"],
+    flower_models: ["nature/flower_1.gltf", "nature/flower_2.gltf", "nature/flower_3.gltf"],
+    // The executive offices: glass offices (the pod model, 20 x 6 x 14 m)
+    // stacked in tiers up both long walls of the atrium, facing in: from x,
+    // to x (columns of 20 stacked storeys, the column model's height), and the
+    // storey height (m). They are one solid block each side, far from the ramp.
+    offices: (800.0, 1070.0),
+    storey: 6.0,
+    // Lights over the ridge: one every this many metres, this high over it,
+    // colour (r, g, b), lumens and range (m). No shadows.
+    light_every: 40.0,
+    light_up: 12.0,
+    light_colour: (1.0, 0.93, 0.8),
+    light_intensity: 5000000.0,
+    light_range: 80.0,
+    // The ramp's tunnel nothing solid may enter: sideways from the ridge,
+    // and above it (m).
+    clear_side: 13.0,
+    clear_up: 26.0,
+)

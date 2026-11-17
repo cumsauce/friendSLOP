@@ -1,0 +1,27 @@
+// The pillar run on the surf map (#306): slender neon pillars planted in the
+// faces of one long ramp, left then right, so you weave between them at
+// speed (crates/side/src/features/surf_pillars.rs). Hall coordinates, metres.
+(
+    // Stage 3 (0-based 2), its first ramp: the long sweeping curve (no speed gap).
+    stage: 2,
+    ramp: 0,
+    // Where along the ridge (metres from its start) the pillars begin and
+    // stop, and the distance between one pillar and the next.
+    from: 30.0,
+    to: 280.0,
+    spacing: 13.0,
+    // How far (m) from the ridge, across the face, each pillar stands.
+    // They alternate sides, so you swap faces round every one.
+    lateral: 4.0,
+    // Pillar radius, and how far it reaches below and above the ridge (m).
+    radius: 1.2,
+    below: 14.0,
+    above: 9.0,
+    // The pillar model (23 m tall, 1.2 m radius, origin in the middle; the
+    // modeler prefab surf-pillars-pillar), stretched to each pillar's size.
+    model: "surf_pillars_pillar.gltf",
+    // A free face needs this much room (m) clear of pillars beside the path.
+    free_gap: 2.0,
+    // Extra margin (m) around the run kept free of surf_props' pieces.
+    claim_margin: 5.0,
+)

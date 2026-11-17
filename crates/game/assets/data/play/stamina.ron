@@ -1,0 +1,17 @@
+// Tuning for stamina (crates/play/src/features/stamina.rs).
+// Edit and save: the running game picks it up within a second.
+(
+    // Most stamina a walker has.
+    max: 100.0,
+    // What a second of sprinting costs: about 12 s of running on a full bar.
+    sprint_drain: 8.0,
+    // What a second of climbing costs: climbing is harder work, about 7 s on
+    // a full bar (the sky islands' spires need roughly 4 s each).
+    climb_drain: 14.0,
+    // How fast it comes back while resting on the ground (no climbing, no
+    // sprinting, feet on something).
+    recover: 22.0,
+    // Share of max you need back before you can sprint or climb again. Until
+    // then you're exhausted (the bar turns butter and says so).
+    again: 0.3,
+)

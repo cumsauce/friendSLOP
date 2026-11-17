@@ -1,0 +1,258 @@
+{
+  "name": "cfm-sign-neon",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        26,
+        2.4
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        13,
+        1.2
+      ],
+      "coords": "c",
+      "name": "bo",
+      "size": [
+        25.7,
+        2.2
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        13,
+        1.2
+      ],
+      "coords": "c",
+      "name": "bi",
+      "size": [
+        25.4,
+        1.9
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "mbo",
+      "sdf": "bo",
+      "type": "mask"
+    },
+    {
+      "name": "mbi",
+      "sdf": "bi",
+      "type": "mask"
+    },
+    {
+      "a": "mbo",
+      "b": "mbi",
+      "name": "border",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "center": [
+        13,
+        1.2
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t1",
+      "size": 1.6,
+      "text": "CEILING FAN MUSEUM",
+      "type": "text"
+    },
+    {
+      "name": "mt",
+      "sdf": "t1",
+      "type": "mask"
+    },
+    {
+      "a": "#2a1f3d",
+      "b": "#5ff2e6",
+      "c": "border",
+      "name": "c1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "#ff6fb5",
+      "c": "mt",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "#000000",
+      "b": "#2fd9cc",
+      "c": "border",
+      "name": "e1",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "e1",
+      "b": "#ff3d9a",
+      "c": "mt",
+      "name": "em",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "name": "out",
+      "roughness": 0.4,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "cfm-sign-neon",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                26,
+                2.4
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                13,
+                1.2
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                25.7,
+                2.2
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                13,
+                1.2
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                25.4,
+                1.9
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                13,
+                1.2
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 1.6,
+              "text": "CEILING FAN MUSEUM",
+              "type": "text"
+            },
+            {
+              "name": "mt",
+              "sdf": "t1",
+              "type": "mask"
+            },
+            {
+              "a": "#2a1f3d",
+              "b": "#5ff2e6",
+              "c": "border",
+              "name": "c1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#ff6fb5",
+              "c": "mt",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#000000",
+              "b": "#2fd9cc",
+              "c": "border",
+              "name": "e1",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "e1",
+              "b": "#ff3d9a",
+              "c": "mt",
+              "name": "em",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "name": "out",
+              "roughness": 0.4,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +bo +bi +mbo +mbi +border +t1 +mt +c1 +col +e1 +em +out"
+      }
+    ],
+    "current": 0
+  }
+}

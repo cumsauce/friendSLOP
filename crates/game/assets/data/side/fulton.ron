@@ -46,14 +46,31 @@
         cell_lumens: 6000.0,
         cell_range: 9.0,
         cell_height: 3.4,
-        follow_lumens: 2500.0,
-        follow_range: 8.0,
+        follow_lumens: 500.0,
+        follow_range: 6.0,
         // Reflections: the station's baked probe ("fulton", baked in a hall;
         // FRIENDSLOP_BAKE=1), this bright.
         probe: 0.4,
         // The nearest this many cell lights cast shadows (0 for none).
         shadow_lights: 2,
-        // How dark it is down here (no sky, a dim haze): data/base/place_looks.ron ("fulton").
+        // The share of cells whose ceiling light still works; the rest are broken.
+        working: 0.2,
+        // From this level down (0 is the top) a level may be pitch dark: no
+        // working lights, no glow around you, only your flashlight. This is
+        // the chance each one is.
+        dark_from: 4,
+        dark_chance: 0.35,
+        // Your flashlight down here (as in the warehouse): lumens, reach (m),
+        // and its cone's outer and inner half-angles (degrees).
+        flashlight_lumens: 400000.0,
+        flashlight_range: 22.0,
+        flashlight_outer: 24.0,
+        flashlight_inner: 13.0,
+        // A broken light's skin: its tubes stop glowing and their colour is
+        // scaled by this (dead, dusty glass).
+        broken_tint: 0.35,
+        // How dark it is down here (no sky, a dim haze): data/base/place_looks.ron
+        // ("fulton", and "fulton_dark" on the pitch-dark levels).
     ),
     // Big rooms (concourses, fare halls) a few cells across among the
     // corridors, so a level isn't all hallways: the chance a level has any,
@@ -173,6 +190,16 @@
     // way round; where there isn't it becomes a squeeze instead), the chance
     // it's a squeeze (rubble heaps either side), and a squeeze's gap (m).
     collapse: (blocked: 0.07, squeeze: 0.02, gap: 1.4),
+    // Train tunnels: every this many levels (from `offset`, 0 is the top) the
+    // stairs drop you into a ring of big double-track tunnel tiles (12 m, curves
+    // and straights; fulton_tiles.ron) round the edge of the level instead of
+    // corridors. The stairs down are across the ring, so there are two arms of
+    // at least three tiles. A straight tile caves in across its middle with
+    // chance `blocked` (rubble you can't pass; where that would cut something
+    // off it's a squeeze instead) or is a squeeze with chance `squeeze`. Leave
+    // out a level that's a platform level or the one below one (their track
+    // beds sink into it). `every: 0` turns them off.
+    tunnels: (every: 4, offset: 2, blocked: 0.3, squeeze: 0.12),
     // Cars left standing on the platforms' tracks (10 ft B Division cars,
     // their floors level with the platform): the chance of one on each
     // straight run of three platform cells, and which, by weight. `open`
@@ -224,6 +251,17 @@
         // cell within 3 cells of you.
         director_secs: 9.0,
         director_radius: 3,
+        // Hold it in clear sight this long and it stops pretending: it curls into
+        // a ball and rolls at you, faster than you run (you run 10.5).
+        roll_sight_secs: 3.0,
+        // How fast the ball rolls (m/s).
+        roll_speed: 12.0,
+        // A roll lasts this long, then it breaks back into a run.
+        roll_secs: 3.2,
+        // Then it can't roll again for this long.
+        roll_cooldown_secs: 9.0,
+        // How fast it turns to face where it's going (degrees a second).
+        turn_speed: 150.0,
         // Out of sight, it keeps heading where it last saw you for this long.
         lose_secs: 5.0,
         // Then it checks the lockers within 4 cells for 20 s, opening the one

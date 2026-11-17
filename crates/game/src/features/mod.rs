@@ -100,6 +100,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(drowning::protocol);
         app.add_plugins(organ_butcher::protocol);
         app.add_plugins(fan_museum::protocol);
+        app.add_plugins(stamina::protocol);
     }
 }
 
@@ -142,6 +143,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(campaign::plugin);
         app.add_plugins(romance::plugin);
         app.add_plugins(climb::plugin);
+        app.add_plugins(stamina::plugin);
         app.add_plugins(doorway::plugin);
         app.add_plugins(start::plugin);
         app.add_plugins(abuela::plugin);

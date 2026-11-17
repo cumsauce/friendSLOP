@@ -2714,14 +2714,11 @@
     },
     {
       "name": "commune-map",
-      "description": "The commune map: terrain pads, places, districts, plots and hangouts.",
-      "tags": [
-        "map",
-        "commune"
-      ],
+      "description": "The commune's map: ground terrain, spots, paths, districts, plots, set pieces.",
+      "tags": [],
       "prompt": "",
       "file": "commune-map.json",
-      "created_at": "2026-11-17T00:16:46Z"
+      "created_at": "2026-11-17T02:29:19Z"
     },
     {
       "name": "sp-wendys",
@@ -3676,16 +3673,15 @@
     },
     {
       "name": "fs-hunter",
-      "description": "The thing Andrew sends after you in Fulton St station: a gaunt 2.6 m figure with long arms, glowing eyes and an orange MTA vest. Faces +z.",
+      "description": "Fulton St hunter: tall lanky biped (mesh straight to match its rig; clips give the hunch) in a baked horror skin (hunter_skin_scary: corpse grey, bruises, veins, black sockets, blood down the throat), walk, run, catch and a grounded ragdoll tumble 'roll' used as its sprint.",
       "tags": [
-        "friendslop",
-        "nyc",
-        "station",
-        "monster"
+        "creature",
+        "rigged",
+        "fulton"
       ],
       "prompt": "",
       "file": "fs-hunter.json",
-      "created_at": "2026-11-13T07:12:55Z"
+      "created_at": "2026-11-17T02:04:05Z"
     },
     {
       "name": "surf-hall",
@@ -7312,15 +7308,11 @@
     },
     {
       "name": "cfm-museum-exterior",
-      "description": "The Ceiling Fan Museum's outside: big-box shell, neon painted sign, blade awning, brass fan medallions, parking lot.",
-      "tags": [
-        "building",
-        "museum",
-        "facade"
-      ],
+      "description": "The Ceiling Fan Museum seen from the open world (compact, no annex): stepped pastel facade, neon texture sign, scalloped parapets, awnings, pinwheels, bunting, rooftop fan mount; parking lot. Origin floor centre, doors at z -10.",
+      "tags": [],
       "prompt": "",
       "file": "cfm-museum-exterior.json",
-      "created_at": "2026-11-17T00:16:26Z"
+      "created_at": "2026-11-17T02:29:14Z"
     },
     {
       "name": "sf-slalom-low-bridge",
@@ -7439,6 +7431,40 @@
       "prompt": "",
       "file": "cfm-exterior-fan.json",
       "created_at": "2026-11-17T00:16:27Z"
+    },
+    {
+      "name": "cfm-roof-fan-rotor",
+      "description": "Spinning rotor of the Ceiling Fan Museum's giant rooftop fan: brass hub + finial, 4 pitched pastel blades (peach/mint), 4.9 m across, centred on origin, spin axis +Y. Mounts on cfm-museum-exterior at (0, 12.4, 3).",
+      "tags": [
+        "cfm",
+        "fan",
+        "rotor"
+      ],
+      "prompt": "",
+      "file": "cfm-roof-fan-rotor.json",
+      "created_at": "2026-11-17T02:24:16Z"
+    },
+    {
+      "name": "fs-tunnel-curve",
+      "description": "Fulton train tunnel curve tile, 12 m, open N and E, two tracks round the NE corner, SW corner rounded; walls and rails only.",
+      "tags": [
+        "fulton",
+        "tunnel"
+      ],
+      "prompt": "",
+      "file": "fs-tunnel-curve.json",
+      "created_at": "2026-11-17T02:25:18Z"
+    },
+    {
+      "name": "fs-tunnel-straight",
+      "description": "Fulton train tunnel straight tile, 12 m, open N and S, two tracks, walls and rails only.",
+      "tags": [
+        "fulton",
+        "tunnel"
+      ],
+      "prompt": "",
+      "file": "fs-tunnel-straight.json",
+      "created_at": "2026-11-17T02:25:18Z"
     }
   ]
 }

@@ -135,6 +135,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(halt::plugin);
         app.add_plugins(objective::plugin);
         app.add_plugins(fps::plugin);
+        app.add_plugins(noise::plugin);
         app.add_plugins(interact::plugin);
         app.add_plugins(hide_and_seek::plugin);
         app.add_plugins(villagers::plugin);

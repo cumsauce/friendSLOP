@@ -474,24 +474,6 @@ bevy_ecs::hierarchy::Children [
         name: "fan_museum",
     }
     --
-    #fan_museum_annex_block
-    jackdaw_scene_types::node_id::SceneNodeId(6121190474460031037)
-    bevy_transform::components::transform::Transform {
-        translation: glam::Vec3 { x: 27.0, y: 7.0, z: -56.0 },
-    }
-    friendslop_world::map::Block {
-        round: false,
-    }
-    --
-    #fan_museum_annex_clear
-    jackdaw_scene_types::node_id::SceneNodeId(6173418557628282679)
-    bevy_transform::components::transform::Transform {
-        translation: glam::Vec3 { x: 27.0, y: 0.0, z: -56.0 },
-    }
-    friendslop_world::map::Clear {
-        radius: 20.0,
-    }
-    --
     #fan_museum_block
     jackdaw_scene_types::node_id::SceneNodeId(5822761249613833957)
     bevy_transform::components::transform::Transform {
@@ -517,6 +499,19 @@ bevy_ecs::hierarchy::Children [
     }
     friendslop_world::map::Block {
         round: true,
+    }
+    --
+    #fan_museum_fan
+    jackdaw_scene_types::node_id::SceneNodeId(4836433144351363709)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 62.0, y: 10.72, z: -71.7 },
+    }
+    jackdaw_scene_types::types::GltfSource {
+        path: "models/prefabs/cfm-exterior-fan.gltf",
+        scene_index: 0,
+    }
+    friendslop_world::map::Spin {
+        rpm: -6.0,
     }
     --
     #"fan_museum_lamp_(-12)"

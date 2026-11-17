@@ -18,7 +18,9 @@
 //! ([`think`]) and works like Alien: Isolation's two-layer AI: a *director*
 //! that always roughly knows where you are and every few seconds sends it to
 //! a cell near you (never exactly yours), and the creature's own senses, a
-//! view cone with line of sight down the corridors. Seen, it chases you; lose
+//! view cone with line of sight down the corridors, and ears (`noise`):
+//! running or jumping carries, and it comes; stand still and you're silent.
+//! Seen or heard, it chases you; lose
 //! it and it goes where it last saw you, then searches the lockers nearby
 //! (opening yours with [`Hunt::find_chance`]), then backs off for a while
 //! before the director brings it drifting back. It walks the station's own
@@ -45,6 +47,7 @@ use super::fulton::{
 use crate::AppState;
 use crate::features::fps::{WalkInput, Walker, teleport};
 use crate::features::interact::{Clickable, Clicked};
+use crate::features::noise::{Level as Loud, Noise};
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::rules::nyc::in_station;
 
@@ -303,6 +306,7 @@ pub fn think(
     hunter: &mut Hunter,
     brain: &mut Brain,
     prey: &[Prey],
+    noises: &[crate::features::noise::Noise],
     dt: f32,
 ) -> Outcome {
     let h = &t.hunt;
@@ -344,10 +348,41 @@ pub fn think(
         brain.last_seen = at;
         brain.timer = h.lose_secs;
     }
+    // Its ears. Running and jumping carry (`noise`); you heard, it comes —
+    // without seeing you, so no toast, and standing still stays silent.
+    let was_last = brain.last_seen;
+    if seen.is_none()
+        && let Some(n) = crate::features::noise::heard(noises, hunter.pos)
+        && let Some(at) = node_at(t, levels, n.at)
+    {
+        if hunter.mode != Mode::Chase {
+            hunter.mode = Mode::Chase;
+            brain.searched.clear();
+        }
+        brain.last_seen = Some(at);
+        brain.timer = h.lose_secs;
+        if was_last != Some(at) || brain.route.is_empty() {
+            brain.route = route(levels, me, at).unwrap_or_default();
+        }
+    }
     brain.timer -= dt;
     match hunter.mode {
         Mode::Chase if seen.is_none() => {
-            if brain.route.is_empty() || brain.timer <= 0.0 {
+            // Lost sight of you, but not yet given up: it keeps coming, still
+            // headed your way, until `lose_secs` runs out. You in a locker it
+            // can't track: it goes where it last had eyes on you.
+            if brain.route.is_empty() && brain.timer > 0.0 {
+                let to = match target.hidden {
+                    None => Some(target_node),
+                    // You in a locker it can't track: it goes where it last
+                    // had eyes on you.
+                    Some(_) => brain.last_seen,
+                };
+                if let Some(to) = to.filter(|&n| n != me) {
+                    brain.route = route(levels, me, to).unwrap_or_default();
+                }
+            }
+            if brain.timer <= 0.0 {
                 hunter.mode = Mode::Search;
                 brain.timer = h.search_secs;
                 brain.searched.clear();
@@ -541,6 +576,8 @@ pub fn protocol(app: &mut App) {
             Update,
             (calls, hunt)
                 .chain()
+                // The ears follow the sounds the noise system gathered.
+                .after(crate::features::noise::NoiseSet)
                 .run_if(in_state(ServerState::Running))
                 // The phones and the hunters are under New York (#412).
                 .run_if(crate::sites::awake("nyc"))
@@ -618,6 +655,7 @@ fn hunt(
     mut commands: Commands,
     time: Res<Time>,
     station: Res<Station>,
+    noises: Res<crate::features::noise::Noises>,
     mut hunted: ResMut<Hunted>,
     mut hunters: Query<(Entity, &mut Hunter, &mut Brain)>,
     mut players: Query<(
@@ -659,7 +697,16 @@ fn hunt(
     let dt = time.delta_secs().min(0.1);
     for (e, mut hunter, mut brain) in &mut hunters {
         let mut h = *hunter;
-        let outcome = think(&t, station.levels(), &spots, &mut h, &mut brain, &prey, dt);
+        let outcome = think(
+            &t,
+            station.levels(),
+            &spots,
+            &mut h,
+            &mut brain,
+            &prey,
+            &noises.0,
+            dt,
+        );
         if h != *hunter {
             *hunter = h;
         }
@@ -763,7 +810,7 @@ pub fn plugin(app: &mut App) {
         )
         .add_systems(
             Update,
-            (ring, dress_hunters, move_hunters)
+            (ring, dress_hunters, hunt_clips, move_hunters)
                 .run_if(in_state(AppState::InGame))
                 .run_if(crate::sites::here("nyc")),
         );
@@ -980,7 +1027,6 @@ fn click_locker(ev: On<Clicked>, mut commands: Commands, lockers: Query<(), With
 /// Local: draw each hunter (a child in New York's visuals; the hunter is replicated).
 fn dress_hunters(
     mut commands: Commands,
-    assets: Res<AssetServer>,
     hunters: Query<(Entity, Option<&Children>), With<Hunter>>,
     dresses: Query<(), With<crate::area::Dress>>,
 ) {
@@ -991,15 +1037,69 @@ fn dress_hunters(
         commands
             .entity(e)
             .insert_if_new((Transform::default(), Visibility::default()));
-        commands.spawn((
-            crate::area::Dress,
-            WorldAssetRoot(
-                assets.load(GltfAssetLabel::Scene(0).from_asset("models/features/fs_hunter.gltf")),
-            ),
-            Transform::default(),
-            crate::area::show(),
-            ChildOf(e),
+        commands.entity(e).insert((
+            crate::rigged::Rigged {
+                path: "models/features/fs_hunter.gltf",
+            },
+            crate::rigged::RigClip::looping("walk"),
         ));
+    }
+}
+
+/// Seconds the grab lunge plays (the clip's length in the model).
+const CATCH_SECS: f32 = 1.4;
+
+/// Local: the grab lunge is playing; seconds left before the walk returns.
+#[derive(Component)]
+struct Catching(f32);
+
+/// Local: pick the clip from what the hunter is doing: a lope while it
+/// drifts and searches, a run on the chase, and the grab once when it
+/// catches you (it flips from the chase straight to backing off).
+fn hunt_clips(
+    time: Res<Time>,
+    mut commands: Commands,
+    mut hunters: Query<(
+        Entity,
+        &Hunter,
+        Option<&mut crate::rigged::RigClip>,
+        Option<&mut Catching>,
+    )>,
+) {
+    let dt = time.delta_secs();
+    for (e, hunter, clip, catching) in &mut hunters {
+        if let Some(mut catch) = catching {
+            catch.0 -= dt;
+            if catch.0 <= 0.0 {
+                commands.entity(e).remove::<Catching>();
+                if let Some(mut clip) = clip {
+                    *clip = crate::rigged::RigClip::looping("walk");
+                }
+            }
+            continue;
+        }
+        let playing = clip.as_ref().map(|c| c.name);
+        let grab = hunter.mode == Mode::Retreat && playing == Some("run");
+        if grab {
+            commands
+                .entity(e)
+                .insert((Catching(CATCH_SECS), crate::rigged::RigClip::once("catch")));
+            continue;
+        }
+        let want = if hunter.mode == Mode::Chase {
+            "run"
+        } else {
+            "walk"
+        };
+        if let Some(mut clip) = clip {
+            if playing != Some(want) {
+                *clip = crate::rigged::RigClip::looping(want);
+            }
+        } else {
+            commands
+                .entity(e)
+                .insert(crate::rigged::RigClip::looping(want));
+        }
     }
 }
 
@@ -1157,12 +1257,14 @@ mod tests {
             hidden: None,
         };
         let mut brain = Brain::new(7, 1);
-        let first = think(&t, &levels, &spots, &mut h, &mut brain, &[you], 0.05);
+        let first = think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05);
         assert_eq!(first, Outcome::Spotted(7));
         assert_eq!(h.mode, Mode::Chase);
         let mut caught = false;
         for _ in 0..200 {
-            if think(&t, &levels, &spots, &mut h, &mut brain, &[you], 0.05) == Outcome::Caught(7) {
+            if think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05)
+                == Outcome::Caught(7)
+            {
                 caught = true;
                 break;
             }
@@ -1212,7 +1314,7 @@ mod tests {
             hidden: Some(pb),
         };
         assert_ne!(
-            think(&t, &levels, &spots, &mut h, &mut brain, &[you], 0.05),
+            think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05),
             Outcome::Spotted(7)
         );
         assert_ne!(h.mode, Mode::Chase);
@@ -1237,7 +1339,7 @@ mod tests {
         let far = route(&levels, start, you_node).map_or(0, |r| r.len());
         let mut closest = far;
         for _ in 0..(60.0 / 0.05) as usize {
-            let out = think(&t, &levels, &spots, &mut h, &mut brain, &[you], 0.05);
+            let out = think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05);
             assert_ne!(out, Outcome::Gone);
             if let Some(n) = node_at(&t, &levels, h.pos) {
                 closest = closest.min(route(&levels, n, you_node).map_or(far, |r| r.len()));
@@ -1246,6 +1348,137 @@ mod tests {
         assert!(
             closest <= t.hunt.director_radius as usize,
             "{closest} of {far}"
+        );
+    }
+
+    #[test]
+    fn losing_sight_it_keeps_chasing_for_a_while_then_searches() {
+        let (t, set, levels) = data();
+        let spots = hiding_spots(&t, &set, &levels);
+        let Some((a, b)) = corridor(&levels) else {
+            panic!("no corridor")
+        };
+        let mut h = hunter_at(&t, a);
+        let mut brain = Brain::new(7, 1);
+        let you = Prey {
+            id: 7,
+            feet: node_pos(&t, b),
+            hidden: None,
+        };
+        // It saw you once, then you slipped out of its cone.
+        brain.last_seen = Some(b);
+        brain.timer = t.hunt.lose_secs;
+        h.mode = Mode::Chase;
+        let start = node_pos(&t, a);
+        let mut kept = Vec::new();
+        for _ in 0..20 {
+            let out = think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05);
+            // Getting you within the grace is the chase working.
+            if out == Outcome::Caught(7) {
+                return;
+            }
+            assert_eq!(h.mode, Mode::Chase, "still chasing while blind");
+            kept.push(h.pos);
+        }
+        assert!(
+            kept.iter().any(|p| p.xz().distance(start.xz()) > 0.1),
+            "it keeps moving while blind"
+        );
+        assert!(
+            kept.iter()
+                .any(|p| p.xz().distance(node_pos(&t, b).xz()) < p.xz().distance(kept[0].xz())),
+            "it closes in on you"
+        );
+        // After the grace runs out it stops hunting and starts searching.
+        for _ in 0..(t.hunt.lose_secs / 0.05) as usize {
+            think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05);
+        }
+        assert_eq!(h.mode, Mode::Search);
+    }
+
+    #[test]
+    fn hiding_blinds_the_chase_to_you() {
+        let (t, set, levels) = data();
+        let spots = hiding_spots(&t, &set, &levels);
+        let Some((a, b)) = corridor(&levels) else {
+            panic!("no corridor")
+        };
+        // It chased you to `a`, you slipped into a locker at `b`; it only saw
+        // you at `a`, so it must not keep walking on to `b`.
+        let mut h = hunter_at(&t, a);
+        let mut brain = Brain::new(7, 1);
+        brain.last_seen = Some(a);
+        brain.timer = t.hunt.lose_secs;
+        h.mode = Mode::Chase;
+        let locker = node_pos(&t, b);
+        let you = Prey {
+            id: 7,
+            feet: locker,
+            hidden: Some(locker),
+        };
+        for _ in 0..(t.hunt.lose_secs / 0.05) as usize {
+            think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05);
+        }
+        assert_ne!(
+            node_at(&t, &levels, h.pos),
+            Some(b),
+            "it walked up to the locker it never saw you enter"
+        );
+        assert_eq!(
+            h.mode,
+            Mode::Search,
+            "and then it searches where it lost you"
+        );
+    }
+
+    #[test]
+    fn a_run_nearby_wakes_it_even_blind() {
+        let (t, set, levels) = data();
+        let spots = hiding_spots(&t, &set, &levels);
+        let Some((a, b)) = corridor(&levels) else {
+            panic!("no corridor")
+        };
+        let mut h = hunter_at(&t, a);
+        // Facing away, so only its ears can find you.
+        let d = node_pos(&t, b) - node_pos(&t, a);
+        h.yaw = d.x.atan2(d.z) + std::f32::consts::PI;
+        let mut brain = Brain::new(7, 1);
+        let you = Prey {
+            id: 7,
+            feet: node_pos(&t, b),
+            hidden: None,
+        };
+        // You run four cells away, out of its cone: it hears you coming.
+        let far = route(&levels, a, b).map_or(4, |r| r.len().min(4));
+        let over_there = route(&levels, a, b)
+            .and_then(|r| r.get(far - 1).copied())
+            .unwrap_or(b);
+        let steps = Noise {
+            at: node_pos(&t, over_there),
+            level: Loud::Run,
+            radius: 12.0,
+        };
+        let out = think(
+            &t,
+            &levels,
+            &spots,
+            &mut h,
+            &mut brain,
+            &[you],
+            &[steps],
+            0.05,
+        );
+        assert_eq!(out, Outcome::Nothing, "hearing is silent");
+        assert_eq!(h.mode, Mode::Chase);
+        assert_eq!(brain.last_seen, Some(over_there));
+        // Its route heads for the sound, and the grace started fresh.
+        assert!(
+            brain.route.last() == Some(&over_there) || brain.route.is_empty(),
+            "headed for where the run came from"
+        );
+        assert!(
+            (brain.timer - (t.hunt.lose_secs - 0.05)).abs() < 1e-3,
+            "the grace started fresh (this tick already spent 0.05)"
         );
     }
 
@@ -1261,7 +1494,7 @@ mod tests {
             hidden: None,
         };
         assert_eq!(
-            think(&t, &levels, &spots, &mut h, &mut brain, &[gone], 0.05),
+            think(&t, &levels, &spots, &mut h, &mut brain, &[gone], &[], 0.05),
             Outcome::Gone
         );
     }

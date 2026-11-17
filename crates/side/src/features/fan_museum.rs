@@ -16,7 +16,9 @@
 //!
 //! It's a load-in place, like the warehouse: in the open world only its
 //! outside stands (`cfm-museum-exterior` on the commune map, with its own
-//! `Block`s), and the inside is its own area stacked deep under the ground
+//! `Block`s, and the museum's own giant ceiling fan spinning over the door
+//! via a `Spin` marker on its map instance), and the inside is its own area
+//! stacked deep under the ground
 //! (`data/base/areas.ron`), at `interior_floor` (`data/side/fan_museum.ron`).
 //! Walk into the front doors and the server moves you inside (the loading
 //! curtain covers it); walk back out of the lobby doors and you're on the
@@ -186,9 +188,10 @@ pub fn inside(p: Vec3) -> bool {
 }
 
 pub fn protocol(_app: &mut App) {
-    // The building, its annex and its parking lot keep trees and rocks off.
+    // The building (its annex only lives inside now) and its parking lot
+    // keep trees and rocks off.
     let at = fan_museum_at();
-    for dx in (-5..=2).map(|i| i as f32 * 10.0) {
+    for dx in (-3..=2).map(|i| i as f32 * 10.0) {
         for dz in [-20.0, -4.0, 8.0] {
             friendslop_world::footprints::claim(at + Vec2::new(dx, dz), 12.0);
         }

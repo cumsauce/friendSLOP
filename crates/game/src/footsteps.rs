@@ -21,10 +21,13 @@ use crate::player::{LocalPlayer, Player};
 
 /// Metres between footfalls while walking (running strides scale with speed).
 const STRIDE: f32 = 1.7;
-/// Vertical speed (m/s) above which the body counts as jumping or falling.
-const AIRBORNE_VY: f32 = 3.5;
-/// Falling faster than this, then stopping, is a landing.
+/// Footfalls never come faster than one per this many seconds, however fast
+/// you go (bhops, surf landings).
+const FASTEST_STEP: f32 = 0.25;
+/// Falling faster than this, then touching ground, is a landing.
 const LANDING_VY: f32 = -4.0;
+/// Moving faster than this (m/s) between updates is a teleport, not a step.
+const TELEPORT_SPEED: f32 = 20.0;
 
 #[derive(Resource)]
 struct StepSounds {
@@ -38,6 +41,9 @@ struct Gait {
     last: Option<Vec3>,
     travelled: f32,
     vy: f32,
+    /// The last airborne frames were a real fall (fast down): the next
+    /// grounded frame is its landing, once.
+    fell: bool,
     next: usize,
 }
 
@@ -94,38 +100,51 @@ enum Footfall {
 }
 
 impl Gait {
-    /// Follow a body to `pos`: a footfall every stride on the ground, a thud
-    /// on landing, nothing in the air or on a teleport.
-    fn advance(&mut self, pos: Vec3, dt: f32) -> Option<Footfall> {
+    /// Follow a body to `pos`: a footfall every stride while it stands on
+    /// the ground (`grounded`, from the walker's controller), a thud when a
+    /// real fall ends, nothing in the air or on a teleport.
+    fn advance(&mut self, pos: Vec3, grounded: bool, dt: f32) -> Option<Footfall> {
         let last = self.last.replace(pos)?;
         if dt <= 0.0 {
             return None;
         }
         let moved = pos - last;
-        // Teleports (respawn, fate) aren't steps.
-        if moved.length() > 3.0 {
+        // Teleports (respawn, fate) aren't steps: judge by the ground speed,
+        // so the fastest real running never reads as one, and by an absurd
+        // fall speed (a long real fall stays under it; a respawn drop
+        // doesn't, and mustn't count as a landing).
+        let ground_speed = moved.xz().length() / dt;
+        if ground_speed > TELEPORT_SPEED || moved.y / dt < -100.0 {
             self.travelled = 0.0;
+            self.vy = 0.0;
+            self.fell = false;
             return None;
         }
-        // Replicated positions come in steps, so smooth the vertical speed.
-        let vy = moved.y / dt;
-        let prev_vy = self.vy;
-        self.vy += (vy - self.vy) * (dt * 20.0).min(1.0);
-        if prev_vy < LANDING_VY && self.vy.abs() < 1.0 {
+        // Replicated positions come in steps, so smooth the vertical speed
+        // (only used to spot a landing).
+        self.vy += (moved.y / dt - self.vy) * (dt * 20.0).min(1.0);
+        // A real fall (fast down while airborne) ends in one thud when the
+        // feet touch ground again.
+        let landed = grounded && self.fell;
+        self.fell = !grounded && self.vy < LANDING_VY;
+        if landed {
+            self.travelled = 0.0; // the thud starts the stride count over
+        }
+        if grounded {
+            // Strides bank on the ground only: air time (a bhop's apex, a
+            // fall) banks nothing, so landing doesn't fire a burst.
+            self.travelled += moved.xz().length();
+            let stride = STRIDE.max(moved.xz().length() / dt * FASTEST_STEP);
+            if self.travelled >= stride && !landed {
+                self.travelled = 0.0;
+                return Some(Footfall::Step {
+                    on_path: crate::terrain::is_path(pos.x, pos.z),
+                });
+            }
+        } else {
             self.travelled = 0.0;
-            return Some(Footfall::Land);
         }
-        if self.vy.abs() > AIRBORNE_VY {
-            return None;
-        }
-        self.travelled += moved.xz().length();
-        if self.travelled < STRIDE {
-            return None;
-        }
-        self.travelled = 0.0;
-        Some(Footfall::Step {
-            on_path: crate::terrain::is_path(pos.x, pos.z),
-        })
+        landed.then_some(Footfall::Land)
     }
 
     /// Which sound a footfall makes (stepping through the variants).
@@ -159,9 +178,14 @@ fn step_sounds(
         gait.last = None;
         return;
     };
-    let Some(fall) = gait.advance(w.pos, time.delta_secs()) else {
+    let Some(fall) = gait.advance(w.pos, w.grounded, time.delta_secs()) else {
         return;
     };
+    // Surfing a ramp slides along the ground for metres on end: that's not
+    // walking, and the strides it would bank don't count.
+    if matches!(fall, Footfall::Step { .. }) && crate::rules::surf::unbounded(w.pos) {
+        return;
+    }
     let volume = if fall == Footfall::Land { 0.5 } else { 0.22 };
     if let Some(handle) = gait.sound(&sounds, fall) {
         commands.spawn((
@@ -192,9 +216,13 @@ fn others_steps(
             continue;
         }
         let gait = gaits.entry(player.id).or_default();
-        let Some(fall) = gait.advance(w.pos, dt) else {
+        let Some(fall) = gait.advance(w.pos, w.grounded, dt) else {
             continue;
         };
+        // Surfing isn't stepping (see `step_sounds`).
+        if matches!(fall, Footfall::Step { .. }) && crate::rules::surf::unbounded(w.pos) {
+            continue;
+        }
         let volume = if fall == Footfall::Land { 0.6 } else { 0.35 };
         if let Some(handle) = gait.sound(&sounds, fall) {
             let feet = w.pos + Vec3::Y * 0.1;
@@ -221,5 +249,101 @@ mod tests {
             .map(|v| v.abs())
             .fold(0.0, f32::max);
         assert!(tail < 0.05, "tail {tail}");
+    }
+
+    use super::{Footfall, Gait};
+    use bevy::prelude::Vec3;
+
+    const DT: f32 = 1.0 / 60.0;
+
+    /// Walk `speed` m/s for `frames` grounded frames, returning the falls.
+    fn walk(g: &mut Gait, speed: f32, frames: usize, grounded: bool) -> Vec<Footfall> {
+        let mut out = Vec::new();
+        let mut pos = g.last.unwrap_or(Vec3::ZERO);
+        for _ in 0..frames {
+            pos += Vec3::NEG_Z * (speed * DT);
+            if let Some(f) = g.advance(pos, grounded, DT) {
+                out.push(f);
+            }
+        }
+        out
+    }
+
+    /// Drop `per_frame` metres for `frames` airborne frames.
+    fn fall(g: &mut Gait, per_frame: f32, frames: usize) -> Vec<Footfall> {
+        let mut out = Vec::new();
+        let mut pos = g.last.unwrap_or(Vec3::ZERO);
+        for _ in 0..frames {
+            pos += Vec3::new(0.0, -per_frame, -0.1);
+            if let Some(f) = g.advance(pos, false, DT) {
+                out.push(f);
+            }
+        }
+        out
+    }
+
+    /// Then touch ground and walk on for `frames` more.
+    fn land_and_walk(g: &mut Gait, frames: usize) -> Vec<Footfall> {
+        let mut out = Vec::new();
+        let mut pos = g.last.unwrap_or(Vec3::ZERO);
+        for _ in 0..frames {
+            pos += Vec3::NEG_Z * 0.05;
+            if let Some(f) = g.advance(pos, true, DT) {
+                out.push(f);
+            }
+        }
+        out
+    }
+
+    #[test]
+    fn walking_gives_a_step_every_stride() {
+        let mut g = Gait::default();
+        let falls = walk(&mut g, 3.0, 120, true);
+        let steps = falls
+            .iter()
+            .filter(|f| matches!(f, Footfall::Step { .. }))
+            .count();
+        // 3 m/s for 2 s covers 6 m = ~3.5 strides.
+        assert!((3..=4).contains(&steps), "{falls:?}");
+    }
+
+    #[test]
+    fn air_time_banks_no_strides_and_landing_is_one_thud() {
+        let mut g = Gait::default();
+        walk(&mut g, 3.0, 10, true);
+        // A long, fast fall is silent...
+        let falls = fall(&mut g, 0.35, 40);
+        assert!(falls.is_empty(), "falling is silent: {falls:?}");
+        // ...and touching down is exactly one thud, no step burst.
+        let falls = land_and_walk(&mut g, 30);
+        assert_eq!(falls, vec![Footfall::Land], "{falls:?}");
+    }
+
+    #[test]
+    fn running_fast_does_not_machine_gun() {
+        let mut g = Gait::default();
+        // 20 m/s (a bhop landing, faster than any run): a step at most four
+        // times a second, and not one per frame.
+        let falls = walk(&mut g, 20.0, 240, true);
+        let steps = falls
+            .iter()
+            .filter(|f| matches!(f, Footfall::Step { .. }))
+            .count();
+        assert!(steps <= 20, "4 s at 20 m/s: {steps} steps");
+        assert!(steps >= 3, "still audible: {steps}");
+    }
+
+    #[test]
+    fn a_jump_is_a_teleport_away_from_a_step() {
+        let mut g = Gait::default();
+        walk(&mut g, 3.0, 10, true);
+        // Fate-style: a huge hop in one update (falling stays under the
+        // absurd-vertical guard, so it mustn't read as a teleport).
+        let mut pos = g.last.unwrap_or(Vec3::ZERO);
+        pos += Vec3::new(50.0, 0.0, 0.0);
+        assert_eq!(g.advance(pos, true, DT), None);
+        // And no strides were banked by it.
+        assert_eq!(g.travelled, 0.0);
+        assert!(!g.fell);
     }
 }

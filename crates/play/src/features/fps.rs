@@ -90,6 +90,10 @@ pub struct Walker {
     /// Feet position.
     pub pos: Vec3,
     pub yaw: f32,
+    /// The controller says the feet are on something (walking, not jumping,
+    /// falling or surfing). Written by the movement systems, read by
+    /// `footsteps` and anyone else who needs to know without guessing.
+    pub grounded: bool,
 }
 
 /// Server only: the latest input of a walker, plus the fallback's fall speed.
@@ -105,6 +109,13 @@ pub struct WalkInput {
     /// Host: climbing this tick (#99), so `climb` moves the body, not the
     /// controller.
     pub climbing: bool,
+}
+
+impl WalkInput {
+    /// Running (a private field, read by things like `noise`).
+    pub fn is_running(&self) -> bool {
+        self.run
+    }
 }
 
 /// Client -> server, every frame while walking (local x = right, y = forward).
@@ -188,6 +199,7 @@ fn give_bodies(mut commands: Commands, new: Query<(Entity, &Player), Without<Wal
             Walker {
                 pos: spawn_point(player.id),
                 yaw: 0.0,
+                grounded: true,
             },
             WalkInput::default(),
             crate::kcc::Kcc::default(),
@@ -301,6 +313,7 @@ fn move_walkers(
             dt,
         );
         input.vy = vy;
+        walker.grounded = vy == 0.0;
         if walker.pos != pos {
             walker.pos = pos;
         }
@@ -358,11 +371,14 @@ pub fn kcc_move_walkers(
 /// Host: after the controller's tick, the feet it reached are the walker's,
 /// kept inside the soft wall at the edge of the world or New York City's own
 /// edges (#283).
-pub fn kcc_moved_walkers(mut walkers: Query<(&mut Walker, &crate::kcc::Walking)>) {
-    for (mut walker, w) in &mut walkers {
+pub fn kcc_moved_walkers(
+    mut walkers: Query<(&mut Walker, &crate::kcc::Walking, &crate::kcc::Kcc)>,
+) {
+    for (mut walker, w, kcc) in &mut walkers {
         if w.skip {
             continue;
         }
+        walker.grounded = kcc.grounded.is_some();
         let mut pos = w.feet;
         if let Some(kept) = crate::rules::nyc::keep_in_city(walker.pos, pos) {
             pos = kept;
@@ -951,6 +967,7 @@ mod tests {
         let mut walker = Walker {
             pos: Vec3::ZERO,
             yaw: 0.0,
+            grounded: true,
         };
         let mut input = WalkInput {
             stick: Vec2::X,

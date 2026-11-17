@@ -1,0 +1,859 @@
+{
+  "format_version": 1,
+  "name": "cfm-exterior-fan",
+  "parts": [],
+  "version": 96035,
+  "ops": [
+    {
+      "primitive": {
+        "name": "rod",
+        "kind": "cylinder",
+        "size": [
+          0.12,
+          1.7,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "rotation": [
+          0.7071068,
+          0.0,
+          0.0,
+          0.7071068
+        ]
+      }
+    },
+    {
+      "primitive": {
+        "name": "motor",
+        "kind": "cylinder",
+        "size": [
+          0.85,
+          0.5,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          0.1,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "primitive": {
+        "name": "light_kit",
+        "kind": "cylinder",
+        "size": [
+          0.3,
+          0.12,
+          0.0
+        ],
+        "translation": [
+          0.0,
+          -0.21,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "rod",
+        "input": "rod",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-matte-black",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141414"
+                  ],
+                  [
+                    1,
+                    "#222222"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "motor",
+        "input": "motor",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-matte-black",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 3,
+                "seed": 1,
+                "size": 0.3,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#141414"
+                  ],
+                  [
+                    1,
+                    "#222222"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "name": "out",
+                "roughness": 0.8,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "light_kit",
+        "input": "light_kit",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-frosted-lit",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "base_color": "#e8eef0",
+                "emissive": [
+                  1.6,
+                  1.7,
+                  1.75
+                ],
+                "metallic": 0,
+                "name": "out",
+                "roughness": 0.6,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "extrude": {
+        "name": "blade_0",
+        "profile": [
+          [
+            [
+              -0.42,
+              0.9
+            ],
+            [
+              -0.46,
+              1.7
+            ],
+            [
+              -0.36,
+              2.6
+            ],
+            [
+              -0.2,
+              3.15
+            ],
+            [
+              0.0,
+              3.3
+            ],
+            [
+              0.2,
+              3.15
+            ],
+            [
+              0.36,
+              2.6
+            ],
+            [
+              0.46,
+              1.7
+            ],
+            [
+              0.42,
+              0.9
+            ]
+          ]
+        ],
+        "height": 0.07,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "extrude": {
+        "name": "blade_1",
+        "profile": [
+          [
+            [
+              0.7262,
+              0.6776
+            ],
+            [
+              1.4746,
+              0.9628
+            ],
+            [
+              2.3615,
+              1.1458
+            ],
+            [
+              2.934,
+              1.1636
+            ],
+            [
+              3.1385,
+              1.0198
+            ],
+            [
+              3.0576,
+              0.7832
+            ],
+            [
+              2.584,
+              0.4611
+            ],
+            [
+              1.7589,
+              0.0878
+            ],
+            [
+              0.9857,
+              -0.1213
+            ]
+          ]
+        ],
+        "height": 0.07,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "extrude": {
+        "name": "blade_2",
+        "profile": [
+          [
+            [
+              0.8688,
+              -0.4812
+            ],
+            [
+              1.3714,
+              -1.1049
+            ],
+            [
+              1.8195,
+              -1.8918
+            ],
+            [
+              2.0133,
+              -2.4308
+            ],
+            [
+              1.9397,
+              -2.6698
+            ],
+            [
+              1.6897,
+              -2.666
+            ],
+            [
+              1.237,
+              -2.315
+            ],
+            [
+              0.6271,
+              -1.6457
+            ],
+            [
+              0.1892,
+              -0.975
+            ]
+          ]
+        ],
+        "height": 0.07,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "extrude": {
+        "name": "blade_3",
+        "profile": [
+          [
+            [
+              -0.1892,
+              -0.975
+            ],
+            [
+              -0.6271,
+              -1.6457
+            ],
+            [
+              -1.237,
+              -2.315
+            ],
+            [
+              -1.6897,
+              -2.666
+            ],
+            [
+              -1.9397,
+              -2.6698
+            ],
+            [
+              -2.0133,
+              -2.4308
+            ],
+            [
+              -1.8195,
+              -1.8918
+            ],
+            [
+              -1.3714,
+              -1.1049
+            ],
+            [
+              -0.8688,
+              -0.4812
+            ]
+          ]
+        ],
+        "height": 0.07,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "extrude": {
+        "name": "blade_4",
+        "profile": [
+          [
+            [
+              -0.9857,
+              -0.1213
+            ],
+            [
+              -1.7589,
+              0.0878
+            ],
+            [
+              -2.584,
+              0.4611
+            ],
+            [
+              -3.0576,
+              0.7832
+            ],
+            [
+              -3.1385,
+              1.0198
+            ],
+            [
+              -2.934,
+              1.1636
+            ],
+            [
+              -2.3615,
+              1.1458
+            ],
+            [
+              -1.4746,
+              0.9628
+            ],
+            [
+              -0.7262,
+              0.6776
+            ]
+          ]
+        ],
+        "height": 0.07,
+        "scale_top": [
+          1.0,
+          1.0
+        ],
+        "slices": 0,
+        "translation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": null
+      }
+    },
+    {
+      "material": {
+        "name": "blade_0",
+        "input": "blade_0",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-brass",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 3,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#8a6a2a"
+                  ],
+                  [
+                    0.6,
+                    "#b8913f"
+                  ],
+                  [
+                    1,
+                    "#d8b765"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "blade_1",
+        "input": "blade_1",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-brass",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 3,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#8a6a2a"
+                  ],
+                  [
+                    0.6,
+                    "#b8913f"
+                  ],
+                  [
+                    1,
+                    "#d8b765"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "blade_2",
+        "input": "blade_2",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-brass",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 3,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#8a6a2a"
+                  ],
+                  [
+                    0.6,
+                    "#b8913f"
+                  ],
+                  [
+                    1,
+                    "#d8b765"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "blade_3",
+        "input": "blade_3",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-brass",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 3,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#8a6a2a"
+                  ],
+                  [
+                    0.6,
+                    "#b8913f"
+                  ],
+                  [
+                    1,
+                    "#d8b765"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "material": {
+        "name": "blade_4",
+        "input": "blade_4",
+        "base_color": null,
+        "roughness": null,
+        "metalness": null,
+        "pbr": {
+          "material": "cfm-brass",
+          "scale": 1.0,
+          "graph": {
+            "domain": "tile",
+            "tile": 1.0,
+            "resolution": 512,
+            "nodes": [
+              {
+                "mode": "fbm",
+                "name": "n",
+                "octaves": 4,
+                "seed": 3,
+                "size": 0.2,
+                "type": "noise"
+              },
+              {
+                "input": "n",
+                "name": "c",
+                "stops": [
+                  [
+                    0,
+                    "#8a6a2a"
+                  ],
+                  [
+                    0.6,
+                    "#b8913f"
+                  ],
+                  [
+                    1,
+                    "#d8b765"
+                  ]
+                ],
+                "type": "ramp"
+              },
+              {
+                "base_color": "c",
+                "metallic": 1,
+                "name": "out",
+                "roughness": 0.35,
+                "type": "output"
+              }
+            ],
+            "params": {}
+          }
+        }
+      }
+    },
+    {
+      "move": {
+        "name": "move_1",
+        "parts": [
+          "blade_0",
+          "blade_1",
+          "blade_2",
+          "blade_3",
+          "blade_4"
+        ],
+        "translation": null,
+        "rotation": [
+          -0.70710677,
+          -0.0,
+          -0.0,
+          0.70710677
+        ],
+        "pivot": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "transform": {
+        "name": "blade_0",
+        "input": "blade_0",
+        "translation": null,
+        "rotation": [
+          -0.70710677,
+          -0.0,
+          -0.0,
+          0.70710677
+        ],
+        "scale": null,
+        "relative": true
+      }
+    },
+    {
+      "transform": {
+        "name": "blade_1",
+        "input": "blade_1",
+        "translation": null,
+        "rotation": [
+          -0.70710677,
+          -0.0,
+          -0.0,
+          0.70710677
+        ],
+        "scale": null,
+        "relative": true
+      }
+    },
+    {
+      "transform": {
+        "name": "blade_2",
+        "input": "blade_2",
+        "translation": null,
+        "rotation": [
+          -0.70710677,
+          -0.0,
+          -0.0,
+          0.70710677
+        ],
+        "scale": null,
+        "relative": true
+      }
+    },
+    {
+      "transform": {
+        "name": "blade_3",
+        "input": "blade_3",
+        "translation": null,
+        "rotation": [
+          -0.70710677,
+          -0.0,
+          -0.0,
+          0.70710677
+        ],
+        "scale": null,
+        "relative": true
+      }
+    },
+    {
+      "transform": {
+        "name": "blade_4",
+        "input": "blade_4",
+        "translation": null,
+        "rotation": [
+          -0.70710677,
+          -0.0,
+          -0.0,
+          0.70710677
+        ],
+        "scale": null,
+        "relative": true
+      }
+    }
+  ],
+  "annotations": [],
+  "next_annotation_id": 0,
+  "derived_from_ops": true
+}

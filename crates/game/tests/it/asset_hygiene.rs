@@ -26,7 +26,12 @@ use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
 /// Deliberately unreferenced models. See the allowlist comment above.
-const KNOWN_ORPHANS: &[&str] = &[];
+const KNOWN_ORPHANS: &[&str] = &[
+    // Rich desk-fan drafts: the Möbius uses the cheap `cfm-desk-lo-*` pair
+    // (276 instances), so these never got placed. Sources stay in .modeler.
+    "cfm-desk-fan-mount",
+    "cfm-desk-fan-rotor",
+];
 
 /// Stems loaded by family/dynamic template instead of a literal per file.
 const FAMILY_PREFIXES: &[&str] = &[

@@ -2714,11 +2714,14 @@
     },
     {
       "name": "commune-map",
-      "description": "The commune's map: ground terrain, spots, paths, districts, plots, set pieces.",
-      "tags": [],
+      "description": "The commune map: terrain pads, places, districts, plots and hangouts.",
+      "tags": [
+        "map",
+        "commune"
+      ],
       "prompt": "",
       "file": "commune-map.json",
-      "created_at": "2026-11-16T23:32:50Z"
+      "created_at": "2026-11-17T00:16:46Z"
     },
     {
       "name": "sp-wendys",
@@ -7309,15 +7312,15 @@
     },
     {
       "name": "cfm-museum-exterior",
-      "description": "Ceiling Fan Museum + annex exterior only (one-sided outward walls, roofs, facade sign, tinted shopfronts, closed sliding doors, canopy, bollards, parking lot). Same coordinates as cfm-building.",
+      "description": "The Ceiling Fan Museum's outside: big-box shell, neon painted sign, blade awning, brass fan medallions, parking lot.",
       "tags": [
         "building",
-        "exterior",
-        "museum"
+        "museum",
+        "facade"
       ],
       "prompt": "",
       "file": "cfm-museum-exterior.json",
-      "created_at": "2026-11-16T23:28:28Z"
+      "created_at": "2026-11-17T00:16:26Z"
     },
     {
       "name": "sf-slalom-low-bridge",
@@ -7425,6 +7428,17 @@
       "prompt": "",
       "file": "sf-tower-interior.json",
       "created_at": "2026-11-16T23:43:22Z"
+    },
+    {
+      "name": "cfm-exterior-fan",
+      "description": "The museum's giant ceiling fan: dark motor, brass blades, light kit, wall rod. Spins via a Spin marker on its map instance.",
+      "tags": [
+        "fan",
+        "prop"
+      ],
+      "prompt": "",
+      "file": "cfm-exterior-fan.json",
+      "created_at": "2026-11-17T00:16:27Z"
     }
   ]
 }

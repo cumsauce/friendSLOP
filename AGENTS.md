@@ -84,12 +84,16 @@ crates/game/src/
   main.rs       DefaultPlugins + RepliconPlugins + PhysicsPlugins + GamePlugin; `host` / `join <code>` CLI
   net.rs        iroh host/join, NetStatus, clipboard join codes
   player.rs     server spawns a replicated `Player { id }` per connection (id 0 = host)
-  voice.rs      voice chat driving (mic on/off + push-to-talk on V are settings); speakers tagged on Player entities
+  voice.rs      voice chat driving (mic on/off + push-to-talk on V are settings); speakers tagged on Player entities;
+                its playback goes into the audio graph (`voice_out.rs`, a node on `VoiceBus`)
+  sound.rs      the audio graph (vendored bevy_seedling on firewheel, `vendor/bevy_seedling/VENDORED.md`):
+                buses (Music, Voice, SFX under MainBus = master), play_sfx / play_loop / SoundVolume,
+                from_wav / samples for synths, `audible` for headless apps. Never use bevy::audio.
   menu.rs       placeholder keyboard menu
   world.rs      camera, light, floor, HUD
   ui/map.rs     M: live top-down map of your area (MapCamera, paper-map UI shader, player pins)
   assets.rs     handles for the files in assets/ (sound effects; missing files degrade quietly)
-  spatial.rs    3D sound mixer (play_at / play_on / loop_at / play_wav_at) and the listener
+  spatial.rs    3D sound (play_at / play_on / loop_at / play_wav_at): one firewheel node per sound, and the listener
   loading.rs    "Loading" curtain on entering the game until models load and frames settle
   people.rs     shared commune-person body (players + villagers), walk animation
   scenery.rs    nature dressing on the floor, commune campfire, music (local visuals, seeded)

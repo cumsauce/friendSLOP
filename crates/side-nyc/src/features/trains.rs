@@ -124,8 +124,8 @@ pub struct Tuning {
     /// Where the ride cars hang (x, y, z); one per line and direction, each
     /// [`RIDE_GAP`] under the last.
     pub ride_at: (f32, f32, f32),
-    /// The announcer's voice: pitch and speed.
-    pub voice: (f32, f32),
+    /// The announcer's voice: pitch, speed, mood and the loudspeaker.
+    pub voice: crate::speech::Preset,
     /// Shown while a train waits to leave with you.
     pub boarding_line: String,
     pub lines: Vec<Line>,
@@ -1202,14 +1202,6 @@ fn tunnel_lights(
     }
 }
 
-/// The announcer's voice saying `text`.
-pub fn announcer_says(text: &str, (pitch, speed): (f32, f32)) -> (Vec<f32>, u32) {
-    let mut voice = samiam::Voice::new();
-    voice.pitch = pitch;
-    voice.speed = speed;
-    (voice.speak(text), voice.sample_rate)
-}
-
 /// Local: the doors line when you step into a waiting train, and the
 /// announcement when the ride starts.
 fn announce(
@@ -1241,13 +1233,14 @@ fn announce(
                 return;
             };
             toast.show(stop.announce.clone());
-            let (samples, rate) = announcer_says(&stop.announce, t.voice);
-            crate::spatial::play_wav_at(
+            let (line, voice) = (stop.announce.clone(), t.voice.clone());
+            // Made off the main thread.
+            crate::spatial::play_samples_at(
                 &mut commands,
                 w.pos + Vec3::Y * 2.5,
                 1.0,
                 crate::spatial::Carry::NEARBY,
-                move || crate::features::bear::wav_bytes(&samples, rate),
+                move || crate::speech::say(&line, &voice),
             );
         }
         _ => {}
@@ -1316,7 +1309,7 @@ mod tests {
         let t = t();
         assert!(t.board_secs > 0.0 && t.ride_secs > t.board_secs);
         assert!(t.depart_secs > 0.0 && t.arrive_secs > 0.0 && t.away_secs > 0.0);
-        assert!(t.voice.0 > 0.0 && t.voice.1 > 0.0 && !t.boarding_line.is_empty());
+        assert!(t.voice.pitch > 0.0 && t.voice.speed > 0.0 && !t.boarding_line.is_empty());
         assert!(!t.lines.is_empty());
         for l in &t.lines {
             assert!(!l.name.is_empty());
@@ -1513,7 +1506,10 @@ mod tests {
 
     #[test]
     fn the_announcer_speaks() {
-        let (s, rate) = announcer_says("Next stop: World Trade Center.", (80.0, 0.9));
+        let voice = tuning().voice.clone();
+        let (s, rate) = crate::speech::say("Next stop: World Trade Center.", &voice);
         assert!(rate > 0 && s.len() > rate as usize / 2);
+        assert_eq!(voice.mood, "bored");
+        assert_eq!(voice.effect, crate::speech::Effect::Pa);
     }
 }

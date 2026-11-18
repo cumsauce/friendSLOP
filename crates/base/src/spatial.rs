@@ -940,6 +940,30 @@ pub fn play_wav_at(
     file_sound(commands, e, at, false)
 }
 
+/// Play already-made mono samples once at `at`; `make` runs off the main thread.
+pub fn play_samples_at(
+    commands: &mut Commands,
+    at: Vec3,
+    volume: f32,
+    carry: Carry,
+    make: impl FnOnce() -> (Vec<f32>, u32) + Send + 'static,
+) -> Entity {
+    let pool = AsyncComputeTaskPool::get_or_init(TaskPool::default);
+    let task = pool.spawn(async move {
+        let (samples, rate) = make();
+        Some(Clip::new(samples, rate)).filter(|c| !c.samples.is_empty())
+    });
+    let e = spawn_pending(
+        commands,
+        Pending::Synth(task),
+        Transform::from_translation(at),
+        volume,
+        carry,
+        false,
+    );
+    file_sound(commands, e, at, false)
+}
+
 /// Decoded clips by sound file (holding the handle so its id isn't reused).
 #[derive(Resource, Default)]
 struct Clips(HashMap<AssetId<AudioSample>, Cached>);

@@ -26,7 +26,7 @@
         (text: "ha ha ha haaa ha ha haaaa", pitch: 150.0, speed: 1.0),
         (text: "hee hee hee hee hoo hoo hoo", pitch: 210.0, speed: 1.5),
     ],
-    // Michael's scats (picked at random), and his voice (pitch Hz, speed).
+    // Michael's scats (picked at random).
     scats: [
         "shamone",
         "hee hee",
@@ -35,7 +35,8 @@
         "chika dah bop bop dah",
         "ba da ba dee ow",
     ],
-    scat_voice: (230.0, 1.4),
+    // Michael's voice (pitch Hz, speed, mood from data/base/speech.ron).
+    scat_voice: (pitch: 230.0, speed: 1.4, mood: "excited"),
     // Michael's sound files (made in sounder). While this isn't empty he plays
     // only these (silent until one has loaded); the synth `scats` above are
     // used only if you empty it.

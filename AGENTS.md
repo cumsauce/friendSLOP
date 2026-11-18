@@ -136,6 +136,10 @@ crates/data/         friendslop-data: data files (maps, tuning, writing, music) 
                      `Many<T>` for a folder of them listed by an index (the songs)
                      (the Bevy plugin is its default `plugin` feature; fusion uses it without)
 crates/wfc/          friendslop-wfc: generic seeded wave function collapse (sockets, pins, retry, grid graph helpers, multi-cell rooms)
+crates/speech/       friendslop-speech: the robot voices' synthesizer (no Bevy): samiam's text rules (vendored), a glottal source with breath, jitter and drift,
+                     hat-pattern intonation, `Delivery` moods, `*stress*` / `...` / `--` markup, phone and PA effects. Moods are data
+                     (`data/base/speech.ron`); `crates/base/src/speech.rs` has `Preset` (pitch, speed, mood, effect), `say`, `duration`, and a trailing
+                     `[mood]` on a line of text. `cargo run -p friendslop-speech --example say -- out.wav "text" ...` renders one
 crates/hrtf/         friendslop-hrtf: baked head-related impulse responses (SADIE II KU100, `scripts/hrtf-bake.py`), direction lookup and a FIR; `spatial.rs` filters the loudest few world sounds with it on headphones (`data/base/spatial.ron`, Settings "3D sound")
 crates/game/assets/  CC0 art: glb/gltf models, sounds, music (Git LFS; see assets/CREDITS.md)
 crates/game/tests/it/ headless multiplayer tests (replicon test_app, no sockets)
@@ -148,7 +152,7 @@ The workspace has three layers, and dependencies only ever point down:
 1. **Foundation crates**: reusable building blocks with **no game code**. They depend only on
    Bevy, avian and std, never on `friendslop`, and on each other only as listed:
    - `fusion`, `friendslop-wire`, `friendslop-core`, `friendslop-wfc`, `friendslop-hrtf`,
-     `friendslop-structures`, `friendslop-data`: nothing of ours.
+     `friendslop-speech`, `friendslop-structures`, `friendslop-data`: nothing of ours.
    - `friendslop-art`: nothing of ours (`art`, `theme`, and the cat `palette` maths).
    - `friendslop-world`: `core`, `art`, `structures` and `data`.
 2. **The game layer** (split so a change rebuilds only its crate and those above it; a single

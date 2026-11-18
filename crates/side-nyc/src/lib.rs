@@ -7,7 +7,7 @@
 #[allow(unused_imports)]
 pub(crate) use friendslop_base::{
     AppState, art, assets, buildings, camera, controls, graphics, hud, input, kcc, landmarks,
-    music, people, place, player, rigged, rules, scenery, settings, sites, sound, spatial,
+    music, people, place, player, rigged, rules, scenery, settings, sites, sound, spatial, speech,
     surfaces, terrain, textures, theme, ui, voice, voice_chat, world, zones,
 };
 

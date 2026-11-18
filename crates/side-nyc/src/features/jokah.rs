@@ -61,9 +61,9 @@ pub struct Tuning {
     pub scat_every: (f32, f32),
     /// His three laughs.
     pub laughs: Vec<Laugh>,
-    /// Michael's scats and voice (pitch Hz, speed).
+    /// Michael's scats and voice.
     pub scats: Vec<String>,
-    pub scat_voice: (f32, f32),
+    pub scat_voice: crate::speech::Preset,
     /// Sound files Michael scats with (paths under `assets/`). While this is
     /// not empty he plays only these, never the speech synth (he stays quiet
     /// until one has loaded). Leave it empty to use the synth `scats`.
@@ -503,10 +503,10 @@ fn walk(time: Res<Time>, mut j: ResMut<Jokah>, spatial: avian3d::prelude::Spatia
 }
 
 /// What he says this time: a loaded sample, or (only with no samples listed)
-/// a line for the speech synth and its voice (pitch Hz, speed).
+/// a line for the speech synth and its voice.
 enum Said {
     Clip(Handle<AudioSample>),
-    Synth(String, (f32, f32)),
+    Synth(String, crate::speech::Preset),
 }
 
 /// One of `clips` that has loaded, picked by `h`; `None` while none has.
@@ -563,7 +563,13 @@ fn sound(
                     let i = pick_laugh(h, t.laughs.len(), j.last_laugh);
                     j.last_laugh = Some(i);
                     let l = &t.laughs[i];
-                    Some(Said::Synth(l.text.clone(), (l.pitch, l.speed)))
+                    let voice = crate::speech::Preset {
+                        pitch: l.pitch,
+                        speed: l.speed,
+                        mood: "excited".into(),
+                        ..default()
+                    };
+                    Some(Said::Synth(l.text.clone(), voice))
                 }
             }
             Mode::Michael => {
@@ -574,7 +580,7 @@ fn sound(
                     None
                 } else {
                     let text = t.scats[h as usize % t.scats.len()].clone();
-                    Some(Said::Synth(text, t.scat_voice))
+                    Some(Said::Synth(text, t.scat_voice.clone()))
                 }
             }
         };
@@ -597,15 +603,12 @@ fn sound(
             }
             Said::Synth(text, voice) => (text, voice),
         };
-        crate::spatial::play_wav_at(
+        crate::spatial::play_samples_at(
             &mut commands,
             at + Vec3::Y * 1.6,
             t.volume,
             crate::spatial::Carry::CALL,
-            move || {
-                let (s, rate) = super::trains::announcer_says(&text, voice);
-                crate::features::bear::wav_bytes(&s, rate)
-            },
+            move || crate::speech::say(&text, &voice),
         );
     }
 }
@@ -655,7 +658,7 @@ mod tests {
         }
         assert!(t.body_radius > 0.0 && t.stuck_secs > 0.0);
         assert!(!t.clips.is_empty() && !t.laugh_clips.is_empty());
-        assert!(!t.scats.is_empty() && t.scat_voice.0 > 0.0 && t.scat_voice.1 > 0.0);
+        assert!(!t.scats.is_empty() && t.scat_voice.pitch > 0.0 && t.scat_voice.speed > 0.0);
         assert!(t.arrive > 0.0 && t.walk_speed > 0.0 && t.mj_speed > 0.0);
         assert!(t.pause_secs >= 0.0 && t.hear_range > 0.0 && t.volume > 0.0);
         assert!(t.laugh_every.0 > 0.0 && t.laugh_every.1 >= t.laugh_every.0);

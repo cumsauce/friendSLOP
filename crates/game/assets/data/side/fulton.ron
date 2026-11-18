@@ -247,8 +247,14 @@
         ring_secs: 10.0,
         // Seconds between lines.
         line_gap: 0.7,
-        // His voice per call: (pitch Hz, speed). Angrier, higher, faster.
-        voice: [(92.0, 1.0), (118.0, 1.15), (150.0, 1.35)],
+        // His voice per call: pitch (Hz), speed, and the mood from data/base/speech.ron.
+        // Angrier, higher, faster. He's on the phone, so `effect: Phone` (a band-limited,
+        // clipped line). A line can say it another way with a trailing [mood].
+        voice: [
+            (pitch: 92.0, speed: 1.0, mood: "annoyed", effect: Phone, seed: 3),
+            (pitch: 118.0, speed: 1.15, mood: "angry", effect: Phone, seed: 3),
+            (pitch: 150.0, speed: 1.35, mood: "furious", effect: Phone, seed: 3),
+        ],
         // After the third call, the one he sent arrives this many seconds later.
         spawn_delay: 4.0,
         // Its speeds (m/s): wandering and searching, and chasing. You walk 5 and run 10.5.

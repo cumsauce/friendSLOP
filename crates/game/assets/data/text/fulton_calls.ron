@@ -1,7 +1,9 @@
 // Andrew's phone calls in Fulton St station (crates/side/src/features/fulton_hunt.rs).
 // Edit and save: the running game picks it up within a second.
 // Each call is a list of lines: (who, text). Andrew's lines are spoken out
-// loud by a retro speech synth, so spell them the way they should sound.
+// loud by a speech synth, so spell them the way they should sound. Markup:
+// *word* stresses a word, ... is a hesitation, -- a short break, a long CAPITAL word is
+// shouted, and a trailing [mood] (data/base/speech.ron) says the line another way.
 (
     // The phone ringing (top of the screen).
     ringing: "ANDREW is calling... press {answer} to answer",
@@ -10,7 +12,7 @@
         [
             ("Andrew", "Hey. Where are you?"),
             ("You", "I'm coming. I'm on the J."),
-            ("Andrew", "Okay. It's fine. Everyone's already here though."),
+            ("Andrew", "Okay. It's fine. Everyone's already here... though."),
             ("You", "Five minutes."),
             ("Andrew", "Okay. See you soon."),
         ],
@@ -18,7 +20,7 @@
         [
             ("Andrew", "Where are you?"),
             ("You", "I'm coming! I'm still looking for the J."),
-            ("Andrew", "You said five minutes. That was forever ago."),
+            ("Andrew", "You said *five* minutes. That was forever ago."),
             ("You", "The signs keep pointing down."),
             ("Andrew", "Just get here."),
         ],
@@ -26,7 +28,7 @@
         [
             ("Andrew", "WHERE ARE YOU."),
             ("You", "I'm coming, I swear, I'm so close."),
-            ("Andrew", "No. You're not. I'm done waiting."),
+            ("Andrew", "No. You're *not*. I'm done waiting."),
             ("Andrew", "I'm sending someone to come get you."),
             ("You", "Andrew? ... Andrew?"),
         ],

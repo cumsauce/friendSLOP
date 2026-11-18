@@ -76,9 +76,9 @@ pub struct Tuning {
     /// Seconds between a tweaker's yells, and a preacher's sermons (min, max).
     pub tweaker_every: (f32, f32),
     pub preacher_every: (f32, f32),
-    /// Speech voices (pitch Hz, speed).
-    pub tweaker_voice: (f32, f32),
-    pub preacher_voice: (f32, f32),
+    /// Speech voices: pitch (Hz), speed and mood.
+    pub tweaker_voice: crate::speech::Preset,
+    pub preacher_voice: crate::speech::Preset,
     /// How far a tweaker paces each way (m) and how fast (m/s).
     pub pace: f32,
     pub pace_speed: f32,
@@ -426,27 +426,27 @@ fn sound(
         match p.kind {
             Kind::Tweaker | Kind::Preacher => {
                 let (lines, voice, every) = if p.kind == Kind::Tweaker {
-                    (&t.tweaker_lines, t.tweaker_voice, t.tweaker_every)
+                    (&t.tweaker_lines, &t.tweaker_voice, t.tweaker_every)
                 } else {
-                    (&t.preacher_lines, t.preacher_voice, t.preacher_every)
+                    (&t.preacher_lines, &t.preacher_voice, t.preacher_every)
                 };
                 p.next = between(every, h);
                 if !near || lines.is_empty() {
                     continue;
                 }
                 let line = lines[h as usize % lines.len()].clone();
-                // Each person's own pitch.
-                let pitch = voice.0 * between((0.85, 1.2), hash(i, 3));
-                let speed = voice.1;
-                crate::spatial::play_wav_at(
+                // Each person's own pitch and throat.
+                let voice = crate::speech::Preset {
+                    pitch: voice.pitch * between((0.85, 1.2), hash(i, 3)),
+                    seed: 1 + hash(i, 4) % 10_000,
+                    ..voice.clone()
+                };
+                crate::spatial::play_samples_at(
                     &mut commands,
                     mouth,
                     t.voice_volume,
                     crate::spatial::Carry::CALL,
-                    move || {
-                        let (s, rate) = super::trains::announcer_says(&line, (pitch, speed));
-                        crate::features::bear::wav_bytes(&s, rate)
-                    },
+                    move || crate::speech::say(&line, &voice),
                 );
             }
             Kind::Performer => {
@@ -500,7 +500,8 @@ mod tests {
         assert!(t.hear_range > 0.0 && t.point_range > 0.0);
         assert!(t.tweaker_every.0 > 0.0 && t.tweaker_every.1 >= t.tweaker_every.0);
         assert!(t.preacher_every.0 > 0.0 && t.preacher_every.1 >= t.preacher_every.0);
-        assert!(t.tweaker_voice.0 > 0.0 && t.preacher_voice.1 > 0.0);
+        assert!(t.tweaker_voice.pitch > 0.0 && t.preacher_voice.speed > 0.0);
+        assert!(t.tweaker_voice.mood != t.preacher_voice.mood);
         assert!(t.pace > 0.0 && t.pace_speed > 0.0 && t.bpm > 0.0 && t.bars > 0);
         assert!((0.0..=1.0).contains(&t.scale_chance));
         assert!(t.voice_volume > 0.0 && t.music_volume > 0.0);

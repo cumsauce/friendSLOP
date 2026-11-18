@@ -58,7 +58,7 @@
         // From this level down (0 is the top) a level may be pitch dark: no
         // working lights, no glow around you, only your flashlight. This is
         // the chance each one is.
-        dark_from: 4,
+        dark_from: 7,
         dark_chance: 0.35,
         // Your flashlight down here (as in the warehouse): lumens, reach (m),
         // and its cone's outer and inner half-angles (degrees).
@@ -69,6 +69,18 @@
         // A broken light's skin: its tubes stop glowing and their colour is
         // scaled by this (dead, dusty glass).
         broken_tint: 0.35,
+        // The top levels, from the top, before it all goes bad (below these the
+        // settings above): the share of lights that work, the look
+        // (data/base/place_looks.ron: Kept "fulton_kept", Worn "fulton_worn",
+        // Bad the station's usual), how much of the usual rubble (0..1), and
+        // whether the creepy music plays (else the city's goes on).
+        // Floors 1 and 2 are a working station, 3 is run down; on 4 the
+        // hunter arrives (hunt.call_levels) and it's like this from there.
+        stages: [
+            (working: 0.95, look: Kept, rubble: 0.0, creepy: false),
+            (working: 0.9, look: Kept, rubble: 0.0, creepy: false),
+            (working: 0.5, look: Worn, rubble: 0.4, creepy: true),
+        ],
         // How dark it is down here (no sky, a dim haze): data/base/place_looks.ron
         // ("fulton", and "fulton_dark" on the pitch-dark levels).
     ),

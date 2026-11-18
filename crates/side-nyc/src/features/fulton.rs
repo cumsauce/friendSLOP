@@ -193,6 +193,55 @@ pub struct Lights {
     /// A broken light's skin: its tubes stop glowing and their colour is
     /// scaled by this (dead, dusty glass).
     pub broken_tint: f32,
+    /// The top levels, from the top: each one's own state of repair, before the
+    /// station goes bad. Levels below the list use the settings above.
+    pub stages: Vec<Stage>,
+}
+
+/// How far gone one of the top levels is.
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct Stage {
+    /// The share of its ceiling lights that work.
+    pub working: f32,
+    /// How it looks (data/base/place_looks.ron).
+    #[serde(default)]
+    pub look: StageLook,
+    /// How much of the usual rubble it has (0 none, 1 all).
+    pub rubble: f32,
+    /// The creepy station music plays here (else the city's music goes on).
+    pub creepy: bool,
+}
+
+/// A top level's look: kept up (`fulton_kept`), run down (`fulton_worn`),
+/// or gone bad like the rest (`fulton`).
+#[derive(Deserialize, Default, Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StageLook {
+    Kept,
+    Worn,
+    #[default]
+    Bad,
+}
+
+impl StageLook {
+    /// Its id in data/base/place_looks.ron, over the station's own.
+    pub fn id(self) -> Option<&'static str> {
+        match self {
+            StageLook::Kept => Some(LOOK_KEPT),
+            StageLook::Worn => Some(LOOK_WORN),
+            StageLook::Bad => None,
+        }
+    }
+}
+
+/// One level's state of repair: its stage if it's one of the top ones,
+/// else the station's usual (gone bad) settings.
+pub fn stage(t: &Tuning, level: usize) -> Stage {
+    t.light.stages.get(level).cloned().unwrap_or(Stage {
+        working: t.light.working,
+        look: StageLook::Bad,
+        rubble: 1.0,
+        creepy: true,
+    })
 }
 
 /// Big rooms: rectangles of cells with no walls between them, stamped on a
@@ -1573,6 +1622,7 @@ fn shape_level(t: &Tuning, li: usize, l: &mut Level) {
         }
     }
     let c = &t.collapse;
+    let rubble = stage(t, li).rubble;
     let w = l.width;
     for i in 0..n {
         let a = (i % w, i / w);
@@ -1589,8 +1639,9 @@ fn shape_level(t: &Tuning, li: usize, l: &mut Level) {
             }
             let j = b.1 * w + b.0;
             let roll = dress_roll(t, [li, i, s.index(), 7]);
-            let mut squeeze = roll >= c.blocked && roll < c.blocked + c.squeeze;
-            if roll < c.blocked {
+            let (blocked, squeezed) = (c.blocked * rubble, c.squeeze * rubble);
+            let mut squeeze = roll >= blocked && roll < blocked + squeezed;
+            if roll < blocked {
                 l.rubble[i] |= bit(s);
                 l.rubble[j] |= bit(s.opposite());
                 let after = reach(l);
@@ -2206,7 +2257,7 @@ pub fn dark_level(t: &Tuning, level: usize) -> bool {
 /// Whether a cell's ceiling light still works: most are broken, and none on a
 /// pitch-dark level. Seeded, the same on every peer.
 pub fn cell_lit(t: &Tuning, level: usize, c: wfc::Cell) -> bool {
-    !dark_level(t, level) && dress_roll(t, [level, c.0, c.1, 0x116]) < t.light.working
+    !dark_level(t, level) && dress_roll(t, [level, c.0, c.1, 0x116]) < stage(t, level).working
 }
 
 /// The cell a point on a level lies in (the inverse of [`cell_world`]), if
@@ -4071,6 +4122,12 @@ fn light_shadows(
 /// The station's look (`data/base/place_looks.ron`): no sky, little light, a dim haze.
 pub const LOOK: &str = "fulton";
 
+/// The kept-up top levels' look (`data/base/place_looks.ron`): a working station.
+pub const LOOK_KEPT: &str = "fulton_kept";
+
+/// The run-down level's look (`data/base/place_looks.ron`): dimmer, a grimy haze.
+pub const LOOK_WORN: &str = "fulton_worn";
+
 /// The pitch-dark levels' look (`data/base/place_looks.ron`): no light at all.
 pub const LOOK_DARK: &str = "fulton_dark";
 
@@ -4079,7 +4136,12 @@ pub const LOOK_DARK: &str = "fulton_dark";
 fn station_look(here: Res<crate::place::Here>, mut looks: ResMut<crate::place::PlaceLooks>) {
     if in_station(here.0) {
         looks.push(LOOK);
-        if dark_level(&tuning(), level_at(here.0.y)) {
+        let t = tuning();
+        let level = level_at(here.0.y);
+        if let Some(look) = stage(&t, level).look.id() {
+            looks.push(look);
+        }
+        if dark_level(&t, level) {
             looks.push(LOOK_DARK);
         }
     }
@@ -4160,6 +4222,8 @@ fn echo(
     let inside = in_station(ears.pos - Vec3::Y * 1.6);
     if let Some(mut signals) = signals {
         signals.flag("fulton", inside);
+        let level = level_at(ears.pos.y - 1.6);
+        signals.flag("fulton_creepy", inside && stage(&t, level).creepy);
     }
     let want = if inside {
         crate::spatial::Room {

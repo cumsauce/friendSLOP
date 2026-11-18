@@ -9,6 +9,7 @@
 //! a new seeker. It stops once fewer than two players are left. The landlord
 //! objective keeps running alongside; this is an extra mode, not a replacement.
 
+use crate::sound::AudioSample;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use friendslop_base::areas::AreaApp as _;
@@ -497,8 +498,8 @@ fn heartbeat(
     me: Option<Res<LocalPlayer>>,
     state: Query<&HideSeek>,
     players: Query<(&Player, &Walker, Option<&Role>)>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
-    mut sound: Local<Option<Handle<AudioSource>>>,
+    audio: Option<ResMut<Assets<AudioSample>>>,
+    mut sound: Local<Option<Handle<AudioSample>>>,
     mut wait: Local<f32>,
 ) {
     *wait -= time.delta_secs();
@@ -527,11 +528,7 @@ fn heartbeat(
     *wait = every;
     let Some(mut audio) = audio else { return };
     let handle = sound
-        .get_or_insert_with(|| {
-            audio.add(AudioSource {
-                bytes: heartbeat_wav().into(),
-            })
-        })
+        .get_or_insert_with(|| audio.add(crate::sound::wav_or_silence(&heartbeat_wav())))
         .clone();
     let volume = 0.35 + 0.5 * (1.0 - nearest / tuning().heartbeat_range);
     crate::assets::play_sfx(&mut commands, &handle, volume);

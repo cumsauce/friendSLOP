@@ -18,7 +18,7 @@
 //!   bright) to loose and wet (sloppy damping, pressure sputters, lots of
 //!   turbulence, dark).
 
-use bevy::audio::AudioSource;
+use crate::sound::AudioSample;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use friendslop_base::areas::AreaApp as _;
@@ -122,7 +122,7 @@ fn play_fart(
     mut commands: Commands,
     me: Option<Res<LocalPlayer>>,
     players: Query<(&Player, &FartTone)>,
-    audio: Option<Res<Assets<AudioSource>>>,
+    audio: Option<Res<Assets<AudioSample>>>,
 ) {
     if audio.is_none() {
         return;

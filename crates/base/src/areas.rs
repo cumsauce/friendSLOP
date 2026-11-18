@@ -508,7 +508,7 @@ fn contents(world: &World, e: Entity) -> (bool, bool) {
             || r.contains::<WorldAssetRoot>()
             || r.contains::<PointLight>()
             || r.contains::<SpotLight>()
-            || r.contains::<AudioPlayer>()
+            || r.contains::<crate::sound::SamplePlayer>()
             || r.contains::<crate::spatial::Emitter>()
             || r.contains::<friendslop_world::map::Map>();
         if let Some(children) = r.get::<Children>() {

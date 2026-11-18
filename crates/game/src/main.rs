@@ -20,6 +20,9 @@ pub fn main() -> AppExit {
     );
     app.add_plugins((
         DefaultPlugins
+            .build()
+            // Sound goes through the firewheel graph (`friendslop::sound`), not rodio.
+            .disable::<bevy::audio::AudioPlugin>()
             .set(WindowPlugin {
                 primary_window: Some(Window {
                     title: "friendSLOP".into(),
@@ -48,6 +51,7 @@ pub fn main() -> AppExit {
                 meta_check: bevy::asset::AssetMetaCheck::Never,
                 ..default()
             }),
+        friendslop::sound::plugins(),
         RepliconPlugins,
         PhysicsPlugins::default(),
     ))

@@ -95,6 +95,17 @@ impl Plugin for VoicePlugin {
         // The browser talks to Web Audio instead of cpal threads (#166).
         #[cfg(target_arch = "wasm32")]
         app.insert_resource(VoiceIo(std::sync::Arc::new(crate::voice_web::WebAudioIo)));
+        // With an audio graph, voice plays through it (one output stream, on
+        // the voice bus); headless apps keep the backend's own output.
+        if app.is_plugin_added::<bevy_seedling::SeedlingCorePlugin>() {
+            #[cfg(target_arch = "wasm32")]
+            let backend: std::sync::Arc<dyn bevy_voice_chat::io::AudioIo> =
+                std::sync::Arc::new(crate::voice_web::WebAudioIo);
+            #[cfg(not(target_arch = "wasm32"))]
+            let backend: std::sync::Arc<dyn bevy_voice_chat::io::AudioIo> =
+                std::sync::Arc::new(bevy_voice_chat::cpal_io::CpalIo);
+            crate::voice_out::install(app, backend);
+        }
         app.init_resource::<VoiceMuted>()
             .add_observer(tag_speaker)
             .add_systems(Update, drive_voice.before(VoiceChatSystems::Devices))

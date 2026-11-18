@@ -14,7 +14,7 @@
 //! puffs where the bullets land. A hit only tells you that you've been shot:
 //! what getting shot actually does is still an open question.
 
-use bevy::audio::AudioSource;
+use crate::sound::AudioSample;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use friendslop_base::areas::AreaApp as _;
@@ -289,21 +289,23 @@ pub fn plugin(app: &mut App) {
 /// Generated sounds, made once.
 #[derive(Resource, Default)]
 struct HeliSounds {
-    rotor: Option<Handle<AudioSource>>,
-    shot: Option<Handle<AudioSource>>,
+    rotor: Option<Handle<AudioSample>>,
+    shot: Option<Handle<AudioSample>>,
 }
 
 impl HeliSounds {
-    fn ensure(&mut self, audio: &mut Assets<AudioSource>) {
+    fn ensure(&mut self, audio: &mut Assets<AudioSample>) {
         if self.rotor.is_none() {
-            self.rotor = Some(audio.add(AudioSource {
-                bytes: wav_bytes(&rotor_loop(SOUND_RATE), SOUND_RATE).into(),
-            }));
+            self.rotor = Some(audio.add(crate::sound::wav_or_silence(&wav_bytes(
+                &rotor_loop(SOUND_RATE),
+                SOUND_RATE,
+            ))));
         }
         if self.shot.is_none() {
-            self.shot = Some(audio.add(AudioSource {
-                bytes: wav_bytes(&gunshot(SOUND_RATE), SOUND_RATE).into(),
-            }));
+            self.shot = Some(audio.add(crate::sound::wav_or_silence(&wav_bytes(
+                &gunshot(SOUND_RATE),
+                SOUND_RATE,
+            ))));
         }
     }
 }
@@ -330,7 +332,7 @@ fn dress(
     mut commands: Commands,
     new: Query<(Entity, &Helicopter), Added<Helicopter>>,
     assets: Res<AssetServer>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<ResMut<Assets<AudioSample>>>,
     mut sounds: ResMut<HeliSounds>,
 ) {
     if new.is_empty() {

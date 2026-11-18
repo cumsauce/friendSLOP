@@ -72,4 +72,9 @@
     // How bright each space's baked light probe is (1 = as baked; the probes
     // are baked with FRIENDSLOP_BAKE=1, see AGENTS.md "Reflections").
     probe: 1.0,
+    // How many commuters walk the LIRR hall, their walking speed range (m/s)
+    // and how far either side of the hall's middle they keep (m).
+    commuters: 22,
+    commuter_speed: (1.0, 1.6),
+    commuter_spread: 5.5,
 )

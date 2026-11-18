@@ -233,6 +233,11 @@ free, and organ dollars only buy boba, joints and hats so far (and Wendy's butch
 - **Penn Station** (#357, #352). Reached by the 1 train or the doors of a Penn pavilion: Rose
   Pizza, a restroom with a weird stranger, 15 s of silence and a filthy mirror, a grim NJ
   Transit wing and a clean LIRR wing, each with its own music. Layout is map markers.
+  Both wings were doubled: NJT gets more chained shops, a dead escalator "out of service
+  since 2009", a tipped vending machine, a leak bucket, a mattress and a fourth trash fire;
+  past the LIRR waiting room runs a 100 m hall with a 10 m wood-beamed ceiling, ten open shops
+  a side (signs, counters, shelves of stock), a hanging flag and clock, glass doors to the
+  tracks at the end, and commuters walking up and down it (count and pace in penn.ron).
   `data/side/penn.ron`, `penn.map.json` (`features/penn.rs`).
 - **Pigeons** (#355). Boid flocks around the city and inside buildings; they poop, and
   occasionally all at once, with a property damage bill. Local visuals.

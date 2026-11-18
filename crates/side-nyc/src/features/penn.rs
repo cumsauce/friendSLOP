@@ -90,6 +90,11 @@ pub struct Tuning {
     pub fire_flicker: f32,
     /// How bright each space's baked light probe is (1 = as baked).
     pub probe: f32,
+    /// How many commuters walk the LIRR hall, their walking speed range (m/s)
+    /// and how far either side of the hall's middle they keep (m).
+    pub commuters: usize,
+    pub commuter_speed: (f32, f32),
+    pub commuter_spread: f32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/side/penn.ron");
@@ -158,6 +163,8 @@ pub struct Layout {
     pub exit: Vec3,
     /// The trash fires' drums (NJ Transit side).
     pub fires: Vec<Vec3>,
+    /// The LIRR hall's two ends, where commuters turn round.
+    pub commute: (Vec3, Vec3),
     pub walls: Vec<Wall>,
 }
 
@@ -195,6 +202,7 @@ pub fn layout(map: &friendslop_world::places::MapFile) -> Layout {
         arrive: at("arrive"),
         exit: at("exit"),
         fires: fires.into_iter().map(|(_, p)| p).collect(),
+        commute: (at("commute_s"), at("commute_n")),
         walls: map
             .entities
             .iter()
@@ -395,7 +403,7 @@ pub fn plugin(app: &mut App) {
             Update,
             (
                 // Penn Station is under New York: it sleeps with it (#412).
-                (queue, pizza_line, side_line, fires).run_if(crate::sites::here("nyc")),
+                (queue, pizza_line, side_line, fires, commute).run_if(crate::sites::here("nyc")),
                 penn_look.in_set(crate::place::PlaceSet),
                 music_signals,
             )
@@ -443,6 +451,20 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
         crate::area::show(),
     ));
     spawn_stranger(&mut commands, &f, lay.in_line, 0);
+    // Commuters up and down the LIRR hall (moved by `commute`).
+    for i in 0..tuning().commuters {
+        let (at, dir) = commuter_at(&tuning(), lay.commute, i, 0.0);
+        commands.spawn((
+            Commuter(i),
+            crate::people::Gait::default(),
+            crate::people::CharacterLook::random(0x0357_1000 + i as u64 * 17),
+            Transform::from_translation(f.transform_point(at)).with_rotation(
+                f.rotation * Quat::from_rotation_y(crate::people::yaw_toward(dir.xz())),
+            ),
+            Visibility::default(),
+            crate::area::show(),
+        ));
+    }
     // Each space's baked light: what lights things inside is the room's own
     // light, not the sky's (`data/game/probes.ron`; re-bake when the map changes).
     if !friendslop_base::probes::baking() {
@@ -593,6 +615,55 @@ pub fn fire_at(lumens: f32, flicker: f32, secs: f32, i: usize) -> f32 {
 }
 
 /// Local: the fires flicker.
+/// A commuter walking the LIRR hall, by number.
+#[derive(Component)]
+struct Commuter(usize);
+
+/// A number in 0..1 from a person's number and a salt.
+fn unit(i: usize, salt: u32) -> f32 {
+    let mut h = (i as u32).wrapping_mul(0x9E37_79B9) ^ salt.wrapping_mul(0x85EB_CA6B);
+    h ^= h >> 15;
+    h = h.wrapping_mul(0x2C1B_3C6D);
+    h ^= h >> 12;
+    (h & 0xFFFF) as f32 / 65535.0
+}
+
+/// Where commuter `i` is `secs` in (the stop's frame) and which way they walk:
+/// up and down the hall between its ends in their own lane, at their own pace,
+/// turning round at each end.
+pub fn commuter_at(t: &Tuning, ends: (Vec3, Vec3), i: usize, secs: f32) -> (Vec3, Vec3) {
+    let (a, b) = ends;
+    let len = a.distance(b).max(0.1);
+    let along = (b - a) / len;
+    let across = Vec3::Y.cross(along);
+    let (lo, hi) = t.commuter_speed;
+    let speed = lo + (hi - lo) * unit(i, 1);
+    let lane = (unit(i, 2) * 2.0 - 1.0) * t.commuter_spread;
+    // A round trip is 2 * len; each starts somewhere along it.
+    let d = (secs * speed + unit(i, 3) * 2.0 * len).rem_euclid(2.0 * len);
+    let (x, dir) = if d < len {
+        (d, along)
+    } else {
+        (2.0 * len - d, -along)
+    };
+    // Keep to the right of the way you're going.
+    let side = if d < len { 1.0 } else { -1.0 };
+    let off = across * (lane.abs() * side + 1.0 * side);
+    (a + along * x + off, dir)
+}
+
+fn commute(time: Res<Time>, mut people: Query<(&Commuter, &mut Transform)>) {
+    let Some(f) = frame() else { return };
+    let t = tuning();
+    let ends = here().commute;
+    let secs = time.elapsed_secs();
+    for (c, mut tf) in &mut people {
+        let (at, dir) = commuter_at(&t, ends, c.0, secs);
+        tf.translation = f.transform_point(at);
+        tf.rotation = f.rotation * Quat::from_rotation_y(crate::people::yaw_toward(dir.xz()));
+    }
+}
+
 fn fires(time: Res<Time>, mut lights: Query<(&Fire, &mut PointLight)>) {
     let t = tuning();
     for (fire, mut light) in &mut lights {
@@ -790,12 +861,35 @@ mod tests {
     }
 
     #[test]
+    fn commuters_walk_the_lirr_hall_and_never_through_a_wall() {
+        let t = t();
+        let l = lay();
+        for i in 0..t.commuters {
+            for k in 0..200 {
+                let (p, dir) = commuter_at(&t, l.commute, i, k as f32 * 1.7);
+                assert!(
+                    l.lirr.contains(p + Vec3::Y),
+                    "commuter {i} left the LIRR side"
+                );
+                assert!(dir.length() > 0.9);
+                assert!(
+                    blocked(&l, p + Vec3::Y).is_none(),
+                    "commuter {i} walks through a wall at {p}"
+                );
+            }
+        }
+    }
+
+    #[test]
     fn the_data_file_parses_and_has_everything() {
         let t = t();
         assert!(t.queue_reach > 0.0 && t.line_secs > 0.0 && t.reset_dist > t.queue_reach);
         assert_eq!(t.silence_secs, 15.0, "catherine: 15 seconds of silence");
         assert!(t.door_reach > 0.0 && t.fire_lumens > 0.0 && (0.0..=1.0).contains(&t.fire_flicker));
         assert!(t.probe > 0.0, "the probes light the inside");
+        assert!(
+            t.commuters > 0 && t.commuter_speed.0 > 0.0 && t.commuter_speed.1 >= t.commuter_speed.0
+        );
         assert!(!t.njt_line.is_empty() && !t.lirr_line.is_empty());
         assert!(!t.conversations.is_empty() && t.conversations.iter().all(|c| !c.is_empty()));
         for s in [
@@ -840,6 +934,8 @@ mod tests {
             "arrive",
             "exit",
             "fire_0",
+            "commute_s",
+            "commute_n",
         ] {
             assert!(
                 map.entities.iter().any(|e| e.name == name),

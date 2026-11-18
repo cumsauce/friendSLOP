@@ -22,7 +22,12 @@
     // deepest player (the top this many when New York loads): at least 2,
     // so the level under you is solid before you drop into it.
     plan_ahead: 2,
-    // Cells across (x) and deep (z) on every level; a cell is 6 m.
+    // A level's tiles are merged into one mesh per material per block of
+    // this many cells square, so a light's shadow draws only nearby blocks.
+    merge_cells: 2,
+    // Cells across (x) and deep (z) of the core every level shares (the
+    // stairs always go in it; tunnel levels are this size); a cell is 6 m.
+    // Levels may be bigger (fulton_layout.ron's types).
     width: 6,
     depth: 6,
     // The signed way across one level is at least this many cells long.
@@ -51,8 +56,15 @@
         // Reflections: the station's baked probe ("fulton", baked in a hall;
         // FRIENDSLOP_BAKE=1), this bright.
         probe: 0.4,
-        // The nearest this many cell lights cast shadows (0 for none).
-        shadow_lights: 2,
+        // The nearest this many cell lights cast shadows (0 for none), each
+        // as a spot light pointing down from the tubes (one shadow map; a
+        // point light's takes six and two of those halved the frame rate).
+        shadow_lights: 1,
+        // Those shadow tubes' cone, its half-angle (degrees, under 89).
+        tube_angle: 80.0,
+        // Only the nearest this many cell lights are on (the farther tubes
+        // light nothing): hundreds at once overflowed the renderer.
+        max_lights: 48,
         // The share of cells whose ceiling light still works; the rest are broken.
         working: 0.2,
         // From this level down (0 is the top) a level may be pitch dark: no
@@ -115,6 +127,19 @@
         // stairs go down from them until the whole room joins up.
         tall: (chance: 0.45, sink: 1.6),
         kinds: [
+            // The set pieces (`set_piece: true`): a level's big hall or atrium
+            // is one of these, and nothing else is.
+            (name: "grand concourse", weight: 2.0, set_piece: true, columns: true, props: [
+                (model: "features/fs_bench.gltf", chance: 0.3, slots: [-1.2, 1.2], size: (2.0, 0.95, 0.5)),
+                (model: "features/fs_poster_frame.gltf", flush: true, chance: 0.35, slots: [0.0]),
+                (model: "features/fs_platform_clock.gltf", place: Ceiling, chance: 0.1, slots: [1.0]),
+                (model: "features/fs_trash_litter.gltf", place: Middle, chance: 0.3, slots: [1.5]),
+            ]),
+            (name: "drowned hall", weight: 1.0, set_piece: true, columns: true, props: [
+                (model: "features/fs_puddle.gltf", place: Middle, chance: 0.8, slots: [0.8], scale: 1.8),
+                (model: "features/fs_broken_light.gltf", place: Ceiling, chance: 0.3, slots: [1.0]),
+                (model: "features/fs_pump.gltf", chance: 0.1, slots: [1.0], size: (1.5, 1.15, 0.75)),
+            ]),
             (name: "concourse", weight: 2.0, sizes: [(3, 3), (3, 2), (2, 4)], columns: true, props: [
                 (model: "features/fs_bench.gltf", chance: 0.35, slots: [-1.2, 1.2], size: (2.0, 0.95, 0.5)),
                 (model: "features/fs_trash_can.gltf", chance: 0.2, slots: [2.3], size: (0.65, 0.95, 0.65)),

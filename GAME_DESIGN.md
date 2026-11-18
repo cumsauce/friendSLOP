@@ -46,7 +46,7 @@ or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava
 golden, nights are dark blue with stars, a moon, and a city whose windows and street lamps light up. Some nights you hear whispers behind you.
 Every way in or out (doors, stairs, manholes, train doors) glows and names where it goes.
 **In New York:** find the J to Brooklyn in Fulton St station, 40 levels down (past empty
-subway platforms every few levels, and big train-tunnel rings you must cross, sometimes round a cave-in: don't get caught with no stamina), for Pelf, while
+long subway platforms every few levels, huge halls and atriums a floor deep, and big train-tunnel rings you must cross, sometimes round a cave-in: don't get caught with no stamina), for Pelf, while
 Andrew calls, gets angry, and sends something after you (hide in lockers). Everyone carries
 $100; going down may drop your wallet somewhere in the station: find it (and strangers'
 wallets), or press I for an insurance drone that keeps 70%. B brags: coins fall out for others. Or step into the
@@ -266,6 +266,18 @@ free, and organ dollars only buy boba, joints and hats so far (and Wendy's butch
   generated corridors; follow the J Brooklyn signs to the J train for +3 Pelf once. Needs ground
   holes (`friendslop_world::holes`). `data/side/fulton.ron`, `fulton_tiles.ron`
   (`features/fulton.rs`).
+- **Fulton St level types** (doomy: set pieces, not a tileset jumble). Each level is planned
+  coarse first: it gets a type (Warren: corridors and small rooms; Hall: one big tall hall
+  with columns; Atrium: a hall whose floor drops a whole level, balconies at its doors, long
+  stairs down, the level below solid under it; Line: every platform level, one long straight
+  track and platform along its long edge, 48 m) and a footprint that fits it (6x6 up to
+  12x6), centred under the station. A small WFC over 12 m macro cells places the set piece,
+  then the usual WFC runs corridors up to it. Stairs always come down in the middle 6x6, so
+  levels of any size line up; tunnel levels and the two above them stay 6x6 Warren, and no
+  atrium or tall hall sits over a platform level. When a set piece won't fit, that level is
+  plain corridors. Weights, depths, sizes in `data/side/fulton_layout.ron`; the big halls'
+  dressing is `rooms.kinds` with `set_piece: true`. Not yet tried in game (hunter in big
+  halls, frame time on a Line level).
 - **Fulton St horror music**. Down in the station the band no longer goes quiet: slow dark
   drones and a lone ill-tuned tone (FultonAmbient); when the hunter spots you a stinger blast
   cuts straight into fast brass-and-screech chase music (FultonChase); when it loses you

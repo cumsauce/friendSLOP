@@ -698,13 +698,15 @@ mod tests {
     fn fulton_signals_pick_its_music() {
         let m = Mood::named;
         let cam = Some(Vec3::ZERO);
-        let station = [("fulton", 1.0)];
+        let station = [("fulton", 1.0), ("fulton_creepy", 1.0)];
         let got = |extra: &[(&str, f32)]| {
             let mut all = station.to_vec();
             all.extend_from_slice(extra);
             pick(&all, true, cam).0
         };
         assert_eq!(got(&[]), m("FultonAmbient"));
+        // The kept-up top floors keep the city's music.
+        assert_ne!(pick(&[("fulton", 1.0)], true, cam).0, m("FultonAmbient"));
         assert_eq!(got(&[("fulton_tense", 12.0)]), m("FultonTense"));
         assert_eq!(got(&[("fulton_chase", 1.0)]), m("FultonChase"));
         // The chase wins over the lingering tension.

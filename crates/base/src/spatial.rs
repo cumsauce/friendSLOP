@@ -30,12 +30,16 @@
 
 use friendslop_hrtf::{Fir, Hrir, HrirSet, TAPS};
 use std::f32::consts::TAU;
-use std::num::NonZero;
 use std::sync::Arc;
-use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 
-use bevy::audio::{AddAudioSource, AudioPlugin, AudioSource, Decodable, Sample, Source, Volume};
 use bevy::platform::collections::HashMap;
+use bevy_seedling::prelude::{AudioSample, Connect, RegisterNode, SoundEffectsBus};
+use firewheel::channel_config::{ChannelConfig, ChannelCount};
+use firewheel::node::{
+    AudioNode, AudioNodeInfo, AudioNodeProcessor, ConstructProcessorContext, EmptyConfig,
+    NodeError, ProcBuffers, ProcExtra, ProcInfo, ProcessStatus,
+};
 use bevy::prelude::*;
 use bevy::tasks::futures::check_ready;
 use bevy::tasks::{AsyncComputeTaskPool, Task, TaskPool};
@@ -287,9 +291,27 @@ pub fn shape_hrtf(ears: &Ears, at: Vec3, carry: Carry, occluded: f32, hrtf: f32)
 
 /// One sound's live parameters, shared with the audio thread.
 #[derive(Default, Debug)]
-pub struct Link([AtomicU32; 11]);
+pub struct Link {
+    v: [AtomicU32; 11],
+    /// Held where it is (its site is asleep): silent, not advancing.
+    paused: AtomicBool,
+    /// Set by the audio thread once a one-shot has rung out.
+    done: AtomicBool,
+}
 
 impl Link {
+    pub fn set_paused(&self, paused: bool) {
+        self.paused.store(paused, Ordering::Relaxed);
+    }
+
+    pub fn is_paused(&self) -> bool {
+        self.paused.load(Ordering::Relaxed)
+    }
+
+    pub fn is_done(&self) -> bool {
+        self.done.load(Ordering::Relaxed)
+    }
+
     pub fn store(&self, s: &Shape) {
         let v = [
             s.gain[0],
@@ -304,14 +326,14 @@ impl Link {
             s.dir[1],
             s.dir[2],
         ];
-        for (slot, x) in self.0.iter().zip(v) {
+        for (slot, x) in self.v.iter().zip(v) {
             let x = if x.is_finite() { x } else { 0.0 };
             slot.store(x.to_bits(), Ordering::Relaxed);
         }
     }
 
     pub fn load(&self) -> Shape {
-        let v = |i: usize| f32::from_bits(self.0[i].load(Ordering::Relaxed));
+        let v = |i: usize| f32::from_bits(self.v[i].load(Ordering::Relaxed));
         Shape {
             gain: [v(0), v(1)],
             delay: [v(2), v(3)],
@@ -338,44 +360,92 @@ impl Clip {
         }
     }
 
-    /// Decode a WAV/OGG and fold it to mono; `None` if it isn't audio (e.g.
-    /// a Git LFS pointer instead of the real file).
-    pub fn decode(source: &AudioSource) -> Option<Self> {
-        let source = source.clone();
-        std::panic::catch_unwind(move || {
-            let dec = source.decoder();
-            let ch = usize::from(dec.channels().get()).max(1);
-            let rate = dec.sample_rate().get();
-            let raw: Vec<f32> = dec.collect();
-            let samples = raw
-                .chunks(ch)
-                .map(|f| f.iter().sum::<f32>() / ch as f32)
-                .collect();
-            Self::new(samples, rate)
-        })
-        .ok()
-        .filter(|c| !c.samples.is_empty())
+    /// A loaded sound folded to mono; `None` if it's empty (e.g. a Git LFS
+    /// pointer instead of the real file never loads at all).
+    pub fn decode(source: &AudioSample) -> Option<Self> {
+        let (samples, rate) = crate::sound::pcm_mono(source)?;
+        Some(Self::new(samples, rate)).filter(|c| !c.samples.is_empty())
+    }
+
+    /// A 16-bit PCM WAV (what the synths make) folded to mono.
+    pub fn from_wav(bytes: &[u8]) -> Option<Self> {
+        let (samples, rate) = crate::sound::parse_wav(bytes)?;
+        Some(Self::new(samples, rate)).filter(|c| !c.samples.is_empty())
     }
 }
 
-/// A world sound as a Bevy audio asset (one per playback: it carries that
-/// playback's [`Link`]).
-#[derive(Asset, TypePath)]
-pub struct SpatialSound {
+/// A world sound in the audio graph (one node per playback: it carries that
+/// playback's [`Link`]). Stereo out, no inputs.
+#[derive(Component, Clone)]
+pub struct SpatialNode {
     clip: Arc<Clip>,
     link: Arc<Link>,
     looping: bool,
     rt60: f32,
+    volume: f32,
     hrir: Option<Arc<HrirSet>>,
 }
 
-impl Decodable for SpatialSound {
-    type Decoder = SpatialSource;
+impl AudioNode for SpatialNode {
+    type Configuration = EmptyConfig;
 
-    fn decoder(&self) -> SpatialSource {
-        SpatialSource::new(self.clip.clone(), self.link.clone(), self.looping)
-            .with_rt60(self.rt60)
-            .with_hrir(self.hrir.clone())
+    fn info(&self, _: &EmptyConfig) -> Result<AudioNodeInfo, NodeError> {
+        Ok(AudioNodeInfo::new()
+            .debug_name("spatial sound")
+            .channel_config(ChannelConfig {
+                num_inputs: ChannelCount::ZERO,
+                num_outputs: ChannelCount::STEREO,
+            }))
+    }
+
+    fn construct_processor(
+        &self,
+        _: &EmptyConfig,
+        cx: ConstructProcessorContext,
+    ) -> Result<impl AudioNodeProcessor, NodeError> {
+        let rate = cx.stream_info.sample_rate.get();
+        Ok(SpatialProcessor {
+            src: SpatialSource::new(self.clip.clone(), self.link.clone(), self.looping)
+                .at_rate(rate)
+                .with_rt60(self.rt60)
+                .with_hrir(self.hrir.clone()),
+            volume: self.volume,
+            ended: false,
+        })
+    }
+}
+
+struct SpatialProcessor {
+    src: SpatialSource,
+    volume: f32,
+    ended: bool,
+}
+
+impl AudioNodeProcessor for SpatialProcessor {
+    fn process(
+        &mut self,
+        info: &ProcInfo,
+        ProcBuffers { outputs, .. }: ProcBuffers,
+        _: &mut ProcExtra,
+    ) -> ProcessStatus {
+        if self.ended || self.src.link.is_paused() {
+            return ProcessStatus::ClearAllOutputs;
+        }
+        let [l, r, ..] = outputs else {
+            return ProcessStatus::ClearAllOutputs;
+        };
+        for i in 0..info.frames {
+            let Some((a, b)) = self.src.frame() else {
+                self.ended = true;
+                self.src.link.done.store(true, Ordering::Relaxed);
+                l[i..info.frames].fill(0.0);
+                r[i..info.frames].fill(0.0);
+                break;
+            };
+            l[i] = a * self.volume;
+            r[i] = b * self.volume;
+        }
+        ProcessStatus::OutputsModified
     }
 }
 
@@ -432,12 +502,19 @@ impl Tail {
     }
 }
 
-/// The audio-thread side of one world sound: interleaved stereo out.
+/// The audio-thread side of one world sound: stereo frames at the output
+/// rate (the clip is read at its own rate, stepped through to match).
 pub struct SpatialSource {
     clip: Arc<Clip>,
     link: Arc<Link>,
     looping: bool,
+    /// The rate frames come out at (the audio graph's).
+    rate: u32,
+    /// Read position in the clip, whole samples and the fraction between.
     pos: usize,
+    frac: f32,
+    /// Clip samples per output frame.
+    step: f32,
     gain: [f32; 2],
     gain_step: [f32; 2],
     delay: [f32; 2],
@@ -448,13 +525,14 @@ pub struct SpatialSource {
     w: usize,
     lp: [[f32; 2]; 2],
     tail: Tail,
+    rt60: f32,
     /// The tail rings on at most this long after the clip ends.
     tail_secs: f32,
     left_in_block: usize,
     after_end: usize,
     peak: f32,
     right: Option<f32>,
-    /// The head-related responses at this clip's rate, if there are any.
+    /// The head-related responses at the output rate, if there are any.
     hrir: Option<Arc<HrirSet>>,
     fir: [Fir; 2],
     taps: [[f32; TAPS]; 2],
@@ -466,15 +544,20 @@ pub struct SpatialSource {
 }
 
 impl SpatialSource {
+    /// Play `clip` at its own rate (see [`Self::at_rate`] for another).
     pub fn new(clip: Arc<Clip>, link: Arc<Link>, looping: bool) -> Self {
         let rate = clip.rate;
         let mut s = Self {
             tail: Tail::new(rate, Room::OPEN.rt60),
+            rt60: Room::OPEN.rt60,
             tail_secs: TAIL_SECS,
             clip,
             link,
             looping,
+            rate,
             pos: 0,
+            frac: 0.0,
+            step: 1.0,
             gain: [0.0; 2],
             gain_step: [0.0; 2],
             delay: [0.0; 2],
@@ -496,26 +579,42 @@ impl SpatialSource {
             mix_step: 0.0,
             fir_on: false,
         };
-        // Start right where the game says, no glide from silence.
-        let now = s.link.load();
-        s.gain = now.gain;
-        s.delay = now.delay.map(|d| s.delay_samples(d));
+        s.start_at_link();
         s
+    }
+
+    /// Start right where the game says, no glide from silence.
+    fn start_at_link(&mut self) {
+        let now = self.link.load();
+        self.gain = now.gain;
+        self.delay = now.delay.map(|d| self.delay_samples(d));
+    }
+
+    /// Put frames out at `rate` Hz (the audio graph's), whatever the clip's.
+    /// Call before [`Self::with_rt60`] and [`Self::with_hrir`].
+    pub fn at_rate(mut self, rate: u32) -> Self {
+        let rate = rate.max(1000);
+        self.rate = rate;
+        self.step = self.clip.rate as f32 / rate as f32;
+        self.tail = Tail::new(rate, self.rt60);
+        self.start_at_link();
+        self
     }
 
     /// Ring on in a room whose tail takes `rt60` seconds to die away.
     pub fn with_rt60(mut self, rt60: f32) -> Self {
         if (rt60 - Room::OPEN.rt60).abs() > 1e-3 {
-            self.tail = Tail::new(self.clip.rate, rt60);
+            self.rt60 = rt60;
+            self.tail = Tail::new(self.rate, rt60);
             self.tail_secs = TAIL_SECS.max(rt60 * 1.2);
         }
         self
     }
 
-    /// Filter with these head-related responses (for this clip's rate)
+    /// Filter with these head-related responses (for the output rate)
     /// whenever the game asks for it.
     pub fn with_hrir(mut self, hrir: Option<Arc<HrirSet>>) -> Self {
-        self.hrir = hrir.filter(|h| h.rate() == self.clip.rate);
+        self.hrir = hrir.filter(|h| h.rate() == self.rate);
         if let Some(h) = &self.hrir {
             let now = self.link.load();
             self.mix = now.hrtf;
@@ -525,14 +624,14 @@ impl SpatialSource {
     }
 
     fn delay_samples(&self, secs: f32) -> f32 {
-        (secs * self.clip.rate as f32).clamp(0.0, (ITD_LEN - 2) as f32)
+        (secs * self.rate as f32).clamp(0.0, (ITD_LEN - 2) as f32)
     }
 
     /// Read the game's latest wishes; false once the sound has fully ended.
     fn begin_block(&mut self) -> bool {
         if !self.looping && self.pos >= self.clip.samples.len() {
             self.after_end += BLOCK;
-            let max_tail = (self.tail_secs * self.clip.rate as f32) as usize;
+            let max_tail = (self.tail_secs * self.rate as f32) as usize;
             if self.after_end > max_tail || (self.after_end > BLOCK * 4 && self.peak < 1e-5) {
                 return false;
             }
@@ -543,8 +642,8 @@ impl SpatialSource {
             self.gain_step[ear] = (want.gain[ear] - self.gain[ear]) / n;
             let d = self.delay_samples(want.delay[ear]);
             self.delay_step[ear] = (d - self.delay[ear]) / n;
-            let fc = want.cutoff[ear].clamp(20.0, 0.45 * self.clip.rate as f32);
-            self.coef[ear] = 1.0 - (-TAU * fc / self.clip.rate as f32).exp();
+            let fc = want.cutoff[ear].clamp(20.0, 0.45 * self.rate as f32);
+            self.coef[ear] = 1.0 - (-TAU * fc / self.rate as f32).exp();
         }
         self.wet = want.wet;
         self.fir_on = self.hrir.is_some() && (want.hrtf > 1e-3 || self.mix > 1e-3);
@@ -567,22 +666,45 @@ impl SpatialSource {
         true
     }
 
-    fn frame(&mut self) -> Option<(f32, f32)> {
+    /// The next clip sample (linear between the two around the read point).
+    #[inline]
+    fn next_sample(&mut self) -> f32 {
+        let s = &self.clip.samples;
+        let len = s.len();
+        if self.pos >= len {
+            return 0.0;
+        }
+        let x0 = s[self.pos];
+        let x = if self.frac > 0.0 {
+            let n = self.pos + 1;
+            let x1 = if n < len {
+                s[n]
+            } else if self.looping {
+                s[0]
+            } else {
+                0.0
+            };
+            x0 + self.frac * (x1 - x0)
+        } else {
+            x0
+        };
+        self.frac += self.step;
+        let whole = self.frac.floor();
+        self.frac -= whole;
+        self.pos += whole as usize;
+        if self.looping && self.pos >= len {
+            self.pos %= len;
+        }
+        x
+    }
+
+    /// One stereo frame; `None` once the sound (and its tail) has ended.
+    pub fn frame(&mut self) -> Option<(f32, f32)> {
         if self.left_in_block == 0 && !self.begin_block() {
             return None;
         }
         self.left_in_block -= 1;
-        let len = self.clip.samples.len();
-        let x = if self.pos < len {
-            let x = self.clip.samples[self.pos];
-            self.pos += 1;
-            if self.looping && self.pos >= len {
-                self.pos = 0;
-            }
-            x
-        } else {
-            0.0
-        };
+        let x = self.next_sample();
         self.ring[self.w] = x;
         let mut out = [0.0; 2];
         for (ear, out) in out.iter_mut().enumerate() {
@@ -618,43 +740,31 @@ impl SpatialSource {
         self.peak = self.peak.max(l.abs()).max(r.abs());
         Some((l, r))
     }
+
+    /// The rate frames come out at.
+    pub fn rate(&self) -> u32 {
+        self.rate
+    }
 }
 
+/// Interleaved stereo samples (left, right, left, ...), for offline renders.
 impl Iterator for SpatialSource {
-    type Item = Sample;
+    type Item = f32;
 
     #[inline]
-    fn next(&mut self) -> Option<Sample> {
+    fn next(&mut self) -> Option<f32> {
         if let Some(r) = self.right.take() {
-            return Some(r as Sample);
+            return Some(r);
         }
         let (l, r) = self.frame()?;
         self.right = Some(r);
-        Some(l as Sample)
-    }
-}
-
-impl Source for SpatialSource {
-    fn current_span_len(&self) -> Option<usize> {
-        None
-    }
-
-    fn channels(&self) -> NonZero<u16> {
-        NonZero::<u16>::MIN.saturating_add(1)
-    }
-
-    fn sample_rate(&self) -> NonZero<u32> {
-        NonZero::new(self.clip.rate).unwrap_or(NonZero::<u32>::MIN)
-    }
-
-    fn total_duration(&self) -> Option<std::time::Duration> {
-        None
+        Some(l)
     }
 }
 
 /// Where a world sound's samples come from while it waits to start.
 enum Pending {
-    Asset(Handle<AudioSource>),
+    Asset(Handle<AudioSample>),
     Synth(Task<Option<Clip>>),
 }
 
@@ -716,7 +826,7 @@ fn file_sound(commands: &mut Commands, e: Entity, at: Vec3, looping: bool) -> En
 /// Play a sound once at `at` in the world. Returns its entity (despawn to stop).
 pub fn play_at(
     commands: &mut Commands,
-    sound: &Handle<AudioSource>,
+    sound: &Handle<AudioSample>,
     at: Vec3,
     volume: f32,
     carry: Carry,
@@ -736,7 +846,7 @@ pub fn play_at(
 /// Play a sound once, riding along with `parent` (offset in its space).
 pub fn play_on(
     commands: &mut Commands,
-    sound: &Handle<AudioSource>,
+    sound: &Handle<AudioSample>,
     parent: Entity,
     offset: Vec3,
     volume: f32,
@@ -757,7 +867,7 @@ pub fn play_on(
 /// Loop a sound at `at` until it's despawned (or the game ends).
 pub fn loop_at(
     commands: &mut Commands,
-    sound: &Handle<AudioSource>,
+    sound: &Handle<AudioSample>,
     at: Vec3,
     volume: f32,
     carry: Carry,
@@ -783,11 +893,7 @@ pub fn play_wav_at(
     make_wav: impl FnOnce() -> Vec<u8> + Send + 'static,
 ) -> Entity {
     let pool = AsyncComputeTaskPool::get_or_init(TaskPool::default);
-    let task = pool.spawn(async move {
-        Clip::decode(&AudioSource {
-            bytes: Arc::from(make_wav()),
-        })
-    });
+    let task = pool.spawn(async move { Clip::from_wav(&make_wav()) });
     let e = spawn_pending(
         commands,
         Pending::Synth(task),
@@ -801,12 +907,12 @@ pub fn play_wav_at(
 
 /// Decoded clips by sound file (holding the handle so its id isn't reused).
 #[derive(Resource, Default)]
-struct Clips(HashMap<AssetId<AudioSource>, Cached>);
+struct Clips(HashMap<AssetId<AudioSample>, Cached>);
 
 enum Cached {
-    Decoding(Handle<AudioSource>, Task<Option<Clip>>),
+    Decoding(Handle<AudioSample>, Task<Option<Clip>>),
     Ready {
-        _keep: Handle<AudioSource>,
+        _keep: Handle<AudioSample>,
         clip: Arc<Clip>,
     },
     Failed,
@@ -821,8 +927,8 @@ enum Lookup {
 impl Clips {
     fn get(
         &mut self,
-        handle: &Handle<AudioSource>,
-        sources: Option<&Assets<AudioSource>>,
+        handle: &Handle<AudioSample>,
+        sources: Option<&Assets<AudioSample>>,
         server: Option<&AssetServer>,
     ) -> Lookup {
         let id = handle.id();
@@ -865,16 +971,16 @@ pub fn plugin(app: &mut App) {
         .add_systems(Startup, spawn_ears)
         .add_systems(PostUpdate, follow_ears.after(TransformSystems::Propagate));
     // Headless apps (tests) have no audio: sounds asked for are dropped.
-    if !app.is_plugin_added::<AudioPlugin>() {
+    if !app.is_plugin_added::<bevy_seedling::SeedlingCorePlugin>() {
         app.add_systems(PostUpdate, drop_sounds);
         return;
     }
-    app.add_audio_source::<SpatialSound>()
+    app.register_simple_node::<SpatialNode>()
         .init_resource::<Clips>()
         .init_resource::<Hrtf>()
         .add_systems(
             PostUpdate,
-            (start_sounds, occlude, steer, sleep_sounds)
+            (start_sounds, occlude, steer, sleep_sounds, end_sounds)
                 .chain()
                 .after(follow_ears),
         );
@@ -937,12 +1043,13 @@ fn start_sounds(
     mut pending: Query<(Entity, &mut PendingSound, &GlobalTransform)>,
     ears: Res<Ears>,
     room: Option<Res<Room>>,
-    sources: Option<Res<Assets<AudioSource>>>,
+    sources: Option<Res<Assets<AudioSample>>>,
     server: Option<Res<AssetServer>>,
     mut clips: ResMut<Clips>,
-    mut sounds: ResMut<Assets<SpatialSound>>,
+    rate: Option<Res<bevy_seedling::context::SampleRate>>,
     mut hrtf: ResMut<Hrtf>,
 ) {
+    let rate = crate::sound::stream_rate(rate.as_deref());
     hrtf.refresh();
     for (entity, mut p, at) in &mut pending {
         let clip = match &mut p.from {
@@ -968,24 +1075,22 @@ fn start_sounds(
         let room = room.as_deref().copied().unwrap_or_default();
         let link = Arc::new(Link::default());
         link.store(&room.apply(shape(&ears, at.translation(), p.carry, 0.0)));
-        let hrir = hrtf.for_rate(clip.rate);
-        let handle = sounds.add(SpatialSound {
+        // Filtered at the graph's rate (the node runs there, whatever the clip's).
+        let hrir = hrtf.for_rate(rate);
+        let node = SpatialNode {
             clip,
             link: link.clone(),
             looping: p.looping,
             rt60: room.rt60,
+            volume: p.volume,
             hrir,
-        });
-        // A looping source never ends, so `ONCE` (Bevy's `LOOP` would buffer
-        // the stream and freeze its position).
-        let settings = if p.looping {
-            PlaybackSettings::ONCE
-        } else {
-            PlaybackSettings::DESPAWN
         };
-        commands.entity(entity).remove::<PendingSound>().insert((
-            AudioPlayer(handle),
-            settings.with_volume(Volume::Linear(p.volume)),
+        commands
+            .entity(entity)
+            .remove::<PendingSound>()
+            .insert(node);
+        commands.entity(entity).connect(SoundEffectsBus);
+        commands.entity(entity).insert((
             Emitter {
                 link,
                 carry: p.carry,
@@ -1077,13 +1182,22 @@ fn steer(
 /// away, so they cost nothing, and carried on from there when you're back.
 fn sleep_sounds(
     awake: Res<crate::sites::Awake>,
-    sounds: Query<(&crate::sites::AtSite, &AudioSink), With<Emitter>>,
+    sounds: Query<(&crate::sites::AtSite, &Emitter)>,
 ) {
-    for (site, sink) in &sounds {
-        match (awake.me(site.0), sink.is_paused()) {
-            (true, true) => sink.play(),
-            (false, false) => sink.pause(),
-            _ => {}
+    for (site, e) in &sounds {
+        let asleep = !awake.me(site.0);
+        if e.link.is_paused() != asleep {
+            e.link.set_paused(asleep);
+        }
+    }
+}
+
+/// A one-shot that has rung out (the audio thread says so) is despawned,
+/// which takes its node out of the graph.
+fn end_sounds(mut commands: Commands, sounds: Query<(Entity, &Emitter)>) {
+    for (entity, e) in &sounds {
+        if e.link.is_done() {
+            commands.entity(entity).despawn();
         }
     }
 }
@@ -1364,6 +1478,27 @@ mod tests {
         }
     }
 
+    /// A clip at one rate played into a graph at another lasts as long and
+    /// keeps its level (the node steps through it).
+    #[test]
+    fn a_clip_plays_at_the_graphs_rate() {
+        let clip = Arc::new(Clip::new(vec![0.25; 22_050], 22_050));
+        let link = Arc::new(Link::default());
+        link.store(&Shape {
+            gain: [1.0, 1.0],
+            cutoff: [20_000.0; 2],
+            ..default()
+        });
+        let mut src = SpatialSource::new(clip, link, false).at_rate(48_000);
+        assert_eq!(src.rate(), 48_000);
+        let out = render(&mut src, 400_000);
+        let frames = out.len() / 2;
+        // One second of clip, then up to the tail's two seconds of silence.
+        assert!((48_000..48_000 * 3 + 2_000).contains(&frames), "{frames}");
+        let mid = out[2 * 24_000];
+        assert!((mid - 0.25).abs() < 0.01, "{mid}");
+    }
+
     #[test]
     fn loops_never_end() {
         let clip = Arc::new(Clip::new(vec![0.1; 100], 22_050));
@@ -1378,9 +1513,7 @@ mod tests {
     fn synth_wavs_decode() {
         let samples: Vec<f32> = (0..2205).map(|i| (i as f32 * 0.05).sin() * 0.5).collect();
         let wav = crate::features::bear::wav_bytes(&samples, 22_050);
-        let clip = Clip::decode(&AudioSource {
-            bytes: Arc::from(wav),
-        });
+        let clip = Clip::from_wav(&wav);
         let Some(clip) = clip else {
             panic!("didn't decode");
         };
@@ -1407,10 +1540,7 @@ fn spatial_demo() {
         "/../game/assets/audio/sfx/crow_caw.wav"
     ))
     .unwrap_or_default();
-    let caw = Clip::decode(&AudioSource {
-        bytes: Arc::from(bytes),
-    })
-    .unwrap_or_else(|| Clip::new(vec![0.0; 100], 44_100));
+    let caw = Clip::from_wav(&bytes).unwrap_or_else(|| Clip::new(vec![0.0; 100], 44_100));
     let rate = caw.rate;
     // Caws with gaps between them, looped.
     let mut samples = caw.samples.clone();

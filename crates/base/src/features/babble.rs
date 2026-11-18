@@ -9,7 +9,7 @@
 //! Pure functions here; a missing bank file just means callers keep their
 //! old synth voice.
 
-use bevy::audio::AudioSource;
+use crate::sound::AudioSample;
 use bevy::prelude::*;
 
 /// Sample rate of the bank file.
@@ -49,7 +49,7 @@ pub struct Voice {
 
 /// The bank's handle; [`samples`] reads it once loaded.
 #[derive(Resource, Clone, Default)]
-pub struct Bank(pub Handle<AudioSource>);
+pub struct Bank(pub Handle<AudioSample>);
 
 pub fn plugin(app: &mut App) {
     app.init_resource::<Bank>().add_systems(
@@ -63,9 +63,17 @@ pub fn plugin(app: &mut App) {
 }
 
 /// The bank as samples, if it has loaded and looks right.
-pub fn samples(bank: &Bank, audio: &Assets<AudioSource>) -> Option<Vec<f32>> {
-    let src = audio.get(&bank.0)?;
-    let s = parse_wav(&src.bytes)?;
+pub fn samples(bank: &Bank, audio: &Assets<AudioSample>) -> Option<Vec<f32>> {
+    bank_samples(audio.get(&bank.0)?)
+}
+
+/// A loaded bank as samples at [`BANK_RATE`], if it looks right (cheap to
+/// clone the sound and call this off the main thread).
+pub fn bank_samples(src: &AudioSample) -> Option<Vec<f32>> {
+    // Loaded sounds come converted to the audio graph's rate; the grains
+    // are cut at the bank's.
+    let (pcm, rate) = crate::sound::pcm_mono(src)?;
+    let s = crate::sound::resample(&pcm, rate, BANK_RATE);
     (s.len() >= bank_len()).then_some(s)
 }
 
@@ -191,12 +199,13 @@ mod tests {
             return;
         };
         use crate::features::voice_lines::{LINES, Speaker, voice};
+        let bank = parse_wav(&bytes).unwrap_or_default();
         let mut all = Vec::new();
         for (i, who) in [Speaker::Bear, Speaker::Crow, Speaker::MusicBox]
             .into_iter()
             .enumerate()
         {
-            all.extend(voice(who, LINES[i], i as u32, Some(&bytes)));
+            all.extend(voice(who, LINES[i], i as u32, Some(&bank)));
             all.extend(std::iter::repeat_n(0.0, 20_000));
         }
         let rate = crate::features::synth_audio::RATE;

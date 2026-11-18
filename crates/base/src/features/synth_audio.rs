@@ -3,13 +3,11 @@
 //! Synthesizing samples and encoding a WAV can take several milliseconds, so
 //! it runs on the `AsyncComputeTaskPool` instead of stalling a frame. The
 //! entity spawned by [`play_synth`] holds the task; once it's done the sound
-//! is added to `Assets<AudioSource>` and the same entity plays it with
-//! `PlaybackSettings::DESPAWN`. That entity is the only owner of the strong
-//! handle, so the asset is freed as soon as playback ends.
+//! is added to `Assets<AudioSample>` (converted to the audio graph's rate) and
+//! the same entity plays it once, then despawns. That entity is the only owner
+//! of the strong handle, so the asset is freed as soon as playback ends.
 
-use std::sync::Arc;
-
-use bevy::audio::AudioSource;
+use crate::sound::{AudioSample, DefaultPool, SamplePlayer, Volume};
 use bevy::prelude::*;
 use bevy::tasks::futures::check_ready;
 use bevy::tasks::{AsyncComputeTaskPool, Task, TaskPool};
@@ -59,24 +57,24 @@ pub fn plugin(app: &mut App) {
 fn start_finished_sounds(
     mut commands: Commands,
     mut tasks: Query<(Entity, &mut SynthTask, Option<&SynthVolume>)>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<ResMut<Assets<AudioSample>>>,
+    rate: Option<Res<bevy_seedling::context::SampleRate>>,
 ) {
     let Some(mut audio) = audio else { return };
+    let rate = crate::sound::stream_rate(rate.as_deref());
     for (entity, mut task, volume) in &mut tasks {
         let Some(wav) = check_ready(&mut task.0) else {
             continue;
         };
-        let handle = audio.add(AudioSource {
-            bytes: Arc::from(wav),
-        });
-        let mut settings = PlaybackSettings::DESPAWN;
-        if let Some(v) = volume {
-            settings = settings.with_volume(bevy::audio::Volume::Linear(v.0));
-        }
-        commands
-            .entity(entity)
-            .remove::<SynthTask>()
-            .insert((AudioPlayer(handle), settings));
+        let Some(sample) = crate::sound::from_wav(&wav, rate) else {
+            commands.entity(entity).despawn();
+            continue;
+        };
+        let volume = volume.map_or(1.0, |v| v.0);
+        commands.entity(entity).remove::<SynthTask>().insert((
+            SamplePlayer::new(audio.add(sample)).with_volume(Volume::Linear(volume)),
+            DefaultPool,
+        ));
     }
 }
 

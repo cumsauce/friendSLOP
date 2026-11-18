@@ -31,6 +31,7 @@ pub mod rules;
 pub mod settings;
 pub mod shared;
 pub mod sites;
+pub mod sound;
 pub mod spatial;
 pub mod textures;
 pub mod voice;

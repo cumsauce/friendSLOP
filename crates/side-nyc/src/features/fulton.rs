@@ -4787,6 +4787,36 @@ mod tests {
     }
 
     #[test]
+    fn the_top_floors_are_a_working_station_and_it_goes_bad_by_the_fourth() {
+        let (t, _) = data();
+        let lit = |l: usize| {
+            let n = (0..t.width)
+                .flat_map(|x| (0..t.depth).map(move |z| (x, z)))
+                .filter(|&c| cell_lit(&t, l, c))
+                .count();
+            n as f32 / (t.width * t.depth) as f32
+        };
+        for l in 0..2 {
+            let s = stage(&t, l);
+            assert!(
+                !s.creepy && s.rubble == 0.0 && s.look == StageLook::Kept,
+                "{l}"
+            );
+            assert!(lit(l) > 0.75, "floor {} is lit: {}", l + 1, lit(l));
+        }
+        let worn = stage(&t, 2);
+        assert!(worn.creepy && worn.look == StageLook::Worn);
+        assert!(lit(2) < lit(0));
+        // The hunter comes on the fourth floor, and from there it's the bad station.
+        assert_eq!(t.hunt.call_levels.last(), Some(&3));
+        for l in 3..t.levels {
+            let s = stage(&t, l);
+            assert!(s.creepy && s.look == StageLook::Bad && s.rubble == 1.0);
+        }
+        assert!(t.light.dark_from > 3);
+    }
+
+    #[test]
     fn most_lights_are_broken_and_a_few_deep_levels_are_pitch_dark() {
         let (t, _) = data();
         let dark: Vec<usize> = (0..t.levels).filter(|&l| dark_level(&t, l)).collect();
@@ -4798,7 +4828,10 @@ mod tests {
             !dark.is_empty() && dark.len() < t.levels / 2,
             "a few deep levels go dark, not most: {dark:?}"
         );
-        let lit_level = (0..t.levels).find(|&l| !dark_level(&t, l)).unwrap_or(0);
+        // Below the kept-up top floors (`stages`).
+        let lit_level = (t.light.stages.len()..t.levels)
+            .find(|&l| !dark_level(&t, l))
+            .unwrap_or(0);
         let cells: Vec<bool> = (0..t.width)
             .flat_map(|x| (0..t.depth).map(move |z| (x, z)))
             .map(|c| cell_lit(&t, lit_level, c))

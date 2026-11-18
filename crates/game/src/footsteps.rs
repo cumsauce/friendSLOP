@@ -24,6 +24,9 @@ const STRIDE: f32 = 1.7;
 const FASTEST_STEP: f32 = 0.25;
 /// Falling faster than this, then touching ground, is a landing.
 const LANDING_VY: f32 = -4.0;
+/// A landing needs at least this long in the air (s): losing the ground for a
+/// frame as the body settles isn't a fall.
+const MIN_AIR: f32 = 0.15;
 /// Moving faster than this (m/s) between updates is a teleport, not a step.
 const TELEPORT_SPEED: f32 = 20.0;
 
@@ -42,6 +45,8 @@ struct Gait {
     /// The last airborne frames were a real fall (fast down): the next
     /// grounded frame is its landing, once.
     fell: bool,
+    /// Seconds since the feet last touched the ground.
+    air: f32,
     next: usize,
 }
 
@@ -121,9 +126,12 @@ impl Gait {
         // A real fall (fast down while airborne) ends in one thud when the
         // feet touch ground again.
         let landed = grounded && self.fell;
-        self.fell = !grounded && self.vy < LANDING_VY;
+        self.air = if grounded { 0.0 } else { self.air + dt };
+        self.fell = !grounded && self.vy < LANDING_VY && self.air >= MIN_AIR;
         if landed {
             self.travelled = 0.0; // the thud starts the stride count over
+            // On the ground now: the smoothed speed mustn't still say falling.
+            self.vy = 0.0;
         }
         if grounded {
             // Strides bank on the ground only: air time (a bhop's apex, a
@@ -309,6 +317,26 @@ mod tests {
         // ...and touching down is exactly one thud, no step burst.
         let falls = land_and_walk(&mut g, 30);
         assert_eq!(falls, vec![Footfall::Land], "{falls:?}");
+    }
+
+    #[test]
+    fn a_bumpy_landing_after_a_long_fall_is_one_thud() {
+        let mut g = Gait::default();
+        walk(&mut g, 3.0, 10, true);
+        // The Vessel: 40-odd metres down at up to 30 m/s.
+        fall(&mut g, 0.5, 90);
+        // The feet touch, lose the ground for a frame now and then while the
+        // body settles, and walk on.
+        let mut out = Vec::new();
+        let mut pos = g.last.unwrap_or(Vec3::ZERO);
+        for i in 0..60 {
+            pos += Vec3::NEG_Z * 0.05;
+            if let Some(f) = g.advance(pos, i % 3 != 1, DT) {
+                out.push(f);
+            }
+        }
+        let thuds = out.iter().filter(|f| **f == Footfall::Land).count();
+        assert_eq!(thuds, 1, "{out:?}");
     }
 
     #[test]

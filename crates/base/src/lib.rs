@@ -26,6 +26,7 @@ pub mod people;
 pub mod place;
 pub mod player;
 pub mod probes;
+pub mod reverb;
 pub mod rigged;
 pub mod rules;
 pub mod settings;

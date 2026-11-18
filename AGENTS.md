@@ -94,6 +94,7 @@ crates/game/src/
   ui/map.rs     M: live top-down map of your area (MapCamera, paper-map UI shader, player pins)
   assets.rs     handles for the files in assets/ (sound effects; missing files degrade quietly)
   spatial.rs    3D sound (play_at / play_on / loop_at / play_wav_at): one firewheel node per sound, and the listener
+  reverb.rs     the room's echo: one shared convolution reverb every world sound sends into; its impulse is made from `Room` (data/base/spatial.ron)
   loading.rs    "Loading" curtain on entering the game until models load and frames settle
   people.rs     shared commune-person body (players + villagers), walk animation
   scenery.rs    nature dressing on the floor, commune campfire, music (local visuals, seeded)

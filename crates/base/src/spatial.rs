@@ -20,8 +20,9 @@
 //! - air: far sounds lose their top end;
 //! - occlusion: a hill, wall or building between you and the sound muffles it
 //!   (a ray against the physics colliders);
-//! - space: a small diffuse tail at a fixed level, so the dry sound fading
-//!   with distance against it is what makes far things sound far.
+//! - space: a send into the shared room echo ([`crate::reverb`]) at a fixed
+//!   level, so the dry sound fading with distance against it is what makes
+//!   far things sound far. (Offline renders keep a small tail of their own.)
 //!
 //! The game writes each sound's target levels and filters into atomics every
 //! frame ([`Link`]); the audio thread glides to them, so moving sounds never
@@ -141,6 +142,8 @@ pub struct Tuning {
     pub max_hrtf: usize,
     /// Seconds a sound takes to fade into (or out of) the filter.
     pub fade_secs: f32,
+    /// The shared room echo every world sound sends into.
+    pub reverb: crate::reverb::Reverb,
 }
 
 pub static TUNING: Data<Tuning> = Data::ron("data/base/spatial.ron");
@@ -375,16 +378,22 @@ impl Clip {
 }
 
 /// A world sound in the audio graph (one node per playback: it carries that
-/// playback's [`Link`]). Stereo out, no inputs.
+/// playback's [`Link`]). No inputs; four outputs: the dry stereo pair, then
+/// the send to the shared room echo ([`crate::reverb::ReverbBus`]) as a pair.
 #[derive(Component, Clone)]
 pub struct SpatialNode {
     clip: Arc<Clip>,
     link: Arc<Link>,
     looping: bool,
-    rt60: f32,
     volume: f32,
     hrir: Option<Arc<HrirSet>>,
 }
+
+/// Dry left and right, then the send to the room's echo twice.
+const SPATIAL_OUTS: ChannelCount = match ChannelCount::new(4) {
+    Some(c) => c,
+    None => ChannelCount::STEREO,
+};
 
 impl AudioNode for SpatialNode {
     type Configuration = EmptyConfig;
@@ -394,7 +403,7 @@ impl AudioNode for SpatialNode {
             .debug_name("spatial sound")
             .channel_config(ChannelConfig {
                 num_inputs: ChannelCount::ZERO,
-                num_outputs: ChannelCount::STEREO,
+                num_outputs: SPATIAL_OUTS,
             }))
     }
 
@@ -407,8 +416,8 @@ impl AudioNode for SpatialNode {
         Ok(SpatialProcessor {
             src: SpatialSource::new(self.clip.clone(), self.link.clone(), self.looping)
                 .at_rate(rate)
-                .with_rt60(self.rt60)
-                .with_hrir(self.hrir.clone()),
+                .with_hrir(self.hrir.clone())
+                .sending(),
             volume: self.volume,
             ended: false,
         })
@@ -431,19 +440,23 @@ impl AudioNodeProcessor for SpatialProcessor {
         if self.ended || self.src.link.is_paused() {
             return ProcessStatus::ClearAllOutputs;
         }
-        let [l, r, ..] = outputs else {
+        let [l, r, sl, sr, ..] = outputs else {
             return ProcessStatus::ClearAllOutputs;
         };
-        for i in 0..info.frames {
-            let Some((a, b)) = self.src.frame() else {
+        let n = info.frames;
+        for i in 0..n {
+            let Some(([a, b], send)) = self.src.frame_send() else {
                 self.ended = true;
                 self.src.link.done.store(true, Ordering::Relaxed);
-                l[i..info.frames].fill(0.0);
-                r[i..info.frames].fill(0.0);
+                for out in [&mut *l, &mut *r, &mut *sl, &mut *sr] {
+                    out[i..n].fill(0.0);
+                }
                 break;
             };
             l[i] = a * self.volume;
             r[i] = b * self.volume;
+            sl[i] = send * self.volume;
+            sr[i] = sl[i];
         }
         ProcessStatus::OutputsModified
     }
@@ -541,6 +554,8 @@ pub struct SpatialSource {
     mix: f32,
     mix_step: f32,
     fir_on: bool,
+    /// The room's echo is the shared reverb's ([`Self::sending`]), not ours.
+    send: bool,
 }
 
 impl SpatialSource {
@@ -578,6 +593,7 @@ impl SpatialSource {
             mix: 0.0,
             mix_step: 0.0,
             fir_on: false,
+            send: false,
         };
         s.start_at_link();
         s
@@ -620,6 +636,14 @@ impl SpatialSource {
             self.mix = now.hrtf;
             self.taps = h.lookup(now.dir).ear;
         }
+        self
+    }
+
+    /// Leave the room's echo to the shared reverb: [`Self::frame_send`] gives
+    /// the dry frame and the send, and the sound ends once its dry part has.
+    pub fn sending(mut self) -> Self {
+        self.send = true;
+        self.tail_secs = 0.1;
         self
     }
 
@@ -700,6 +724,19 @@ impl SpatialSource {
 
     /// One stereo frame; `None` once the sound (and its tail) has ended.
     pub fn frame(&mut self) -> Option<(f32, f32)> {
+        let ([l, r], send) = self.frame_send()?;
+        if self.send {
+            return Some((l, r));
+        }
+        let (tl, tr) = self.tail.tick(send);
+        let (l, r) = (l + tl, r + tr);
+        // Our own tail rings on: the sound lasts while it's audible.
+        self.peak = self.peak.max(l.abs()).max(r.abs());
+        Some((l, r))
+    }
+
+    /// One dry stereo frame and the mono send to the room's echo.
+    pub fn frame_send(&mut self) -> Option<([f32; 2], f32)> {
         if self.left_in_block == 0 && !self.begin_block() {
             return None;
         }
@@ -733,12 +770,10 @@ impl SpatialSource {
         if self.fir_on {
             self.mix = (self.mix + self.mix_step).clamp(0.0, 1.0);
         }
-        let (tl, tr) = self.tail.tick(x * self.wet);
-        let l = out[0] + tl;
-        let r = out[1] + tr;
+        let send = x * self.wet;
         self.w = (self.w + 1) % ITD_LEN;
-        self.peak = self.peak.max(l.abs()).max(r.abs());
-        Some((l, r))
+        self.peak = self.peak.max(out[0].abs()).max(out[1].abs());
+        Some((out, send))
     }
 
     /// The rate frames come out at.
@@ -1081,7 +1116,6 @@ fn start_sounds(
             clip,
             link: link.clone(),
             looping: p.looping,
-            rt60: room.rt60,
             volume: p.volume,
             hrir,
         };
@@ -1089,7 +1123,12 @@ fn start_sounds(
             .entity(entity)
             .remove::<PendingSound>()
             .insert(node);
-        commands.entity(entity).connect(SoundEffectsBus);
+        commands
+            .entity(entity)
+            .connect_with(SoundEffectsBus, &[(0, 0), (1, 1)]);
+        commands
+            .entity(entity)
+            .connect_with(crate::reverb::ReverbBus, &[(2, 0), (3, 1)]);
         commands.entity(entity).insert((Emitter {
             link,
             carry: p.carry,
@@ -1285,6 +1324,25 @@ mod tests {
         let tail = energy(0, n, frames) + energy(1, n, frames);
         let ratio_db = 10.0 * (tail / dry).log10();
         assert!((-30.0..-8.0).contains(&ratio_db), "tail {ratio_db} dB");
+    }
+
+    #[test]
+    fn a_sending_sound_leaves_its_echo_to_the_room() {
+        let rate = 44_100;
+        let clip = Arc::new(Clip::new(vec![0.3; rate as usize / 20], rate));
+        let link = Arc::new(Link::default());
+        link.store(&shape(&ears(), Vec3::NEG_Z * 3.0, Carry::CALL, 0.0));
+        let mut src = SpatialSource::new(clip.clone(), link, false).sending();
+        let mut frames = 0;
+        let mut send = 0.0;
+        while let Some((dry, s)) = src.frame_send() {
+            assert!(dry.iter().all(|x| x.is_finite()) && s.is_finite());
+            send += s * s;
+            frames += 1;
+        }
+        assert!(send > 0.0, "it sends to the echo");
+        let n = clip.samples.len();
+        assert!(frames >= n && frames < n + rate as usize / 10, "{frames}");
     }
 
     #[test]

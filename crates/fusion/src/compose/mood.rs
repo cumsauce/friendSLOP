@@ -33,6 +33,8 @@ pub struct MoodFlags {
     pub victory: bool,
     /// Climbing lifts its key.
     pub lift: bool,
+    /// Starts at its own tempo at once instead of easing there (a chase).
+    pub snap: bool,
 }
 
 impl MoodFlags {
@@ -45,6 +47,7 @@ impl MoodFlags {
         fallback: false,
         victory: true,
         lift: true,
+        snap: false,
     };
 }
 
@@ -116,6 +119,10 @@ impl Mood {
 
     pub fn instant(self) -> bool {
         self.flags().instant
+    }
+
+    pub fn snap(self) -> bool {
+        self.flags().snap
     }
 
     pub fn wandering(self) -> bool {

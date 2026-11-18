@@ -29,6 +29,11 @@ def lag(t, delay):
 def clip(name, dur, L, stance, lift, hip_drop, spine, chest, neck, head, swing, bob, sway):
     hip_y = A + B + ANKLE_Y - hip_drop
     tracks = {}
+    # rest tracks the roll leaves turned: a clip that doesn't key them would
+    # keep the roll's pose when it fades in from it (hip, shoulders, hands)
+    zero = lambda: [[0.0, {"x": 0}], [dur, {"x": 0}]]
+    for bone in ("shoulder_l", "shoulder_r", "hand_l", "hand_r"):
+        tracks[bone] = {"rotate": zero()}
 
     def keys(fn):
         return [[round(i / KEY * dur, 3), fn(i / KEY)] for i in range(KEY + 1)]
@@ -74,7 +79,7 @@ def clip(name, dur, L, stance, lift, hip_drop, spine, chest, neck, head, swing, 
                         "z": round(14 * math.sin(2 * math.pi * lag(t, 2.4) + 2.1), 1)}])
         tracks[f"wrist_{side}"] = {"rotate": wr}
 
-    tracks["hip"] = {"translate": keys(lambda t: [
+    tracks["hip"] = {"rotate": zero(), "translate": keys(lambda t: [
         round(-(sway / 70.0) * math.sin(2 * math.pi * t), 3),
         round(-hip_drop - bob * (0.5 + 0.5 * math.cos(4 * math.pi * t))
               + 0.012 * math.sin(2 * math.pi * lag(t, 1.0)), 3),
@@ -105,10 +110,15 @@ def clip(name, dur, L, stance, lift, hip_drop, spine, chest, neck, head, swing, 
     return {"type": "clip", "name": name, "skeleton": "hunter_rig", "duration": dur,
             "loop": True, "interp": "smooth", "tracks": tracks}
 
+# Ground speed (m/s) of a clip = 2 * L / (stance * dur): the planted foot slides
+# back 2L in the stance share of the cycle. The game moves the hunter at
+# walk_speed 3.0 / chase_speed 6.5 (data/side/fulton.ron); `RigClip::moving`
+# trims what's left, from the speeds scripts/gait-speed.py measures.
+# The hips sink (hip_drop) so the longer stride still reaches the floor.
 ops = [
-    clip("walk", 2.8, 0.30, 0.58, 0.11, 0.09, spine=17, chest=21, neck=12, head=-34,
+    clip("walk", 0.80, 0.72, 0.60, 0.11, 0.20, spine=17, chest=21, neck=12, head=-34,
          swing=0.55, bob=0.02, sway=9.0),
-    clip("run", 1.0, 0.52, 0.44, 0.20, 0.12, spine=22, chest=26, neck=14, head=-40,
+    clip("run", 0.60, 0.85, 0.44, 0.20, 0.25, spine=22, chest=26, neck=14, head=-40,
          swing=0.8, bob=0.035, sway=11.0),
 ]
 json.dump(ops, open("crates/game/.modeler/gen/gait8.json", "w"), indent=1)

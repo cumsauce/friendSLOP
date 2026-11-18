@@ -144,7 +144,7 @@ pub struct Tuning {
     pub hunt: Hunt,
     /// Down here every sound echoes: this many times the open air's reverb send...
     pub echo_wet: f32,
-    /// ...ringing this many seconds (RT60), and no music.
+    /// ...ringing this many seconds (RT60).
     pub echo_secs: f32,
 }
 
@@ -382,6 +382,32 @@ pub struct Hunt {
     pub roll_cooldown_secs: f32,
     /// How fast the hunter turns to face where it's going (degrees a second).
     pub turn_speed: f32,
+    /// The turn rate at chase speed (degrees a second): between walk and chase
+    /// speed it blends from `turn_speed` down to this, so a runner curves.
+    pub run_turn_speed: f32,
+    /// Metres between footfalls walking: half the walk clip's stride (its
+    /// ground speed in gaits.ron times half its cycle), so steps match the feet.
+    pub walk_step_m: f32,
+    /// Metres between footfalls running (half the run clip's stride).
+    pub run_step_m: f32,
+    /// A turn wider than this (degrees) slows a fast hunter down...
+    pub slow_turn_degrees: f32,
+    /// ...down to this fraction of its speed for a full about-turn (at chase
+    /// speed; walking barely slows).
+    pub turn_slow_min: f32,
+    /// How fast it speeds up and slows down (m/s per second).
+    pub accel: f32,
+    pub decel: f32,
+    /// It eases to a stop over this many seconds of travel as it reaches where
+    /// the server has it.
+    pub follow_secs: f32,
+    /// Fallen behind the server by more than this (m), it hurries by this many
+    /// extra m/s for each metre further back.
+    pub catch_up_slack: f32,
+    pub catch_up_gain: f32,
+    /// The body never goes faster than this many times its mode's speed, however
+    /// far behind the server it is (past 6 m it jumps there instead).
+    pub max_hurry: f32,
     /// Lose sight of you and it keeps coming to where it saw you for this long.
     pub lose_secs: f32,
     /// Then it searches hiding spots within this many cells for this long...
@@ -392,6 +418,17 @@ pub struct Hunt {
     /// Then it backs off at least this many cells away for this long.
     pub retreat_cells: u32,
     pub retreat_secs: f32,
+    /// After backing off, the director leaves you be this many more seconds:
+    /// it wanders at least `calm_cells` from you (and always while you hide).
+    pub calm_secs: f32,
+    pub calm_cells: u32,
+    /// How far (cells) it looks for somewhere to wander to.
+    pub wander_cells: u32,
+    /// The music (the hunter's score): a hunter chasing or rolling within this many
+    /// metres of you counts as after you (chase music, a stinger as it starts)...
+    pub music_chase_range: f32,
+    /// ...and for this many seconds after it stops, the music stays tense.
+    pub music_tense_secs: f32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -4112,7 +4149,8 @@ fn flashlight(
 }
 
 /// Local: the station's tiled halls ring (every world sound gets a long
-/// tail) and the music stops (the `fulton` signal hushes it).
+/// tail) and the `fulton` signal tells the music it's in the station (its own
+/// score: ambient, tense, chase; see `fulton_hunt::music_signals`).
 fn echo(
     ears: Res<crate::spatial::Ears>,
     mut room: ResMut<crate::spatial::Room>,

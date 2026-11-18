@@ -1,0 +1,156 @@
+{
+  "name": "sf-fd-brick",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 4.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "bricks",
+      "size": [
+        0.5,
+        0.2
+      ],
+      "stagger": 0.5,
+      "type": "tile_grid"
+    },
+    {
+      "coords": "bricks.local",
+      "name": "r",
+      "round": 0.01,
+      "size": [
+        0.47,
+        0.17
+      ],
+      "type": "rect"
+    },
+    {
+      "mode": "fill",
+      "name": "m",
+      "sdf": "r",
+      "type": "mask"
+    },
+    {
+      "name": "fn",
+      "octaves": 4,
+      "seed": 5,
+      "size": 0.5,
+      "type": "noise"
+    },
+    {
+      "input": "fn",
+      "name": "bc",
+      "stops": [
+        [
+          0,
+          "#2e1611"
+        ],
+        [
+          1,
+          "#5e3020"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "#171110",
+      "b": "bc",
+      "mode": "normal",
+      "name": "col",
+      "opacity": "m",
+      "type": "blend"
+    },
+    {
+      "base_color": "col",
+      "metallic": 0,
+      "name": "out",
+      "roughness": 0.92,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-fd-brick",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 4.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "bricks",
+              "size": [
+                0.5,
+                0.2
+              ],
+              "stagger": 0.5,
+              "type": "tile_grid"
+            },
+            {
+              "coords": "bricks.local",
+              "name": "r",
+              "round": 0.01,
+              "size": [
+                0.47,
+                0.17
+              ],
+              "type": "rect"
+            },
+            {
+              "mode": "fill",
+              "name": "m",
+              "sdf": "r",
+              "type": "mask"
+            },
+            {
+              "name": "fn",
+              "octaves": 4,
+              "seed": 5,
+              "size": 0.5,
+              "type": "noise"
+            },
+            {
+              "input": "fn",
+              "name": "bc",
+              "stops": [
+                [
+                  0,
+                  "#2e1611"
+                ],
+                [
+                  1,
+                  "#5e3020"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "#171110",
+              "b": "bc",
+              "mode": "normal",
+              "name": "col",
+              "opacity": "m",
+              "type": "blend"
+            },
+            {
+              "base_color": "col",
+              "metallic": 0,
+              "name": "out",
+              "roughness": 0.92,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+bricks +r +m +fn +bc +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

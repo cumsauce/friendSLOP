@@ -387,6 +387,36 @@ pub struct Score {
     /// The cues (`MusicSignals::cue`) that play a victory cadence.
     #[serde(default)]
     pub victory_cues: Vec<String>,
+    /// One-shot hits the game cues by name (`MusicSignals::cue`): the cue's
+    /// notes play the moment it fires and the band cuts to its new bar.
+    #[serde(default)]
+    pub stingers: BTreeMap<String, Vec<StingerHit>>,
+}
+
+impl Score {
+    /// The stingers' cue names, in the order the game numbers them.
+    pub fn stinger_names(&self) -> impl Iterator<Item = &str> {
+        self.stingers.keys().map(String::as_str)
+    }
+
+    /// The hits of stinger number `i` (`stinger_names` order).
+    pub fn stinger(&self, i: usize) -> Option<&[StingerHit]> {
+        self.stingers.values().nth(i).map(Vec::as_slice)
+    }
+}
+
+/// One note of a stinger (see [`Score::stingers`]).
+#[derive(serde::Deserialize, Clone, Debug)]
+pub struct StingerHit {
+    pub inst: Inst,
+    pub note: u8,
+    #[serde(default = "one")]
+    pub vel: f32,
+    /// Milliseconds after the cue.
+    #[serde(default)]
+    pub ms: f32,
+    /// How long the note is held, in milliseconds.
+    pub len_ms: f32,
 }
 
 fn one() -> f32 {
@@ -421,6 +451,8 @@ pub(super) struct MoodScore {
     victory: bool,
     #[serde(default = "yes")]
     lift: bool,
+    #[serde(default)]
+    snap: bool,
 }
 
 impl MoodScore {
@@ -433,6 +465,7 @@ impl MoodScore {
             fallback: self.fallback,
             victory: self.victory,
             lift: self.lift,
+            snap: self.snap,
         }
     }
 }

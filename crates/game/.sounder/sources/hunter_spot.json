@@ -1,0 +1,2498 @@
+{
+ "doc": {
+  "name": "hunter_spot",
+  "format_version": 1,
+  "kind": "oneshot",
+  "sample_rate": 48000,
+  "duration": 1.3,
+  "seed": 938,
+  "nodes": [
+   {
+    "type": "env",
+    "name": "pc",
+    "points": [
+     [
+      0,
+      380
+     ],
+     [
+      0.12,
+      900
+     ],
+     [
+      0.5,
+      1250
+     ],
+     [
+      1,
+      700
+     ],
+     [
+      1.3,
+      420
+     ]
+    ]
+   },
+   {
+    "type": "wander",
+    "name": "jit",
+    "rate": 22,
+    "range": [
+     -90,
+     90
+    ]
+   },
+   {
+    "type": "math",
+    "name": "f0",
+    "op": "add",
+    "a": "pc",
+    "b": "jit"
+   },
+   {
+    "type": "glottis",
+    "name": "src",
+    "f0": "f0",
+    "tension": 0.95,
+    "breath": 0.2,
+    "roughness": 0.7,
+    "fry": 0.1,
+    "seed": 5
+   },
+   {
+    "type": "env",
+    "name": "vow",
+    "points": [
+     [
+      0,
+      0
+     ],
+     [
+      0.4,
+      1
+     ],
+     [
+      1.3,
+      0.3
+     ]
+    ]
+   },
+   {
+    "type": "tract",
+    "name": "mouth",
+    "input": "src",
+    "vowel": "a",
+    "vowel_to": "i",
+    "morph": "vow",
+    "scale": 1.25,
+    "frication": {
+     "freq": 4500,
+     "level": 0.15
+    },
+    "growl": 0.5
+   },
+   {
+    "type": "shape",
+    "name": "grit",
+    "input": "mouth",
+    "mode": "fold",
+    "drive": 4,
+    "mix": 0.6
+   },
+   {
+    "type": "filter",
+    "name": "hp",
+    "input": "bodyx",
+    "mode": "hp",
+    "freq": 90
+   },
+   {
+    "type": "env",
+    "name": "amp",
+    "points": [
+     [
+      0,
+      0
+     ],
+     [
+      0.05,
+      1
+     ],
+     [
+      0.8,
+      0.9
+     ],
+     [
+      1.3,
+      0
+     ]
+    ]
+   },
+   {
+    "type": "gain",
+    "name": "voice",
+    "input": "warm",
+    "gain": "amp"
+   },
+   {
+    "type": "output",
+    "name": "out",
+    "input": "dirty",
+    "lufs": -14,
+    "fade_out": 0.1
+   },
+   {
+    "type": "math",
+    "name": "lowf0",
+    "op": "mul",
+    "a": "f0",
+    "b": 0.22
+   },
+   {
+    "type": "glottis",
+    "name": "chest",
+    "f0": "lowf0",
+    "tension": 0.7,
+    "breath": 0.08,
+    "roughness": 0.3,
+    "seed": 11
+   },
+   {
+    "type": "tract",
+    "name": "chesttract",
+    "input": "chest",
+    "vowel": "a",
+    "vowel_to": "o",
+    "morph": "vow",
+    "scale": 0.85,
+    "growl": 0.3
+   },
+   {
+    "type": "mix",
+    "name": "body",
+    "inputs": [
+     {
+      "input": "grit",
+      "gain": 1
+     },
+     {
+      "input": "chesttract",
+      "gain": 0.6
+     },
+     {
+      "input": "chestlp",
+      "gain": 1.6
+     }
+    ]
+   },
+   {
+    "type": "filter",
+    "name": "warm",
+    "input": "hp",
+    "mode": "lowshelf",
+    "freq": 400,
+    "gain_db": 6
+   },
+   {
+    "type": "filter",
+    "name": "chestlp",
+    "input": "chest",
+    "mode": "lp",
+    "freq": 450,
+    "slope": 12
+   },
+   {
+    "type": "lfo",
+    "name": "garg",
+    "freq": 42,
+    "range": [
+     0.1,
+     1
+    ]
+   },
+   {
+    "type": "gain",
+    "name": "rasp",
+    "input": "body",
+    "gain": "garg"
+   },
+   {
+    "type": "mix",
+    "name": "bodyx",
+    "inputs": [
+     {
+      "input": "body",
+      "gain": 0.25
+     },
+     {
+      "input": "rasp",
+      "gain": 1.3
+     }
+    ]
+   },
+   {
+    "type": "noise",
+    "name": "crk",
+    "color": "crackle",
+    "density": 140,
+    "seed": 21
+   },
+   {
+    "type": "filter",
+    "name": "crkbp",
+    "input": "crk",
+    "mode": "bp",
+    "freq": 2600,
+    "q": 0.8
+   },
+   {
+    "type": "poisson",
+    "name": "spits",
+    "rate": 30,
+    "values": {
+     "min": 0.3,
+     "max": 1
+    },
+    "seed": 4
+   },
+   {
+    "type": "trigger_env",
+    "name": "spitenv",
+    "events": "spits",
+    "attack": 0.001,
+    "decay": 0.025
+   },
+   {
+    "type": "noise",
+    "name": "wn",
+    "color": "white",
+    "seed": 22
+   },
+   {
+    "type": "filter",
+    "name": "wbp",
+    "input": "wn",
+    "mode": "bp",
+    "freq": 1500,
+    "q": 2.5
+   },
+   {
+    "type": "gain",
+    "name": "spit",
+    "input": "wbp",
+    "gain": "spitenv"
+   },
+   {
+    "type": "mix",
+    "name": "texture",
+    "inputs": [
+     {
+      "input": "crkbp",
+      "gain": 1.2
+     },
+     {
+      "input": "spit",
+      "gain": 0.8
+     }
+    ]
+   },
+   {
+    "type": "gain",
+    "name": "texgate",
+    "input": "texture",
+    "gain": "amp"
+   },
+   {
+    "type": "mix",
+    "name": "dirty",
+    "inputs": [
+     {
+      "input": "voice",
+      "gain": 1
+     },
+     {
+      "input": "texgate",
+      "gain": 0.45
+     }
+    ]
+   }
+  ],
+  "params": {},
+  "macros": [
+   {
+    "name": "bass",
+    "value": 0.262578125,
+    "default": 0.46,
+    "doc": "chest voice under the shriek",
+    "claim": [
+     "centroid",
+     -1
+    ],
+    "game": false,
+    "map": [
+     {
+      "node": "body",
+      "field": "inputs",
+      "from": 0.4,
+      "to": 3.0,
+      "index": 2,
+      "key": "gain"
+     }
+    ]
+   },
+   {
+    "name": "grit",
+    "value": 0.828359375,
+    "default": 0.5,
+    "doc": "gravel, crackle and wetness together",
+    "game": false,
+    "map": [
+     {
+      "node": "garg",
+      "field": "range",
+      "from": 0.9,
+      "to": 0.05,
+      "index": 0
+     },
+     {
+      "node": "texture",
+      "field": "inputs",
+      "from": 0.0,
+      "to": 2.4,
+      "index": 0,
+      "key": "gain"
+     },
+     {
+      "node": "texture",
+      "field": "inputs",
+      "from": 0.0,
+      "to": 1.6,
+      "index": 1,
+      "key": "gain"
+     }
+    ]
+   }
+  ],
+  "version": 9
+ },
+ "history": {
+  "nodes": [
+   {
+    "model": {
+     "name": "hunter_spot",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 1.3,
+     "seed": 1,
+     "nodes": [],
+     "params": {},
+     "macros": [],
+     "version": 0
+    },
+    "parent": null,
+    "children": [
+     1
+    ],
+    "label": "new sound",
+    "author": "pid:33901"
+   },
+   {
+    "model": {
+     "name": "hunter_spot",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 1.3,
+     "seed": 1,
+     "nodes": [
+      {
+       "type": "env",
+       "name": "pc",
+       "points": [
+        [
+         0,
+         380
+        ],
+        [
+         0.12,
+         900
+        ],
+        [
+         0.5,
+         1250
+        ],
+        [
+         1,
+         700
+        ],
+        [
+         1.3,
+         420
+        ]
+       ]
+      },
+      {
+       "type": "wander",
+       "name": "jit",
+       "rate": 22,
+       "range": [
+        -90,
+        90
+       ]
+      },
+      {
+       "type": "math",
+       "name": "f0",
+       "op": "add",
+       "a": "pc",
+       "b": "jit"
+      },
+      {
+       "type": "glottis",
+       "name": "src",
+       "f0": "f0",
+       "tension": 0.95,
+       "breath": 0.2,
+       "roughness": 0.7,
+       "fry": 0.1,
+       "seed": 5
+      },
+      {
+       "type": "env",
+       "name": "vow",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.4,
+         1
+        ],
+        [
+         1.3,
+         0.3
+        ]
+       ]
+      },
+      {
+       "type": "tract",
+       "name": "mouth",
+       "input": "src",
+       "vowel": "a",
+       "vowel_to": "i",
+       "morph": "vow",
+       "scale": 1.25,
+       "frication": {
+        "freq": 4500,
+        "level": 0.15
+       },
+       "growl": 0.5
+      },
+      {
+       "type": "shape",
+       "name": "grit",
+       "input": "mouth",
+       "mode": "fold",
+       "drive": 4,
+       "mix": 0.6
+      },
+      {
+       "type": "filter",
+       "name": "hp",
+       "input": "grit",
+       "mode": "hp",
+       "freq": 300
+      },
+      {
+       "type": "env",
+       "name": "amp",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.05,
+         1
+        ],
+        [
+         0.8,
+         0.9
+        ],
+        [
+         1.3,
+         0
+        ]
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "voice",
+       "input": "hp",
+       "gain": "amp"
+      },
+      {
+       "type": "output",
+       "name": "out",
+       "input": "voice",
+       "lufs": -14,
+       "fade_out": 0.1
+      }
+     ],
+     "params": {},
+     "macros": [],
+     "version": 1
+    },
+    "parent": 0,
+    "children": [
+     2
+    ],
+    "label": "+pc +jit +f0 +src +vow +mouth +grit +hp +amp +voice +out",
+    "author": "pid:33901"
+   },
+   {
+    "model": {
+     "name": "hunter_spot",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 1.3,
+     "seed": 836,
+     "nodes": [
+      {
+       "type": "env",
+       "name": "pc",
+       "points": [
+        [
+         0,
+         380
+        ],
+        [
+         0.12,
+         900
+        ],
+        [
+         0.5,
+         1250
+        ],
+        [
+         1,
+         700
+        ],
+        [
+         1.3,
+         420
+        ]
+       ]
+      },
+      {
+       "type": "wander",
+       "name": "jit",
+       "rate": 22,
+       "range": [
+        -90,
+        90
+       ]
+      },
+      {
+       "type": "math",
+       "name": "f0",
+       "op": "add",
+       "a": "pc",
+       "b": "jit"
+      },
+      {
+       "type": "glottis",
+       "name": "src",
+       "f0": "f0",
+       "tension": 0.95,
+       "breath": 0.2,
+       "roughness": 0.7,
+       "fry": 0.1,
+       "seed": 5
+      },
+      {
+       "type": "env",
+       "name": "vow",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.4,
+         1
+        ],
+        [
+         1.3,
+         0.3
+        ]
+       ]
+      },
+      {
+       "type": "tract",
+       "name": "mouth",
+       "input": "src",
+       "vowel": "a",
+       "vowel_to": "i",
+       "morph": "vow",
+       "scale": 1.25,
+       "frication": {
+        "freq": 4500,
+        "level": 0.15
+       },
+       "growl": 0.5
+      },
+      {
+       "type": "shape",
+       "name": "grit",
+       "input": "mouth",
+       "mode": "fold",
+       "drive": 4,
+       "mix": 0.6
+      },
+      {
+       "type": "filter",
+       "name": "hp",
+       "input": "grit",
+       "mode": "hp",
+       "freq": 300
+      },
+      {
+       "type": "env",
+       "name": "amp",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.05,
+         1
+        ],
+        [
+         0.8,
+         0.9
+        ],
+        [
+         1.3,
+         0
+        ]
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "voice",
+       "input": "hp",
+       "gain": "amp"
+      },
+      {
+       "type": "output",
+       "name": "out",
+       "input": "voice",
+       "lufs": -14,
+       "fade_out": 0.1
+      }
+     ],
+     "params": {},
+     "macros": [],
+     "version": 2
+    },
+    "parent": 1,
+    "children": [
+     3
+    ],
+    "label": "sound settings",
+    "author": "window"
+   },
+   {
+    "model": {
+     "name": "hunter_spot",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 1.3,
+     "seed": 156,
+     "nodes": [
+      {
+       "type": "env",
+       "name": "pc",
+       "points": [
+        [
+         0,
+         380
+        ],
+        [
+         0.12,
+         900
+        ],
+        [
+         0.5,
+         1250
+        ],
+        [
+         1,
+         700
+        ],
+        [
+         1.3,
+         420
+        ]
+       ]
+      },
+      {
+       "type": "wander",
+       "name": "jit",
+       "rate": 22,
+       "range": [
+        -90,
+        90
+       ]
+      },
+      {
+       "type": "math",
+       "name": "f0",
+       "op": "add",
+       "a": "pc",
+       "b": "jit"
+      },
+      {
+       "type": "glottis",
+       "name": "src",
+       "f0": "f0",
+       "tension": 0.95,
+       "breath": 0.2,
+       "roughness": 0.7,
+       "fry": 0.1,
+       "seed": 5
+      },
+      {
+       "type": "env",
+       "name": "vow",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.4,
+         1
+        ],
+        [
+         1.3,
+         0.3
+        ]
+       ]
+      },
+      {
+       "type": "tract",
+       "name": "mouth",
+       "input": "src",
+       "vowel": "a",
+       "vowel_to": "i",
+       "morph": "vow",
+       "scale": 1.25,
+       "frication": {
+        "freq": 4500,
+        "level": 0.15
+       },
+       "growl": 0.5
+      },
+      {
+       "type": "shape",
+       "name": "grit",
+       "input": "mouth",
+       "mode": "fold",
+       "drive": 4,
+       "mix": 0.6
+      },
+      {
+       "type": "filter",
+       "name": "hp",
+       "input": "grit",
+       "mode": "hp",
+       "freq": 300
+      },
+      {
+       "type": "env",
+       "name": "amp",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.05,
+         1
+        ],
+        [
+         0.8,
+         0.9
+        ],
+        [
+         1.3,
+         0
+        ]
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "voice",
+       "input": "hp",
+       "gain": "amp"
+      },
+      {
+       "type": "output",
+       "name": "out",
+       "input": "voice",
+       "lufs": -14,
+       "fade_out": 0.1
+      }
+     ],
+     "params": {},
+     "macros": [],
+     "version": 3
+    },
+    "parent": 2,
+    "children": [
+     4
+    ],
+    "label": "sound settings",
+    "author": "window"
+   },
+   {
+    "model": {
+     "name": "hunter_spot",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 1.3,
+     "seed": 938,
+     "nodes": [
+      {
+       "type": "env",
+       "name": "pc",
+       "points": [
+        [
+         0,
+         380
+        ],
+        [
+         0.12,
+         900
+        ],
+        [
+         0.5,
+         1250
+        ],
+        [
+         1,
+         700
+        ],
+        [
+         1.3,
+         420
+        ]
+       ]
+      },
+      {
+       "type": "wander",
+       "name": "jit",
+       "rate": 22,
+       "range": [
+        -90,
+        90
+       ]
+      },
+      {
+       "type": "math",
+       "name": "f0",
+       "op": "add",
+       "a": "pc",
+       "b": "jit"
+      },
+      {
+       "type": "glottis",
+       "name": "src",
+       "f0": "f0",
+       "tension": 0.95,
+       "breath": 0.2,
+       "roughness": 0.7,
+       "fry": 0.1,
+       "seed": 5
+      },
+      {
+       "type": "env",
+       "name": "vow",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.4,
+         1
+        ],
+        [
+         1.3,
+         0.3
+        ]
+       ]
+      },
+      {
+       "type": "tract",
+       "name": "mouth",
+       "input": "src",
+       "vowel": "a",
+       "vowel_to": "i",
+       "morph": "vow",
+       "scale": 1.25,
+       "frication": {
+        "freq": 4500,
+        "level": 0.15
+       },
+       "growl": 0.5
+      },
+      {
+       "type": "shape",
+       "name": "grit",
+       "input": "mouth",
+       "mode": "fold",
+       "drive": 4,
+       "mix": 0.6
+      },
+      {
+       "type": "filter",
+       "name": "hp",
+       "input": "grit",
+       "mode": "hp",
+       "freq": 300
+      },
+      {
+       "type": "env",
+       "name": "amp",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.05,
+         1
+        ],
+        [
+         0.8,
+         0.9
+        ],
+        [
+         1.3,
+         0
+        ]
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "voice",
+       "input": "hp",
+       "gain": "amp"
+      },
+      {
+       "type": "output",
+       "name": "out",
+       "input": "voice",
+       "lufs": -14,
+       "fade_out": 0.1
+      }
+     ],
+     "params": {},
+     "macros": [],
+     "version": 4
+    },
+    "parent": 3,
+    "children": [
+     5
+    ],
+    "label": "sound settings",
+    "author": "window"
+   },
+   {
+    "model": {
+     "name": "hunter_spot",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 1.3,
+     "seed": 938,
+     "nodes": [
+      {
+       "type": "env",
+       "name": "pc",
+       "points": [
+        [
+         0,
+         380
+        ],
+        [
+         0.12,
+         900
+        ],
+        [
+         0.5,
+         1250
+        ],
+        [
+         1,
+         700
+        ],
+        [
+         1.3,
+         420
+        ]
+       ]
+      },
+      {
+       "type": "wander",
+       "name": "jit",
+       "rate": 22,
+       "range": [
+        -90,
+        90
+       ]
+      },
+      {
+       "type": "math",
+       "name": "f0",
+       "op": "add",
+       "a": "pc",
+       "b": "jit"
+      },
+      {
+       "type": "glottis",
+       "name": "src",
+       "f0": "f0",
+       "tension": 0.95,
+       "breath": 0.2,
+       "roughness": 0.7,
+       "fry": 0.1,
+       "seed": 5
+      },
+      {
+       "type": "env",
+       "name": "vow",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.4,
+         1
+        ],
+        [
+         1.3,
+         0.3
+        ]
+       ]
+      },
+      {
+       "type": "tract",
+       "name": "mouth",
+       "input": "src",
+       "vowel": "a",
+       "vowel_to": "i",
+       "morph": "vow",
+       "scale": 1.25,
+       "frication": {
+        "freq": 4500,
+        "level": 0.15
+       },
+       "growl": 0.5
+      },
+      {
+       "type": "shape",
+       "name": "grit",
+       "input": "mouth",
+       "mode": "fold",
+       "drive": 4,
+       "mix": 0.6
+      },
+      {
+       "type": "filter",
+       "name": "hp",
+       "input": "body",
+       "mode": "hp",
+       "freq": 90
+      },
+      {
+       "type": "env",
+       "name": "amp",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.05,
+         1
+        ],
+        [
+         0.8,
+         0.9
+        ],
+        [
+         1.3,
+         0
+        ]
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "voice",
+       "input": "warm",
+       "gain": "amp"
+      },
+      {
+       "type": "output",
+       "name": "out",
+       "input": "voice",
+       "lufs": -14,
+       "fade_out": 0.1
+      },
+      {
+       "type": "math",
+       "name": "lowf0",
+       "op": "mul",
+       "a": "f0",
+       "b": 0.4
+      },
+      {
+       "type": "glottis",
+       "name": "chest",
+       "f0": "lowf0",
+       "tension": 0.7,
+       "breath": 0.08,
+       "roughness": 0.3,
+       "seed": 11
+      },
+      {
+       "type": "tract",
+       "name": "chesttract",
+       "input": "chest",
+       "vowel": "a",
+       "vowel_to": "o",
+       "morph": "vow",
+       "scale": 0.85,
+       "growl": 0.3
+      },
+      {
+       "type": "mix",
+       "name": "body",
+       "inputs": [
+        {
+         "input": "grit",
+         "gain": 1
+        },
+        {
+         "input": "chesttract",
+         "gain": 0.9
+        }
+       ]
+      },
+      {
+       "type": "filter",
+       "name": "warm",
+       "input": "hp",
+       "mode": "lowshelf",
+       "freq": 400,
+       "gain_db": 6
+      }
+     ],
+     "params": {},
+     "macros": [],
+     "version": 5
+    },
+    "parent": 4,
+    "children": [
+     6
+    ],
+    "label": "+lowf0 +chest +chesttract +body +warm ~hp ~voice",
+    "author": "pid:33901"
+   },
+   {
+    "model": {
+     "name": "hunter_spot",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 1.3,
+     "seed": 938,
+     "nodes": [
+      {
+       "type": "env",
+       "name": "pc",
+       "points": [
+        [
+         0,
+         380
+        ],
+        [
+         0.12,
+         900
+        ],
+        [
+         0.5,
+         1250
+        ],
+        [
+         1,
+         700
+        ],
+        [
+         1.3,
+         420
+        ]
+       ]
+      },
+      {
+       "type": "wander",
+       "name": "jit",
+       "rate": 22,
+       "range": [
+        -90,
+        90
+       ]
+      },
+      {
+       "type": "math",
+       "name": "f0",
+       "op": "add",
+       "a": "pc",
+       "b": "jit"
+      },
+      {
+       "type": "glottis",
+       "name": "src",
+       "f0": "f0",
+       "tension": 0.95,
+       "breath": 0.2,
+       "roughness": 0.7,
+       "fry": 0.1,
+       "seed": 5
+      },
+      {
+       "type": "env",
+       "name": "vow",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.4,
+         1
+        ],
+        [
+         1.3,
+         0.3
+        ]
+       ]
+      },
+      {
+       "type": "tract",
+       "name": "mouth",
+       "input": "src",
+       "vowel": "a",
+       "vowel_to": "i",
+       "morph": "vow",
+       "scale": 1.25,
+       "frication": {
+        "freq": 4500,
+        "level": 0.15
+       },
+       "growl": 0.5
+      },
+      {
+       "type": "shape",
+       "name": "grit",
+       "input": "mouth",
+       "mode": "fold",
+       "drive": 4,
+       "mix": 0.6
+      },
+      {
+       "type": "filter",
+       "name": "hp",
+       "input": "body",
+       "mode": "hp",
+       "freq": 90
+      },
+      {
+       "type": "env",
+       "name": "amp",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.05,
+         1
+        ],
+        [
+         0.8,
+         0.9
+        ],
+        [
+         1.3,
+         0
+        ]
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "voice",
+       "input": "warm",
+       "gain": "amp"
+      },
+      {
+       "type": "output",
+       "name": "out",
+       "input": "voice",
+       "lufs": -14,
+       "fade_out": 0.1
+      },
+      {
+       "type": "math",
+       "name": "lowf0",
+       "op": "mul",
+       "a": "f0",
+       "b": 0.22
+      },
+      {
+       "type": "glottis",
+       "name": "chest",
+       "f0": "lowf0",
+       "tension": 0.7,
+       "breath": 0.08,
+       "roughness": 0.3,
+       "seed": 11
+      },
+      {
+       "type": "tract",
+       "name": "chesttract",
+       "input": "chest",
+       "vowel": "a",
+       "vowel_to": "o",
+       "morph": "vow",
+       "scale": 0.85,
+       "growl": 0.3
+      },
+      {
+       "type": "mix",
+       "name": "body",
+       "inputs": [
+        {
+         "input": "grit",
+         "gain": 1
+        },
+        {
+         "input": "chesttract",
+         "gain": 0.6
+        },
+        {
+         "input": "chestlp",
+         "gain": 1.6
+        }
+       ]
+      },
+      {
+       "type": "filter",
+       "name": "warm",
+       "input": "hp",
+       "mode": "lowshelf",
+       "freq": 400,
+       "gain_db": 6
+      },
+      {
+       "type": "filter",
+       "name": "chestlp",
+       "input": "chest",
+       "mode": "lp",
+       "freq": 450,
+       "slope": 12
+      }
+     ],
+     "params": {},
+     "macros": [],
+     "version": 6
+    },
+    "parent": 5,
+    "children": [
+     7
+    ],
+    "label": "+chestlp ~lowf0 ~body",
+    "author": "pid:33901"
+   },
+   {
+    "model": {
+     "name": "hunter_spot",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 1.3,
+     "seed": 938,
+     "nodes": [
+      {
+       "type": "env",
+       "name": "pc",
+       "points": [
+        [
+         0,
+         380
+        ],
+        [
+         0.12,
+         900
+        ],
+        [
+         0.5,
+         1250
+        ],
+        [
+         1,
+         700
+        ],
+        [
+         1.3,
+         420
+        ]
+       ]
+      },
+      {
+       "type": "wander",
+       "name": "jit",
+       "rate": 22,
+       "range": [
+        -90,
+        90
+       ]
+      },
+      {
+       "type": "math",
+       "name": "f0",
+       "op": "add",
+       "a": "pc",
+       "b": "jit"
+      },
+      {
+       "type": "glottis",
+       "name": "src",
+       "f0": "f0",
+       "tension": 0.95,
+       "breath": 0.2,
+       "roughness": 0.7,
+       "fry": 0.1,
+       "seed": 5
+      },
+      {
+       "type": "env",
+       "name": "vow",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.4,
+         1
+        ],
+        [
+         1.3,
+         0.3
+        ]
+       ]
+      },
+      {
+       "type": "tract",
+       "name": "mouth",
+       "input": "src",
+       "vowel": "a",
+       "vowel_to": "i",
+       "morph": "vow",
+       "scale": 1.25,
+       "frication": {
+        "freq": 4500,
+        "level": 0.15
+       },
+       "growl": 0.5
+      },
+      {
+       "type": "shape",
+       "name": "grit",
+       "input": "mouth",
+       "mode": "fold",
+       "drive": 4,
+       "mix": 0.6
+      },
+      {
+       "type": "filter",
+       "name": "hp",
+       "input": "bodyx",
+       "mode": "hp",
+       "freq": 90
+      },
+      {
+       "type": "env",
+       "name": "amp",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.05,
+         1
+        ],
+        [
+         0.8,
+         0.9
+        ],
+        [
+         1.3,
+         0
+        ]
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "voice",
+       "input": "warm",
+       "gain": "amp"
+      },
+      {
+       "type": "output",
+       "name": "out",
+       "input": "dirty",
+       "lufs": -14,
+       "fade_out": 0.1
+      },
+      {
+       "type": "math",
+       "name": "lowf0",
+       "op": "mul",
+       "a": "f0",
+       "b": 0.22
+      },
+      {
+       "type": "glottis",
+       "name": "chest",
+       "f0": "lowf0",
+       "tension": 0.7,
+       "breath": 0.08,
+       "roughness": 0.3,
+       "seed": 11
+      },
+      {
+       "type": "tract",
+       "name": "chesttract",
+       "input": "chest",
+       "vowel": "a",
+       "vowel_to": "o",
+       "morph": "vow",
+       "scale": 0.85,
+       "growl": 0.3
+      },
+      {
+       "type": "mix",
+       "name": "body",
+       "inputs": [
+        {
+         "input": "grit",
+         "gain": 1
+        },
+        {
+         "input": "chesttract",
+         "gain": 0.6
+        },
+        {
+         "input": "chestlp",
+         "gain": 1.6
+        }
+       ]
+      },
+      {
+       "type": "filter",
+       "name": "warm",
+       "input": "hp",
+       "mode": "lowshelf",
+       "freq": 400,
+       "gain_db": 6
+      },
+      {
+       "type": "filter",
+       "name": "chestlp",
+       "input": "chest",
+       "mode": "lp",
+       "freq": 450,
+       "slope": 12
+      },
+      {
+       "type": "lfo",
+       "name": "garg",
+       "freq": 34,
+       "range": [
+        0.4,
+        1
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "rasp",
+       "input": "body",
+       "gain": "garg"
+      },
+      {
+       "type": "mix",
+       "name": "bodyx",
+       "inputs": [
+        {
+         "input": "body",
+         "gain": 0.55
+        },
+        {
+         "input": "rasp",
+         "gain": 0.9
+        }
+       ]
+      },
+      {
+       "type": "noise",
+       "name": "crk",
+       "color": "crackle",
+       "density": 140,
+       "seed": 21
+      },
+      {
+       "type": "filter",
+       "name": "crkbp",
+       "input": "crk",
+       "mode": "bp",
+       "freq": 2600,
+       "q": 0.8
+      },
+      {
+       "type": "poisson",
+       "name": "spits",
+       "rate": 30,
+       "values": {
+        "min": 0.3,
+        "max": 1
+       },
+       "seed": 4
+      },
+      {
+       "type": "trigger_env",
+       "name": "spitenv",
+       "events": "spits",
+       "attack": 0.001,
+       "decay": 0.025
+      },
+      {
+       "type": "noise",
+       "name": "wn",
+       "color": "white",
+       "seed": 22
+      },
+      {
+       "type": "filter",
+       "name": "wbp",
+       "input": "wn",
+       "mode": "bp",
+       "freq": 1500,
+       "q": 2.5
+      },
+      {
+       "type": "gain",
+       "name": "spit",
+       "input": "wbp",
+       "gain": "spitenv"
+      },
+      {
+       "type": "mix",
+       "name": "texture",
+       "inputs": [
+        {
+         "input": "crkbp",
+         "gain": 1.2
+        },
+        {
+         "input": "spit",
+         "gain": 0.8
+        }
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "texgate",
+       "input": "texture",
+       "gain": "amp"
+      },
+      {
+       "type": "mix",
+       "name": "dirty",
+       "inputs": [
+        {
+         "input": "voice",
+         "gain": 1
+        },
+        {
+         "input": "texgate",
+         "gain": 0.45
+        }
+       ]
+      }
+     ],
+     "params": {},
+     "macros": [],
+     "version": 7
+    },
+    "parent": 6,
+    "children": [
+     8
+    ],
+    "label": "+garg +rasp +bodyx +crk +crkbp +spits +spitenv +wn +wbp +spit +texture +texgate +dirty ~hp ~out",
+    "author": "pid:33901"
+   },
+   {
+    "model": {
+     "name": "hunter_spot",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 1.3,
+     "seed": 938,
+     "nodes": [
+      {
+       "type": "env",
+       "name": "pc",
+       "points": [
+        [
+         0,
+         380
+        ],
+        [
+         0.12,
+         900
+        ],
+        [
+         0.5,
+         1250
+        ],
+        [
+         1,
+         700
+        ],
+        [
+         1.3,
+         420
+        ]
+       ]
+      },
+      {
+       "type": "wander",
+       "name": "jit",
+       "rate": 22,
+       "range": [
+        -90,
+        90
+       ]
+      },
+      {
+       "type": "math",
+       "name": "f0",
+       "op": "add",
+       "a": "pc",
+       "b": "jit"
+      },
+      {
+       "type": "glottis",
+       "name": "src",
+       "f0": "f0",
+       "tension": 0.95,
+       "breath": 0.2,
+       "roughness": 0.7,
+       "fry": 0.1,
+       "seed": 5
+      },
+      {
+       "type": "env",
+       "name": "vow",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.4,
+         1
+        ],
+        [
+         1.3,
+         0.3
+        ]
+       ]
+      },
+      {
+       "type": "tract",
+       "name": "mouth",
+       "input": "src",
+       "vowel": "a",
+       "vowel_to": "i",
+       "morph": "vow",
+       "scale": 1.25,
+       "frication": {
+        "freq": 4500,
+        "level": 0.15
+       },
+       "growl": 0.5
+      },
+      {
+       "type": "shape",
+       "name": "grit",
+       "input": "mouth",
+       "mode": "fold",
+       "drive": 4,
+       "mix": 0.6
+      },
+      {
+       "type": "filter",
+       "name": "hp",
+       "input": "bodyx",
+       "mode": "hp",
+       "freq": 90
+      },
+      {
+       "type": "env",
+       "name": "amp",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.05,
+         1
+        ],
+        [
+         0.8,
+         0.9
+        ],
+        [
+         1.3,
+         0
+        ]
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "voice",
+       "input": "warm",
+       "gain": "amp"
+      },
+      {
+       "type": "output",
+       "name": "out",
+       "input": "dirty",
+       "lufs": -14,
+       "fade_out": 0.1
+      },
+      {
+       "type": "math",
+       "name": "lowf0",
+       "op": "mul",
+       "a": "f0",
+       "b": 0.22
+      },
+      {
+       "type": "glottis",
+       "name": "chest",
+       "f0": "lowf0",
+       "tension": 0.7,
+       "breath": 0.08,
+       "roughness": 0.3,
+       "seed": 11
+      },
+      {
+       "type": "tract",
+       "name": "chesttract",
+       "input": "chest",
+       "vowel": "a",
+       "vowel_to": "o",
+       "morph": "vow",
+       "scale": 0.85,
+       "growl": 0.3
+      },
+      {
+       "type": "mix",
+       "name": "body",
+       "inputs": [
+        {
+         "input": "grit",
+         "gain": 1
+        },
+        {
+         "input": "chesttract",
+         "gain": 0.6
+        },
+        {
+         "input": "chestlp",
+         "gain": 1.6
+        }
+       ]
+      },
+      {
+       "type": "filter",
+       "name": "warm",
+       "input": "hp",
+       "mode": "lowshelf",
+       "freq": 400,
+       "gain_db": 6
+      },
+      {
+       "type": "filter",
+       "name": "chestlp",
+       "input": "chest",
+       "mode": "lp",
+       "freq": 450,
+       "slope": 12
+      },
+      {
+       "type": "lfo",
+       "name": "garg",
+       "freq": 42,
+       "range": [
+        0.1,
+        1
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "rasp",
+       "input": "body",
+       "gain": "garg"
+      },
+      {
+       "type": "mix",
+       "name": "bodyx",
+       "inputs": [
+        {
+         "input": "body",
+         "gain": 0.25
+        },
+        {
+         "input": "rasp",
+         "gain": 1.3
+        }
+       ]
+      },
+      {
+       "type": "noise",
+       "name": "crk",
+       "color": "crackle",
+       "density": 140,
+       "seed": 21
+      },
+      {
+       "type": "filter",
+       "name": "crkbp",
+       "input": "crk",
+       "mode": "bp",
+       "freq": 2600,
+       "q": 0.8
+      },
+      {
+       "type": "poisson",
+       "name": "spits",
+       "rate": 30,
+       "values": {
+        "min": 0.3,
+        "max": 1
+       },
+       "seed": 4
+      },
+      {
+       "type": "trigger_env",
+       "name": "spitenv",
+       "events": "spits",
+       "attack": 0.001,
+       "decay": 0.025
+      },
+      {
+       "type": "noise",
+       "name": "wn",
+       "color": "white",
+       "seed": 22
+      },
+      {
+       "type": "filter",
+       "name": "wbp",
+       "input": "wn",
+       "mode": "bp",
+       "freq": 1500,
+       "q": 2.5
+      },
+      {
+       "type": "gain",
+       "name": "spit",
+       "input": "wbp",
+       "gain": "spitenv"
+      },
+      {
+       "type": "mix",
+       "name": "texture",
+       "inputs": [
+        {
+         "input": "crkbp",
+         "gain": 1.2
+        },
+        {
+         "input": "spit",
+         "gain": 0.8
+        }
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "texgate",
+       "input": "texture",
+       "gain": "amp"
+      },
+      {
+       "type": "mix",
+       "name": "dirty",
+       "inputs": [
+        {
+         "input": "voice",
+         "gain": 1
+        },
+        {
+         "input": "texgate",
+         "gain": 0.45
+        }
+       ]
+      }
+     ],
+     "params": {},
+     "macros": [],
+     "version": 8
+    },
+    "parent": 7,
+    "children": [
+     9
+    ],
+    "label": "~garg ~bodyx",
+    "author": "pid:33901"
+   },
+   {
+    "model": {
+     "name": "hunter_spot",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 1.3,
+     "seed": 938,
+     "nodes": [
+      {
+       "type": "env",
+       "name": "pc",
+       "points": [
+        [
+         0,
+         380
+        ],
+        [
+         0.12,
+         900
+        ],
+        [
+         0.5,
+         1250
+        ],
+        [
+         1,
+         700
+        ],
+        [
+         1.3,
+         420
+        ]
+       ]
+      },
+      {
+       "type": "wander",
+       "name": "jit",
+       "rate": 22,
+       "range": [
+        -90,
+        90
+       ]
+      },
+      {
+       "type": "math",
+       "name": "f0",
+       "op": "add",
+       "a": "pc",
+       "b": "jit"
+      },
+      {
+       "type": "glottis",
+       "name": "src",
+       "f0": "f0",
+       "tension": 0.95,
+       "breath": 0.2,
+       "roughness": 0.7,
+       "fry": 0.1,
+       "seed": 5
+      },
+      {
+       "type": "env",
+       "name": "vow",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.4,
+         1
+        ],
+        [
+         1.3,
+         0.3
+        ]
+       ]
+      },
+      {
+       "type": "tract",
+       "name": "mouth",
+       "input": "src",
+       "vowel": "a",
+       "vowel_to": "i",
+       "morph": "vow",
+       "scale": 1.25,
+       "frication": {
+        "freq": 4500,
+        "level": 0.15
+       },
+       "growl": 0.5
+      },
+      {
+       "type": "shape",
+       "name": "grit",
+       "input": "mouth",
+       "mode": "fold",
+       "drive": 4,
+       "mix": 0.6
+      },
+      {
+       "type": "filter",
+       "name": "hp",
+       "input": "bodyx",
+       "mode": "hp",
+       "freq": 90
+      },
+      {
+       "type": "env",
+       "name": "amp",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.05,
+         1
+        ],
+        [
+         0.8,
+         0.9
+        ],
+        [
+         1.3,
+         0
+        ]
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "voice",
+       "input": "warm",
+       "gain": "amp"
+      },
+      {
+       "type": "output",
+       "name": "out",
+       "input": "dirty",
+       "lufs": -14,
+       "fade_out": 0.1
+      },
+      {
+       "type": "math",
+       "name": "lowf0",
+       "op": "mul",
+       "a": "f0",
+       "b": 0.22
+      },
+      {
+       "type": "glottis",
+       "name": "chest",
+       "f0": "lowf0",
+       "tension": 0.7,
+       "breath": 0.08,
+       "roughness": 0.3,
+       "seed": 11
+      },
+      {
+       "type": "tract",
+       "name": "chesttract",
+       "input": "chest",
+       "vowel": "a",
+       "vowel_to": "o",
+       "morph": "vow",
+       "scale": 0.85,
+       "growl": 0.3
+      },
+      {
+       "type": "mix",
+       "name": "body",
+       "inputs": [
+        {
+         "input": "grit",
+         "gain": 1
+        },
+        {
+         "input": "chesttract",
+         "gain": 0.6
+        },
+        {
+         "input": "chestlp",
+         "gain": 1.6
+        }
+       ]
+      },
+      {
+       "type": "filter",
+       "name": "warm",
+       "input": "hp",
+       "mode": "lowshelf",
+       "freq": 400,
+       "gain_db": 6
+      },
+      {
+       "type": "filter",
+       "name": "chestlp",
+       "input": "chest",
+       "mode": "lp",
+       "freq": 450,
+       "slope": 12
+      },
+      {
+       "type": "lfo",
+       "name": "garg",
+       "freq": 42,
+       "range": [
+        0.1,
+        1
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "rasp",
+       "input": "body",
+       "gain": "garg"
+      },
+      {
+       "type": "mix",
+       "name": "bodyx",
+       "inputs": [
+        {
+         "input": "body",
+         "gain": 0.25
+        },
+        {
+         "input": "rasp",
+         "gain": 1.3
+        }
+       ]
+      },
+      {
+       "type": "noise",
+       "name": "crk",
+       "color": "crackle",
+       "density": 140,
+       "seed": 21
+      },
+      {
+       "type": "filter",
+       "name": "crkbp",
+       "input": "crk",
+       "mode": "bp",
+       "freq": 2600,
+       "q": 0.8
+      },
+      {
+       "type": "poisson",
+       "name": "spits",
+       "rate": 30,
+       "values": {
+        "min": 0.3,
+        "max": 1
+       },
+       "seed": 4
+      },
+      {
+       "type": "trigger_env",
+       "name": "spitenv",
+       "events": "spits",
+       "attack": 0.001,
+       "decay": 0.025
+      },
+      {
+       "type": "noise",
+       "name": "wn",
+       "color": "white",
+       "seed": 22
+      },
+      {
+       "type": "filter",
+       "name": "wbp",
+       "input": "wn",
+       "mode": "bp",
+       "freq": 1500,
+       "q": 2.5
+      },
+      {
+       "type": "gain",
+       "name": "spit",
+       "input": "wbp",
+       "gain": "spitenv"
+      },
+      {
+       "type": "mix",
+       "name": "texture",
+       "inputs": [
+        {
+         "input": "crkbp",
+         "gain": 1.2
+        },
+        {
+         "input": "spit",
+         "gain": 0.8
+        }
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "texgate",
+       "input": "texture",
+       "gain": "amp"
+      },
+      {
+       "type": "mix",
+       "name": "dirty",
+       "inputs": [
+        {
+         "input": "voice",
+         "gain": 1
+        },
+        {
+         "input": "texgate",
+         "gain": 0.45
+        }
+       ]
+      }
+     ],
+     "params": {},
+     "macros": [
+      {
+       "name": "bass",
+       "value": 0.46,
+       "default": 0.46,
+       "doc": "chest voice under the shriek",
+       "claim": [
+        "centroid",
+        -1
+       ],
+       "game": false,
+       "map": [
+        {
+         "node": "body",
+         "field": "inputs",
+         "from": 0.4,
+         "to": 3.0,
+         "index": 2,
+         "key": "gain"
+        }
+       ]
+      },
+      {
+       "name": "grit",
+       "value": 0.5,
+       "default": 0.5,
+       "doc": "gravel, crackle and wetness together",
+       "game": false,
+       "map": [
+        {
+         "node": "garg",
+         "field": "range",
+         "from": 0.9,
+         "to": 0.05,
+         "index": 0
+        },
+        {
+         "node": "texture",
+         "field": "inputs",
+         "from": 0.0,
+         "to": 2.4,
+         "index": 0,
+         "key": "gain"
+        },
+        {
+         "node": "texture",
+         "field": "inputs",
+         "from": 0.0,
+         "to": 1.6,
+         "index": 1,
+         "key": "gain"
+        }
+       ]
+      }
+     ],
+     "version": 9
+    },
+    "parent": 8,
+    "children": [],
+    "label": "sound settings",
+    "author": "pid:33901"
+   }
+  ],
+  "current": 9
+ },
+ "annotations": [],
+ "knob_moves": [
+  {
+   "name": "grit",
+   "from": 0.5,
+   "to": 0.828359375
+  },
+  {
+   "name": "bass",
+   "from": 0.46,
+   "to": 0.262578125
+  }
+ ],
+ "unsaved": true,
+ "catalog_name": "hunter_spot"
+}

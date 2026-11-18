@@ -1,54 +1,160 @@
-// The office tower at the end of the surf map (crates/side/src/features/
-// surf_office.rs, #306): stage 6 runs through a huge glass lobby with giant
-// trees far below, then on into an atrium lined with tiers of glass executive offices to the
-// finish. Hall coordinates, metres. The ramp itself is in surf.ron (stage 6).
+// The office tower, stage 5 of the surf course (crates/side/
+// src/features/surf_office.rs, #306). Hall coordinates, metres (the hall's
+// origin is the start pad's top; world = hall + (4000, 900, 0)).
+//
+// The old design was one ridge snaking down a glass lobby. This one is a
+// multi-line atrium: a calm MAIN LINE (ramp 0) that sweeps south round the
+// elevator core, cruises over the indoor garden, crosses OVER the shortcut
+// and then plunges round the north bend to the exit; the FLOOR CUT (ramps 1
+// and 2), a leap 22 m down off the main line onto a straight steep ramp that
+// runs under the main line through the boardroom gates and clears a speed gap
+// (you need ~32 m/s); and the SKYBRIDGE chord (ramp 3), a 10 m leap off the
+// main line's north bend that drops onto the floor cut's last stretch. All
+// three end on the same last ridge point, 30 m before the mall's first pad.
 (
-    // The ramp that runs through it: stage 6 (0-based 5), its first ramp.
+    // The stage this is (0-based). Its start pad is fixed (the handoff from
+    // the base course); its ramps are below.
     stage: 5,
-    ramp: 0,
-    // The building's box (min, max corners). Its floor top is `min.y`; the
-    // floor is below your stage's lowest ridge minus the fall margin, so a
-    // fall is a wipe-out (back to the pad), never a landing.
-    min: (520.0, -660.0, -2008.0),
-    max: (1090.0, -520.0, -1868.0),
+    pad: ((483.65, -563.02, -1938.87), (24.0, 1.0, 24.0)),
+    // The mall's first pad (stage 6): the mall's map owns it, this is only
+    // for the tests of the handoff (the last ridge point is 30 m before it,
+    // 8.5 m above it).
+    next_pad: ((1030.0, -645.88, -1938.0), (24.0, 1.0, 24.0)),
+    // Ramp 0: the main line. 1 and 2: the floor cut (a speed gap between
+    // them). 3: the skybridge chord. Each ridge is a smooth curve through
+    // its points. Radius of curvature stays above 60 m; the main line holds
+    // ~0.05 down per metre over the garden and ~0.2 on the plunge.
+    ramps: [
+        [
+            (500.00, -568.50, -1939.00),
+            (520.00, -570.09, -1937.06),
+            (540.00, -571.68, -1931.60),
+            (560.00, -573.30, -1923.45),
+            (580.00, -574.91, -1913.84),
+            (600.00, -576.43, -1904.23),
+            (625.00, -578.16, -1894.42),
+            (650.00, -579.69, -1889.18),
+            (675.00, -581.11, -1889.81),
+            (700.00, -582.59, -1896.62),
+            (725.00, -584.17, -1908.61),
+            (750.00, -585.85, -1923.93),
+            (775.00, -588.11, -1940.25),
+            (800.00, -591.93, -1955.09),
+            (820.00, -596.08, -1964.34),
+            (840.00, -601.08, -1970.26),
+            (860.00, -605.99, -1972.28),
+            (880.00, -610.98, -1970.56),
+            (900.00, -616.02, -1965.80),
+            (920.00, -620.97, -1958.94),
+            (940.00, -625.73, -1951.34),
+            (960.00, -630.11, -1944.48),
+            (980.00, -633.98, -1939.72),
+            (1000.00, -637.38, -1938.00),
+        ],
+        [
+            (560.00, -595.30, -1939.00),
+            (585.00, -597.55, -1939.00),
+            (615.00, -600.25, -1939.00),
+            (645.00, -602.95, -1939.00),
+            (675.00, -605.65, -1939.00),
+            (705.00, -608.35, -1939.00),
+            (725.00, -610.15, -1939.00),
+            (742.00, -611.68, -1939.00),
+        ],
+        [
+            (769.00, -616.48, -1939.00),
+            (800.00, -619.28, -1938.87),
+            (830.00, -622.00, -1938.74),
+            (860.00, -624.71, -1938.61),
+            (890.00, -627.43, -1938.48),
+            (920.00, -630.14, -1938.35),
+            (950.00, -632.86, -1938.22),
+            (975.00, -635.12, -1938.11),
+            (1000.00, -637.38, -1938.00),
+        ],
+        [
+            (830.00, -608.58, -1953.50),
+            (850.00, -612.63, -1952.48),
+            (875.00, -617.68, -1948.78),
+            (900.00, -622.74, -1943.88),
+            (925.00, -627.80, -1939.80),
+            (950.00, -632.86, -1938.22),
+            (975.00, -635.12, -1938.11),
+            (1000.00, -637.38, -1938.00),
+        ],
+    ],
+    // Speed gaps: the ramps (of this stage) whose end is a gap that needs
+    // speed to clear (the floor cut's jump).
+    speed_gaps: [1],
+    // The building's box (min, max corners). Its floor top is `min.y`, below
+    // the stage's lowest ridge minus the fall margin, so a fall is a
+    // wipe-out (back to the pad), never a landing.
+    min: (520.0, -660.0, -2085.0),
+    max: (996.0, -510.0, -1795.0),
     // Wall, floor and roof thickness (m).
     wall: 1.0,
-    // The biggest glass piece (length, height; m): wall panes are stretched
-    // to tile the walls in pieces no bigger than this.
-    glass_max: (30.0, 35.0),
-    // The west wall's opening for the ramp: half width, and how far below
-    // and above the ridge (m).
+    // The biggest glass piece (length, height; m).
+    glass_max: (40.0, 50.0),
+    // The west and east walls' openings for the ramps: half width, and how
+    // far below and above the ridge (m).
     opening: (24.0, 20.0, 28.0),
-    // Where the lobby's garden stands: along the ridge from x to x, and how
-    // far from the ridge sideways (m, min to max), a tree's size range
-    // (times the model, which is ~6 m tall), how far below the ridge its
-    // top stays, and how many trees, bushes and flowers (seeded).
-    garden_x: (540.0, 1060.0),
-    garden_side: (18.0, 55.0),
-    tree_scale: (4.5, 7.5),
+    // The indoor garden on the floor: x range, how far (m) a tree stays from
+    // every ridge in plan, how far below a ridge the top of a tree stays,
+    // a tree's size range (times the model, ~6 m tall) and how many trees,
+    // bushes and flowers (seeded).
+    garden_x: (530.0, 990.0),
+    garden_keep: 16.0,
+    tree_scale: (4.5, 8.0),
     tree_below: 14.0,
-    trees: 40,
-    bushes: 70,
-    flowers: 60,
+    trees: 46,
+    bushes: 80,
+    flowers: 70,
     seed: 306,
     tree_models: ["nature/tree_1.gltf", "nature/tree_2.gltf", "nature/tree_3.gltf"],
     bush_models: ["nature/bush_1.gltf", "nature/bush_2.gltf", "nature/fern.gltf"],
     flower_models: ["nature/flower_1.gltf", "nature/flower_2.gltf", "nature/flower_3.gltf"],
     // The executive offices: glass offices (the pod model, 20 x 6 x 14 m)
-    // stacked in tiers up both long walls of the atrium, facing in: from x,
-    // to x (columns of 20 stacked storeys, the column model's height), and the
-    // storey height (m). They are one solid block each side, far from the ramp.
-    offices: (800.0, 1070.0),
+    // stacked 20 high in tiers up both long walls, facing in: from x, to x,
+    // and the storey height (m).
+    offices: (700.0, 980.0),
     storey: 6.0,
-    // Lights over the ridge: one every this many metres, this high over it,
-    // colour (r, g, b), lumens and range (m). No shadows.
-    light_every: 40.0,
+    // The elevator cores: glass shafts from the floor to the roof, with neon
+    // rings every `ring_every` m. (x, z), radius (m, the collider) and the
+    // neon material. The ramps wrap round them.
+    cores: [
+        (x: 660.0, z: -1914.0, radius: 10.0, neon: "sf-neon-cyan"),
+        (x: 700.0, z: -1835.0, radius: 15.0, neon: "sf-neon-pink"),
+        (x: 860.0, z: -2032.0, radius: 16.0, neon: "sf-neon-violet"),
+    ],
+    ring_every: 24.0,
+    // The boardroom gates over the floor cut: ramp, the x of each, how far
+    // from the ridge its posts stand, how high over the ridge its beam is
+    // (its underside), and the beam and post sizes.
+    gates_ramp: 1,
+    gates_x: [610.0, 630.0, 700.0, 715.0],
+    gate_side: 17.0,
+    gate_lift: 22.0,
+    gate_post: 3.0,
+    gate_beam: 2.5,
+    // Skybridges: glass walkways across the atrium wall to wall, high over
+    // everything: at these x, their underside this far under the roof (m),
+    // and their size (width, height).
+    bridges_x: [640.0, 800.0, 940.0],
+    bridge_drop: 22.0,
+    bridge_size: (7.0, 5.0),
+    // The garden's pool on the floor: x range and half width (m).
+    pool: (610.0, 930.0, 12.0),
+    // Lights over the ridges: one every this many metres, this high over
+    // them, colour (r, g, b), lumens and range (m). No shadows.
+    light_every: 55.0,
     light_up: 12.0,
     light_colour: (1.0, 0.93, 0.8),
     light_intensity: 5000000.0,
     light_range: 80.0,
-    // The ramp's tunnel nothing solid may enter: sideways from the ridge,
-    // and above it (m).
+    // How the stage's ramps look: colour (r, g, b), glow, roughness, metal.
+    ramp_look: (0.35, 0.75, 0.85, 0.25, 0.12, 0.4),
+    // What nothing solid may enter: sideways from a ridge, and up over it
+    // (m). Gates and bridges clear it from above.
     clear_side: 13.0,
-    clear_up: 26.0,
+    clear_up: 16.0,
 )

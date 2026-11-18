@@ -1,0 +1,296 @@
+{
+  "name": "sf-og-concrete",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 3.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "n1",
+      "octaves": 4,
+      "seed": 71,
+      "size": 0.7,
+      "type": "noise"
+    },
+    {
+      "name": "nf",
+      "octaves": 3,
+      "seed": 72,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "name": "ns",
+      "octaves": 3,
+      "seed": 73,
+      "size": 0.22,
+      "type": "noise"
+    },
+    {
+      "name": "g",
+      "size": [
+        0.5,
+        0.25
+      ],
+      "stagger": 0.0,
+      "type": "tile_grid"
+    },
+    {
+      "in": [
+        0.01,
+        0.03
+      ],
+      "input": "g.edge",
+      "name": "seam",
+      "type": "levels"
+    },
+    {
+      "input": "n1",
+      "name": "base",
+      "stops": [
+        [
+          0,
+          "#5a5d57"
+        ],
+        [
+          0.5,
+          "#777a72"
+        ],
+        [
+          1,
+          "#8c8e86"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "nf",
+      "name": "fv",
+      "to": [
+        0.88,
+        1.08
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "base",
+      "b": "fv",
+      "name": "b2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "in": [
+        0.52,
+        0.66
+      ],
+      "input": "ns",
+      "name": "mm",
+      "type": "levels"
+    },
+    {
+      "input": "nf",
+      "name": "mc",
+      "stops": [
+        [
+          0,
+          "#385420"
+        ],
+        [
+          1,
+          "#6c8c36"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "b2",
+      "b": "mc",
+      "c": "mm",
+      "name": "b3",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "#34362f",
+      "b": "b3",
+      "c": "seam",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "seam",
+      "b": 0.01,
+      "name": "h0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h0",
+      "name": "out",
+      "roughness": 0.93,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-og-concrete",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 3.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "n1",
+              "octaves": 4,
+              "seed": 71,
+              "size": 0.7,
+              "type": "noise"
+            },
+            {
+              "name": "nf",
+              "octaves": 3,
+              "seed": 72,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "name": "ns",
+              "octaves": 3,
+              "seed": 73,
+              "size": 0.22,
+              "type": "noise"
+            },
+            {
+              "name": "g",
+              "size": [
+                0.5,
+                0.25
+              ],
+              "stagger": 0.0,
+              "type": "tile_grid"
+            },
+            {
+              "in": [
+                0.01,
+                0.03
+              ],
+              "input": "g.edge",
+              "name": "seam",
+              "type": "levels"
+            },
+            {
+              "input": "n1",
+              "name": "base",
+              "stops": [
+                [
+                  0,
+                  "#5a5d57"
+                ],
+                [
+                  0.5,
+                  "#777a72"
+                ],
+                [
+                  1,
+                  "#8c8e86"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "nf",
+              "name": "fv",
+              "to": [
+                0.88,
+                1.08
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "base",
+              "b": "fv",
+              "name": "b2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "in": [
+                0.52,
+                0.66
+              ],
+              "input": "ns",
+              "name": "mm",
+              "type": "levels"
+            },
+            {
+              "input": "nf",
+              "name": "mc",
+              "stops": [
+                [
+                  0,
+                  "#385420"
+                ],
+                [
+                  1,
+                  "#6c8c36"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "b2",
+              "b": "mc",
+              "c": "mm",
+              "name": "b3",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#34362f",
+              "b": "b3",
+              "c": "seam",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "seam",
+              "b": 0.01,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h0",
+              "name": "out",
+              "roughness": 0.93,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n1 +nf +ns +g +seam +base +fv +b2 +mm +mc +b3 +col +h0 +out"
+      }
+    ],
+    "current": 0
+  }
+}

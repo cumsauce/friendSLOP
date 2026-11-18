@@ -146,6 +146,27 @@
     "Wedge": {
       "type": "friendslop_world::map::Wedge",
       "doc": "A wedge-shaped static collider (a surf kicker): the marker's box, low at -z rising to its full height at +z, turned by the marker's yaw."
+    },
+    "SpeedGap": {
+      "type": "friendslop_world::map::SpeedGap",
+      "fields": {
+        "stage": "u32",
+        "ramp": "u32"
+      },
+      "doc": "A speed-check gap follows ramp `ramp` of stage `stage` of the surf course: the next ramp is only reached carrying speed."
+    },
+    "RampLook": {
+      "type": "friendslop_world::map::RampLook",
+      "fields": {
+        "stage": "u32",
+        "r": "f32",
+        "g": "f32",
+        "b": "f32",
+        "glow": "f32",
+        "rough": "f32",
+        "metal": "f32"
+      },
+      "doc": "How surf stage `stage`'s ramps look (they are drawn from their ridge points): colour r, g, b, glow (emissive times colour), roughness, metalness. Without one: dark blue steel."
     }
   }
 }

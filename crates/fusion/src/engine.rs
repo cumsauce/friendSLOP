@@ -4,8 +4,8 @@
 
 use std::sync::Arc;
 
-use super::compose::{Bar, Composer, Cue, Mood, Section};
-use super::synth::{BLOCK, Band, Bank};
+use super::compose::{Bar, Composer, Cue, Mood, SCORE, Section};
+use super::synth::{BLOCK, Band, Bank, Ev, RATE};
 
 pub struct Engine {
     pub composer: Composer,
@@ -15,6 +15,10 @@ pub struct Engine {
     pos: u32,
     next_ev: usize,
     started: bool,
+    /// Stingers fired so far (the game's count), and the hits waiting to
+    /// play at the next bar, which starts at once.
+    stinger_seq: u32,
+    stinger: Vec<Ev>,
 }
 
 impl Engine {
@@ -26,6 +30,39 @@ impl Engine {
             pos: 0,
             next_ev: 0,
             started: false,
+            stinger_seq: 0,
+            stinger: Vec::with_capacity(64),
+        }
+    }
+
+    /// The game's stinger count and which one (`Score::stinger` index) it
+    /// fired last. A new count cuts the bar short: the band starts its next
+    /// bar now, with the stinger's hits on its first beat (no waiting for a
+    /// bar line).
+    pub fn set_stinger(&mut self, seq: u32, which: usize) {
+        if seq == self.stinger_seq {
+            return;
+        }
+        self.stinger_seq = seq;
+        let score = SCORE.get();
+        let Some(hits) = score.stinger(which) else {
+            return;
+        };
+        self.stinger.clear();
+        for h in hits.iter().take(self.stinger.capacity()) {
+            let ms = |ms: f32| (ms.max(0.0) * 0.001 * RATE as f32) as u32;
+            self.stinger.push(Ev {
+                at: ms(h.ms),
+                inst: h.inst,
+                note: h.note,
+                vel: h.vel,
+                len: ms(h.len_ms),
+                glide: false,
+            });
+        }
+        // Ends the bar being played; the next one is planned on the spot.
+        if self.started {
+            self.pos = self.bar.len;
         }
     }
 
@@ -91,6 +128,10 @@ impl Engine {
                 self.band.wet_target = self.bar.wet;
                 self.band.echo_target = self.bar.echo;
                 self.band.tone_target = self.bar.tone;
+                if !self.stinger.is_empty() {
+                    self.bar.events.append(&mut self.stinger);
+                    self.bar.events.sort_unstable_by_key(|e| e.at);
+                }
             }
             while let Some(ev) = self.bar.events.get(self.next_ev) {
                 if ev.at > self.pos {
@@ -207,5 +248,43 @@ mod tests {
             }
         }
         assert!(changes >= 6, "only {changes} changes");
+    }
+
+    /// A stinger cuts the bar short: the new mood starts at once with the
+    /// hits on its first beat, instead of at the next bar line.
+    #[test]
+    fn a_stinger_cuts_in_at_once() {
+        let mut e = Engine::new(bank(), 5);
+        let (calm, chase) = (Mood::named("FultonAmbient"), Mood::named("FultonChase"));
+        let mut buf = vec![0.0f32; 2 * 256];
+        let mut peak = |e: &mut Engine, mood: Mood| {
+            e.render(&mut buf, &mut || cue(mood));
+            buf.iter().fold(0.0f32, |m, x| m.max(x.abs()))
+        };
+        // Well into a calm bar, so a bar line is far off.
+        for _ in 0..(RATE as usize * 3 / 256) {
+            peak(&mut e, calm);
+        }
+        assert_eq!(e.mood(), calm);
+        let mut quiet = 0.0f32;
+        for _ in 0..(RATE as usize / 4 / 256) {
+            quiet = quiet.max(peak(&mut e, calm));
+        }
+        let which = SCORE
+            .get()
+            .stinger_names()
+            .position(|n| n == "fulton_spotted")
+            .expect("the fulton_spotted stinger");
+        e.set_stinger(1, which);
+        // The very next block is the new mood, hit and all, with no bar line waited for.
+        let mut loud = peak(&mut e, chase);
+        assert_eq!(e.mood(), chase);
+        for _ in 0..(RATE as usize / 4 / 256) {
+            loud = loud.max(peak(&mut e, chase));
+        }
+        assert!(loud > 1.5 * quiet.max(0.01), "stinger {loud} vs {quiet}");
+        // The same count again does nothing.
+        e.set_stinger(1, which);
+        assert!(e.stinger.is_empty());
     }
 }

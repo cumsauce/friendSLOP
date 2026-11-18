@@ -1,0 +1,275 @@
+{
+  "name": "jokah_chuckle",
+  "format_version": 1,
+  "kind": "oneshot",
+  "sample_rate": 48000,
+  "seed": 1,
+  "nodes": [
+    {
+      "type": "ramp",
+      "name": "t",
+      "from": 0,
+      "to": "=2.0 * $speed",
+      "time": 2,
+      "curve": "linear"
+    },
+    {
+      "type": "curve",
+      "name": "pitch",
+      "input": "t",
+      "curve": "smooth",
+      "points": [
+        [
+          0,
+          95
+        ],
+        [
+          0.1,
+          100
+        ],
+        [
+          0.12,
+          101
+        ],
+        [
+          0.18,
+          99
+        ],
+        [
+          0.27,
+          108
+        ],
+        [
+          0.3,
+          109
+        ],
+        [
+          0.36,
+          103
+        ],
+        [
+          0.45,
+          111
+        ],
+        [
+          0.48,
+          112
+        ],
+        [
+          0.54,
+          109
+        ],
+        [
+          0.63,
+          121
+        ],
+        [
+          0.66,
+          122
+        ],
+        [
+          0.72,
+          115
+        ],
+        [
+          0.82,
+          126
+        ],
+        [
+          0.9,
+          124
+        ]
+      ]
+    },
+    {
+      "type": "curve",
+      "name": "amp",
+      "input": "t",
+      "curve": "linear",
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0.01,
+          0.8
+        ],
+        [
+          0.09,
+          0.5
+        ],
+        [
+          0.12,
+          0
+        ],
+        [
+          0.18,
+          0
+        ],
+        [
+          0.19,
+          1
+        ],
+        [
+          0.27,
+          0.6
+        ],
+        [
+          0.3,
+          0
+        ],
+        [
+          0.36,
+          0
+        ],
+        [
+          0.37,
+          0.9
+        ],
+        [
+          0.45,
+          0.55
+        ],
+        [
+          0.48,
+          0
+        ],
+        [
+          0.54,
+          0
+        ],
+        [
+          0.55,
+          0.75
+        ],
+        [
+          0.63,
+          0.45
+        ],
+        [
+          0.66,
+          0
+        ],
+        [
+          0.72,
+          0
+        ],
+        [
+          0.73,
+          0.55
+        ],
+        [
+          0.82,
+          0.3
+        ],
+        [
+          0.9,
+          0
+        ]
+      ]
+    },
+    {
+      "type": "glottis",
+      "name": "voice",
+      "f0": "f0",
+      "tension": 0.5,
+      "breath": 0.2,
+      "roughness": 0.06,
+      "fry": 0.08,
+      "vibrato_cents": 20,
+      "vibrato_hz": 6,
+      "amp": "amp"
+    },
+    {
+      "type": "tract",
+      "name": "mouth",
+      "input": "voice",
+      "vowel": "schwa",
+      "vowel_to": "e",
+      "morph": 0.5,
+      "scale": 0.93,
+      "nasal": 0.35,
+      "growl": 0.03
+    },
+    {
+      "type": "reverb",
+      "name": "room",
+      "input": "mouth",
+      "model": "room",
+      "mix": 0.1
+    },
+    {
+      "type": "output",
+      "name": "out",
+      "input": "room",
+      "peak_db": -3,
+      "fade_in": 0.0005
+    },
+    {
+      "type": "math",
+      "name": "f0",
+      "op": "mul",
+      "a": "pr",
+      "b": "wob"
+    },
+    {
+      "type": "wander",
+      "name": "wob",
+      "rate": 8,
+      "range": [
+        0.96,
+        1.04
+      ],
+      "seed": 5
+    },
+    {
+      "type": "math",
+      "name": "pr",
+      "op": "mul",
+      "a": "pitch",
+      "b": "$pitch_ratio"
+    }
+  ],
+  "params": {
+    "pitch_ratio": 1.0,
+    "speed": 1.0
+  },
+  "macros": [
+    {
+      "name": "pitch",
+      "value": 0.45242187500000014,
+      "default": 0.5,
+      "doc": "voice pitch, +/- 6 semitones",
+      "claim": [
+        "centroid",
+        1
+      ],
+      "game": false,
+      "map": [
+        {
+          "param": "pitch_ratio",
+          "from": 0.7071,
+          "to": 1.4142,
+          "curve": "exp"
+        }
+      ]
+    },
+    {
+      "name": "speed",
+      "value": 0.7052083333333332,
+      "default": 0.5,
+      "doc": "how fast it plays, half to double speed",
+      "game": false,
+      "map": [
+        {
+          "param": "speed",
+          "from": 0.5,
+          "to": 2.0,
+          "curve": "exp"
+        }
+      ]
+    }
+  ],
+  "version": 6
+}

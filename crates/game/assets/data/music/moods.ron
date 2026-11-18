@@ -21,7 +21,8 @@
 //   to it at once instead of waiting 2 s to be sure), wandering (your running, idling and
 //   friends nudge its intensity), hold (plays the mood before it, held: the form's hold
 //   section at its hold tempo), fallback (what plays at start and when nothing matches),
-//   victory / lift (true unless written: victory cadences and climbing key changes play).
+//   victory / lift (true unless written: victory cadences and climbing key changes play),
+//   snap (starts at its own tempo at once instead of easing there: a chase).
 // rules: what plays when, top to bottom, the first match wins: (when: <cond>, mood, and
 //   optionally intensity: "<expr>", else the mood's own song's intensity).
 //   cond: InGame | InZone("Forest") | InBox([x, z], [x, z]) or InBox([x, y, z], [x, y, z])
@@ -182,6 +183,17 @@
         "FART_A": [(0, Maj, 2), (6, Dim7, 2), (0, Maj, 2), (6, Dim7, 2), (5, Maj, 2), (7, Dom7, 2), (0, Maj, 4)],
         "FART_B": [(8, MajLyd, 4), (10, MajMix, 4), (0, Maj, 4), (7, Dom7, 4)],
         "FART_HOOK": [(5, Maj, 2), (6, Dim7, 2), (0, Maj, 2), (9, Min, 2), (2, Min, 2), (7, Dom7, 2), (0, Maj, 4)],
+        // Fulton St station (the hunter): cold clusters that never settle, then the same
+        // gone loud and ragged for the chase, then a bar of the old harmony that won't resolve.
+        "FULTON_AMB_A": [(0, Cluster, 8), (1, Hollow, 8)],
+        "FULTON_AMB_B": [(6, Crush, 8), (0, Cluster, 8)],
+        "FULTON_AMB_HOOK": [(1, Cluster, 8), (6, Hollow, 4), (0, Crush, 4)],
+        "FULTON_CHASE_A": [(0, Crush, 4), (1, Cluster, 2), (6, Hollow, 2), (0, Crush, 4), (11, Dim7, 4)],
+        "FULTON_CHASE_B": [(1, Cluster, 4), (0, Crush, 4), (6, Hollow, 4), (7, Dom7alt, 4)],
+        "FULTON_CHASE_HOOK": [(0, Cluster, 2), (1, Cluster, 2), (6, Crush, 4), (0, Hollow, 4), (11, Dim7, 4)],
+        "FULTON_TENSE_A": [(0, MinHarm, 8), (6, Dim7, 8)],
+        "FULTON_TENSE_B": [(1, Maj7s11, 8), (7, Dom7alt, 8)],
+        "FULTON_TENSE_HOOK": [(6, Dim7, 4), (7, Dom7alt, 4), (0, MinMaj9, 4), (11, Dim7, 4)],
     },
     bass: {
         // Cumbia: root on one, fifth on three, a walk-up into the next chord.
@@ -223,6 +235,9 @@
         // The fart alarm: a tuba-ish oom on the beat, octave hops.
         "FART": "R...P...5...P.A.",
         "FART2": "R.R.P...5.5.P.A.",
+        // Fulton St: a bass hammering the root in rough triplets of eighths, and a slow low note.
+        "DREAD": "R.RR.R..R.RR.RGA",
+        "DREAD2": "R.R.RRG.R.RR.R.A",
     },
     moods: [
         (
@@ -369,6 +384,31 @@
             wet: 1.4,
             instant: true,
         ),
+        (
+            // Fulton St station (the hunter): nothing after you. Drones, a lone ill-tuned tone,
+            // no beat. Wet and cold.
+            name: "FultonAmbient",
+            tone: (warmth: 0.55, width: 1.3, wow: 0.55, lay_back_ms: 0.0, loose_ms: 0.0),
+            level_db: 0.0,
+            wet: 1.5, echo: 1.3,
+            victory: false, lift: false,
+        ),
+        (
+            // It lost you and is still down here: a heartbeat, a clock ticking, nothing resolved.
+            name: "FultonTense",
+            tone: (warmth: 0.2, width: 1.1, wow: 0.3, lay_back_ms: 0.0, loose_ms: 0.0),
+            level_db: 1.0,
+            wet: 1.3, echo: 1.0,
+            urgent: true, instant: true, snap: true, victory: false, lift: false,
+        ),
+        (
+            // It sees you: low brass, pounding, shrieking strings.
+            name: "FultonChase",
+            tone: (warmth: -0.35, width: 1.2, wow: 0.0, lay_back_ms: 0.0, loose_ms: 1.0),
+            level_db: 1.5,
+            wet: 1.1, echo: 0.8,
+            urgent: true, instant: true, snap: true, victory: false, lift: false,
+        ),
     ],
     // What plays when: the first rule that matches.
     rules: [
@@ -386,6 +426,10 @@
         // The landlord: the boss fight, then his rent rising as you near him.
         (when: Signal("landlord_boss", Gt, 0.0), mood: "Landlord", intensity: "0.75 + 0.2 * clamp(1 - boss_hp / 12, 0, 1)"),
         (when: All([Signal("near_landlord", Gt, 0.0), Not(Signal("won", Gt, 0.0))]), mood: "Landlord", intensity: "min(0.4 + 0.08 * raises, 0.8)"),
+        // Fulton St station: the hunter's music. It sees you, it lost you, nothing's after you.
+        (when: All([Signal("fulton", Gt, 0.0), Signal("fulton_chase", Gt, 0.0)]), mood: "FultonChase", intensity: "0.9"),
+        (when: All([Signal("fulton", Gt, 0.0), Signal("fulton_tense", Gt, 0.0)]), mood: "FultonTense", intensity: "0.55"),
+        (when: Signal("fulton", Gt, 0.0), mood: "FultonAmbient"),
         // Places.
         (when: Signal("underground", Gt, 0.0), mood: "Underground"),
         (when: Signal("wendys_attic", Gt, 0.0), mood: "WendysAttic"),
@@ -407,10 +451,34 @@
         (when: InZone("Ruins"), mood: "Maze"),
         (when: All([]), mood: "Explore"),
     ],
-    // The band fades out under an attack's strings, in the dark of the warehouse and down
-    // in Fulton St station; the endless hallway cuts it dead.
-    hush: Any([Signal("attack", Gt, 0.0), Signal("spooked", Gt, 0.0), Signal("fulton", Gt, 0.0)]),
+    // The band fades out under an attack's strings and in the dark of the warehouse; the
+    // endless hallway cuts it dead.
+    hush: Any([Signal("attack", Gt, 0.0), Signal("spooked", Gt, 0.0)]),
     silence: Signal("adrift", Gt, 0.0),
     // A round won, a duel survived, a chapter done, the landlord beaten.
     victory_cues: ["victory"],
+    // One-shot hits for cues the game fires (a feature calls `MusicSignals::cue(<name>)`):
+    // the notes play the instant the cue fires and the band cuts to its next bar on the
+    // spot (no waiting for a bar line). inst, note (MIDI), vel (0..1, 1), ms (after the cue,
+    // 0), len_ms. They play on the band's buses, so use instruments of the mood it cuts into.
+    stingers: {
+        // The hunter spots you: an orchestral blast, a cluster of low brass over a thunder
+        // of drum and metal, and shrieking strings a minor second apart on top.
+        "fulton_spotted": [
+            (inst: Boom, note: 36, vel: 1.0, len_ms: 100),
+            (inst: Boom, note: 43, vel: 0.9, ms: 40, len_ms: 100),
+            (inst: DoomBrass, note: 31, vel: 1.0, len_ms: 2400),
+            (inst: DoomBrass, note: 38, vel: 1.0, len_ms: 2400),
+            (inst: DoomBrass, note: 43, vel: 0.95, len_ms: 2400),
+            (inst: DoomBrass, note: 44, vel: 0.95, len_ms: 2400),
+            (inst: DoomBrass, note: 49, vel: 0.9, len_ms: 2400),
+            (inst: DoomBrass, note: 50, vel: 0.9, len_ms: 2400),
+            (inst: Screech, note: 90, vel: 1.0, len_ms: 2000),
+            (inst: Screech, note: 91, vel: 1.0, len_ms: 2000),
+            (inst: Screech, note: 96, vel: 0.9, ms: 60, len_ms: 2000),
+            (inst: Screech, note: 97, vel: 0.9, ms: 60, len_ms: 2000),
+            (inst: Clang, note: 58, vel: 1.0, len_ms: 1800),
+            (inst: Clang, note: 66, vel: 0.9, ms: 90, len_ms: 1800),
+        ],
+    },
 )

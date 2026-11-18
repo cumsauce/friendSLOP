@@ -24,10 +24,9 @@ use friendslop_world::map::{Bob, FlatGround, Map, Spin};
 use friendslop_world::places::{MapEntity, MapFile};
 
 use crate::AppState;
-use crate::rules::surf::{Block as CityBlock, Piece, hall_at, pieces, tuning};
-
-/// The map's plain data (the modeler writes it beside the scene).
-pub static MAP: friendslop_data::Data<MapFile> = friendslop_data::Data::json("maps/surf.map.json");
+use crate::rules::surf::{
+    Block as CityBlock, Piece, course_parts, hall_at, joints, pieces, tuning,
+};
 
 /// A collider box from the map: centre, full size, turn about +y (radians),
 /// and whether it's an upright cylinder.
@@ -122,14 +121,137 @@ pub fn layout(map: &MapFile) -> Layout {
 /// A lamp with no colour of its own gives this.
 const LAMP_COLOUR: Color = Color::srgb(1.0, 0.9, 0.78);
 
-pub fn plugin(app: &mut App) {
-    app.spawn_into("surf", build).add_systems(
-        Update,
-        (rest, animate)
-            .chain()
-            .run_if(crate::areas::shown("surf"))
-            .run_if(in_state(AppState::InGame)),
-    );
+/// One surf area: its id in `areas.ron`, its map's plain data and its scene.
+/// A map that isn't there yet (a pack still being made) spawns nothing.
+macro_rules! areas {
+    ($(($build:ident, $id:literal, $data:expr, $bsn:literal, $ramps:literal)),* $(,)?) => {
+        $(
+            fn $build(
+                commands: Commands,
+                assets: Res<AssetServer>,
+                meshes: ResMut<Assets<Mesh>>,
+                materials: ResMut<Assets<StandardMaterial>>,
+            ) {
+                build(commands, assets, meshes, materials, &$data, $bsn, $ramps);
+            }
+        )*
+        pub fn plugin(app: &mut App) {
+            app$(.spawn_into($id, $build))*.add_systems(
+                Update,
+                (rest, animate)
+                    .chain()
+                    .run_if(in_state(AppState::InGame)),
+            );
+        }
+    };
+}
+
+areas!(
+    (
+        build_base,
+        "surf",
+        crate::rules::surf::COURSE,
+        "maps/surf.bsn",
+        false
+    ),
+    (
+        build_office,
+        "surf_office",
+        crate::rules::surf::COURSE_OFFICE,
+        "maps/surf_office.bsn",
+        true
+    ),
+    (
+        build_mall,
+        "surf_mall",
+        crate::rules::surf::COURSE_MALL,
+        "maps/surf_mall.bsn",
+        true
+    ),
+    (
+        build_neon,
+        "surf_neon",
+        crate::rules::surf::COURSE_NEON,
+        "maps/surf_neon.bsn",
+        true
+    ),
+    (
+        build_overgrown,
+        "surf_overgrown",
+        crate::rules::surf::COURSE_OVERGROWN,
+        "maps/surf_overgrown.bsn",
+        true
+    ),
+    (
+        build_foundry,
+        "surf_foundry",
+        crate::rules::surf::COURSE_FOUNDRY,
+        "maps/surf_foundry.bsn",
+        true
+    ),
+);
+
+/// How a stage's ramps look: its `RampLook` marker, or dark blue steel.
+fn ramp_look(map: &MapFile, stage: u32) -> StandardMaterial {
+    let (mut c, mut glow, mut rough, mut metal) = (Vec3::new(0.16, 0.19, 0.32), 0.0, 0.35, 0.5);
+    if let Some(e) = map
+        .entities
+        .iter()
+        .find(|e| e.has("RampLook") && e.num("RampLook", "stage") as u32 == stage)
+    {
+        let n = |f: &str| e.num("RampLook", f);
+        (c, glow, rough, metal) = (
+            Vec3::new(n("r"), n("g"), n("b")),
+            n("glow"),
+            n("rough"),
+            n("metal"),
+        );
+    }
+    StandardMaterial {
+        base_color: Color::srgb(c.x, c.y, c.z),
+        emissive: LinearRgba::rgb(c.x * glow, c.y * glow, c.z * glow),
+        metallic: metal,
+        perceptual_roughness: rough,
+        cull_mode: None,
+        double_sided: true,
+        ..default()
+    }
+}
+
+/// A ramp's two faces and underside as one flat-shaded mesh (hall coordinates).
+fn ramp_mesh(points: &[(f32, f32, f32)], samples: u32, half: f32, height: f32) -> Mesh {
+    use bevy::asset::RenderAssetUsages;
+    use bevy::mesh::{Indices, PrimitiveTopology};
+    let js = joints(points, samples, half, height);
+    let (mut pos, mut nor, mut idx) = (Vec::new(), Vec::new(), Vec::new());
+    for w in js.windows(2) {
+        let (a, b) = (w[0], w[1]);
+        for (quad, up) in [
+            ([a[0], a[1], b[1], b[0]], true),
+            ([a[0], b[0], b[2], a[2]], true),
+            ([a[1], a[2], b[2], b[1]], false),
+        ] {
+            let mut q = quad;
+            let mut n = (q[1] - q[0]).cross(q[2] - q[0]).normalize_or_zero();
+            if (n.y < 0.0) == up {
+                q.reverse();
+                n = -n;
+            }
+            let base = pos.len() as u32;
+            for v in q {
+                pos.push(v.to_array());
+                nor.push(n.to_array());
+            }
+            idx.extend([base, base + 1, base + 2, base, base + 2, base + 3]);
+        }
+    }
+    Mesh::new(
+        PrimitiveTopology::TriangleList,
+        RenderAssetUsages::default(),
+    )
+    .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, pos)
+    .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, nor)
+    .with_inserted_indices(Indices::U32(idx))
 }
 
 /// Where a bobbing thing rests.
@@ -159,24 +281,56 @@ fn animate(
     }
 }
 
-fn build(mut commands: Commands, assets: Res<AssetServer>) {
-    let o = hall_at(&tuning());
+fn build(
+    mut commands: Commands,
+    assets: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    data: &friendslop_data::Data<MapFile>,
+    bsn: &'static str,
+    ramp_meshes: bool,
+) {
+    let map = data.get();
+    if map.entities.is_empty() {
+        return;
+    }
+    let t = tuning();
+    let o = hall_at(&t);
     // SALT: not needing `Cargo.lock` for this `.bsn` either; x didn't set us
     // up for success, we need more SME's, we haven't considered the problem
     // space enough, BSN syntax needs more changes, and `Children` sugaring?
     // Ask Sam "Salt" Saltman.
     commands.spawn((
-        Map(assets.load("maps/surf.bsn")),
+        Map(assets.load(bsn)),
         FlatGround,
         Transform::from_translation(o),
         Visibility::default(),
         DespawnOnExit(AppState::InGame),
     ));
-    let l = layout(&MAP.get());
+    let l = layout(&map);
     // The ramps' colliders come from the course's ridge points (so they never
     // wait on a model file).
-    let t = tuning();
-    for ramp in t.stages.iter().flat_map(|s| s.ramps.iter()) {
+    let parts = course_parts(&map);
+    if ramp_meshes {
+        for (stage, st) in &parts.stages {
+            let look = ramp_look(&map, *stage);
+            let mat = materials.add(look);
+            for ramp in &st.ramps {
+                commands.spawn((
+                    Mesh3d(meshes.add(ramp_mesh(
+                        ramp,
+                        t.ramp_samples,
+                        t.ramp_half_width,
+                        t.ramp_height,
+                    ))),
+                    MeshMaterial3d(mat.clone()),
+                    Transform::from_translation(o),
+                    DespawnOnExit(AppState::InGame),
+                ));
+            }
+        }
+    }
+    for ramp in parts.stages.values().flat_map(|s| s.ramps.iter()) {
         for piece in pieces(ramp, t.ramp_samples, t.ramp_half_width, t.ramp_height) {
             let Some(hull) = Collider::convex_hull(&piece) else {
                 continue;
@@ -239,38 +393,37 @@ fn build(mut commands: Commands, assets: Res<AssetServer>) {
     }
 }
 
-/// Tests: read the course out of the map file (`rules::surf::tuning` merges it).
+/// Tests: read the course out of the map files (`rules::surf::tuning` merges
+/// them); a map that isn't there yet is skipped.
 #[cfg(test)]
 pub(crate) fn load_course_for_tests() {
-    let path = format!(
-        "{}/../game/assets/maps/surf.map.json",
-        env!("CARGO_MANIFEST_DIR")
-    );
-    let Ok(bytes) = std::fs::read(&path) else {
-        panic!("no {path}")
-    };
-    assert!(
-        crate::rules::surf::COURSE.set_bytes(&bytes),
-        "{path} doesn't parse"
-    );
+    for c in crate::rules::surf::courses() {
+        let path = format!("{}/../game/assets/{}", env!("CARGO_MANIFEST_DIR"), c.path());
+        if let Ok(bytes) = std::fs::read(&path) {
+            assert!(c.set_bytes(&bytes), "{path} doesn't parse");
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    /// Every map of the course that's there, as one.
     fn map() -> MapFile {
-        let path = format!(
-            "{}/../game/assets/maps/surf.map.json",
-            env!("CARGO_MANIFEST_DIR")
-        );
-        let Ok(text) = std::fs::read_to_string(&path) else {
-            panic!("no {path}")
-        };
-        match serde_json::from_str(&text) {
-            Ok(m) => m,
-            Err(e) => panic!("{path}: {e}"),
+        let mut all = MapFile::default();
+        for c in crate::rules::surf::courses() {
+            let path = format!("{}/../game/assets/{}", env!("CARGO_MANIFEST_DIR"), c.path());
+            let Ok(text) = std::fs::read_to_string(&path) else {
+                continue;
+            };
+            match serde_json::from_str::<MapFile>(&text) {
+                Ok(m) => all.entities.extend(m.entities),
+                Err(e) => panic!("{path}: {e}"),
+            }
         }
+        assert!(!all.entities.is_empty(), "no surf maps");
+        all
     }
 
     #[test]
@@ -384,6 +537,49 @@ mod tests {
                     e.name
                 );
             }
+        }
+    }
+
+    /// Each stage's pad lies in the area of the pack that owns it.
+    #[test]
+    fn each_stage_pad_is_in_its_packs_area() {
+        load_course_for_tests();
+        let text = std::fs::read_to_string(format!(
+            "{}/../game/assets/data/base/areas.ron",
+            env!("CARGO_MANIFEST_DIR")
+        ))
+        .unwrap_or_default();
+        assert!(friendslop_base::areas::AREAS.set_bytes(text.as_bytes()));
+        let path = format!(
+            "{}/../game/assets/{}",
+            env!("CARGO_MANIFEST_DIR"),
+            crate::rules::surf::TUNING.path()
+        );
+        let Ok(bytes) = std::fs::read(&path) else {
+            panic!("no {path}")
+        };
+        assert!(crate::rules::surf::TUNING.set_bytes(&bytes));
+        let t = tuning();
+        let o = hall_at(&t);
+        let want = [
+            "surf",
+            "surf",
+            "surf",
+            "surf",
+            "surf",
+            "surf_office",
+            "surf_mall",
+        ];
+        for (i, w) in want.iter().enumerate() {
+            let Some(at) = crate::rules::surf::stage_spawn(&t, i) else {
+                panic!("no stage {i}")
+            };
+            let _ = o;
+            let areas = friendslop_base::areas::areas();
+            let Some(area) = areas.areas.iter().find(|a| a.id == *w) else {
+                panic!("no area {w}")
+            };
+            assert!(area.holds(at), "stage {i} at {at} is outside {w}");
         }
     }
 }

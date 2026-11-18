@@ -39,6 +39,8 @@ impl Plugin for MapPlugin {
             .register_type::<Body>()
             .register_type::<Bob>()
             .register_type::<Wedge>()
+            .register_type::<SpeedGap>()
+            .register_type::<RampLook>()
             .register_type::<Pad>()
             .register_type::<Ridge>()
             .add_systems(Update, (spawn_maps, load_gltf_sources).chain());
@@ -186,6 +188,29 @@ pub struct Body {
     pub ox: f32,
     pub oy: f32,
     pub oz: f32,
+}
+
+/// How a surf stage's ramps look (the map's own look for its ramps, which are
+/// drawn from their ridge points): colour, glow (emissive times colour),
+/// roughness and metalness. A stage without one has dark blue steel.
+#[derive(Component, Reflect, Clone, Copy, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct RampLook {
+    pub stage: u32,
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+    pub glow: f32,
+    pub rough: f32,
+    pub metal: f32,
+}
+
+/// A speed-check gap follows ramp `ramp` of stage `stage` on the surf course.
+#[derive(Component, Reflect, Clone, Copy, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct SpeedGap {
+    pub stage: u32,
+    pub ramp: u32,
 }
 
 /// A wedge-shaped static collider (a surf kicker): the marker's box, low at

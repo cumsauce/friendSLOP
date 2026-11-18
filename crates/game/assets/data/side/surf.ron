@@ -16,7 +16,7 @@
     hall_at: (4000.0, 900.0, 0.0),
     // Fall this far (metres) below the start pad and you're back on it
     // (a backstop: falling off a stage puts you back on its pad first).
-    fall_below: 840.0,
+    fall_below: 1400.0,
     // Movement inside the hall, from a Counter-Strike surf server (Source
     // engine) converted at 1 Hammer unit = 0.0254 m (a CS player is 72 u,
     // 1.83 m, tall). Out in the world the walker uses 10 / 0.76 / 30 / 14
@@ -55,7 +55,7 @@
     exit_label: "Leave (back to the street)",
     // The hall's inside relative to the start pad (min, max): air control
     // is surf's inside it.
-    hall: ((-140.00, -850.00, -2231.00), (1900.00, 40.00, 124.00)),
+    hall: ((-140.00, -1500.00, -2600.00), (5700.00, 600.00, 124.00)),
     // Every ramp is a ridge with 59 degree faces: half its width and its
     // height, and how many pieces each span between two points is cut into.
     ramp_half_width: 6.0,
@@ -80,7 +80,7 @@
     // second ramp (25 m, needs ~36 m/s), stage 3 after its second (25 m, ~36),
     // stage 4 after its second (30 m, 12 m down, ~37), stage 5 after its
     // first (25 m, ~35). A clean run carries 45-60 m/s there.
-    speed_gaps: [(0, 1), (2, 1), (3, 1), (4, 0)],
+    // (They are `SpeedGap` markers in the map files now.)
     // The city the course weaves through, generated from the ramps (the
     // same on every peer): tall towers both sides, building sites just under
     // a ramp's side (fall off onto one, hit its kicker and get back on),

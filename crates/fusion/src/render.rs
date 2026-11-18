@@ -90,6 +90,49 @@ pub fn render_score_live(
     (out, log)
 }
 
+/// A stinger heard in context: `from` plays for `before` seconds, then the
+/// stinger called `name` fires as the band cuts to `to`, which plays for
+/// `after` seconds. Returns the audio and, for checking, the sample offset
+/// (in frames) at which the cut happened and the engine's mood just after.
+pub fn render_stinger(
+    seed: u64,
+    name: &str,
+    from: Mood,
+    to: Mood,
+    before: f32,
+    after: f32,
+) -> Option<(Vec<f32>, usize, Mood)> {
+    let which = crate::compose::SCORE
+        .get()
+        .stinger_names()
+        .position(|n| n == name)?;
+    let bank = Arc::new(Bank::build());
+    let mut engine = Engine::new(bank, seed);
+    let mut out = Vec::new();
+    let mut buf = vec![0.0f32; 512];
+    let cue = |mood: Mood| Cue {
+        mood,
+        intensity: mood.base_intensity(),
+        ..Cue::default()
+    };
+    let n = |secs: f32| (secs * RATE as f32) as usize / 256;
+    for _ in 0..n(before) {
+        engine.render(&mut buf, &mut || cue(from));
+        out.extend_from_slice(&buf);
+    }
+    let cut = out.len() / 2;
+    engine.set_stinger(1, which);
+    let mut mood = Mood::NONE;
+    for k in 0..n(after) {
+        engine.render(&mut buf, &mut || cue(to));
+        if k == 0 {
+            mood = engine.mood();
+        }
+        out.extend_from_slice(&buf);
+    }
+    Some((out, cut, mood))
+}
+
 /// The tour's plan at second `s`.
 pub fn tour_plan(s: f32) -> Cue {
     let (mood, intensity) = TOUR

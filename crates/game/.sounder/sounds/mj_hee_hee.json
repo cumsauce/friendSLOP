@@ -1,0 +1,215 @@
+{
+  "name": "mj_hee_hee",
+  "format_version": 1,
+  "kind": "oneshot",
+  "sample_rate": 48000,
+  "seed": 783,
+  "nodes": [
+    {
+      "type": "ramp",
+      "name": "t",
+      "from": 0,
+      "to": "=1.5 * $speed",
+      "time": 1.5,
+      "curve": "linear"
+    },
+    {
+      "type": "curve",
+      "name": "pitch",
+      "input": "t",
+      "curve": "smooth",
+      "points": [
+        [
+          0,
+          360
+        ],
+        [
+          0.04,
+          400
+        ],
+        [
+          0.2,
+          560
+        ],
+        [
+          0.26,
+          540
+        ],
+        [
+          0.285,
+          356
+        ],
+        [
+          0.33,
+          356
+        ],
+        [
+          0.49,
+          499
+        ],
+        [
+          0.58,
+          485
+        ],
+        [
+          0.75,
+          430
+        ]
+      ]
+    },
+    {
+      "type": "curve",
+      "name": "amp",
+      "input": "t",
+      "curve": "linear",
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0.015,
+          1
+        ],
+        [
+          0.12,
+          0.9
+        ],
+        [
+          0.21,
+          0
+        ],
+        [
+          0.27,
+          0
+        ],
+        [
+          0.29,
+          0.6
+        ],
+        [
+          0.4,
+          0.6
+        ],
+        [
+          0.56,
+          0.55
+        ],
+        [
+          0.66,
+          0
+        ]
+      ]
+    },
+    {
+      "type": "curve",
+      "name": "tens",
+      "input": "t",
+      "curve": "linear",
+      "points": [
+        [
+          0,
+          0.8
+        ],
+        [
+          0.75,
+          0.55
+        ]
+      ]
+    },
+    {
+      "type": "glottis",
+      "name": "voice",
+      "f0": "f0",
+      "tension": "tens",
+      "breath": 0.12,
+      "vibrato_cents": 12,
+      "vibrato_hz": 9,
+      "roughness": 0.1,
+      "amp": "amp"
+    },
+    {
+      "type": "tract",
+      "name": "mouth",
+      "input": "voice",
+      "vowel": "i",
+      "vowel_to": "e",
+      "morph": 0.15,
+      "scale": 1.08,
+      "nasal": 0.1,
+      "frication": {
+        "freq": 6500,
+        "level": "fric"
+      }
+    },
+    {
+      "type": "reverb",
+      "name": "room",
+      "input": "mouth",
+      "model": "room",
+      "mix": 0.08
+    },
+    {
+      "type": "output",
+      "name": "out",
+      "input": "room",
+      "peak_db": -3,
+      "fade_in": 0.0005
+    },
+    {
+      "type": "math",
+      "name": "f0",
+      "op": "mul",
+      "a": "pitch",
+      "b": "$pitch_ratio"
+    },
+    {
+      "type": "math",
+      "name": "fric",
+      "op": "mul",
+      "a": "amp",
+      "b": 0.02
+    }
+  ],
+  "params": {
+    "pitch_ratio": 1.0,
+    "speed": 1.0
+  },
+  "macros": [
+    {
+      "name": "pitch",
+      "value": 0.5,
+      "default": 0.5,
+      "doc": "voice pitch, +/- 6 semitones",
+      "claim": [
+        "centroid",
+        1
+      ],
+      "game": false,
+      "map": [
+        {
+          "param": "pitch_ratio",
+          "from": 0.7071,
+          "to": 1.4142,
+          "curve": "exp"
+        }
+      ]
+    },
+    {
+      "name": "speed",
+      "value": 0.5,
+      "default": 0.5,
+      "doc": "how fast it plays, half to double speed",
+      "game": false,
+      "map": [
+        {
+          "param": "speed",
+          "from": 0.5,
+          "to": 2.0,
+          "curve": "exp"
+        }
+      ]
+    }
+  ],
+  "version": 13
+}

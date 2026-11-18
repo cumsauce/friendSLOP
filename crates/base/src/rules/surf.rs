@@ -63,6 +63,7 @@ pub struct Tuning {
     pub stages: Vec<Stage>,
     /// Speed checks: (stage, ramp), the gap after that ramp of that stage,
     /// cleared only carrying speed ([`speed_needed`]).
+    #[serde(default)]
     pub speed_gaps: Vec<(usize, usize)>,
     /// The finish pad (centre, size). From the map.
     #[serde(default)]
@@ -615,31 +616,66 @@ pub fn stage_step(t: &Tuning, stage: usize, local: Vec3) -> (usize, bool) {
 
 pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/side/surf.ron");
 
-/// The course as the modeler made it (`maps/surf.map.json`): its pads, ridge
-/// points and `course_block` boxes become [`Tuning::stages`], `finish` and
-/// `blocks`.
+/// The course as the modeler made it: one map per area, in course order
+/// (`maps/surf*.map.json`). Each has `Pad`, `Ridge`, `SpeedGap` and
+/// `course_block` markers; [`tuning`] puts them together. A later map's stage
+/// replaces an earlier map's with the same number, and the last map with a
+/// finish pad ends the course.
 pub static COURSE: friendslop_data::Data<friendslop_world::places::MapFile> =
     friendslop_data::Data::json("maps/surf.map.json");
+pub static COURSE_OFFICE: friendslop_data::Data<friendslop_world::places::MapFile> =
+    friendslop_data::Data::json("maps/surf_office.map.json");
+pub static COURSE_MALL: friendslop_data::Data<friendslop_world::places::MapFile> =
+    friendslop_data::Data::json("maps/surf_mall.map.json");
+pub static COURSE_NEON: friendslop_data::Data<friendslop_world::places::MapFile> =
+    friendslop_data::Data::json("maps/surf_neon.map.json");
+pub static COURSE_OVERGROWN: friendslop_data::Data<friendslop_world::places::MapFile> =
+    friendslop_data::Data::json("maps/surf_overgrown.map.json");
+pub static COURSE_FOUNDRY: friendslop_data::Data<friendslop_world::places::MapFile> =
+    friendslop_data::Data::json("maps/surf_foundry.map.json");
 
-/// The course out of the map's markers: stages (pad and ramps), the finish
-/// pad and the solid boxes.
-pub fn course(map: &friendslop_world::places::MapFile) -> (Vec<Stage>, Pad, Vec<Pad>) {
+/// Every map of the course, in order.
+pub fn courses() -> [&'static friendslop_data::Data<friendslop_world::places::MapFile>; 6] {
+    [
+        &COURSE,
+        &COURSE_OFFICE,
+        &COURSE_MALL,
+        &COURSE_NEON,
+        &COURSE_OVERGROWN,
+        &COURSE_FOUNDRY,
+    ]
+}
+
+/// What one map says about the course.
+#[derive(Debug, Default, Clone)]
+pub struct CourseParts {
+    /// Stages by their number (a stage is its pad and its ramps).
+    pub stages: std::collections::BTreeMap<u32, Stage>,
+    /// The finish pad, if this map has it.
+    pub finish: Option<Pad>,
+    /// Solid boxes: the pads and their pillars (`course_block` markers).
+    pub blocks: Vec<Pad>,
+    /// Speed-check gaps: (stage, ramp).
+    pub gaps: Vec<(usize, usize)>,
+}
+
+/// One map's course out of its markers.
+pub fn course_parts(map: &friendslop_world::places::MapFile) -> CourseParts {
     let boxed = |e: &friendslop_world::places::MapEntity| -> Pad {
         (
             (e.translation[0], e.translation[1], e.translation[2]),
             e.size.map_or((1.0, 1.0, 1.0), |s| (s[0], s[1], s[2])),
         )
     };
-    let mut stages: Vec<(u32, Pad)> = Vec::new();
-    let mut finish = Pad::default();
+    let mut out = CourseParts::default();
+    let mut pads: Vec<(u32, Pad)> = Vec::new();
     let mut ridge: Vec<(u32, u32, u32, (f32, f32, f32))> = Vec::new();
-    let mut blocks = Vec::new();
     for e in &map.entities {
         if e.has("Pad") {
             if e.flag("Pad", "finish") {
-                finish = boxed(e);
+                out.finish = Some(boxed(e));
             } else {
-                stages.push((e.num("Pad", "stage") as u32, boxed(e)));
+                pads.push((e.num("Pad", "stage") as u32, boxed(e)));
             }
         }
         if e.has("Ridge") {
@@ -647,59 +683,72 @@ pub fn course(map: &friendslop_world::places::MapFile) -> (Vec<Stage>, Pad, Vec<
             let p = (e.translation[0], e.translation[1], e.translation[2]);
             ridge.push((n("stage"), n("ramp"), n("order"), p));
         }
+        if e.has("SpeedGap") {
+            out.gaps.push((
+                e.num("SpeedGap", "stage") as usize,
+                e.num("SpeedGap", "ramp") as usize,
+            ));
+        }
         if e.kind == "course_block" {
-            blocks.push(boxed(e));
+            out.blocks.push(boxed(e));
         }
     }
-    stages.sort_by_key(|s| s.0);
     ridge.sort_by_key(|r| (r.0, r.1, r.2));
-    let stages = stages
-        .into_iter()
-        .map(|(i, pad)| {
-            let mut ramps: Vec<Vec<(f32, f32, f32)>> = Vec::new();
-            let mut last = None;
-            for r in ridge.iter().filter(|r| r.0 == i) {
-                if last != Some(r.1) {
-                    ramps.push(Vec::new());
-                    last = Some(r.1);
-                }
-                if let Some(v) = ramps.last_mut() {
-                    v.push(r.3);
-                }
+    for (i, pad) in pads {
+        let mut ramps: Vec<Vec<(f32, f32, f32)>> = Vec::new();
+        let mut last = None;
+        for r in ridge.iter().filter(|r| r.0 == i) {
+            if last != Some(r.1) {
+                ramps.push(Vec::new());
+                last = Some(r.1);
             }
-            Stage { pad, ramps }
-        })
-        .collect();
-    (stages, finish, blocks)
+            if let Some(v) = ramps.last_mut() {
+                v.push(r.3);
+            }
+        }
+        out.stages.insert(i, Stage { pad, ramps });
+    }
+    out
 }
 
-/// The tuning with the course from the map (rebuilt only when either file is
+/// The tuning with the course from the maps (rebuilt only when a file is
 /// re-read).
 pub fn tuning() -> std::sync::Arc<Tuning> {
     use std::sync::{Arc, Mutex};
     type Merged = (
         Arc<Tuning>,
-        Arc<friendslop_world::places::MapFile>,
+        Vec<Arc<friendslop_world::places::MapFile>>,
         Arc<Tuning>,
     );
     static CACHE: Mutex<Option<Merged>> = Mutex::new(None);
     let ron = TUNING.get();
-    let map = COURSE.get();
+    let maps: Vec<_> = courses().iter().map(|c| c.get()).collect();
     let Ok(mut cache) = CACHE.lock() else {
         return ron;
     };
     if let Some((r, m, merged)) = cache.as_ref()
         && Arc::ptr_eq(r, &ron)
-        && Arc::ptr_eq(m, &map)
+        && m.len() == maps.len()
+        && m.iter().zip(&maps).all(|(a, b)| Arc::ptr_eq(a, b))
     {
         return merged.clone();
     }
     let mut t = (*ron).clone();
     if t.stages.is_empty() {
-        (t.stages, t.finish, t.blocks) = course(&map);
+        let mut stages = std::collections::BTreeMap::new();
+        for map in &maps {
+            let c = course_parts(map);
+            stages.extend(c.stages);
+            if let Some(f) = c.finish {
+                t.finish = f;
+            }
+            t.blocks.extend(c.blocks);
+            t.speed_gaps.extend(c.gaps);
+        }
+        t.stages = stages.into_values().collect();
     }
     let merged = Arc::new(t);
-    *cache = Some((ron, map, merged.clone()));
+    *cache = Some((ron, maps, merged.clone()));
     merged
 }
 
@@ -874,16 +923,14 @@ mod tests {
             panic!("no {path}");
         };
         assert!(TUNING.set_bytes(&bytes), "{path} doesn't parse");
-        let course = format!(
-            "{}/../game/assets/maps/surf.map.json",
-            env!("CARGO_MANIFEST_DIR")
-        );
-        let Ok(bytes) = std::fs::read(&course) else {
-            panic!("no {course}");
-        };
-        assert!(COURSE.set_bytes(&bytes), "{course} doesn't parse");
+        for c in courses() {
+            let course = format!("{}/../game/assets/{}", env!("CARGO_MANIFEST_DIR"), c.path());
+            if let Ok(bytes) = std::fs::read(&course) {
+                assert!(c.set_bytes(&bytes), "{course} doesn't parse");
+            }
+        }
         let t = tuning();
-        assert!((3..=5).contains(&t.speed_gaps.len()));
+        assert!(t.speed_gaps.len() >= 3);
         // Fly it tick by tick: from the ramp's end along its ridge.
         let fly = |g: &Gap, speed: f32| {
             let cos = 1.0 / (1.0 + g.pitch * g.pitch).sqrt();

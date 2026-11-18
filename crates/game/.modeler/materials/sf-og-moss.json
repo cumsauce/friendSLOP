@@ -1,0 +1,166 @@
+{
+  "name": "sf-og-moss",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 2.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "name": "n1",
+      "octaves": 4,
+      "seed": 81,
+      "size": 0.35,
+      "type": "noise"
+    },
+    {
+      "name": "n2",
+      "octaves": 3,
+      "seed": 82,
+      "size": 0.06,
+      "type": "noise"
+    },
+    {
+      "input": "n1",
+      "name": "a",
+      "stops": [
+        [
+          0,
+          "#2f5a1c"
+        ],
+        [
+          0.5,
+          "#4a7a28"
+        ],
+        [
+          1,
+          "#78a43c"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "n2",
+      "name": "fv",
+      "to": [
+        0.82,
+        1.12
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "a",
+      "b": "fv",
+      "name": "col",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "n2",
+      "b": 0.02,
+      "name": "h0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h0",
+      "name": "out",
+      "roughness": 0.95,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "sf-og-moss",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 2.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "name": "n1",
+              "octaves": 4,
+              "seed": 81,
+              "size": 0.35,
+              "type": "noise"
+            },
+            {
+              "name": "n2",
+              "octaves": 3,
+              "seed": 82,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "input": "n1",
+              "name": "a",
+              "stops": [
+                [
+                  0,
+                  "#2f5a1c"
+                ],
+                [
+                  0.5,
+                  "#4a7a28"
+                ],
+                [
+                  1,
+                  "#78a43c"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "n2",
+              "name": "fv",
+              "to": [
+                0.82,
+                1.12
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "a",
+              "b": "fv",
+              "name": "col",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "n2",
+              "b": 0.02,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h0",
+              "name": "out",
+              "roughness": 0.95,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n1 +n2 +a +fv +col +h0 +out"
+      }
+    ],
+    "current": 0
+  }
+}

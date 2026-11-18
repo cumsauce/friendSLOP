@@ -42,9 +42,13 @@ pub mod features {
     pub mod sesbian_lex;
     pub mod shipwreck;
     pub mod surf;
+    pub mod surf_foundry;
     pub mod surf_mall;
     pub mod surf_map;
+    pub mod surf_neon;
     pub mod surf_office;
+    pub mod surf_ops;
+    pub mod surf_overgrown;
     pub mod surf_pillars;
     pub mod surf_props;
     pub mod surf_runs;
@@ -65,7 +69,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &fusion::synth::MIX,
         &fusion::inst::INSTRUMENTS,
         &features::affair::TUNING,
-        &features::surf_map::MAP,
         &features::surf_train::TRAIN,
         &features::ambience::TUNING,
         &features::discord_friends::TUNING,

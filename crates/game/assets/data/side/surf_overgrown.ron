@@ -1,0 +1,190 @@
+// The overgrown ruins (crates/side/src/features/surf_overgrown.rs): stages 10,
+// 11 and 12 of the surf course, hall x 3150..4450 (docs/design/surf-areas-brief.md).
+// An abandoned city the jungle took back: a collapsed highway interchange,
+// a half-fallen skyscraper you helix down round, a drowned mall under a glass
+// roof skeleton. Hall coordinates, metres (the start pad's top is 0, 0, 0;
+// world = hall + (4000, 900, 0)). Re-bake with
+//   cargo run -p friendslop-side --example surf_pack_overgrown
+// then apply .modeler/gen/surf_overgrown_ops.json to the modeler doc
+// `surf-overgrown-map` and export maps/surf_overgrown.bsn.
+(
+    // The pads that start each stage (16 x 1 x 16 on the brief's table for
+    // P10; 20 x 20 for the two inside the area). A ramp starts 12.35 m past
+    // its pad's centre and 5.5 m below it (a 4 m hop); the one before a pad
+    // ends 30 m short of it and 8.5 m above it.
+    pads: [
+        (stage: 10, at: (3200.0, -905.0, -1935.0), size: (16.0, 1.0, 16.0)),
+        (stage: 11, at: (3640.0, -947.0, -1960.0), size: (20.0, 1.0, 20.0)),
+        (stage: 12, at: (4000.0, -1015.0, -1945.0), size: (20.0, 1.0, 20.0)),
+    ],
+    // The stand-in for the foundry's first pad (stage 13, P13): the foundry's
+    // own map replaces it (same stage number, a later map).
+    standin: (stage: 13, at: (4400.0, -1060.0, -1935.0), size: (16.0, 1.0, 16.0)),
+
+    // The ramps, in the order a stage's gaps are counted (a speed gap is the
+    // gap after ramp r to ramp r + 1 of its stage). Each is a ridge of points
+    // (a smooth curve through them; radius of curvature kept over 60 m).
+    // Forks: in stage 10 and stage 12 the main line hops twice (14 m then
+    // 12 m, an easy chain) while the shortcut leaps once (20 m, needs ~22 m/s
+    // and a clean run); both end on the next pad (6 m either side of its
+    // middle line, 30 m short of it).
+    ramps: [
+        // ---- stage 10
+        // the fast highway run off the pad, a wide S-sweep round the fallen decks
+        (stage: 10, name: "Highway", calm: false, points: [(3212.35, -910.50, -1935.00), (3229.22, -912.85, -1935.00), (3246.09, -915.20, -1935.00), (3261.91, -917.41, -1935.90), (3277.53, -918.69, -1938.57), (3292.74, -919.64, -1943.00), (3307.95, -920.59, -1947.43), (3323.57, -921.53, -1950.10), (3339.39, -922.48, -1951.00), (3356.26, -923.49, -1951.00), (3373.13, -924.49, -1951.00), (3390.00, -925.50, -1951.00)]),
+        // SHORTCUT: the median leap. A 20 m jump straight across to the pad run, needs ~23 m/s; no extra hops
+        (stage: 10, name: "Median leap", calm: false, points: [(3410.00, -931.50, -1955.00), (3428.18, -932.14, -1956.09), (3446.36, -932.77, -1957.18), (3464.55, -933.41, -1958.27), (3482.73, -934.05, -1959.36), (3500.91, -934.68, -1960.45), (3519.09, -935.32, -1961.55), (3537.27, -935.95, -1962.64), (3555.45, -936.59, -1963.73), (3573.64, -937.23, -1964.82), (3591.82, -937.86, -1965.91), (3610.00, -938.50, -1967.00)]),
+        // main line: hop the broken deck (14 m) and bulge round the pit
+        (stage: 10, name: "Broken deck", calm: false, points: [(3404.00, -928.00, -1943.00), (3420.73, -928.95, -1942.00), (3437.23, -929.90, -1939.00), (3453.72, -930.85, -1936.00), (3470.45, -931.80, -1935.00), (3474.00, -932.00, -1935.00)]),
+        // main line: a second hop (12 m) onto the overpass, then in to the pad
+        (stage: 10, name: "Overpass", calm: false, points: [(3486.00, -934.00, -1935.00), (3493.57, -934.27, -1935.00), (3510.35, -934.87, -1936.01), (3526.89, -935.47, -1939.02), (3542.95, -936.07, -1944.00), (3559.02, -936.67, -1948.98), (3575.56, -937.27, -1951.99), (3592.34, -937.87, -1953.00), (3610.00, -938.50, -1953.00)]),
+        // ---- stage 11
+        // a lead-in over the fallen lobby, then one full helix (radius 85 m) round the tower, 38 m down
+        (stage: 11, name: "Tower helix", calm: false, points: [(3652.35, -952.50, -1960.00), (3670.35, -954.50, -1960.00), (3688.35, -956.50, -1960.00), (3707.95, -957.91, -1957.71), (3726.50, -959.31, -1950.96), (3742.99, -960.72, -1940.11), (3756.53, -962.13, -1925.76), (3766.40, -963.54, -1908.67), (3772.06, -964.94, -1889.76), (3773.21, -966.35, -1870.06), (3769.78, -967.76, -1850.62), (3761.96, -969.17, -1832.50), (3750.18, -970.57, -1816.67), (3735.06, -971.98, -1803.98), (3717.42, -973.39, -1795.13), (3698.22, -974.80, -1790.57), (3678.48, -976.20, -1790.57), (3659.28, -977.61, -1795.13), (3641.64, -979.02, -1803.98), (3626.52, -980.43, -1816.67), (3614.74, -981.83, -1832.50), (3606.92, -983.24, -1850.62), (3603.49, -984.65, -1870.06), (3604.64, -986.06, -1889.76), (3610.30, -987.46, -1908.67), (3620.17, -988.87, -1925.76), (3633.71, -990.28, -1940.11), (3650.20, -991.69, -1950.96), (3668.75, -993.09, -1957.71), (3688.35, -994.50, -1960.00)]),
+        // leave the helix directly under where you went in (a cross-over), then the long plaza run
+        (stage: 11, name: "Plaza run", calm: false, points: [(3702.26, -997.00, -1961.63), (3720.84, -997.65, -1961.63), (3739.43, -998.31, -1961.63), (3758.01, -998.96, -1961.63), (3776.60, -999.62, -1961.63), (3790.58, -1000.11, -1960.69), (3804.31, -1000.60, -1957.90), (3817.54, -1001.10, -1953.31), (3830.78, -1001.59, -1948.72), (3844.51, -1002.08, -1945.93), (3858.49, -1002.58, -1945.00), (3877.07, -1003.23, -1945.00), (3895.66, -1003.88, -1945.00), (3914.24, -1004.54, -1945.00), (3932.83, -1005.19, -1945.00), (3951.41, -1005.85, -1945.00), (3970.00, -1006.50, -1945.00)]),
+        // ---- stage 12
+        // the atrium sweep: steep and fast out of the pad
+        (stage: 12, name: "Atrium sweep", calm: false, points: [(4012.35, -1020.50, -1945.00), (4021.37, -1021.82, -1945.00), (4037.96, -1024.26, -1946.26), (4054.16, -1025.59, -1950.00), (4070.36, -1026.63, -1953.74), (4086.95, -1027.68, -1955.00), (4097.47, -1028.34, -1955.00), (4108.00, -1029.00, -1955.00)]),
+        // the CALM STRETCH: a wide, flat, nearly straight cruise across the flooded concourse
+        (stage: 12, name: "Flooded concourse", calm: true, points: [(4122.00, -1031.50, -1955.00), (4127.05, -1031.68, -1955.00), (4144.37, -1032.28, -1954.50), (4161.63, -1032.88, -1953.00), (4178.90, -1033.49, -1951.50), (4196.22, -1034.09, -1951.00), (4208.00, -1034.50, -1951.00)]),
+        // SHORTCUT: the skylight leap. A 20 m jump straight to the pad run (~22 m/s), skipping both main-line hops
+        (stage: 12, name: "Skylight leap", calm: false, points: [(4228.00, -1040.50, -1955.00), (4245.75, -1041.88, -1953.25), (4263.50, -1043.25, -1951.50), (4281.25, -1044.62, -1949.75), (4299.00, -1046.00, -1948.00), (4316.75, -1047.38, -1946.25), (4334.50, -1048.75, -1944.50), (4352.25, -1050.12, -1942.75), (4370.00, -1051.50, -1941.00)]),
+        // main line: hop in (14 m), a small bulge past the escalator rubble
+        (stage: 12, name: "Escalator rubble", calm: false, points: [(4222.00, -1037.00, -1943.00), (4235.96, -1038.12, -1942.25), (4249.77, -1039.24, -1940.00), (4263.57, -1040.36, -1937.75), (4277.53, -1041.48, -1937.00), (4284.00, -1042.00, -1937.00)]),
+        // main line: hop (12 m), then down the food court to the pad
+        (stage: 12, name: "Food court", calm: false, points: [(4296.00, -1044.00, -1937.00), (4314.50, -1045.88, -1935.00), (4333.00, -1047.75, -1933.00), (4351.50, -1049.62, -1931.00), (4370.00, -1051.50, -1929.00)]),
+    ],
+    // Speed gaps (stage, ramp): the shortcuts' leaps. The map's `SpeedGap`
+    // markers say the same and an arrow floats over each.
+    speed_gaps: [(10, 0), (12, 1)],
+    // How each stage's ramps look: moss-green stone, no neon.
+    looks: [
+        (stage: 10, colour: (0.20, 0.38, 0.22), glow: 0.05, rough: 0.82, metal: 0.05),
+        (stage: 11, colour: (0.15, 0.35, 0.33), glow: 0.06, rough: 0.8, metal: 0.05),
+        (stage: 12, colour: (0.31, 0.42, 0.18), glow: 0.07, rough: 0.78, metal: 0.05),
+    ],
+
+    // The valley floor: three terraces stepping down (each far enough under its
+    // ramps that a fall is a wipe-out before it lands). x, z, the top (m),
+    // the thickness, giant trees (count, smallest and biggest scale: the
+    // meadow trees are 6.1 m tall at scale 1), bushes, ferns, flowers, rubble.
+    terraces: [
+        (x: (3150.0, 3575.0), z: (-2260.0, -1610.0), top: -975.0, thick: 30.0,
+         trees: (24, 7.0, 10.0), bushes: 55, ferns: 55, flowers: 45, rubble: 14),
+        (x: (3575.0, 3985.0), z: (-2260.0, -1610.0), top: -1045.0, thick: 30.0,
+         trees: (22, 9.0, 13.0), bushes: 45, ferns: 50, flowers: 40, rubble: 12),
+        (x: (3985.0, 4450.0), z: (-2260.0, -1610.0), top: -1090.0, thick: 30.0,
+         trees: (24, 8.0, 12.0), bushes: 55, ferns: 55, flowers: 45, rubble: 12),
+    ],
+    // Waterfalls off the terraces' edges: the edge x, the z span, top and
+    // bottom of the fall, how thick the sheet is, and white streaks.
+    waterfalls: [
+        (x: 3575.0, z: (-2040.0, -1905.0), top: -975.0, bottom: -1045.0, thick: 3.0, streaks: 8),
+        (x: 3575.0, z: (-2200.0, -2160.0), top: -975.0, bottom: -1045.0, thick: 2.0, streaks: 3),
+        (x: 3575.0, z: (-1730.0, -1690.0), top: -975.0, bottom: -1045.0, thick: 2.0, streaks: 3),
+        (x: 3985.0, z: (-2040.0, -1900.0), top: -1045.0, bottom: -1090.0, thick: 3.0, streaks: 6),
+        (x: 3985.0, z: (-1760.0, -1720.0), top: -1045.0, bottom: -1090.0, thick: 2.0, streaks: 3),
+    ],
+
+    // Highway decks: centre, size (length along the heading, thickness,
+    // width), heading, pitch (raises the +x end), roll, columns (fractions of
+    // the length from the middle), solid, vines, plants. Tilted ones are
+    // the collapsed halves: pure scenery. Every deck is well over 26 m over
+    // the ramps (or off to the side).
+    decks: [
+        // The overpass over the start: broken in the middle, both halves sagging.
+        (at: (3300.0, -858.0, -2030.0), size: (110.0, 3.5, 24.0), yaw: 90.0, pitch: 10.0, roll: 0.0, columns: [0.4], solid: false, vines: 10, plants: 8),
+        (at: (3300.0, -858.0, -1862.0), size: (110.0, 3.5, 24.0), yaw: 90.0, pitch: -12.0, roll: 0.0, columns: [-0.4], solid: false, vines: 10, plants: 8),
+        // The long highway beside the course, level.
+        (at: (3315.0, -880.0, -1872.0), size: (330.0, 3.5, 26.0), yaw: 0.0, pitch: 0.0, roll: 0.0, columns: [-0.45, -0.3, -0.15, 0.0, 0.15, 0.3, 0.45], solid: true, vines: 18, plants: 14),
+        // Slabs that fell and lean on the terrace.
+        (at: (3430.0, -950.0, -2090.0), size: (60.0, 3.0, 20.0), yaw: 20.0, pitch: 24.0, roll: 6.0, columns: [], solid: false, vines: 3, plants: 6),
+        (at: (3520.0, -945.0, -2140.0), size: (50.0, 3.0, 18.0), yaw: -30.0, pitch: -20.0, roll: -8.0, columns: [], solid: false, vines: 3, plants: 5),
+        // The ruined skybridge over the calm stretch, snapped in the middle.
+        (at: (4170.0, -994.0, -2000.0), size: (70.0, 3.0, 10.0), yaw: 90.0, pitch: 8.0, roll: 0.0, columns: [0.4], solid: false, vines: 7, plants: 3),
+        (at: (4170.0, -994.0, -1870.0), size: (70.0, 3.0, 10.0), yaw: 90.0, pitch: -9.0, roll: 0.0, columns: [-0.4], solid: false, vines: 7, plants: 3),
+        // A fallen section of the skyscraper's upper floors, beyond the helix.
+        (at: (3790.0, -1020.0, -1790.0), size: (70.0, 30.0, 30.0), yaw: -35.0, pitch: 25.0, roll: 4.0, columns: [], solid: false, vines: 12, plants: 8),
+    ],
+    // Skyscrapers: x z, footprint, height, stacked segments, lean per
+    // segment (x, z), heading, broken top, vines. The helix's tower stands in the middle
+    // of its ring and leans a little: the tower and the ring never touch.
+    towers: [
+        // The half-fallen skyscraper in the helix (the ring's centre is (3688, -1875)).
+        (at: (3688.0, -1875.0), size: (40.0, 40.0), height: 175.0, segments: 7, lean: (2.0, 1.5), yaw: 0.0, broken: true, vines: 28),
+        // The one it fell against.
+        (at: (3830.0, -2090.0), size: (44.0, 44.0), height: 200.0, segments: 8, lean: (0.0, 0.0), yaw: 10.0, broken: false, vines: 24),
+        (at: (3600.0, -1780.0), size: (30.0, 30.0), height: 110.0, segments: 5, lean: (0.0, 1.0), yaw: -8.0, broken: true, vines: 14),
+        (at: (3905.0, -1775.0), size: (32.0, 32.0), height: 80.0, segments: 4, lean: (-1.0, 0.0), yaw: 0.0, broken: true, vines: 10),
+        // The interchange's neighbours and the mall's.
+        (at: (3500.0, -2100.0), size: (36.0, 36.0), height: 120.0, segments: 5, lean: (0.0, -1.5), yaw: 0.0, broken: true, vines: 16),
+        (at: (3380.0, -2170.0), size: (30.0, 30.0), height: 90.0, segments: 4, lean: (0.0, 0.0), yaw: 14.0, broken: false, vines: 10),
+        (at: (4100.0, -2130.0), size: (36.0, 36.0), height: 110.0, segments: 5, lean: (1.0, 0.0), yaw: 0.0, broken: true, vines: 14),
+        (at: (4270.0, -2170.0), size: (40.0, 40.0), height: 140.0, segments: 6, lean: (0.0, 0.0), yaw: -12.0, broken: false, vines: 18),
+    ],
+    // An off-ramp loop of the interchange curling up beside the course.
+    loops: [
+        (at: (3450.0, -1770.0), radius: 80.0, arc: (180.0, 450.0), y: (-888.0, -925.0), width: 14.0, thick: 3.0, pieces: 18, column_every: 3),
+    ],
+    // A sign gantry over the start run (the beam is 36 m over the ridge).
+    gantries: [
+        (at: (3250.0, -1940.0), half_span: 40.0, beam_y: -878.0, column: 5.0, panel: (34.0, 14.0)),
+    ],
+    // The drowned mall: its extent, water level, roof height, columns and
+    // roof ribs; the roof is mostly gone. The ribs and columns stand well away
+    // from the ramps (the roof is 30 m+ over them).
+    halls: [
+        (x: (4130.0, 4390.0), z: (-2010.0, -1880.0), water_y: -1085.0, roof_y: -1000.0,
+         column: 4.0, column_every: 26.0, rib_every: 26.0, broken: 0.45, balcony_y: -1052.0, escalators: 3),
+    ],
+    // Hand-placed giant trees (model 1..3, x, z, scale, heading): trunk
+    // colliders. The big banyan over the mall is the stage's landmark.
+    giants: [
+        (model: 1, at: (4320.0, -1800.0), scale: 17.0, yaw: 20.0),
+        (model: 2, at: (3420.0, -2010.0), scale: 12.0, yaw: 70.0),
+        (model: 3, at: (3560.0, -1850.0), scale: 11.0, yaw: 130.0),
+        (model: 2, at: (3800.0, -1840.0), scale: 13.0, yaw: 10.0),
+        (model: 1, at: (4090.0, -1700.0), scale: 12.0, yaw: 200.0),
+    ],
+
+    scatter: (
+        // The seed (the layout is the same on every run).
+        seed: 306,
+        // Fireflies (small lime/gold glowing cubes) per 100 m of ridge; the
+        // calm stretch gets this many times more. Their size and how far off
+        // the ridge sideways (min, max) and up (min, max) they float.
+        fireflies: 7.0,
+        calm_fireflies: 3.5,
+        firefly_size: 0.35,
+        firefly_side: (7.0, 26.0),
+        firefly_up: (1.0, 18.0),
+        // Plants keep this far from any ridge; a tree this far plus its crown
+        // (about `crown` times its scale).
+        plant_clear: 16.0,
+        tree_clear: 18.0,
+        crown: 1.6,
+        // A soft lamp beside the course every `lamp_every` m: its distance to
+        // the side and over the ridge, lumens, reach and colour.
+        lamp_every: 95.0,
+        lamp_side: 17.0,
+        lamp_up: 6.0,
+        lumens: 220000.0,
+        range: 42.0,
+        colour: (0.78, 1.0, 0.72),
+        // Vines hanging off the ruins: length range and thickness (m).
+        vine_len: (6.0, 30.0),
+        vine_width: 0.5,
+        // Rubble block sizes (m).
+        rubble_size: (3.0, 9.0),
+        // A moss collar on every n-th storey of a tower.
+        collar_every: 3,
+    ),
+    // Nothing solid within `side` m of a ridge, from the ramp's body up
+    // to `up` m over it (the shared tunnel rule).
+    clearance: (side: 13.0, up: 26.0),
+    // Width of a highway column and a pad pillar.
+    column: 5.0,
+    // A speed-gap arrow floats this far over the middle of its gap.
+    arrow_up: 16.0,
+)

@@ -5,7 +5,7 @@
 
 pub(crate) mod bathroom;
 
-use bevy::audio::{AudioSource, Volume};
+use crate::sound::{AudioSample, Volume};
 use std::f32::consts::{FRAC_PI_2, PI, TAU};
 
 use bevy::light::NotShadowCaster;
@@ -89,13 +89,13 @@ pub struct Spooked {
 
 #[derive(Clone)]
 struct Sounds {
-    drone: Handle<AudioSource>,
-    breath: Handle<AudioSource>,
-    screams: Vec<Handle<AudioSource>>,
-    chime: Handle<AudioSource>,
+    drone: Handle<AudioSample>,
+    breath: Handle<AudioSample>,
+    screams: Vec<Handle<AudioSample>>,
+    chime: Handle<AudioSample>,
     /// The fart monster's farts and the bathroom's buzz (#161).
-    farts: Vec<Handle<AudioSource>>,
-    still: Handle<AudioSource>,
+    farts: Vec<Handle<AudioSample>>,
+    still: Handle<AudioSample>,
 }
 
 /// Is the local player in the warehouse? (The band goes quiet; see fusion.)
@@ -109,7 +109,7 @@ pub fn spooked(s: &Option<Res<Spooked>>) -> bool {
 /// sound asked for before its samples are ready just starts a moment late.
 fn sounds(
     spooked: &mut Spooked,
-    audio: &mut Assets<AudioSource>,
+    audio: &mut Assets<AudioSample>,
     commands: &mut Commands,
 ) -> Sounds {
     if let Some(s) = &spooked.sounds {
@@ -151,12 +151,12 @@ fn sounds(
 
 /// Warehouse sounds being synthesised, and the handles they fill.
 #[derive(Component)]
-struct SoundBake(bevy::tasks::Task<Vec<Vec<u8>>>, Vec<Handle<AudioSource>>);
+struct SoundBake(bevy::tasks::Task<Vec<Vec<u8>>>, Vec<Handle<AudioSample>>);
 
 fn finish_sound_bake(
     mut commands: Commands,
     mut bakes: Query<(Entity, &mut SoundBake)>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<ResMut<Assets<AudioSample>>>,
 ) {
     let Some(mut audio) = audio else { return };
     for (e, mut bake) in &mut bakes {
@@ -164,12 +164,7 @@ fn finish_sound_bake(
             continue;
         };
         for (handle, bytes) in bake.1.iter().zip(wavs) {
-            let _ = audio.insert(
-                handle,
-                AudioSource {
-                    bytes: bytes.into(),
-                },
-            );
+            let _ = audio.insert(handle, crate::sound::wav_or_silence(&bytes));
         }
         commands.entity(e).despawn();
     }
@@ -402,7 +397,7 @@ fn build_inside(
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
     images: Option<ResMut<Assets<Image>>>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<ResMut<Assets<AudioSample>>>,
     assets: Option<Res<AssetServer>>,
 ) {
     let (live, shown) = (loaded.is(AREA, Layer::Sim), loaded.is(AREA, Layer::Show));
@@ -1179,7 +1174,7 @@ fn dress_monsters(
     mut commands: Commands,
     new: Query<(Entity, &Monster), Without<MonsterDressed>>,
     mut spooked: ResMut<Spooked>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<ResMut<Assets<AudioSample>>>,
     assets: Option<Res<AssetServer>>,
 ) {
     if assets.is_none() {
@@ -1269,7 +1264,7 @@ fn animate_monsters(
     mut commands: Commands,
     time: Res<Time>,
     mut spooked: ResMut<Spooked>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<ResMut<Assets<AudioSample>>>,
     mut monsters: Query<(&Monster, &mut MonsterDressed, &mut Transform, &Children)>,
     mut bodies: Query<
         (&mut Visibility, &mut Transform),
@@ -1369,9 +1364,8 @@ fn darkness(
     mut spooked: ResMut<Spooked>,
     cameras: Query<Entity, With<MainCamera>>,
     flashlights: Query<Entity, With<Flashlight>>,
-    settings: Option<Res<crate::settings::Settings>>,
     quality: Option<Res<crate::graphics::GraphicsQuality>>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<ResMut<Assets<AudioSample>>>,
 ) {
     let mine = inside(here.0);
     if mine {
@@ -1401,14 +1395,11 @@ fn darkness(
         ));
         if let Some(mut audio) = audio {
             let s = sounds(&mut spooked, &mut audio, &mut commands);
-            let master = settings.map_or(0.8, |s| s.master_volume);
-            let drone = commands
-                .spawn((
-                    AudioPlayer(s.drone),
-                    PlaybackSettings::LOOP.with_volume(Volume::Linear(0.55 * master)),
-                    DespawnOnExit(AppState::InGame),
-                ))
-                .id();
+            // Master volume is on the main bus.
+            let drone = crate::sound::play_loop(&mut commands, &s.drone, 0.55);
+            commands
+                .entity(drone)
+                .insert(DespawnOnExit(AppState::InGame));
             spooked.drone = Some(drone);
         }
     } else {
@@ -1528,7 +1519,7 @@ fn on_caught(
     mut commands: Commands,
     me: Option<Res<LocalPlayer>>,
     mut spooked: ResMut<Spooked>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<ResMut<Assets<AudioSample>>>,
     mut flash: Query<&mut Scare>,
     mut text: Query<(&mut Text, &mut TextColor), With<ScareText>>,
     toast: Option<ResMut<Toast>>,
@@ -1538,11 +1529,8 @@ fn on_caught(
     let mine = me.is_some_and(|m| m.0 == ev.player);
     let scream = s.screams[(ev.player as usize) % s.screams.len()].clone();
     if mine {
-        commands.spawn((
-            AudioPlayer(scream),
-            PlaybackSettings::DESPAWN,
-            DespawnOnExit(AppState::InGame),
-        ));
+        let e = crate::sound::play_sfx(&mut commands, &scream, 1.0);
+        commands.entity(e).insert(DespawnOnExit(AppState::InGame));
         for mut f in &mut flash {
             *f = Scare(2.5, Vec3::new(0.35, 0.0, 0.0));
         }
@@ -1571,7 +1559,7 @@ fn on_delivered(
     ev: On<SoulDelivered>,
     mut commands: Commands,
     mut spooked: ResMut<Spooked>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<ResMut<Assets<AudioSample>>>,
     toast: Option<ResMut<Toast>>,
 ) {
     if let Some(mut audio) = audio {

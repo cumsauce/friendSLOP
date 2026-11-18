@@ -24,24 +24,28 @@
 
 pub use fusion::{compose, drums, dsp, engine, inst, synth, theory};
 
-use std::num::NonZero;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU8, AtomicU16, AtomicU32, Ordering};
 
-use bevy::audio::{AddAudioSource, AudioPlugin, Decodable, Sample, Source, Volume};
 use bevy::prelude::*;
+use bevy_seedling::prelude::{Connect, RegisterNode};
+use firewheel::channel_config::{ChannelConfig, ChannelCount};
+use firewheel::node::{
+    AudioNode, AudioNodeInfo, AudioNodeProcessor, ConstructProcessorContext, EmptyConfig,
+    NodeError, ProcBuffers, ProcExtra, ProcInfo, ProcessStatus,
+};
 
 use crate::AppState;
 use crate::features::fps::Walker;
 use crate::music::{MusicSignalSet, MusicSignals};
 use crate::player::{LocalPlayer, Player};
-use crate::settings::Settings;
+use crate::sound::{MusicBus, Volume, VolumeNode, audible};
 
 pub use compose::{Cue, LIFT_MAX, Mood};
 use engine::Engine;
 use synth::{Bank, RATE};
 
-/// How loud the music plays (before the master volume): under SFX and
+/// How loud the music plays (before the master volume, which is on the main bus): under SFX and
 /// voice chat.
 pub const MUSIC_LEVEL: f32 = 0.5;
 
@@ -117,77 +121,129 @@ impl MusicControl {
 #[derive(Resource, Clone)]
 pub struct MusicLink(pub Arc<MusicControl>);
 
-/// The soundtrack as a Bevy audio asset: playing it starts an endless
-/// [`FusionSource`].
-#[derive(Asset, TypePath)]
-pub struct FusionMusic {
+/// The soundtrack in the audio graph: an endless stereo stream, no inputs.
+/// Its processor owns the [`Engine`] (fixed at 44.1 kHz) and resamples it to
+/// the graph's rate.
+#[derive(Component, Clone)]
+pub struct FusionNode {
     bank: Arc<Bank>,
     control: Arc<MusicControl>,
 }
 
-impl Decodable for FusionMusic {
-    type Decoder = FusionSource;
+impl AudioNode for FusionNode {
+    type Configuration = EmptyConfig;
 
-    fn decoder(&self) -> FusionSource {
-        FusionSource::new(self.bank.clone(), self.control.clone())
+    fn info(&self, _: &EmptyConfig) -> Result<AudioNodeInfo, NodeError> {
+        Ok(AudioNodeInfo::new()
+            .debug_name("fusion music")
+            .channel_config(ChannelConfig {
+                num_inputs: ChannelCount::ZERO,
+                num_outputs: ChannelCount::STEREO,
+            }))
+    }
+
+    fn construct_processor(
+        &self,
+        _: &EmptyConfig,
+        cx: ConstructProcessorContext,
+    ) -> Result<impl AudioNodeProcessor, NodeError> {
+        Ok(FusionProcessor(FusionStream::new(
+            self.bank.clone(),
+            self.control.clone(),
+            cx.stream_info.sample_rate.get(),
+        )))
+    }
+}
+
+struct FusionProcessor(FusionStream);
+
+impl AudioNodeProcessor for FusionProcessor {
+    fn process(
+        &mut self,
+        info: &ProcInfo,
+        ProcBuffers { outputs, .. }: ProcBuffers,
+        _: &mut ProcExtra,
+    ) -> ProcessStatus {
+        let [l, r, ..] = outputs else {
+            return ProcessStatus::ClearAllOutputs;
+        };
+        let n = info.frames.min(l.len()).min(r.len());
+        self.0.fill(&mut l[..n], &mut r[..n]);
+        ProcessStatus::OutputsModified
     }
 }
 
 const CHUNK: usize = 512;
 
-/// The live music stream: renders 256 stereo frames at a time.
-pub struct FusionSource {
+/// The live music stream at a chosen rate: renders the engine 256 stereo
+/// frames at a time and resamples it (cubic Hermite, streaming) to `rate`.
+/// No allocation after `new`.
+pub struct FusionStream {
     engine: Engine,
     control: Arc<MusicControl>,
     buf: [f32; CHUNK],
+    /// Next unread frame of `buf`.
     i: usize,
+    /// Four consecutive source frames; the output lies between the middle two.
+    hist: [[f32; 2]; 4],
+    /// Position between `hist[1]` and `hist[2]`, and source frames per output frame.
+    frac: f64,
+    step: f64,
 }
 
-impl FusionSource {
-    pub fn new(bank: Arc<Bank>, control: Arc<MusicControl>) -> Self {
+impl FusionStream {
+    pub fn new(bank: Arc<Bank>, control: Arc<MusicControl>, rate: u32) -> Self {
         let seed = crate::settings::since_epoch().as_nanos() as u64;
         Self {
             engine: Engine::new(bank, seed),
             control,
             buf: [0.0; CHUNK],
-            i: CHUNK,
+            i: CHUNK / 2,
+            hist: [[0.0; 2]; 4],
+            frac: 0.0,
+            step: f64::from(RATE) / f64::from(rate.max(1)),
         }
     }
-}
 
-impl Iterator for FusionSource {
-    type Item = Sample;
-
-    #[inline]
-    fn next(&mut self) -> Option<Sample> {
-        if self.i >= CHUNK {
+    fn next_source(&mut self) -> [f32; 2] {
+        if self.i >= CHUNK / 2 {
             let control = &self.control;
             self.engine.set_duck(control.duck());
             self.engine.set_live(&control.live());
             self.engine.render(&mut self.buf, &mut || control.cue());
             self.i = 0;
         }
-        let s = self.buf[self.i];
+        let f = [self.buf[self.i * 2], self.buf[self.i * 2 + 1]];
         self.i += 1;
-        Some(s as Sample)
-    }
-}
-
-impl Source for FusionSource {
-    fn current_span_len(&self) -> Option<usize> {
-        None
+        f
     }
 
-    fn channels(&self) -> NonZero<u16> {
-        NonZero::<u16>::MIN.saturating_add(1)
-    }
-
-    fn sample_rate(&self) -> NonZero<u32> {
-        NonZero::<u32>::MIN.saturating_add(RATE - 1)
-    }
-
-    fn total_duration(&self) -> Option<std::time::Duration> {
-        None
+    /// Fill `l` and `r` (same length) with the next frames.
+    pub fn fill(&mut self, l: &mut [f32], r: &mut [f32]) {
+        for (l, r) in l.iter_mut().zip(r.iter_mut()) {
+            while self.frac >= 1.0 {
+                self.frac -= 1.0;
+                let f = self.next_source();
+                self.hist.rotate_left(1);
+                self.hist[3] = f;
+            }
+            let t = self.frac as f32;
+            let at = |c: usize| {
+                let (y0, y1, y2, y3) = (
+                    self.hist[0][c],
+                    self.hist[1][c],
+                    self.hist[2][c],
+                    self.hist[3][c],
+                );
+                let c1 = 0.5 * (y2 - y0);
+                let c2 = y0 - 2.5 * y1 + 2.0 * y2 - 0.5 * y3;
+                let c3 = 0.5 * (y3 - y0) + 1.5 * (y1 - y2);
+                ((c3 * t + c2) * t + c1) * t + y1
+            };
+            *l = at(0);
+            *r = at(1);
+            self.frac += self.step;
+        }
     }
 }
 
@@ -215,13 +271,18 @@ pub fn plugin(app: &mut App) {
                 .chain()
                 .after(MusicSignalSet),
         );
-    // Headless apps (tests) have no audio: just keep the director.
-    if !app.is_plugin_added::<AudioPlugin>() {
+    // Headless apps (tests) have no audio graph: just keep the director.
+    if !app.is_plugin_added::<bevy_seedling::SeedlingCorePlugin>() {
         return;
     }
-    app.add_audio_source::<FusionMusic>()
-        .add_systems(Startup, start_bank)
-        .add_systems(Update, finish_bank.run_if(resource_exists::<BankBuild>));
+    app.register_simple_node::<FusionNode>()
+        .add_systems(Startup, start_bank.run_if(audible))
+        .add_systems(
+            Update,
+            finish_bank
+                .run_if(resource_exists::<BankBuild>)
+                .run_if(audible),
+        );
 }
 
 /// The sample bank being rendered (once, at startup).
@@ -252,12 +313,7 @@ fn start_bank(mut commands: Commands) {
     });
 }
 
-fn finish_bank(
-    mut commands: Commands,
-    mut build: ResMut<BankBuild>,
-    link: Res<MusicLink>,
-    music: Option<ResMut<Assets<FusionMusic>>>,
-) {
+fn finish_bank(mut commands: Commands, mut build: ResMut<BankBuild>, link: Res<MusicLink>) {
     #[cfg(not(target_arch = "wasm32"))]
     let Some(bank) = bevy::tasks::futures::check_ready(&mut build.task) else {
         return;
@@ -277,32 +333,33 @@ fn finish_bank(
         std::mem::take(&mut build.bank)
     };
     commands.remove_resource::<BankBuild>();
-    let Some(mut music) = music else { return };
-    let handle = music.add(FusionMusic {
-        bank: Arc::new(bank),
-        control: link.0.clone(),
-    });
-    // Not `LOOP`: the stream never ends, and looping would buffer it.
-    commands.spawn((
-        AudioPlayer(handle),
-        PlaybackSettings::ONCE.with_volume(Volume::Linear(0.0)),
-        MusicPlayer,
-    ));
+    // Silent until `music_volume` fades it in; the volume node feeds the music bus.
+    commands
+        .spawn(FusionNode {
+            bank: Arc::new(bank),
+            control: link.0.clone(),
+        })
+        .chain_node((
+            VolumeNode {
+                volume: Volume::Linear(0.0),
+                ..default()
+            },
+            MusicPlayer,
+        ))
+        .connect(MusicBus);
 }
 
-/// Master volume applies live (the global volume only counts at spawn).
+/// The music's level, live (master is on the main bus).
 /// The score's `hush` fades the band out (an attack's strings, the dark of
 /// the warehouse, Fulton St station) and its `silence` cuts it dead (the
 /// endless hallway, #206).
 fn music_volume(
-    settings: Option<Res<Settings>>,
     time: Res<Time>,
     mut fade_in: Local<f32>,
     mut hush: Local<f32>,
     here: Facts,
-    mut sinks: Query<&mut AudioSink, With<MusicPlayer>>,
+    mut nodes: Query<&mut VolumeNode, With<MusicPlayer>>,
 ) {
-    let master = settings.map_or(0.8, |s| s.master_volume);
     let score = compose::SCORE.get();
     let here = here.get();
     let holds = |c: &Option<fusion::direct::Cond>| c.as_ref().is_some_and(|c| c.holds(&here));
@@ -312,10 +369,10 @@ fn music_volume(
     if holds(&score.silence) {
         *hush = 1.0;
     }
-    for mut sink in &mut sinks {
+    for mut node in &mut nodes {
         *fade_in = (*fade_in + time.delta_secs() / 2.0).min(1.0);
-        let level = MUSIC_LEVEL * master * *fade_in * (1.0 - *hush);
-        sink.set_volume(Volume::Linear(level));
+        let level = MUSIC_LEVEL * *fade_in * (1.0 - *hush);
+        node.volume = Volume::Linear(level);
     }
 }
 
@@ -899,14 +956,27 @@ mod tests {
     }
 
     #[test]
-    fn source_streams_stereo() {
+    fn stream_is_stereo_endless_and_sane() {
         let bank = Arc::new(Bank::build());
         let ctl = Arc::new(MusicControl::default());
         ctl.set(Mood::named("Village"), 0.6);
-        let mut src = FusionSource::new(bank, ctl);
-        assert_eq!(src.channels().get(), 2);
-        assert_eq!(src.sample_rate().get(), RATE);
-        let n = (0..RATE as usize).filter_map(|_| src.next()).count();
-        assert_eq!(n, RATE as usize);
+        for rate in [RATE, 48_000] {
+            let mut s = FusionStream::new(bank.clone(), ctl.clone(), rate);
+            let (mut l, mut r) = (vec![0.0f32; 480], vec![0.0f32; 480]);
+            let (mut peak, mut energy, mut n) = (0.0f32, 0.0f64, 0usize);
+            // Two seconds, in graph-sized blocks.
+            for _ in 0..(rate as usize * 2 / 480) {
+                s.fill(&mut l, &mut r);
+                for v in l.iter().chain(r.iter()) {
+                    assert!(v.is_finite());
+                    peak = peak.max(v.abs());
+                    energy += f64::from(*v * *v);
+                    n += 1;
+                }
+            }
+            let rms = (energy / n as f64).sqrt();
+            assert!(peak > 0.01 && peak < 4.0, "peak {peak} at {rate}");
+            assert!(rms > 0.001, "silent at {rate}");
+        }
     }
 }

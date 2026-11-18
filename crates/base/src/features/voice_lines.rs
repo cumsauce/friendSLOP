@@ -265,9 +265,7 @@ pub fn babble_voice(who: Speaker) -> super::babble::Voice {
 /// here (music boxes still play their jingle first), else [`voice_samples`].
 /// `bank` is the grain bank at its own rate ([`super::babble::bank_samples`]).
 pub fn voice(who: Speaker, said: &str, seed: u32, bank: Option<&[f32]>) -> Vec<f32> {
-    let Some(bank) = bank
-        .filter(|b| b.len() >= super::babble::bank_len())
-    else {
+    let Some(bank) = bank.filter(|b| b.len() >= super::babble::bank_len()) else {
         return voice_samples(who, said, seed, RATE);
     };
     let mut out = if who == Speaker::MusicBox {
@@ -279,7 +277,7 @@ pub fn voice(who: Speaker, said: &str, seed: u32, bank: Option<&[f32]>) -> Vec<f
         Vec::new()
     };
     out.extend(super::babble::speak(
-        &bank,
+        bank,
         babble_voice(who),
         said,
         seed,

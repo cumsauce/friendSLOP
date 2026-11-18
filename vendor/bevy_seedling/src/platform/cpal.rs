@@ -53,7 +53,6 @@ pub struct CpalPlatformPlugin;
 
 impl Plugin for CpalPlatformPlugin {
     fn build(&self, app: &mut App) {
-
         #[cfg(feature = "rtaudio")]
         if app
             .world()

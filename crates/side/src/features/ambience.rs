@@ -12,7 +12,7 @@
 use friendslop_base::areas::AreaApp as _;
 use std::sync::Arc;
 
-use bevy::audio::{AudioSource, Volume};
+use crate::sound::{AudioSample, Volume};
 use bevy::prelude::*;
 
 use crate::AppState;
@@ -20,9 +20,9 @@ use crate::features::bear::wav_bytes;
 
 #[derive(Resource)]
 struct AmbientSounds {
-    birds: Handle<AudioSource>,
-    fire: Handle<AudioSource>,
-    wind: Handle<AudioSource>,
+    birds: Handle<AudioSample>,
+    fire: Handle<AudioSample>,
+    wind: Handle<AudioSample>,
 }
 
 pub fn plugin(app: &mut App) {
@@ -34,14 +34,15 @@ pub fn plugin(app: &mut App) {
 fn load_ambience(
     mut commands: Commands,
     assets: Option<Res<AssetServer>>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<ResMut<Assets<AudioSample>>>,
 ) {
     let (Some(assets), Some(mut audio)) = (assets, audio) else {
         return;
     };
-    let wind = audio.add(AudioSource {
-        bytes: Arc::from(wav_bytes(&wind_loop(WIND_RATE), WIND_RATE)),
-    });
+    let wind = audio.add(crate::sound::wav_or_silence(&wav_bytes(
+        &wind_loop(WIND_RATE),
+        WIND_RATE,
+    )));
     commands.insert_resource(AmbientSounds {
         birds: assets.load("audio/ambience/birds.ogg"),
         fire: assets.load("audio/ambience/fire_crackle.ogg"),
@@ -51,15 +52,15 @@ fn load_ambience(
 
 fn start_ambience(mut commands: Commands, sounds: Option<Res<AmbientSounds>>) {
     let Some(sounds) = sounds else { return };
-    let bed = |handle: &Handle<AudioSource>, volume: f32| {
-        (
-            AudioPlayer(handle.clone()),
-            PlaybackSettings::LOOP.with_volume(Volume::Linear(volume)),
-            DespawnOnExit(AppState::InGame),
-        )
-    };
-    commands.spawn((bed(&sounds.birds, 0.18), Bed::Birds));
-    commands.spawn((bed(&sounds.wind, 0.22), Bed::Wind));
+    for (handle, volume, bed) in [
+        (&sounds.birds, 0.18, Bed::Birds),
+        (&sounds.wind, 0.22, Bed::Wind),
+    ] {
+        let e = crate::sound::play_loop(&mut commands, handle, volume);
+        commands
+            .entity(e)
+            .insert((bed, DespawnOnExit(AppState::InGame)));
+    }
     // Heard where it burns (see `crate::spatial`), and only from its site (#412).
     let fire = crate::spatial::loop_at(
         &mut commands,
@@ -101,17 +102,17 @@ pub fn district_levels(at: Vec3) -> (f32, f32) {
 fn district_mix(
     time: Res<Time>,
     camera: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
-    mut beds: Query<(&Bed, &mut AudioSink)>,
+    mut beds: Query<(&Bed, &mut crate::sound::SoundVolume)>,
 ) {
     let Some(cam) = camera.iter().next() else {
         return;
     };
     let (birds, wind) = district_levels(cam.translation());
     let t = (time.delta_secs() * 0.6).min(1.0);
-    for (bed, mut sink) in &mut beds {
+    // Master volume is on the main bus, so the beds follow it after a crossfade too.
+    for (bed, mut level) in &mut beds {
         let want = if *bed == Bed::Birds { birds } else { wind };
-        let now = sink.volume().to_linear();
-        sink.set_volume(Volume::Linear(now + (want - now) * t));
+        level.0 += (want - level.0) * t;
     }
 }
 

@@ -7,7 +7,7 @@
 //! sees pink hearts float up above that NPC and hears a soft, generated
 //! chorus of "aww". You are still shamed: being caught is being caught.
 
-use bevy::audio::AudioSource;
+use crate::sound::AudioSample;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -137,7 +137,7 @@ fn swoon(
     mut commands: Commands,
     state: Option<Res<State<AppState>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
-    audio: Option<Res<Assets<AudioSource>>>,
+    audio: Option<Res<Assets<AudioSample>>>,
 ) {
     if state.is_none_or(|s| *s.get() != AppState::InGame) {
         return;

@@ -2,8 +2,8 @@
 //! muted, open or push-to-talk). [`crate::voice::VoiceMuted`] follows
 //! [`Settings::mic_on`]. Local to each player; nothing is replicated.
 
-use crate::voice_chat::*;
 use crate::sound::{MainBus, Volume, VolumeNode};
+use crate::voice_chat::*;
 use bevy::prelude::*;
 
 /// Volumes are `0..=1`, changed in steps of [`Settings::STEP`] from the menu.

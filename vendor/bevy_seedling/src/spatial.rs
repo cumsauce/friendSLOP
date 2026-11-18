@@ -45,10 +45,7 @@ impl Plugin for SpatialPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<DefaultSpatialScale>().add_systems(
             Last,
-            (
-                update_basic,
-                update_itd,
-            )
+            (update_basic, update_itd)
                 .after(SeedlingSystems::Pool)
                 .before(SeedlingSystems::Queue),
         );

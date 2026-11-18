@@ -7,7 +7,7 @@
 //! and gets a line saying who did it and who got blamed. The blame is just
 //! talk: it doesn't count as being caught.
 
-use bevy::audio::AudioSource;
+use crate::sound::AudioSample;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -139,7 +139,7 @@ fn gaslight(
     me: Option<Res<LocalPlayer>>,
     toast: Option<ResMut<Toast>>,
     state: Option<Res<State<AppState>>>,
-    audio: Option<Res<Assets<AudioSource>>>,
+    audio: Option<Res<Assets<AudioSample>>>,
 ) {
     if state.is_none_or(|s| *s.get() != AppState::InGame) {
         return;

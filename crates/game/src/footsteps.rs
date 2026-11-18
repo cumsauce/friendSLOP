@@ -6,9 +6,7 @@
 //! startup (soft noise crunch over a low thump), a few variants so steps
 //! don't sound like a machine gun. Dirt paths sound a little crisper.
 
-use std::sync::Arc;
-
-use bevy::audio::{AudioSource, Volume};
+use crate::sound::AudioSample;
 use bevy::platform::collections::HashMap;
 use bevy::prelude::*;
 
@@ -31,9 +29,9 @@ const TELEPORT_SPEED: f32 = 20.0;
 
 #[derive(Resource)]
 struct StepSounds {
-    grass: Vec<Handle<AudioSource>>,
-    path: Vec<Handle<AudioSource>>,
-    land: Handle<AudioSource>,
+    grass: Vec<Handle<AudioSample>>,
+    path: Vec<Handle<AudioSample>>,
+    land: Handle<AudioSample>,
 }
 
 #[derive(Default)]
@@ -54,13 +52,10 @@ pub fn plugin(app: &mut App) {
     );
 }
 
-fn make_sounds(mut commands: Commands, audio: Option<ResMut<Assets<AudioSource>>>) {
+fn make_sounds(mut commands: Commands, audio: Option<ResMut<Assets<AudioSample>>>) {
     let Some(mut audio) = audio else { return };
-    let mut add = |samples: Vec<f32>| {
-        audio.add(AudioSource {
-            bytes: Arc::from(wav_bytes(&samples, RATE)),
-        })
-    };
+    let mut add =
+        |samples: Vec<f32>| audio.add(crate::sound::wav_or_silence(&wav_bytes(&samples, RATE)));
     let grass = (0..4).map(|i| add(step(0x1234 + i, 900.0, 0.09))).collect();
     let path = (0..4)
         .map(|i| add(step(0x9876 + i, 2400.0, 0.07)))
@@ -152,7 +147,7 @@ impl Gait {
         &mut self,
         sounds: &'a StepSounds,
         fall: Footfall,
-    ) -> Option<&'a Handle<AudioSource>> {
+    ) -> Option<&'a Handle<AudioSample>> {
         match fall {
             Footfall::Land => Some(&sounds.land),
             Footfall::Step { on_path } => {
@@ -188,11 +183,8 @@ fn step_sounds(
     }
     let volume = if fall == Footfall::Land { 0.5 } else { 0.22 };
     if let Some(handle) = gait.sound(&sounds, fall) {
-        commands.spawn((
-            AudioPlayer(handle.clone()),
-            PlaybackSettings::DESPAWN.with_volume(Volume::Linear(volume)),
-            DespawnOnExit(AppState::InGame),
-        ));
+        let e = crate::sound::play_sfx(&mut commands, handle, volume);
+        commands.entity(e).insert(DespawnOnExit(AppState::InGame));
     }
 }
 

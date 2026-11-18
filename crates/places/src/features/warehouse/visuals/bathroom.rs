@@ -6,8 +6,8 @@
 
 use std::f32::consts::PI;
 
+use crate::sound::Volume;
 use bevy::asset::RenderAssetUsages;
-use bevy::audio::Volume;
 use bevy::image::{ImageAddressMode, ImageSampler, ImageSamplerDescriptor};
 use bevy::math::Affine2;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
@@ -345,7 +345,7 @@ pub(super) fn furnish(
     zone: Zone,
     (x, z): (usize, usize),
     mask: u8,
-    hum: Option<&Handle<AudioSource>>,
+    hum: Option<&Handle<AudioSample>>,
 ) {
     let c = cell_centre(x, z);
     let cw = Vec3::new(c.x, INSIDE_Y, c.y);
@@ -994,8 +994,7 @@ fn bathroom_air(
     mut looks: ResMut<crate::place::PlaceLooks>,
     warehouse: Query<&Warehouse>,
     spooked: Res<Spooked>,
-    mut sinks: Query<&mut AudioSink>,
-    settings: Option<Res<crate::settings::Settings>>,
+    mut sinks: Query<&mut crate::sound::SoundVolume>,
 ) {
     let seed = warehouse.iter().next().and_then(|w| w.seed);
     let now = spooked.inside && in_bathroom(seed, Some(here.0)).is_some();
@@ -1006,10 +1005,8 @@ fn bathroom_air(
         return;
     }
     *was = now;
-    let master = settings.map_or(0.8, |s| s.master_volume);
-    if let Some(mut sink) = spooked.drone.and_then(|d| sinks.get_mut(d).ok()) {
-        let v = if now { 0.1 } else { 0.55 };
-        sink.set_volume(Volume::Linear(v * master));
+    if let Some(mut level) = spooked.drone.and_then(|d| sinks.get_mut(d).ok()) {
+        level.0 = if now { 0.1 } else { 0.55 };
     }
 }
 
@@ -1110,7 +1107,7 @@ fn animate_fart_monsters(
     mut commands: Commands,
     time: Res<Time>,
     mut spooked: ResMut<Spooked>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<ResMut<Assets<AudioSample>>>,
     mut monsters: Query<(&FartMonster, &mut FartDressed, &mut Transform, &Children)>,
     mut bodies: Query<&mut crate::rigged::RigClip, With<FartBody>>,
 ) {
@@ -1203,7 +1200,7 @@ fn on_gassed(
     mut commands: Commands,
     me: Option<Res<LocalPlayer>>,
     mut spooked: ResMut<Spooked>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<ResMut<Assets<AudioSample>>>,
     mut flash: Query<&mut Scare>,
     mut text: Query<(&mut Text, &mut TextColor), With<ScareText>>,
     toast: Option<ResMut<Toast>>,
@@ -1215,11 +1212,8 @@ fn on_gassed(
     });
     if mine {
         if let Some(fart) = fart {
-            commands.spawn((
-                AudioPlayer(fart),
-                PlaybackSettings::DESPAWN,
-                DespawnOnExit(AppState::InGame),
-            ));
+            let e = crate::sound::play_sfx(&mut commands, &fart, 1.0);
+            commands.entity(e).insert(DespawnOnExit(AppState::InGame));
         }
         for mut f in &mut flash {
             *f = Scare(3.0, Vec3::new(0.2, 0.35, 0.02));

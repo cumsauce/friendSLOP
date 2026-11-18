@@ -35,6 +35,7 @@ pub mod sound;
 pub mod spatial;
 pub mod textures;
 pub mod voice;
+pub mod voice_out;
 #[cfg(target_arch = "wasm32")]
 pub mod voice_web;
 #[cfg(target_arch = "wasm32")]

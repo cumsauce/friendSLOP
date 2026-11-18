@@ -20,11 +20,10 @@
 use std::num::{NonZeroU32, NonZeroUsize};
 
 use bevy::prelude::*;
-pub use bevy_seedling::prelude::{
-    AudioSample, DefaultPool, MainBus, NodeLabel, SamplePlayer, SoundEffectsBus, Volume,
-    VolumeNode,
-};
 use bevy_seedling::prelude::*;
+pub use bevy_seedling::prelude::{
+    AudioSample, DefaultPool, MainBus, NodeLabel, SamplePlayer, SoundEffectsBus, Volume, VolumeNode,
+};
 use firewheel::sample_resource::InterleavedResourceF32;
 
 /// A loaded or synthesized sound.
@@ -52,6 +51,36 @@ pub fn stream_rate(rate: Option<&bevy_seedling::context::SampleRate>) -> u32 {
     rate.map(|r| r.get().get()).unwrap_or(48_000)
 }
 
+/// The graph's rate as last seen (any thread, e.g. a synth task).
+static RATE: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(48_000);
+
+/// The graph's sample rate, readable anywhere (48 kHz until it's known).
+pub fn rate() -> u32 {
+    RATE.load(std::sync::atomic::Ordering::Relaxed)
+}
+
+fn track_rate(rate: Option<Res<bevy_seedling::context::SampleRate>>) {
+    RATE.store(
+        stream_rate(rate.as_deref()),
+        std::sync::atomic::Ordering::Relaxed,
+    );
+}
+
+/// A playable sound from a synth's WAV bytes, at the graph's rate.
+pub fn wav(bytes: &[u8]) -> Option<AudioSample> {
+    from_wav(bytes, rate())
+}
+
+/// [`wav`], or a moment of silence if the bytes aren't a WAV we can read.
+pub fn wav_or_silence(bytes: &[u8]) -> AudioSample {
+    wav(bytes).unwrap_or_else(|| samples(&[0.0; 64], rate()))
+}
+
+/// A playable sound from mono samples at `rate`, at the graph's rate.
+pub fn samples(samples: &[f32], sample_rate: u32) -> AudioSample {
+    from_samples(samples, sample_rate, rate())
+}
+
 /// A flat sound's level, linear (1 = as recorded). Change it any time; the
 /// sound glides there.
 #[derive(Component, Clone, Copy, Debug, PartialEq)]
@@ -69,6 +98,7 @@ pub fn plugin(app: &mut App) {
     }
     app.insert_resource(Audible)
         .add_systems(Startup, spawn_buses)
+        .add_systems(First, track_rate)
         .add_systems(PostUpdate, steer_volumes);
 }
 

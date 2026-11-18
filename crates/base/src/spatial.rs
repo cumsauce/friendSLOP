@@ -34,16 +34,16 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 
 use bevy::platform::collections::HashMap;
+use bevy::prelude::*;
+use bevy::tasks::futures::check_ready;
+use bevy::tasks::{AsyncComputeTaskPool, Task, TaskPool};
+use bevy::transform::TransformSystems;
 use bevy_seedling::prelude::{AudioSample, Connect, RegisterNode, SoundEffectsBus};
 use firewheel::channel_config::{ChannelConfig, ChannelCount};
 use firewheel::node::{
     AudioNode, AudioNodeInfo, AudioNodeProcessor, ConstructProcessorContext, EmptyConfig,
     NodeError, ProcBuffers, ProcExtra, ProcInfo, ProcessStatus,
 };
-use bevy::prelude::*;
-use bevy::tasks::futures::check_ready;
-use bevy::tasks::{AsyncComputeTaskPool, Task, TaskPool};
-use bevy::transform::TransformSystems;
 
 use crate::AppState;
 use crate::player::{LocalPlayer, Player};
@@ -1090,15 +1090,13 @@ fn start_sounds(
             .remove::<PendingSound>()
             .insert(node);
         commands.entity(entity).connect(SoundEffectsBus);
-        commands.entity(entity).insert((
-            Emitter {
-                link,
-                carry: p.carry,
-                occluded: 0.0,
-                blocked: false,
-                hrtf: 0.0,
-            },
-        ));
+        commands.entity(entity).insert((Emitter {
+            link,
+            carry: p.carry,
+            occluded: 0.0,
+            blocked: false,
+            hrtf: 0.0,
+        },));
     }
 }
 
@@ -1180,10 +1178,7 @@ fn steer(
 
 /// A sleeping site's sounds hold where they are (#412): paused while you're
 /// away, so they cost nothing, and carried on from there when you're back.
-fn sleep_sounds(
-    awake: Res<crate::sites::Awake>,
-    sounds: Query<(&crate::sites::AtSite, &Emitter)>,
-) {
+fn sleep_sounds(awake: Res<crate::sites::Awake>, sounds: Query<(&crate::sites::AtSite, &Emitter)>) {
     for (site, e) in &sounds {
         let asleep = !awake.me(site.0);
         if e.link.is_paused() != asleep {

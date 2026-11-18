@@ -1581,17 +1581,13 @@ mod tests {
         .unwrap_or_default();
         assert!(friendslop_base::areas::AREAS.set_bytes(text.as_bytes()));
         let areas = friendslop_base::areas::areas();
-        let Some(area) = areas.areas.iter().find(|a| a.id == "surf_neon") else {
-            panic!("no area surf_neon")
+        let Some(area) = areas.areas.iter().find(|a| a.id == "surf") else {
+            panic!("no area surf")
         };
         let t = surf::TUNING.get();
         for s in &c.stages {
             let at = surf::hall_at(&t) + s.pad.0 + Vec3::Y;
-            assert!(
-                area.holds(at),
-                "stage {} at {at} is outside surf_neon",
-                s.stage
-            );
+            assert!(area.holds(at), "stage {} at {at} is outside surf", s.stage);
         }
         let _ = d;
     }

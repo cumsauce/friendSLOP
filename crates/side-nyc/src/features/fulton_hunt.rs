@@ -45,7 +45,7 @@ use serde::{Deserialize, Serialize};
 use super::fulton::Hunt;
 use super::fulton::{
     CELL, HIDE_AT, Kind, LOCKER_DOORS_X, Level, LevelModels, Station, TILES, TileSet, Tuning,
-    cell_world, floor_at, level_at, street_at, tuning,
+    cell_of, cell_world, floor_at, level_at, level_of, map_cell, street_at, tuning,
 };
 use crate::AppState;
 use crate::features::fps::{Hiding, WalkInput, Walker, teleport};
@@ -94,11 +94,20 @@ pub fn neighbours(levels: &[Level], n: Node) -> Vec<Node> {
         .filter_map(|s| wfc::neighbour(l.width, l.depth, (x, z), s))
         .map(|c| (li, c.0, c.1))
         .collect();
-    if (x, z) == l.goal && l.fill(l.goal).kind == Kind::Stairs && li + 1 < levels.len() {
-        out.push((li + 1, x, z));
+    // (Levels differ in size: the stairs land on the same spot in the world.)
+    if (x, z) == l.goal
+        && l.fill(l.goal).kind == Kind::Stairs
+        && let Some(below) = levels.get(li + 1)
+        && let Some(c) = map_cell(l, below, (x, z))
+    {
+        out.push((li + 1, c.0, c.1));
     }
-    if li > 0 && (x, z) == l.arrive && l.fill(l.arrive).kind == Kind::Landing {
-        out.push((li - 1, x, z));
+    if li > 0
+        && (x, z) == l.arrive
+        && l.fill(l.arrive).kind == Kind::Landing
+        && let Some(c) = map_cell(l, &levels[li - 1], (x, z))
+    {
+        out.push((li - 1, c.0, c.1));
     }
     out
 }
@@ -159,18 +168,19 @@ pub fn node_at(t: &Tuning, levels: &[Level], p: Vec3) -> Option<Node> {
     if !in_station(p) {
         return None;
     }
-    let li = level_at(p.y);
+    // (Down in an atrium is still the atrium's level.)
+    let li = level_of(t, levels, p);
     let l = levels.get(li)?;
-    let origin = cell_world(t, li, (0, 0));
-    let x = ((p.x - origin.x) / CELL).round();
-    let z = ((p.z - origin.z) / CELL).round();
-    (x >= 0.0 && z >= 0.0 && (x as usize) < l.width && (z as usize) < l.depth)
-        .then_some((li, x as usize, z as usize))
+    let c = cell_of(t, l, p)?;
+    Some((li, c.0, c.1))
 }
 
 /// The floor in the middle of a node.
-pub fn node_pos(t: &Tuning, n: Node) -> Vec3 {
-    cell_world(t, n.0, (n.1, n.2))
+pub fn node_pos(t: &Tuning, levels: &[Level], n: Node) -> Vec3 {
+    let Some(l) = levels.get(n.0) else {
+        return cell_world(t, n.0, &Level::core(t), (n.1, n.2));
+    };
+    cell_world(t, n.0, l, (n.1, n.2))
 }
 
 /// Every hiding spot: its node and where you stand inside it.
@@ -184,7 +194,7 @@ pub fn hiding_spots(t: &Tuning, set: &TileSet, levels: &[Level]) -> Vec<(Node, V
                     continue;
                 };
                 if set.pieces.get(i as usize).is_some_and(|p| p.hide) {
-                    let at = cell_world(t, li, (x, z)) + f.rotation() * HIDE_AT;
+                    let at = cell_world(t, li, l, (x, z)) + f.rotation() * HIDE_AT;
                     out.push(((li, x, z), at));
                 }
             }
@@ -198,7 +208,7 @@ pub fn hiding_spots(t: &Tuning, set: &TileSet, levels: &[Level]) -> Vec<(Node, V
 /// inside the cone, and nothing but open corridor between.
 pub fn sees(t: &Tuning, levels: &[Level], from: Vec3, yaw: f32, to: Vec3) -> bool {
     let h = &t.hunt;
-    if level_at(from.y) != level_at(to.y) {
+    if level_of(t, levels, from) != level_of(t, levels, to) {
         return false;
     }
     let d = (to - from).xz();
@@ -340,7 +350,11 @@ pub fn think(
     };
     let mut out = Outcome::Nothing;
     // Close enough to grab someone out in the open.
-    for p in prey.iter().filter(|p| p.hidden.is_none()) {
+    // (Never while the profiling bot drives.)
+    for p in prey
+        .iter()
+        .filter(|p| p.hidden.is_none() && !super::fulton::bot_run())
+    {
         if level_at(p.feet.y) == level_at(hunter.pos.y)
             && p.feet.xz().distance(hunter.pos.xz()) < h.catch_range
         {
@@ -576,7 +590,7 @@ fn around_dist(levels: &[Level], n: Node, from: Node, cells: u32) -> bool {
 /// Where it stands in a node: the middle, on its floor (down in a tall
 /// room's sunken cells).
 pub fn node_floor(t: &Tuning, levels: &[Level], n: Node) -> Vec3 {
-    let p = node_pos(t, n);
+    let p = node_pos(t, levels, n);
     p.with_y(floor_at(t, levels, p))
 }
 
@@ -872,8 +886,9 @@ fn hide(
     let t = tuning();
     if let Some(spot) = hunted.hiding.remove(&p.id) {
         // Out the locker's door, a step towards the cell's middle.
-        let out = node_at(&t, station.levels(), spot)
-            .map_or(Vec2::ZERO, |n| (node_pos(&t, n) - spot).xz().normalize());
+        let out = node_at(&t, station.levels(), spot).map_or(Vec2::ZERO, |n| {
+            (node_pos(&t, station.levels(), n) - spot).xz().normalize()
+        });
         let yaw = w.yaw;
         teleport(&mut w, None, None, spot + out.extend(0.0) * 1.2, yaw);
         commands.entity(e).remove::<Hiding>();
@@ -890,7 +905,7 @@ fn hide(
     };
     // In reach is measured to the bank's nearest door (what you clicked),
     // not to the middle locker you end up in.
-    let cell = cell_world(&t, n.0, (n.1, n.2));
+    let cell = node_pos(&t, station.levels(), n);
     let turn = station.levels()[n.0].fill((n.1, n.2)).rotation();
     let in_reach = LOCKER_DOORS_X.iter().any(|&x| {
         let door = cell + turn * Vec3::new(x, 0.0, HIDE_AT.z);
@@ -1894,12 +1909,12 @@ mod tests {
             assert!(neighbours(&levels, at).contains(&n));
             at = n;
         }
-        assert_eq!(node_at(&t, &levels, node_pos(&t, low)), Some(low));
+        assert_eq!(node_at(&t, &levels, node_pos(&t, &levels, low)), Some(low));
     }
 
-    fn hunter_at(t: &Tuning, n: Node) -> Hunter {
+    fn hunter_at(t: &Tuning, levels: &[Level], n: Node) -> Hunter {
         Hunter {
-            pos: node_pos(t, n),
+            pos: node_pos(t, levels, n),
             yaw: 0.0,
             mode: Mode::Drift,
         }
@@ -1933,14 +1948,14 @@ mod tests {
         let Some((a, b)) = corridor(&levels) else {
             panic!("no corridor")
         };
-        let mut h = hunter_at(&t, a);
-        let start = node_pos(&t, a);
-        let d = node_pos(&t, b) - start;
+        let mut h = hunter_at(&t, &levels, a);
+        let start = node_pos(&t, &levels, a);
+        let d = node_pos(&t, &levels, b) - start;
         let yaw = d.x.atan2(d.z);
         h.yaw = yaw;
         let you = Prey {
             id: 7,
-            feet: node_pos(&t, b),
+            feet: node_pos(&t, &levels, b),
             hidden: None,
         };
         let mut brain = Brain::new(7, 1);
@@ -2004,12 +2019,12 @@ mod tests {
         let Some((a, b)) = corridor(&levels) else {
             panic!("no corridor")
         };
-        let mut h = hunter_at(&t, a);
-        let d = node_pos(&t, b) - node_pos(&t, a);
+        let mut h = hunter_at(&t, &levels, a);
+        let d = node_pos(&t, &levels, b) - node_pos(&t, &levels, a);
         h.yaw = d.x.atan2(d.z);
         let you = Prey {
             id: 7,
-            feet: node_pos(&t, b),
+            feet: node_pos(&t, &levels, b),
             hidden: None,
         };
         let mut brain = Brain::new(7, 1);
@@ -2034,7 +2049,7 @@ mod tests {
         let Some((a, b)) = corridor(&levels) else {
             panic!("no corridor")
         };
-        let (pa, pb) = (node_pos(&t, a), node_pos(&t, b));
+        let (pa, pb) = (node_pos(&t, &levels, a), node_pos(&t, &levels, b));
         let d = pb - pa;
         let ahead = d.x.atan2(d.z);
         let eye = pa;
@@ -2050,8 +2065,8 @@ mod tests {
                     if let Some(n) = wfc::neighbour(l.width, l.depth, (x, z), s)
                         && !l.open((x, z), s)
                     {
-                        let from = node_pos(&t, (a.0, x, z));
-                        let to = node_pos(&t, (a.0, n.0, n.1));
+                        let from = node_pos(&t, &levels, (a.0, x, z));
+                        let to = node_pos(&t, &levels, (a.0, n.0, n.1));
                         let dd = to - from;
                         assert!(!sees(&t, &levels, from, dd.x.atan2(dd.z), to));
                         break 'walls;
@@ -2061,7 +2076,7 @@ mod tests {
         }
         // Hidden in a locker in plain view: it walks past.
         let spots = Vec::new();
-        let mut h = hunter_at(&t, a);
+        let mut h = hunter_at(&t, &levels, a);
         h.yaw = ahead;
         let mut brain = Brain::new(7, 1);
         let you = Prey {
@@ -2087,10 +2102,10 @@ mod tests {
         // You're hiding, so it has nothing to go on.
         let you = Prey {
             id: 3,
-            feet: node_pos(&t, you_node),
-            hidden: Some(node_pos(&t, you_node)),
+            feet: node_pos(&t, &levels, you_node),
+            hidden: Some(node_pos(&t, &levels, you_node)),
         };
-        let mut h = hunter_at(&t, start);
+        let mut h = hunter_at(&t, &levels, start);
         let mut brain = Brain::new(3, 9);
         let far = route(&levels, start, you_node).map_or(0, |r| r.len());
         let mut closest = far;
@@ -2115,18 +2130,18 @@ mod tests {
         let Some((a, b)) = corridor(&levels) else {
             panic!("no corridor")
         };
-        let mut h = hunter_at(&t, a);
+        let mut h = hunter_at(&t, &levels, a);
         let mut brain = Brain::new(7, 1);
         let you = Prey {
             id: 7,
-            feet: node_pos(&t, b),
+            feet: node_pos(&t, &levels, b),
             hidden: None,
         };
         // It saw you once, then you slipped out of its cone.
         brain.last_seen = Some(b);
         brain.timer = t.hunt.lose_secs;
         h.mode = Mode::Chase;
-        let start = node_pos(&t, a);
+        let start = node_pos(&t, &levels, a);
         let mut kept = Vec::new();
         for _ in 0..20 {
             let out = think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05);
@@ -2143,7 +2158,8 @@ mod tests {
         );
         assert!(
             kept.iter()
-                .any(|p| p.xz().distance(node_pos(&t, b).xz()) < p.xz().distance(kept[0].xz())),
+                .any(|p| p.xz().distance(node_pos(&t, &levels, b).xz())
+                    < p.xz().distance(kept[0].xz())),
             "it closes in on you"
         );
         // After the grace runs out it stops hunting and starts searching.
@@ -2162,12 +2178,12 @@ mod tests {
         };
         // It chased you to `a`, you slipped into a locker at `b`; it only saw
         // you at `a`, so it must not keep walking on to `b`.
-        let mut h = hunter_at(&t, a);
+        let mut h = hunter_at(&t, &levels, a);
         let mut brain = Brain::new(7, 1);
         brain.last_seen = Some(a);
         brain.timer = t.hunt.lose_secs;
         h.mode = Mode::Chase;
-        let locker = node_pos(&t, b);
+        let locker = node_pos(&t, &levels, b);
         let you = Prey {
             id: 7,
             feet: locker,
@@ -2195,14 +2211,14 @@ mod tests {
         let Some((a, b)) = corridor(&levels) else {
             panic!("no corridor")
         };
-        let mut h = hunter_at(&t, a);
+        let mut h = hunter_at(&t, &levels, a);
         // Facing away, so only its ears can find you.
-        let d = node_pos(&t, b) - node_pos(&t, a);
+        let d = node_pos(&t, &levels, b) - node_pos(&t, &levels, a);
         h.yaw = d.x.atan2(d.z) + std::f32::consts::PI;
         let mut brain = Brain::new(7, 1);
         let you = Prey {
             id: 7,
-            feet: node_pos(&t, b),
+            feet: node_pos(&t, &levels, b),
             hidden: None,
         };
         // You run four cells away, out of its cone: it hears you coming.
@@ -2211,7 +2227,7 @@ mod tests {
             .and_then(|r| r.get(far - 1).copied())
             .unwrap_or(b);
         let steps = Noise {
-            at: node_pos(&t, over_there),
+            at: node_pos(&t, &levels, over_there),
             level: Loud::Run,
             radius: 12.0,
         };
@@ -2243,7 +2259,7 @@ mod tests {
     fn it_leaves_when_you_do() {
         let (t, set, levels) = data();
         let spots = hiding_spots(&t, &set, &levels);
-        let mut h = hunter_at(&t, (5, 0, 0));
+        let mut h = hunter_at(&t, &levels, (5, 0, 0));
         let mut brain = Brain::new(1, 1);
         let gone = Prey {
             id: 1,

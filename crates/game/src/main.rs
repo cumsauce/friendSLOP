@@ -64,6 +64,7 @@ pub fn main() -> AppExit {
     .add_systems(Startup, cli_args)
     .init_resource::<Churn>()
     .add_systems(Update, (churn, bench).chain().run_if(bench_enabled))
+    .add_systems(Startup, cluster_room)
     .add_plugins(PipelineLog)
     .add_plugins(Pacing)
     .run()
@@ -79,6 +80,14 @@ impl Plugin for Pacing {
             _app.add_plugins(bevy_framepace::FramepacePlugin);
         }
     }
+}
+
+/// Lights are clustered on the CPU, not by Bevy 0.20's GPU clustering: its
+/// readback of an overflowed frame panicked the render thread ("attempt to
+/// add with overflow") in Fulton St with many lights, even with more room.
+fn cluster_room(settings: Option<ResMut<bevy::light::cluster::GlobalClusterSettings>>) {
+    let Some(mut settings) = settings else { return };
+    settings.gpu_clustering = None;
 }
 
 struct PipelineLog;

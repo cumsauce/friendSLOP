@@ -1,0 +1,53 @@
+// How Fulton St's levels are laid out, coarse first (crates/side-nyc/src/features/fulton.rs).
+// Each level gets a type, then a small wave function collapse over macro
+// cells (`macro_cells` fine cells each way, 12 m) picks what goes where:
+// a long line of track, a big hall, an atrium, the usual warren of
+// corridors, or solid rock. Neighbouring macros of the same kind merge into
+// one set piece, which is stamped on the fine grid before the corridors are
+// run up to it. Edit and save; a new layout needs a new game.
+(
+    macro_cells: 2,
+    // The level types. Each level picks one by weight among those whose
+    // depths (`from`, `until`, 0 is the top) it's in. `metas` are the coarse
+    // tiles it may use and how much each is wanted. `sizes` are its
+    // footprints in cells (across, deep; each may come turned round),
+    // centred under the station, never smaller than fulton.ron's `width` x
+    // `depth`: that core is where every level's stairs go, so they land on
+    // the next whatever its size. Tunnel levels (and the two above them)
+    // always keep the core's size.
+    // Line levels come only on the platform levels (fulton.ron's
+    // platform_every), whose track they are; the levels just above a tunnel
+    // level stay Warren.
+    types: [
+        (kind: Warren, weight: 3.0, from: 0, until: 99,
+            metas: [(Warren, 4.0), (Solid, 0.3)], sizes: [(6, 6), (8, 6)]),
+        (kind: Hall, weight: 1.6, from: 1, until: 99,
+            metas: [(Hall, 1.2), (Warren, 2.0)], sizes: [(8, 8), (10, 8)]),
+        (kind: Line, weight: 0.0, from: 0, until: 99,
+            metas: [(Track, 1.5), (Warren, 2.0), (Solid, 0.2)], sizes: [(12, 6)]),
+        (kind: Atrium, weight: 1.2, from: 3, until: 99,
+            metas: [(Atrium, 1.2), (Warren, 2.0)], sizes: [(8, 8)]),
+    ],
+    // Faces of different coarse tiles that may meet (each face always meets
+    // its own kind, merging them, except a track's side: two lines never
+    // run side by side). A track's `TrackEnd` is the way along it.
+    next_to: [
+        (Warren, Hall), (Warren, Atrium), (Warren, Solid),
+        (Warren, TrackEnd), (Warren, TrackSide),
+        (Solid, TrackEnd), (Solid, TrackSide), (Solid, Hall), (Solid, Atrium),
+    ],
+    // No level reaches more than this many cells (6 m) from the station's
+    // middle, either way (sizes bigger than that are left out).
+    reach: 7,
+    // A line: its track runs this many macros long (at least, at most),
+    // and never the whole way across (the level below winds round it).
+    line: (run: (4, 4)),
+    // A hall (and an atrium): at least this many macros (each way round),
+    // and how many doors (at least, at most). A hall is always tall: its
+    // floor away from the doors sinks like a tall room's.
+    hall: (min: (2, 2), doors: (2, 4)),
+    // An atrium: a hall whose floor drops a whole level (`drop` m, the level
+    // below solid under it), balconies at its doors and long stairs down
+    // (`stair_run` m long; their slope stays walkable).
+    atrium: (min: (2, 2), drop: 4.0, stair_run: 5.4),
+)

@@ -10,6 +10,8 @@
 //   Walk([(x, z), ...])        walk through these points in turn
 //   Run([(x, z), ...])         the same, running
 //   WalkTo("<name>")           walk to a start's point
+//   Follow("<name>")           walk through the starts <name>_0, <name>_1, ...
+//                              (fulton_walk: Fulton St's way down)
 //   Ride(from: "<stop>", to: "<stop>")
 //                              board the train (or plane) standing at `from`
 //                              (a stop's start name) and ride it to `to`
@@ -28,6 +30,9 @@
     hitch_ms: 25.0,
     // How fast Spin turns (degrees a second), and whether every walk sprints.
     spin_degs: 360.0,
+    // How fast the view swings round to face where it's going (degrees a
+    // second); it walks the right way meanwhile.
+    look_degs: 540.0,
     always_run: true,
     routes: {
         // The tour's hitch spots twice over: hitches only the first time
@@ -101,6 +106,85 @@
             Start("wastes"),
             Spin(4.0),
             Start("bonfire"),
+            Wait(3.0),
+        ],
+        // Down Fulton St level by level (the hunter never catches the bot),
+        // then back up top: each level where you arrive and at its stairs.
+        "fulton": [
+            Start("fulton"),
+            Follow("fulton_walk"),
+            Start("bonfire"),
+            Spin(4.0),
+            Wait(3.0),
+        ],
+        // Stand on Fulton's first track level (level 3) through the 25 s
+        // model listing of FRIENDSLOP_PERF=2.
+        "fulton_line": [
+            Start("fulton_3"),
+            Spin(40.0),
+        ],
+        // The same levels by teleport: where you arrive and at the stairs.
+        "fulton_hops": [
+            Start("fulton"),
+            Spin(3.0),
+            Start("fulton_0"),
+            Spin(3.0),
+            Start("fulton_0_stairs"),
+            Spin(2.0),
+            Start("fulton_1"),
+            Spin(3.0),
+            Start("fulton_1_stairs"),
+            Spin(2.0),
+            Start("fulton_2"),
+            Spin(3.0),
+            Start("fulton_2_stairs"),
+            Spin(2.0),
+            Start("fulton_3"),
+            Spin(3.0),
+            Start("fulton_3_stairs"),
+            Spin(2.0),
+            Start("fulton_4"),
+            Spin(3.0),
+            Start("fulton_4_stairs"),
+            Spin(2.0),
+            Start("fulton_5"),
+            Spin(3.0),
+            Start("fulton_5_stairs"),
+            Spin(2.0),
+            Start("fulton_6"),
+            Spin(3.0),
+            Start("fulton_6_stairs"),
+            Spin(2.0),
+            Start("fulton_7"),
+            Spin(3.0),
+            Start("fulton_7_stairs"),
+            Spin(2.0),
+            Start("fulton_8"),
+            Spin(3.0),
+            Start("fulton_8_stairs"),
+            Spin(2.0),
+            Start("fulton_9"),
+            Spin(3.0),
+            Start("fulton_9_stairs"),
+            Spin(2.0),
+            Start("fulton_10"),
+            Spin(3.0),
+            Start("fulton_10_stairs"),
+            Spin(2.0),
+            Start("fulton_11"),
+            Spin(3.0),
+            Start("fulton_11_stairs"),
+            Spin(2.0),
+            Start("fulton_12"),
+            Spin(3.0),
+            Start("fulton_12_stairs"),
+            Spin(2.0),
+            Start("fulton_13"),
+            Spin(3.0),
+            Start("fulton_13_stairs"),
+            Spin(2.0),
+            Start("bonfire"),
+            Spin(4.0),
             Wait(3.0),
         ],
         // In and out of places, again and again: every hop loads one area

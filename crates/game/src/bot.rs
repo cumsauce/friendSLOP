@@ -13,6 +13,7 @@
 //! components, [`PerfMark`]) and write it (`VirtualInput`) over HTTP.
 
 use std::collections::BTreeMap;
+use std::f32::consts::{PI, TAU};
 
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
@@ -35,6 +36,9 @@ pub struct Routes {
     pub hitch_ms: f32,
     /// How fast `Spin` turns (degrees a second).
     pub spin_degs: f32,
+    /// How fast the view swings round to face where it's going (degrees a
+    /// second; it walks the right way meanwhile).
+    pub look_degs: f32,
     /// Sprint on every walk (`Walk` too, not just `Run`).
     pub always_run: bool,
     /// Each route by name: its steps in order.
@@ -52,6 +56,9 @@ pub enum Step {
     Run(Vec<(f32, f32)>),
     /// Walk to a named start (a map spot or a feature's start).
     WalkTo(String),
+    /// Walk through the starts `<name>_0`, `<name>_1`, ... until there's no
+    /// next one (a feature's route, such as Fulton St's way down).
+    Follow(String),
     /// Board the train standing at `from` (a stop's start name, its
     /// platform) and ride until it sets you down near `to`.
     Ride { from: String, to: String },
@@ -90,6 +97,15 @@ pub fn flatten(steps: &[Step]) -> Vec<(String, Step)> {
     out
 }
 
+/// The stick that moves the same way facing `now` as `stick` does facing
+/// `want` (yaws as the view has them: 0 looks down -z).
+fn restick(stick: Vec2, want: f32, now: f32) -> Vec2 {
+    let fwd = |a: f32| Vec2::new(-a.sin(), -a.cos());
+    let right = |a: f32| Vec2::new(a.cos(), -a.sin());
+    let world = right(want) * stick.x + fwd(want) * stick.y;
+    Vec2::new(world.dot(right(now)), world.dot(fwd(now)))
+}
+
 /// A short name for a step, for the logs.
 pub fn label(s: &Step) -> String {
     match s {
@@ -104,6 +120,7 @@ pub fn label(s: &Step) -> String {
             format!("{verb} to {:.0},{:.0}", to.0, to.1)
         }
         Step::WalkTo(n) => format!("walk to {n}"),
+        Step::Follow(n) => format!("follow {n}"),
         Step::Ride { from, to } => format!("ride {from} -> {to}"),
         Step::Wait(s) => format!("wait {s:.0}s"),
         Step::Spin(s) => format!("spin {s:.0}s"),
@@ -342,15 +359,22 @@ fn drive(
             warn!("bot: nothing to click at {pos:.1}");
         }
     }
+    let mut stick = out.stick;
     if let Some(y) = out.yaw {
-        view.yaw = y;
+        // Swing round quickly, not in a snap; the stick still pushes the
+        // way the bot wants to go.
+        let want = view.yaw + (y - view.yaw + PI).rem_euclid(TAU) - PI;
+        let max = t.look_degs.to_radians() * dt;
+        let now = view.yaw + (want - view.yaw).clamp(-max, max);
+        stick = restick(stick, want, now);
+        view.yaw = now;
     }
     if let Some(p) = out.pitch {
         view.pitch = p;
     }
     view.yaw += out.turn * dt;
     *input = VirtualInput {
-        stick: out.stick,
+        stick,
         look: Vec2::ZERO,
         jump: out.jump,
         run: out.run,
@@ -420,6 +444,35 @@ fn step_out(
                 bot.point += 1;
                 bot.best = (f32::MAX, bot.secs);
                 return Out { next: false, ..o };
+            }
+            o
+        }
+        Step::Follow(n) => {
+            let name = format!("{n}_{}", bot.point);
+            let Some(at) = lookup(bot, points, &name) else {
+                // No next point: the route's done.
+                return Out {
+                    next: bot.point > 0 || bot.secs > t.give_up,
+                    ..default()
+                };
+            };
+            let o = go_by(bot, pos, at.xz(), true, t, false);
+            if o.next || o.skip {
+                info!(
+                    "bot: {name} {} at {:.0},{:.0} (aimed {:.0},{:.0})",
+                    if o.skip { "GAVE UP" } else { "reached" },
+                    pos.x,
+                    pos.z,
+                    at.x,
+                    at.z
+                );
+                bot.point += 1;
+                bot.best = (f32::MAX, bot.secs);
+                return Out {
+                    next: false,
+                    skip: false,
+                    ..o
+                };
             }
             o
         }
@@ -586,6 +639,12 @@ fn lookup(bot: &mut Bot, points: &crate::features::start::StartPoints, name: &st
 /// Walk (or run) towards `target`: done in reach, a hop when stuck, skipped
 /// when hopelessly stuck.
 fn go(bot: &mut Bot, pos: Vec3, target: Vec2, run: bool, t: &Routes) -> Out {
+    go_by(bot, pos, target, run, t, true)
+}
+
+/// [`go`], with or without the navmesh (a route's own points, such as Fulton
+/// St's cells, go straight: the mesh doesn't know the place's walls).
+fn go_by(bot: &mut Bot, pos: Vec3, target: Vec2, run: bool, t: &Routes, nav: bool) -> Out {
     let dist = pos.xz().distance(target);
     if dist < t.reach {
         return Out {
@@ -601,22 +660,22 @@ fn go(bot: &mut Bot, pos: Vec3, target: Vec2, run: bool, t: &Routes) -> Out {
     let stuck = bot.secs - bot.best.1;
     // A place that's solid in the middle (the warehouse, the windmill): done
     // when the mesh says this is as close as it gets, or stuck close by.
-    let close = stuck > t.stuck_jump && (dist < 20.0 || bot.nav_unreachable);
-    if bot.nav_reached && bot.secs > 0.5 || close {
+    let close = nav && stuck > t.stuck_jump && (dist < 20.0 || bot.nav_unreachable);
+    if nav && bot.nav_reached && bot.secs > 0.5 || close {
         return Out {
             next: true,
             ..default()
         };
     }
-    bot.nav_target = Some(Vec3::new(target.x, pos.y, target.y));
+    bot.nav_target = nav.then(|| Vec3::new(target.x, pos.y, target.y));
     let (mut yaw, mut stick) = steer(pos, target);
     // Follow the navmesh round walls when it knows a way; straight otherwise.
-    if let Some(d) = bot.nav_dir {
+    if let Some(d) = bot.nav_dir.filter(|_| nav) {
         yaw = (-d.x).atan2(-d.y);
     }
     // Stuck on the mesh: against something it leaves out (a tree, a rock).
     // Sidestep, one way then the other, rather than climb it.
-    if bot.nav_dir.is_some() && stuck > t.stuck_jump {
+    if (bot.nav_dir.is_some() || !nav) && stuck > t.stuck_jump {
         let side = if (stuck / 1.5) as i32 % 2 == 0 {
             1.0
         } else {
@@ -631,7 +690,7 @@ fn go(bot: &mut Bot, pos: Vec3, target: Vec2, run: bool, t: &Routes) -> Out {
         // Hop only without a path: on the mesh, hopping just climbs walls.
         jump: bot.nav_dir.is_none() && stuck > t.stuck_jump && (stuck * 2.0).fract() < 0.5,
         // Stuck too long, or wandering far too long.
-        skip: stuck > t.give_up || bot.secs > t.give_up * 15.0,
+        skip: stuck > t.give_up || (nav && bot.secs > t.give_up * 15.0),
         ..default()
     }
 }
@@ -807,7 +866,7 @@ mod tests {
         assert!(ROUTES.set_bytes(&bytes), "{path} doesn't parse");
         let r = ROUTES.get();
         assert!(r.reach > 0.0 && r.stuck_jump > 0.0 && r.give_up > r.stuck_jump);
-        assert!(r.hitch_ms > 0.0 && r.spin_degs > 0.0);
+        assert!(r.hitch_ms > 0.0 && r.spin_degs > 0.0 && r.look_degs > 0.0);
         for name in ["tour", "borders"] {
             let steps = r.routes.get(name).map(|s| flatten(s)).unwrap_or_default();
             assert!(!steps.is_empty(), "route {name}");

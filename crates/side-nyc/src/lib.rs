@@ -49,6 +49,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::nyc_traffic::TUNING,
         &features::fulton::TUNING,
         &features::fulton::TILES,
+        &features::fulton::LAYOUT,
         &features::fulton_hunt::WRITING,
         &features::wallet::TUNING,
         &features::trains::TUNING,

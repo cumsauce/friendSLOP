@@ -599,7 +599,7 @@ fn boom(
     state: Option<Res<State<AppState>>>,
     meshes: Option<ResMut<Assets<Mesh>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
-    audio: Option<Res<Assets<bevy::audio::AudioSource>>>,
+    audio: Option<Res<Assets<crate::sound::AudioSample>>>,
 ) {
     if state.is_none_or(|s| *s.get() != AppState::InGame) {
         return;

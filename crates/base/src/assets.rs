@@ -5,7 +5,6 @@
 //!
 //! Gameplay logic never depends on any of this — these are decoration only.
 
-use bevy::audio::Volume;
 use bevy::prelude::*;
 
 use crate::AppState;
@@ -13,10 +12,10 @@ use crate::AppState;
 /// Sound effects. All short loops/one-shots in `assets/audio/sfx`.
 #[derive(Resource, Clone)]
 pub struct Sfx {
-    pub gunshot: Handle<AudioSource>,
-    pub punch: Handle<AudioSource>,
-    pub crow_caw: Handle<AudioSource>,
-    pub eat: Handle<AudioSource>,
+    pub gunshot: Handle<crate::sound::AudioSample>,
+    pub punch: Handle<crate::sound::AudioSample>,
+    pub crow_caw: Handle<crate::sound::AudioSample>,
+    pub eat: Handle<crate::sound::AudioSample>,
 }
 
 /// The heavy display font for the logo words, banners and big numbers
@@ -97,10 +96,7 @@ fn load_sfx(mut commands: Commands, assets: Option<Res<AssetServer>>) {
 }
 
 /// Play a sound effect once for this peer, at the given linear volume.
-pub fn play_sfx(commands: &mut Commands, which: &Handle<AudioSource>, volume: f32) {
-    commands.spawn((
-        AudioPlayer(which.clone()),
-        PlaybackSettings::DESPAWN.with_volume(Volume::Linear(volume)),
-        DespawnOnExit(AppState::InGame),
-    ));
+pub fn play_sfx(commands: &mut Commands, which: &Handle<crate::sound::AudioSample>, volume: f32) {
+    let e = crate::sound::play_sfx(commands, which, volume);
+    commands.entity(e).insert(DespawnOnExit(AppState::InGame));
 }

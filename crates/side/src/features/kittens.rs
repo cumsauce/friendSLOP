@@ -10,7 +10,7 @@
 //! turf. The kittens are the pet cat model (`models/creatures/cat.gltf`)
 //! shrunk to kitten size. Meows are synthesised; nothing needs a sound file.
 
-use bevy::audio::AudioSource;
+use crate::sound::AudioSample;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -384,7 +384,7 @@ fn meow(
     mut commands: Commands,
     time: Res<Time>,
     camera: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
-    audio: Option<Res<Assets<AudioSource>>>,
+    audio: Option<Res<Assets<AudioSample>>>,
     kittens: Query<&Kitten>,
     mut seed: Local<u32>,
 ) {

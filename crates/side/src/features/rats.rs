@@ -15,7 +15,7 @@
 //! say something evil. A rat whose owner leaves goes back underground.
 //! The rats are a rigged modeler model ([`RAT_MODEL`]) that scurries and sniffs.
 
-use bevy::audio::AudioSource;
+use crate::sound::AudioSample;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -418,7 +418,7 @@ fn click_rat(
     me: Option<Res<LocalPlayer>>,
     rats: Query<&Rat>,
     toast: Option<ResMut<Toast>>,
-    audio: Option<Res<Assets<AudioSource>>>,
+    audio: Option<Res<Assets<AudioSample>>>,
     mut said: Local<usize>,
 ) {
     let Ok(rat) = rats.get(click.entity) else {

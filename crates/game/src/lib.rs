@@ -29,6 +29,7 @@ pub mod loading;
 pub mod lod;
 pub mod menu;
 pub use friendslop_base::rigged;
+pub use friendslop_base::sound;
 // The browser has its own iroh transport (relay-only, async), same API (#106).
 #[cfg_attr(target_arch = "wasm32", path = "net_web.rs")]
 pub mod net;
@@ -116,6 +117,7 @@ impl Plugin for GamePlugin {
                 buildings::plugin,
                 creator::plugin,
                 footsteps::plugin,
+                friendslop_base::sound::plugin,
                 spatial::plugin,
                 theme::plugin,
                 friendslop_world::map::MapPlugin,

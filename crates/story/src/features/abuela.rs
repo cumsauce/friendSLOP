@@ -18,7 +18,7 @@
 //! r's, soft s's, nasal ñ), quiet and heard at her chair. The one she spoke to
 //! is told "you feel loved".
 
-use bevy::audio::AudioSource;
+use crate::sound::AudioSample;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use friendslop_base::areas::AreaApp as _;
@@ -449,7 +449,7 @@ fn hear_abuela(
     state: Option<Res<State<AppState>>>,
     me: Option<Res<LocalPlayer>>,
     walkers: Query<(&Player, &Walker)>,
-    audio: Option<Res<Assets<AudioSource>>>,
+    audio: Option<Res<Assets<AudioSample>>>,
     materials: Option<ResMut<Assets<StandardMaterial>>>,
     toast: Option<ResMut<Toast>>,
     mut words: Query<&mut WordsBox>,

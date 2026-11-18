@@ -121,7 +121,8 @@ pub fn layout(map: &MapFile) -> Layout {
 /// A lamp with no colour of its own gives this.
 const LAMP_COLOUR: Color = Color::srgb(1.0, 0.9, 0.78);
 
-/// One surf area: its id in `areas.ron`, its map's plain data and its scene.
+/// One surf map: its area in `areas.ron` (all of them `surf`: the whole
+/// course loads at once), its plain data and its scene.
 /// A map that isn't there yet (a pack still being made) spawns nothing.
 macro_rules! areas {
     ($(($build:ident, $id:literal, $data:expr, $bsn:literal, $ramps:literal)),* $(,)?) => {
@@ -156,35 +157,35 @@ areas!(
     ),
     (
         build_office,
-        "surf_office",
+        "surf",
         crate::rules::surf::COURSE_OFFICE,
         "maps/surf_office.bsn",
         true
     ),
     (
         build_mall,
-        "surf_mall",
+        "surf",
         crate::rules::surf::COURSE_MALL,
         "maps/surf_mall.bsn",
         true
     ),
     (
         build_neon,
-        "surf_neon",
+        "surf",
         crate::rules::surf::COURSE_NEON,
         "maps/surf_neon.bsn",
         true
     ),
     (
         build_overgrown,
-        "surf_overgrown",
+        "surf",
         crate::rules::surf::COURSE_OVERGROWN,
         "maps/surf_overgrown.bsn",
         true
     ),
     (
         build_foundry,
-        "surf_foundry",
+        "surf",
         crate::rules::surf::COURSE_FOUNDRY,
         "maps/surf_foundry.bsn",
         true
@@ -561,15 +562,7 @@ mod tests {
         assert!(crate::rules::surf::TUNING.set_bytes(&bytes));
         let t = tuning();
         let o = hall_at(&t);
-        let want = [
-            "surf",
-            "surf",
-            "surf",
-            "surf",
-            "surf",
-            "surf_office",
-            "surf_mall",
-        ];
+        let want = ["surf", "surf", "surf", "surf", "surf", "surf", "surf"];
         for (i, w) in want.iter().enumerate() {
             let Some(at) = crate::rules::surf::stage_spawn(&t, i) else {
                 panic!("no stage {i}")

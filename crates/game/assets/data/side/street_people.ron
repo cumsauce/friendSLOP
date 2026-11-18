@@ -33,9 +33,10 @@
     // Seconds between a tweaker's yells (nonstop) and a preacher's sermons (min, max).
     tweaker_every: (2.5, 4.5),
     preacher_every: (4.0, 7.0),
-    // Speech voices (pitch Hz, speed): tweakers high and fast.
-    tweaker_voice: (150.0, 1.35),
-    preacher_voice: (85.0, 0.85),
+    // Speech voices (pitch Hz, speed, mood from data/base/speech.ron): tweakers high and
+    // fast, preachers low and slow. Each person's pitch and throat (seed) differ a little.
+    tweaker_voice: (pitch: 150.0, speed: 1.35, mood: "frantic"),
+    preacher_voice: (pitch: 85.0, speed: 0.85, mood: "preacher"),
     // How far a tweaker paces each way (m) and how fast (m/s).
     pace: 2.0,
     pace_speed: 1.6,

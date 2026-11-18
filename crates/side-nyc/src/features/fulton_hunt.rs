@@ -36,6 +36,7 @@
 use std::collections::HashMap;
 
 use crate::sound::AudioSample;
+use crate::speech;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use friendslop_wfc as wfc;
@@ -1090,14 +1091,6 @@ fn on_phone(ev: On<Phone>, mut call: ResMut<Call>, toast: Option<ResMut<crate::h
     }
 }
 
-/// Andrew's voice: the retro synth at his pitch and speed for this call.
-pub fn andrew_says(text: &str, (pitch, speed): (f32, f32)) -> (Vec<f32>, u32) {
-    let mut voice = samiam::Voice::new();
-    voice.pitch = pitch;
-    voice.speed = speed;
-    (voice.speak(text), voice.sample_rate)
-}
-
 /// A phone's ring: two tones together, on and off.
 fn ring_tone(rate: u32) -> Vec<f32> {
     let n = (rate as f32 * 0.9) as usize;
@@ -1168,17 +1161,22 @@ fn ring(
         *call = Call::default();
         return;
     };
-    set_text(&mut subtitle, &format!("{who}: {line}"));
+    set_text(
+        &mut subtitle,
+        &format!("{who}: {}", speech::split_mood(line).0),
+    );
     let secs = if who == "Andrew" {
-        let voice = t.hunt.voice.get(n).copied().unwrap_or((95.0, 1.0));
-        let (samples, rate) = andrew_says(line, voice);
-        let secs = samples.len() as f32 / rate.max(1) as f32;
-        crate::spatial::play_wav_at(
+        // His voice for this call; the line may ask for another mood with a trailing [mood].
+        let voice = t.hunt.voice.get(n).cloned().unwrap_or_default();
+        let secs = speech::duration(line, &voice);
+        let line = line.clone();
+        // Made off the main thread: the call carries on when it's over.
+        crate::spatial::play_samples_at(
             &mut commands,
             at,
             1.0,
             crate::spatial::Carry::NEARBY,
-            move || crate::features::bear::wav_bytes(&samples, rate),
+            move || speech::say(&line, &voice),
         );
         secs
     } else {
@@ -1840,7 +1838,7 @@ mod tests {
             "the last call comes before the J"
         );
         assert!(
-            t.hunt.voice.windows(2).all(|v| v[1].0 > v[0].0),
+            t.hunt.voice.windows(2).all(|v| v[1].pitch > v[0].pitch),
             "angrier, higher"
         );
         assert!(
@@ -1870,10 +1868,15 @@ mod tests {
 
     #[test]
     fn his_voice_speaks() {
-        let (slow, rate) = andrew_says("Where are you?", (92.0, 1.0));
-        let (fast, _) = andrew_says("Where are you?", (150.0, 1.35));
+        let (t, ..) = data();
+        let (slow, rate) = speech::say("Where are you?", &t.hunt.voice[0]);
+        let (fast, _) = speech::say("Where are you?", &t.hunt.voice[2]);
         assert!(rate > 8000 && slow.len() > rate as usize / 4);
         assert!(fast.len() < slow.len(), "angrier is faster");
+        let said = speech::duration("Where are you?", &t.hunt.voice[0]);
+        assert!((said - slow.len() as f32 / rate as f32).abs() < 0.01);
+        let (calm, _) = speech::say("Where are you? [calm]", &t.hunt.voice[0]);
+        assert_ne!(calm, slow, "a line can ask for its own mood");
     }
 
     #[test]

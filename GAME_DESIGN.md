@@ -62,8 +62,8 @@ TV broadcasts a riddle that leads outside the game.
 dry washes, the same for everyone, up to 4 km out. Nothing lives there yet.
 
 **Far south:** a PATH train waits at a little station near the valley's south edge. Step in
-and it pulls out along a stone viaduct, rattles along in the dark (a robot voice calling the
-stop) and comes out of a tunnel in a hall under the Oculus in New York City; climb the stairs
+and it pulls out along a stone viaduct, rattles along in the dark (a bored robot voice over the
+loudspeaker calling the stop) and comes out of a tunnel in a hall under the Oculus in New York City; climb the stairs
 up into the Oculus. The city has One World Trade Center, 4 shops to walk into, 3 boba shops (Gong Chaw,
 Kung Fu Tee, Tiger Sugah) where your dollars buy drinks that stack a speed buzz, and the Vessel on a
 plaza west of the bodega: a copper honeycomb of stairs you can climb 18 levels to a ring walkway 42 m up — where a
@@ -311,8 +311,9 @@ free, and organ dollars only buy boba, joints and hats so far (and Wendy's butch
   `fulton.ron` (`light`).
 - **Reflections**. Shiny things reflect baked environment maps (world and Fulton St), baked with
   `FRIENDSLOP_BAKE=1` into `assets/probes/`. Open: more places lack their own probe.
-- **Andrew and the thing he sends**. Deep in Fulton St Andrew phones you three times (speech
-  synth), then a monster hunts you with a view cone; hide in lockers. Caught means back to the
+- **Andrew and the thing he sends**. Deep in Fulton St Andrew phones you three times (a speech
+  synth with moods: annoyed, then angry, then furious, down a telephone line; lines can stress a word,
+  hesitate or shout), then a monster hunts you with a view cone; hide in lockers. Caught means back to the
   street. It has a voice: heavy steps, quicker running steps, a screech on spotting you, another as it
   winds up into the ball (then wet slapping with a growl that cuts out on each hit), a screech when it
   catches you, and a low forlorn groan when it loses you (`assets/audio/sfx/hunter/`). `data/text/fulton_calls.ron`, `fulton.ron` (`features/fulton_hunt.rs`).

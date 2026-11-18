@@ -26,8 +26,9 @@
     ride_at: (-80.0, -300.0, 300.0),
     // How dark a ride car and an underground hall are: data/base/place_looks.ron
     // (train_ride, train_hall).
-    // The announcer's voice: pitch and speed.
-    voice: (80.0, 0.9),
+    // The announcer's voice: pitch (Hz), speed, mood (data/base/speech.ron) and what the
+    // station's loudspeaker does to it.
+    voice: (pitch: 80.0, speed: 0.9, mood: "bored", effect: Pa, seed: 7),
     // Shown while a train waits to leave with you.
     boarding_line: "stand clear of the closing doors, please.",
     lines: [

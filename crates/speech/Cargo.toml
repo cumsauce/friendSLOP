@@ -1,0 +1,12 @@
+[package]
+name = "friendslop-speech"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+description = "A formant speech synthesizer with moods: text to phonemes, glottal source, hat-pattern intonation, coarticulation. Text rules vendored from samiam. No game code."
+
+[dependencies]
+serde = { workspace = true }
+
+[lints]
+workspace = true

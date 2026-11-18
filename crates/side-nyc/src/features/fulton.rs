@@ -405,7 +405,7 @@ pub struct Hunt {
     /// Seconds between lines of a call.
     pub line_gap: f32,
     /// Andrew's voice per call: pitch (Hz) and speed, angrier each time.
-    pub voice: Vec<(f32, f32)>,
+    pub voice: Vec<crate::speech::Preset>,
     /// Seconds after the last call before the thing he sent arrives.
     pub spawn_delay: f32,
     /// Its speed wandering and searching, and chasing (m/s; you walk 5, run 10.5).

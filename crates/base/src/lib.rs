@@ -34,6 +34,7 @@ pub mod shared;
 pub mod sites;
 pub mod sound;
 pub mod spatial;
+pub mod speech;
 pub mod textures;
 pub mod voice;
 pub mod voice_out;
@@ -62,6 +63,7 @@ pub mod features {
 pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     vec![
         &features::bear::TUNING,
+        &speech::MOODS,
         &probes::INTERIORS,
         &nav::TUNING,
         &rigged::GAITS,

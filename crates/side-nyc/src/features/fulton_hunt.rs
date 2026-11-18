@@ -35,6 +35,7 @@
 
 use std::collections::HashMap;
 
+use crate::sound::AudioSample;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use friendslop_wfc as wfc;
@@ -1553,13 +1554,13 @@ struct HuntEars {
 /// that's missing just means silence.
 #[derive(Resource)]
 struct HuntSounds {
-    steps: [Handle<AudioSource>; 3],
-    runs: [Handle<AudioSource>; 3],
-    spot: [Handle<AudioSource>; 3],
-    charge: [Handle<AudioSource>; 3],
-    slaps: Handle<AudioSource>,
-    catch: [Handle<AudioSource>; 3],
-    lost: [Handle<AudioSource>; 3],
+    steps: [Handle<AudioSample>; 3],
+    runs: [Handle<AudioSample>; 3],
+    spot: [Handle<AudioSample>; 3],
+    charge: [Handle<AudioSample>; 3],
+    slaps: Handle<AudioSample>,
+    catch: [Handle<AudioSample>; 3],
+    lost: [Handle<AudioSample>; 3],
 }
 
 impl HuntSounds {

@@ -429,7 +429,7 @@
         // Fulton St station: the hunter's music. It sees you, it lost you, nothing's after you.
         (when: All([Signal("fulton", Gt, 0.0), Signal("fulton_chase", Gt, 0.0)]), mood: "FultonChase", intensity: "0.9"),
         (when: All([Signal("fulton", Gt, 0.0), Signal("fulton_tense", Gt, 0.0)]), mood: "FultonTense", intensity: "0.55"),
-        (when: Signal("fulton", Gt, 0.0), mood: "FultonAmbient"),
+        (when: All([Signal("fulton", Gt, 0.0), Signal("fulton_creepy", Gt, 0.0)]), mood: "FultonAmbient"),
         // Places.
         (when: Signal("underground", Gt, 0.0), mood: "Underground"),
         (when: Signal("wendys_attic", Gt, 0.0), mood: "WendysAttic"),

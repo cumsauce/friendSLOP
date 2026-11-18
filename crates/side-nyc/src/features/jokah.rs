@@ -22,6 +22,7 @@
 //! and fedora, each with `idle`, `walk` and `slide` clips. A missing file only
 //! makes him invisible; his walk and his sounds go on.
 
+use crate::sound::AudioSample;
 use bevy::prelude::*;
 use serde::Deserialize;
 
@@ -283,8 +284,8 @@ struct Jokah {
     slides: u32,
     /// His sound files, loaded when he starts and kept (a handle dropped right
     /// after `load` would cancel the load): Michael's, then the Jokah's laughs.
-    clips: Vec<Handle<AudioSource>>,
-    laugh_clips: Vec<Handle<AudioSource>>,
+    clips: Vec<Handle<AudioSample>>,
+    laugh_clips: Vec<Handle<AudioSample>>,
     /// Which way (+1 / -1) he last went round something, and seconds blocked.
     side: f32,
     stuck: f32,
@@ -326,7 +327,7 @@ fn ground(p: Vec2) -> Vec3 {
 
 fn start(mut commands: Commands, assets: Option<Res<AssetServer>>) {
     let t = tuning();
-    let load = |files: &[String]| -> Vec<Handle<AudioSource>> {
+    let load = |files: &[String]| -> Vec<Handle<AudioSample>> {
         let Some(assets) = &assets else {
             return Vec::new();
         };
@@ -504,18 +505,18 @@ fn walk(time: Res<Time>, mut j: ResMut<Jokah>, spatial: avian3d::prelude::Spatia
 /// What he says this time: a loaded sample, or (only with no samples listed)
 /// a line for the speech synth and its voice (pitch Hz, speed).
 enum Said {
-    Clip(Handle<AudioSource>),
+    Clip(Handle<AudioSample>),
     Synth(String, (f32, f32)),
 }
 
 /// One of `clips` that has loaded, picked by `h`; `None` while none has.
 fn pick_clip(
     assets: &Option<Res<AssetServer>>,
-    clips: &[Handle<AudioSource>],
+    clips: &[Handle<AudioSample>],
     h: u32,
-) -> Option<Handle<AudioSource>> {
+) -> Option<Handle<AudioSample>> {
     let assets = assets.as_ref()?;
-    let ready: Vec<&Handle<AudioSource>> = clips
+    let ready: Vec<&Handle<AudioSample>> = clips
         .iter()
         .filter(|c| assets.is_loaded_with_dependencies(*c))
         .collect();

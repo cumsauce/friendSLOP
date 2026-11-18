@@ -47,6 +47,21 @@
             ambient: Some(3.0),
             fog: Some((color: (0.012, 0.014, 0.016), start: 6.0, end: 30.0)),
         ),
+        // Fulton St's top two levels: a working station, lit and clean (priority
+        // over "fulton").
+        "fulton_kept": (
+            priority: 3,
+            sun: Some(0.0),
+            ambient: Some(60.0),
+            fog: Some((color: (0.06, 0.065, 0.07), start: 18.0, end: 70.0)),
+        ),
+        // Its third level: run down, dimmer, a grimy haze.
+        "fulton_worn": (
+            priority: 3,
+            sun: Some(0.0),
+            ambient: Some(14.0),
+            fog: Some((color: (0.025, 0.026, 0.024), start: 10.0, end: 45.0)),
+        ),
         // Fulton St's pitch-dark levels deep down: nothing but your flashlight.
         "fulton_dark": (
             priority: 3,

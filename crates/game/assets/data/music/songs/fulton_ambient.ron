@@ -1,0 +1,18 @@
+#![enable(implicit_some)]
+// FultonAmbient: song 1 (its own song). See moods.ron for what the fields mean.
+// "Nobody Is Here": Fulton St with nothing after you. Very slow, no beat. Two drones a
+// tritone apart breathe under a lone, ill-tuned tone that comes and goes, with a far-off
+// drip of metal in the long silences. Nothing resolves.
+(
+    mood: "FultonAmbient", band: "street", form: "song",
+    bpm: 40.0, swing: 0.0, key: 6,
+    a: "FULTON_AMB_A", b: "FULTON_AMB_B", hook: "FULTON_AMB_HOOK",
+    intensity: 0.3, odd: 0.0, modulate: 0.0, kime: 0.0,
+    parts: [
+        (play: Chords(comp: "Long"), inst: Drone, register: (30, 52)),
+        (play: Bass(lines: ["PEDAL"]), inst: SubBass, bus: "bass", layer: [((), 0.8)]),
+        (play: Melody(style: "dread"), inst: Wail, register: (66, 90)),
+        (play: Pad(), inst: Drone, register: (40, 58), sections: [B, Breakdown]),
+        (play: Lane(lane: "Drip")),
+    ],
+)

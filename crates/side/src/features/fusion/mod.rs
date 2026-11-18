@@ -51,6 +51,9 @@ pub struct MusicControl {
     mood: AtomicU16,
     intensity: AtomicU32,
     victories: AtomicU32,
+    /// Stingers fired so far, and which one (`Score::stinger` index) was last.
+    stingers: AtomicU32,
+    stinger: AtomicU32,
     lift: AtomicU8,
     climb: AtomicU32,
     /// Ducking level (f32 bits); 0 bits reads as "no ducking".
@@ -68,6 +71,19 @@ impl MusicControl {
 
     pub fn victory(&self) {
         self.victories.fetch_add(1, Ordering::Relaxed);
+    }
+
+    /// Fire the stinger numbered `which` (see `Score::stinger_names`): the
+    /// audio thread plays it at once and cuts to the mood set before it.
+    pub fn stinger(&self, which: usize) {
+        self.stinger.store(which as u32, Ordering::Relaxed);
+        self.stingers.fetch_add(1, Ordering::Release);
+    }
+
+    /// The stinger count and which one fired last.
+    pub fn stingers(&self) -> (u32, usize) {
+        let seq = self.stingers.load(Ordering::Acquire);
+        (seq, self.stinger.load(Ordering::Relaxed) as usize)
     }
 
     /// Where the player is heading: the storey they're on and which way
@@ -164,6 +180,8 @@ impl Iterator for FusionSource {
             let control = &self.control;
             self.engine.set_duck(control.duck());
             self.engine.set_live(&control.live());
+            let (seq, which) = control.stingers();
+            self.engine.set_stinger(seq, which);
             self.engine.render(&mut self.buf, &mut || control.cue());
             self.i = 0;
         }
@@ -443,6 +461,8 @@ struct Director {
     held: f32,
     /// Victory cues counted so far.
     victories: u32,
+    /// Each stinger's cue count so far (`Score::stinger_names` order).
+    stingers: Vec<u32>,
 }
 
 /// What the score's rules see: the signals, whether we're playing, and
@@ -543,6 +563,31 @@ fn direct(
         intensity
     };
     link.0.set(mood, intensity);
+    // Stingers go after the mood, so the band cuts into the new one.
+    let fired = stingers_fired(&score.stingers, &here, &mut dir.stingers);
+    for which in fired {
+        link.0.stinger(which);
+    }
+}
+
+/// The stingers whose cue fired since last time (`seen`: each one's count
+/// then, updated): their numbers in the score's order. Several in one frame
+/// fire in order; the cue counts of a score with fewer stingers are dropped.
+pub fn stingers_fired(
+    stingers: &std::collections::BTreeMap<String, Vec<fusion::compose::StingerHit>>,
+    here: &Here,
+    seen: &mut Vec<u32>,
+) -> Vec<usize> {
+    seen.resize(stingers.len(), 0);
+    let mut out = Vec::new();
+    for (i, name) in stingers.keys().enumerate() {
+        let count = here.signals.cues(name);
+        if count > seen[i] {
+            out.push(i);
+        }
+        seen[i] = count;
+    }
+    out
 }
 
 #[cfg(test)]
@@ -558,6 +603,79 @@ mod tests {
         assert_eq!(cue.mood, Mood::named("Duel"));
         assert!((cue.intensity - 0.7).abs() < 1e-6);
         assert_eq!(cue.victories, 1);
+    }
+
+    #[test]
+    fn stingers_follow_their_cues() {
+        let score = compose::SCORE.get();
+        let name = "fulton_spotted";
+        let which = score
+            .stinger_names()
+            .position(|n| n == name)
+            .expect("the spotted stinger");
+        let mut signals = MusicSignals::default();
+        let mut seen = Vec::new();
+        let at = |s: &MusicSignals, seen: &mut Vec<u32>| {
+            let here = Here {
+                signals: s,
+                in_game: true,
+                at: None,
+            };
+            stingers_fired(&score.stingers, &here, seen)
+        };
+        assert!(at(&signals, &mut seen).is_empty());
+        signals.cue(name);
+        assert_eq!(at(&signals, &mut seen), vec![which]);
+        // Once per cue.
+        assert!(at(&signals, &mut seen).is_empty());
+        signals.cue(name);
+        assert_eq!(at(&signals, &mut seen), vec![which]);
+        let c = MusicControl::default();
+        assert_eq!(c.stingers().0, 0);
+        c.stinger(which);
+        assert_eq!(c.stingers(), (1, which));
+    }
+
+    /// Fulton St: the three moods the hunter's signals pick between.
+    #[test]
+    fn fulton_signals_pick_its_music() {
+        let m = Mood::named;
+        let cam = Some(Vec3::ZERO);
+        let station = [("fulton", 1.0)];
+        let got = |extra: &[(&str, f32)]| {
+            let mut all = station.to_vec();
+            all.extend_from_slice(extra);
+            pick(&all, true, cam).0
+        };
+        assert_eq!(got(&[]), m("FultonAmbient"));
+        assert_eq!(got(&[("fulton_tense", 12.0)]), m("FultonTense"));
+        assert_eq!(got(&[("fulton_chase", 1.0)]), m("FultonChase"));
+        // The chase wins over the lingering tension.
+        assert_eq!(
+            got(&[("fulton_chase", 1.0), ("fulton_tense", 12.0)]),
+            m("FultonChase")
+        );
+        // Never up in the street.
+        assert_ne!(
+            pick(&[("fulton_chase", 1.0)], true, cam).0,
+            m("FultonChase")
+        );
+        // And the band is not hushed down there.
+        let here = Here {
+            signals: &{
+                let mut s = MusicSignals::default();
+                s.flag("fulton", true);
+                s
+            },
+            in_game: true,
+            at: cam,
+        };
+        let score = compose::SCORE.get();
+        assert!(score.hush.as_ref().is_some_and(|h| !h.holds(&here)));
+        // Chase and tension cut in at once.
+        for n in ["FultonChase", "FultonTense"] {
+            assert!(m(n).urgent() && m(n).instant(), "{n}");
+        }
     }
 
     #[test]
@@ -867,6 +985,8 @@ mod tests {
             "spooked",
             "adrift",
             "fulton",
+            "fulton_chase",
+            "fulton_tense",
             "miami",
             "factory_town",
             "surf",

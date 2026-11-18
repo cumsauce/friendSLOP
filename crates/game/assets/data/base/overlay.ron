@@ -1,0 +1,46 @@
+// Procedural body overlay for rigged models (crates/base/src/rigged.rs, `Overlay`).
+// After the clip is applied each frame a few bones are rotated a little on top of it,
+// so a moving walker looks grounded:
+//   * the head leads: neck and head turn (and tilt) towards what it looks at (the
+//     `look_at` point, else where it is heading), the chest following part of the way;
+//   * the torso rolls into turns (yaw rate x speed);
+//   * the torso pitches forward when speeding up and back when braking.
+// Velocity, yaw rate and acceleration are measured from the entity's own movement.
+// A profile is named by `Overlay { profile }`. A bone name that is empty or missing in
+// the model is skipped. Angles are degrees, speeds m/s, stiffness rad/s (higher = snappier).
+(
+    profiles: {
+        "fs_hunter": (
+            // Bones by role.
+            chest: "chest",
+            neck: "neck",
+            head: "head",
+            // Torso bone that rolls and pitches with movement, and the hip under it.
+            torso: "spine",
+            hip: "hip",
+            // The model's forward as a yaw from Bevy's -Z, in degrees (0 = faces -Z, 180 = +Z).
+            forward_deg: 0.0,
+            // Most the gaze turns away from the body (all bones together), and up/down.
+            max_look_deg: 65.0,
+            max_pitch_deg: 20.0,
+            // Share of the turn the chest takes; the rest is split neck/head by head_share.
+            chest_follow: 0.5,
+            head_share: 0.65,
+            // Critically damped spring stiffness of the gaze (fast: the head leads).
+            look_stiffness: 22.0,
+            // Slower smoothing for the lean springs and for the measured velocity/acceleration.
+            lean_stiffness: 9.0,
+            measure_rate: 8.0,
+            // Below this speed the head just faces forward, and lean is faded out.
+            min_speed: 0.3,
+            // A frame that moves faster than this is a teleport: not measured.
+            max_speed: 20.0,
+            // Roll (deg) per (rad/s of turning x m/s of speed), capped.
+            roll_per_turn: 4.0,
+            max_roll_deg: 15.0,
+            // Pitch (deg) per m/s^2 of acceleration (forward when speeding up), capped.
+            pitch_per_accel: 1.6,
+            max_lean_pitch_deg: 10.0,
+        ),
+    },
+)

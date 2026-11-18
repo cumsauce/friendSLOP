@@ -40,6 +40,7 @@ use bevy_replicon::prelude::*;
 use friendslop_wfc as wfc;
 use serde::{Deserialize, Serialize};
 
+use super::fulton::Hunt;
 use super::fulton::{
     CELL, HIDE_AT, Kind, LOCKER_DOORS_X, Level, LevelModels, Station, TILES, TileSet, Tuning,
     cell_world, floor_at, level_at, street_at, tuning,
@@ -270,6 +271,9 @@ pub struct Brain {
     pub rolling: f32,
     /// Seconds before it may roll again.
     pub roll_cd: f32,
+    /// Seconds left of the director's calm after it gives up on you: it
+    /// wanders away from you instead of being sent back.
+    pub calm: f32,
 }
 
 impl Brain {
@@ -284,6 +288,7 @@ impl Brain {
             sighted: 0.0,
             rolling: 0.0,
             roll_cd: 0.0,
+            calm: 0.0,
         }
     }
 }
@@ -344,6 +349,7 @@ pub fn think(
         }
     }
     brain.roll_cd = (brain.roll_cd - dt).max(0.0);
+    brain.calm = (brain.calm - dt).max(0.0);
     // Its eyes.
     let seen = prey
         .iter()
@@ -467,9 +473,11 @@ pub fn think(
                 }
             }
             if brain.timer <= 0.0 {
-                // Back off, away from where the director says you are.
+                // Back off, away from where the director says you are, and
+                // leave you be for a while after.
                 hunter.mode = Mode::Retreat;
                 brain.timer = h.retreat_secs;
+                brain.calm = h.retreat_secs + h.calm_secs;
                 let far = around(levels, me, h.retreat_cells + 4)
                     .into_iter()
                     .filter(|(n, d)| {
@@ -495,31 +503,23 @@ pub fn think(
         }
         Mode::Drift => {
             if brain.timer <= 0.0 || brain.route.is_empty() {
-                // The director: roughly where you are, never exactly.
-                let near = around(levels, target_node, h.director_radius);
-                let pick = near[brain.rng.below(near.len())].0;
+                let pick = drift_to(t, levels, me, target_node, target.hidden.is_some(), brain);
                 brain.route = route(levels, me, pick).unwrap_or_default();
                 brain.timer = h.director_secs;
             }
         }
     }
-    // A rolling ball doesn't path around corners: it goes at you.
+    // The ball keeps to the corridors too: a route to you (or where it last
+    // had you), cell to cell, only faster.
     if hunter.mode == Mode::Roll {
-        let to = match (seen, brain.last_seen) {
-            (Some(p), _) => Some(p.feet),
-            (None, Some(n)) => Some(node_floor(t, levels, n)),
-            _ => None,
-        };
-        if let Some(to) = to {
-            let d = (to - hunter.pos).xz();
-            if d.length() > 0.05 {
-                hunter.yaw = d.x.atan2(d.y);
-                let step = d.normalize() * (h.roll_speed * dt).min(d.length());
-                hunter.pos += Vec3::new(step.x, 0.0, step.y);
-                hunter.pos.y = floor_at(t, levels, hunter.pos);
-            }
+        let goal = seen
+            .and_then(|p| node_at(t, levels, p.feet))
+            .or(brain.last_seen);
+        if let Some(g) = goal.filter(|&g| g != me)
+            && brain.route.last() != Some(&g)
+        {
+            brain.route = route(levels, me, g).unwrap_or_default();
         }
-        return out;
     }
     walk(t, levels, hunter, brain, dt);
     // In the same cell as whoever it's chasing: straight at them.
@@ -528,12 +528,40 @@ pub fn think(
     {
         let d = (p.feet - hunter.pos).xz();
         if d.length() > 0.01 {
-            let step = d.normalize() * (h.chase_speed * dt).min(d.length());
+            let step = d.normalize() * (mode_speed(t, hunter.mode) * dt).min(d.length());
             hunter.pos += Vec3::new(step.x, 0.0, step.y);
             hunter.yaw = d.x.atan2(d.y);
         }
     }
     out
+}
+
+/// Where the director sends it next while it drifts. Normally roughly where
+/// you are (within `director_radius` cells, never exactly). But while you're
+/// hidden it has nothing to go on, and for a while after it gives up on you
+/// it's calm: either way it wanders somewhere at least `calm_cells` from you,
+/// so a locker is a real way out.
+pub fn drift_to(
+    t: &Tuning,
+    levels: &[Level],
+    me: Node,
+    you: Node,
+    you_hidden: bool,
+    brain: &mut Brain,
+) -> Node {
+    let h = &t.hunt;
+    if you_hidden || brain.calm > 0.0 {
+        let away = around(levels, me, h.wander_cells)
+            .into_iter()
+            .filter(|(n, _)| around_dist(levels, *n, you, h.calm_cells))
+            .map(|(n, _)| n)
+            .collect::<Vec<_>>();
+        if !away.is_empty() {
+            return away[brain.rng.below(away.len())];
+        }
+    }
+    let near = around(levels, you, h.director_radius);
+    near[brain.rng.below(near.len())].0
 }
 
 /// Is `n` at least `cells` steps from `from` (or out of reach)?
@@ -550,13 +578,18 @@ pub fn node_floor(t: &Tuning, levels: &[Level], n: Node) -> Vec3 {
     p.with_y(floor_at(t, levels, p))
 }
 
-/// Move along the route (on the floor: up and down a tall room's stairs).
-fn walk(t: &Tuning, levels: &[Level], hunter: &mut Hunter, brain: &mut Brain, dt: f32) {
-    let speed = match hunter.mode {
+/// How fast it moves in a mode (m/s): the walk and run clips are played to match.
+fn mode_speed(t: &Tuning, mode: Mode) -> f32 {
+    match mode {
         Mode::Roll => t.hunt.roll_speed,
         Mode::Chase => t.hunt.chase_speed,
         _ => t.hunt.walk_speed,
-    };
+    }
+}
+
+/// Move along the route (on the floor: up and down a tall room's stairs).
+fn walk(t: &Tuning, levels: &[Level], hunter: &mut Hunter, brain: &mut Brain, dt: f32) {
+    let speed = mode_speed(t, hunter.mode);
     let mut left = speed * dt;
     while left > 0.0 {
         let Some(&next) = brain.route.first() else {
@@ -886,16 +919,111 @@ pub fn plugin(app: &mut App) {
         .add_systems(Update, place_lockers.run_if(in_state(AppState::InGame)))
         .add_systems(
             Update,
+            music_signals
+                .in_set(crate::music::MusicSignalSet)
+                .run_if(in_state(AppState::InGame)),
+        )
+        .add_systems(
+            Update,
             build_ui
                 .run_if(in_state(AppState::InGame))
                 .run_if(not(any_with_component::<PhoneBanner>)),
         )
         .add_systems(
             Update,
-            (ring, dress_hunters, hunt_clips, move_hunters)
+            (
+                ring,
+                dress_hunters,
+                hunt_clips,
+                hunter_gaze,
+                move_hunters,
+                hunt_sounds,
+            )
                 .run_if(in_state(AppState::InGame))
                 .run_if(crate::sites::here("nyc")),
         );
+}
+
+// ------------------------------------------------------------------ its music
+
+/// What the hunter's music has made of the hunt so far (local to each peer).
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct Dread {
+    /// A hunter is after you: the chase music.
+    pub chasing: bool,
+    /// Seconds of tension left since the chase ended.
+    pub tense: f32,
+}
+
+/// One tick of the music's view of the hunt. Pure: the state, whether a hunter
+/// is after you (and you're down in the station), the time and how long the
+/// tension lasts in; the new state and whether the chase *just* started (the
+/// stinger's moment) out. Chase beats tension beats ambience; the tension
+/// starts the moment the chase ends and counts down; leaving the station
+/// resets it all.
+pub fn dread(d: Dread, inside: bool, after_you: bool, dt: f32, tense_secs: f32) -> (Dread, bool) {
+    if !inside {
+        return (Dread::default(), false);
+    }
+    if after_you {
+        return (
+            Dread {
+                chasing: true,
+                tense: 0.0,
+            },
+            !d.chasing,
+        );
+    }
+    let tense = if d.chasing {
+        tense_secs
+    } else {
+        (d.tense - dt).max(0.0)
+    };
+    (
+        Dread {
+            chasing: false,
+            tense,
+        },
+        false,
+    )
+}
+
+/// Is `hunter` after someone near `ears`? It is chasing or rolling and close
+/// (the server keeps who it's after to itself).
+pub fn after_you(hunter: &Hunter, ears: Vec3, range: f32) -> bool {
+    matches!(hunter.mode, Mode::Chase | Mode::Roll) && hunter.pos.distance(ears) < range
+}
+
+/// Local: the hunter's music. Publishes `fulton_chase` (1 while a hunter is
+/// after you), `fulton_tense` (seconds of tension left once it's over) and the
+/// cue `fulton_spotted` when a chase starts (data/music/moods.ron plays the
+/// stinger and the moods from them).
+fn music_signals(
+    time: Res<Time>,
+    ears: Res<crate::spatial::Ears>,
+    hunters: Query<&Hunter>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+    mut state: Local<Dread>,
+) {
+    let Some(mut signals) = signals else { return };
+    let t = tuning();
+    let inside = in_station(ears.pos - Vec3::Y * 1.6);
+    let chased = hunters
+        .iter()
+        .any(|h| after_you(h, ears.pos, t.hunt.music_chase_range));
+    let (next, spotted) = dread(
+        *state,
+        inside,
+        chased,
+        time.delta_secs(),
+        t.hunt.music_tense_secs,
+    );
+    *state = next;
+    signals.flag("fulton_chase", next.chasing);
+    signals.set("fulton_tense", next.tense);
+    if spotted {
+        signals.cue("fulton_spotted");
+    }
 }
 
 /// The call on this screen.
@@ -1133,7 +1261,23 @@ fn dress_hunters(
                 path: "models/features/fs_hunter.gltf",
             },
             crate::rigged::RigClip::looping("walk"),
+            crate::rigged::Overlay::new("fs_hunter"),
         ));
+    }
+}
+
+/// Local: while it chases, the hunter's head follows you (this peer's camera);
+/// otherwise it looks where it is heading.
+fn hunter_gaze(
+    camera: Query<&GlobalTransform, With<crate::world::MainCamera>>,
+    mut hunters: Query<(&Hunter, &mut crate::rigged::Overlay)>,
+) {
+    let eye = camera.single().ok().map(GlobalTransform::translation);
+    for (h, mut o) in &mut hunters {
+        let want = if h.mode == Mode::Chase { eye } else { None };
+        if o.look_at != want {
+            o.look_at = want;
+        }
     }
 }
 
@@ -1153,18 +1297,20 @@ fn hunt_clips(
     mut hunters: Query<(
         Entity,
         &Hunter,
+        Option<&Gait>,
         Option<&mut crate::rigged::RigClip>,
         Option<&mut Catching>,
     )>,
 ) {
     let dt = time.delta_secs();
-    for (e, hunter, clip, catching) in &mut hunters {
+    for (e, hunter, gait, clip, catching) in &mut hunters {
         if let Some(mut catch) = catching {
             catch.0 -= dt;
             if catch.0 <= 0.0 {
                 commands.entity(e).remove::<Catching>();
                 if let Some(mut clip) = clip {
-                    *clip = crate::rigged::RigClip::looping("walk");
+                    *clip = crate::rigged::RigClip::looping("walk")
+                        .moving(pace_of(gait, mode_speed(&tuning(), hunter.mode)));
                 }
             }
             continue;
@@ -1182,24 +1328,128 @@ fn hunt_clips(
             Mode::Chase => "run",
             _ => "walk",
         };
+        // Strides keep up with the ground: play the clip at the pace it moves.
+        let next = crate::rigged::RigClip::looping(want)
+            .moving(pace_of(gait, mode_speed(&tuning(), hunter.mode)));
         if let Some(mut clip) = clip {
-            if playing != Some(want) {
-                *clip = crate::rigged::RigClip::looping(want);
+            if *clip != next {
+                *clip = next;
             }
         } else {
-            commands
-                .entity(e)
-                .insert(crate::rigged::RigClip::looping(want));
+            commands.entity(e).insert(next);
         }
     }
 }
 
-/// Local: put the hunter where the server says, smoothly, with a loping sway.
-fn move_hunters(time: Res<Time>, mut hunters: Query<(&Hunter, &mut Transform)>) {
-    let k = (time.delta_secs() * 12.0).min(1.0);
-    let turn_speed = tuning().hunt.turn_speed.max(1.0);
+/// Local: how the hunter's body is really moving (the server's `Hunter` is
+/// where it is meant to be; this is the body easing after it).
+#[derive(Component, Clone, Copy, Debug, PartialEq)]
+pub struct Gait {
+    /// Ground speed now (m/s), eased: the stride clips play to match it.
+    pub speed: f32,
+    /// Which way the body faces and travels (radians about up).
+    pub heading: f32,
+}
+
+/// Shortest signed angle (radians) from `a` to `b`.
+pub fn angle_diff(a: f32, b: f32) -> f32 {
+    use std::f32::consts::{PI, TAU};
+    (b - a + PI).rem_euclid(TAU) - PI
+}
+
+/// How far along from walking (0) to chasing (1) a speed is.
+fn pace(h: &Hunt, speed: f32) -> f32 {
+    let span = (h.chase_speed - h.walk_speed).max(0.01);
+    ((speed - h.walk_speed) / span).clamp(0.0, 1.0)
+}
+
+/// Turn rate (radians a second) at a speed: `turn_speed` walking, falling to
+/// `run_turn_speed` at chase speed.
+pub fn turn_rate(h: &Hunt, speed: f32) -> f32 {
+    let deg = h.turn_speed + (h.run_turn_speed - h.turn_speed) * pace(h, speed);
+    deg.max(1.0).to_radians()
+}
+
+/// What fraction of its speed it keeps for a turn of `angle` radians: all of
+/// it up to `slow_turn_degrees`, easing to `turn_slow_min` at a full
+/// about-turn, and only when it is fast (a walker turns on the spot).
+pub fn turn_slowdown(h: &Hunt, speed: f32, angle: f32) -> f32 {
+    let from = h.slow_turn_degrees.to_radians();
+    let over = ((angle.abs() - from) / (std::f32::consts::PI - from).max(0.01)).clamp(0.0, 1.0);
+    let at_pace = 1.0 - (1.0 - h.turn_slow_min.clamp(0.0, 1.0)) * over;
+    1.0 - (1.0 - at_pace) * pace(h, speed)
+}
+
+/// Ease `speed` toward `target` by at most `accel` / `decel` m/s² over `dt`.
+pub fn approach_speed(speed: f32, target: f32, accel: f32, decel: f32, dt: f32) -> f32 {
+    if target > speed {
+        (speed + accel.max(0.0) * dt).min(target)
+    } else {
+        (speed - decel.max(0.0) * dt).max(target)
+    }
+}
+
+/// One frame of the body following the server: `to` is the ground offset
+/// (x, z) to where the server has it, `rest_yaw` the way it should face when
+/// it gets there, `top` the speed of its mode. Returns the new gait and how
+/// far it moves. It moves straight at the server's spot, which walks the
+/// station's corridors cell to cell, so it never cuts a corner through a wall;
+/// only its facing swings round at a speed-dependent rate (and the bone
+/// overlay leans it into the turn).
+pub fn steer(h: &Hunt, g: Gait, to: Vec2, rest_yaw: f32, top: f32, dt: f32) -> (Gait, Vec2) {
+    let dist = to.length();
+    // Ease to a stop on arrival, hurry a little when behind, never much faster
+    // than its mode.
+    let arrive = (dist / (top * h.follow_secs).max(0.01)).min(1.0);
+    let hurry = h.catch_up_gain * (dist - h.catch_up_slack).max(0.0);
+    let target = (top * arrive + hurry).min(top * h.max_hurry);
+    let speed = approach_speed(g.speed, target, h.accel, h.decel, dt);
+    let step = (speed * dt).min(dist);
+    let go = if dist > 1e-4 {
+        to / dist * step
+    } else {
+        Vec2::ZERO
+    };
+    // Face where it's going (or the server's way, standing still).
+    let want = if step > 1e-4 && dist > 0.05 {
+        to.x.atan2(to.y)
+    } else {
+        rest_yaw
+    };
+    let diff = angle_diff(g.heading, want);
+    let rate = turn_rate(h, g.speed) * dt;
+    let heading = g.heading + diff.clamp(-rate, rate);
+    (Gait { speed, heading }, go)
+}
+
+/// The stride clips play to the speed it really moves, in 0.25 m/s steps so
+/// the clip isn't rewritten every frame.
+fn pace_of(gait: Option<&Gait>, fallback: f32) -> f32 {
+    gait.map_or(fallback, |g| (g.speed * 4.0).round() / 4.0)
+}
+
+/// Local: put the hunter where the server says, with a loping sway: the body
+/// speeds up, slows down and swings round at a speed-dependent rate.
+fn move_hunters(
+    time: Res<Time>,
+    mut commands: Commands,
+    mut hunters: Query<(Entity, &Hunter, &mut Transform, Option<&mut Gait>)>,
+) {
+    let dt = time.delta_secs();
+    let k = (dt * 12.0).min(1.0);
+    let tun = tuning();
     let t = time.elapsed_secs();
-    for (h, mut tf) in &mut hunters {
+    for (e, h, mut tf, gait) in &mut hunters {
+        let top = mode_speed(&tun, h.mode);
+        let start = Gait {
+            speed: 0.0,
+            heading: h.yaw,
+        };
+        let Some(mut gait) = gait else {
+            tf.translation = h.pos;
+            commands.entity(e).insert(start);
+            continue;
+        };
         let rolling = h.mode == Mode::Roll;
         let fast = if h.mode == Mode::Chase || rolling {
             2.0
@@ -1212,22 +1462,210 @@ fn move_hunters(time: Res<Time>, mut hunters: Query<(&Hunter, &mut Transform)>) 
             (t * 5.0 * fast).sin().abs() * 0.08
         };
         let target = h.pos + Vec3::Y * bob;
+        let to = (h.pos - tf.translation).xz();
         if tf.translation.distance(target) > 6.0 {
             tf.translation = target;
+            *gait = Gait {
+                speed: top,
+                heading: h.yaw,
+            };
         } else {
-            tf.translation = tf.translation.lerp(target, k);
+            let (next, go) = steer(&tun.hunt, *gait, to, h.yaw, top, dt);
+            *gait = next;
+            tf.translation.x += go.x;
+            tf.translation.z += go.y;
+            tf.translation.y += (target.y - tf.translation.y) * k;
         }
         let lean = match h.mode {
             Mode::Roll => 0.0,
             Mode::Chase => 0.25,
             _ => 0.05,
         };
-        let want = Quat::from_rotation_y(h.yaw)
+        tf.rotation = Quat::from_rotation_y(gait.heading)
             * Quat::from_rotation_x(lean)
             * Quat::from_rotation_z((t * 2.5 * fast).sin() * 0.06);
-        // It swings round at its own pace rather than snapping to face you.
-        let step = turn_speed.to_radians() * time.delta_secs();
-        tf.rotation = tf.rotation.rotate_towards(want, step);
+    }
+}
+
+// ------------------------------------------------------------------ its voice
+
+/// Which sound goes with a change of mind (`from` to `to`), if any: a screech
+/// when it spots you, a screech as it winds up into the ball, a screech when it
+/// has you, and a deep groan when it gives up the chase. Pure, so it's tested.
+pub fn cue(from: Mode, to: Mode) -> Option<Cue> {
+    match (from, to) {
+        (a, b) if a == b => None,
+        (_, Mode::Roll) => Some(Cue::Charge),
+        (Mode::Chase | Mode::Roll, Mode::Retreat) => Some(Cue::Catch),
+        (Mode::Chase, Mode::Search) => Some(Cue::Lost),
+        (Mode::Drift | Mode::Search | Mode::Retreat, Mode::Chase) => Some(Cue::Spot),
+        _ => None,
+    }
+}
+
+/// The next take to play: they go round in order.
+pub fn round_robin(played: usize, takes: usize) -> usize {
+    played % takes.max(1)
+}
+
+/// A one-off sound the hunter makes.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Cue {
+    Spot,
+    Charge,
+    Catch,
+    Lost,
+}
+
+/// Metres between footfalls: half a stride of the clip it's playing, so a
+/// step sounds as each foot lands at any speed. None while it rolls.
+pub fn step_gap(hunt: &Hunt, mode: Mode) -> Option<f32> {
+    match mode {
+        Mode::Roll => None,
+        Mode::Chase => Some(hunt.run_step_m),
+        _ => Some(hunt.walk_step_m),
+    }
+}
+
+/// Seconds the charge-up screech runs before the roll's slapping starts.
+const WIND_UP: f32 = 0.9;
+/// Metres per second it has to be moving for its feet to sound.
+const MOVING: f32 = 0.4;
+
+/// Local: what this peer has heard of a hunter so far.
+#[derive(Component)]
+struct HuntEars {
+    mode: Mode,
+    last: Vec3,
+    /// Metres until the next footfall.
+    step: f32,
+    /// Footfalls so far (picks the variation).
+    n: usize,
+    /// Each cue's takes so far, in `Cue` order (round-robin).
+    takes: [usize; 4],
+    /// Seconds until the roll's slapping starts, while it's winding up.
+    wind_up: f32,
+    /// The looping slaps, while it rolls.
+    slaps: Option<Entity>,
+}
+
+/// Local: its sounds (made in the sounder, `assets/audio/sfx/hunter/`). A file
+/// that's missing just means silence.
+#[derive(Resource)]
+struct HuntSounds {
+    steps: [Handle<AudioSource>; 3],
+    runs: [Handle<AudioSource>; 3],
+    spot: [Handle<AudioSource>; 3],
+    charge: [Handle<AudioSource>; 3],
+    slaps: Handle<AudioSource>,
+    catch: [Handle<AudioSource>; 3],
+    lost: [Handle<AudioSource>; 3],
+}
+
+impl HuntSounds {
+    fn load(assets: &AssetServer) -> Self {
+        let at = |name: &str| assets.load(format!("audio/sfx/hunter/{name}.wav"));
+        Self {
+            steps: [1, 2, 3].map(|i| at(&format!("hunter_step_{i}"))),
+            runs: [1, 2, 3].map(|i| at(&format!("hunter_run_{i}"))),
+            spot: [1, 2, 3].map(|i| at(&format!("hunter_spot_{i}"))),
+            charge: [1, 2, 3].map(|i| at(&format!("hunter_charge_{i}"))),
+            slaps: at("hunter_roll"),
+            catch: [1, 2, 3].map(|i| at(&format!("hunter_catch_{i}"))),
+            lost: [1, 2, 3].map(|i| at(&format!("hunter_lost_{i}"))),
+        }
+    }
+}
+
+/// Local: heavy steps, a heavier run, and its screeches, slaps and groan,
+/// from what the server says it's doing.
+fn hunt_sounds(
+    time: Res<Time>,
+    assets: Option<Res<AssetServer>>,
+    sounds: Option<Res<HuntSounds>>,
+    mut commands: Commands,
+    mut hunters: Query<(Entity, &Hunter, &Transform, Option<&mut HuntEars>)>,
+    mut slap_at: Query<&mut Transform, Without<Hunter>>,
+) {
+    use crate::spatial::{Carry, loop_at, play_at};
+    let Some(sounds) = sounds else {
+        if let Some(assets) = assets {
+            commands.insert_resource(HuntSounds::load(&assets));
+        }
+        return;
+    };
+    let dt = time.delta_secs().max(1e-3);
+    for (e, h, tf, ears) in &mut hunters {
+        let here = tf.translation;
+        let Some(mut ears) = ears else {
+            commands.entity(e).insert(HuntEars {
+                mode: h.mode,
+                last: here,
+                step: 0.0,
+                n: 0,
+                takes: [0; 4],
+                wind_up: 0.0,
+                slaps: None,
+            });
+            continue;
+        };
+        let voice = here + Vec3::Y * 1.6;
+        if let Some(cue) = cue(ears.mode, h.mode) {
+            let (takes, volume, carry) = match cue {
+                Cue::Spot => (&sounds.spot, 0.7, Carry::LOUD),
+                Cue::Charge => (&sounds.charge, 0.7, Carry::LOUD),
+                Cue::Catch => (&sounds.catch, 0.8, Carry::LOUD),
+                Cue::Lost => (&sounds.lost, 0.9, Carry::CALL),
+            };
+            // Round-robin: each cue goes through its takes in turn.
+            let take = &mut ears.takes[cue as usize];
+            let clip = &takes[round_robin(*take, takes.len())];
+            *take += 1;
+            play_at(&mut commands, clip, voice, volume, carry);
+            if cue == Cue::Charge {
+                ears.wind_up = WIND_UP;
+            }
+        }
+        ears.mode = h.mode;
+        // The ball's wet slapping, from the end of the wind-up until it uncurls.
+        if h.mode == Mode::Roll {
+            ears.wind_up -= dt;
+            if ears.wind_up <= 0.0 && ears.slaps.is_none() {
+                let slaps = loop_at(&mut commands, &sounds.slaps, here, 0.9, Carry::NEARBY);
+                ears.slaps = Some(slaps);
+            }
+        } else if let Some(slaps) = ears.slaps.take() {
+            commands.entity(slaps).despawn();
+        }
+        if let Some(slaps) = ears.slaps
+            && let Ok(mut at) = slap_at.get_mut(slaps)
+        {
+            at.translation = here + Vec3::Y * 0.6;
+        }
+        // Feet.
+        let moved = here.distance(ears.last);
+        let speed = moved / dt;
+        ears.last = here;
+        let Some(gap) = step_gap(&tuning().hunt, h.mode) else {
+            continue;
+        };
+        if speed < MOVING {
+            ears.step = 0.0;
+            continue;
+        }
+        ears.step -= moved;
+        if ears.step > 0.0 {
+            continue;
+        }
+        ears.step = gap;
+        let set = if h.mode == Mode::Chase {
+            &sounds.runs
+        } else {
+            &sounds.steps
+        };
+        let clip = &set[round_robin(ears.n, set.len())];
+        ears.n += 1;
+        play_at(&mut commands, clip, here, 1.0, Carry::NEARBY);
     }
 }
 
@@ -1251,6 +1689,141 @@ mod tests {
         let set = (*TILES.get()).clone();
         let levels = super::super::fulton::generate(&t, &set);
         (t, set, levels)
+    }
+
+    #[test]
+    fn the_music_follows_the_hunt() {
+        let tense = 25.0;
+        let step = |d: Dread, inside, chased, dt| dread(d, inside, chased, dt, tense);
+        let calm = Dread::default();
+        // Spotted: the chase starts, once, with the stinger.
+        let (d, spotted) = step(calm, true, true, 0.1);
+        assert!(d.chasing && spotted);
+        let (d, spotted) = step(d, true, true, 0.1);
+        assert!(d.chasing && !spotted, "the stinger fires once per chase");
+        // It loses you: tension, counting down...
+        let (d, spotted) = step(d, true, false, 0.1);
+        assert!(!d.chasing && !spotted);
+        assert_eq!(d.tense, tense);
+        let (d, _) = step(d, true, false, 10.0);
+        assert_eq!(d.tense, 15.0);
+        // ...spotted again during it: a new stinger, no tension.
+        let (again, spotted) = step(d, true, true, 0.1);
+        assert!(again.chasing && spotted && again.tense == 0.0);
+        // ...or all the way back to the ambience.
+        let (d, _) = step(d, true, false, 20.0);
+        assert_eq!(d, calm);
+        // Leaving the station ends all of it.
+        let (d, spotted) = step(again, false, true, 0.1);
+        assert_eq!((d, spotted), (calm, false));
+        // Which hunters count: chasing or rolling, and near.
+        let at = |mode, x| Hunter {
+            pos: Vec3::new(x, 0.0, 0.0),
+            yaw: 0.0,
+            mode,
+        };
+        let me = Vec3::ZERO;
+        assert!(after_you(&at(Mode::Chase, 10.0), me, 45.0));
+        assert!(after_you(&at(Mode::Roll, 10.0), me, 45.0));
+        assert!(!after_you(&at(Mode::Chase, 60.0), me, 45.0));
+        for mode in [Mode::Drift, Mode::Search, Mode::Retreat] {
+            assert!(!after_you(&at(mode, 10.0), me, 45.0), "{mode:?}");
+        }
+    }
+
+    #[test]
+    fn a_runner_turns_slower_and_slows_for_tight_turns() {
+        let (t, _, _) = data();
+        let h = &t.hunt;
+        assert!(h.run_turn_speed > 0.0 && h.run_turn_speed < h.turn_speed);
+        assert!(h.accel > 0.0 && h.decel > 0.0 && h.follow_secs > 0.0);
+        assert!((turn_rate(h, h.walk_speed).to_degrees() - h.turn_speed).abs() < 0.01);
+        assert!((turn_rate(h, h.chase_speed).to_degrees() - h.run_turn_speed).abs() < 0.01);
+        assert!(turn_rate(h, h.chase_speed * 2.0) <= turn_rate(h, h.walk_speed));
+        let wide = std::f32::consts::PI;
+        assert_eq!(turn_slowdown(h, h.chase_speed, 0.1), 1.0);
+        assert_eq!(turn_slowdown(h, h.walk_speed, wide), 1.0);
+        let tight = turn_slowdown(h, h.chase_speed, wide);
+        assert!((tight - h.turn_slow_min).abs() < 0.01);
+        let mid = turn_slowdown(h, h.chase_speed, 2.0);
+        assert!(mid < 1.0 && mid > tight);
+    }
+
+    #[test]
+    fn speed_eases_toward_the_target() {
+        assert_eq!(approach_speed(0.0, 6.0, 10.0, 20.0, 0.1), 1.0);
+        assert_eq!(approach_speed(5.5, 6.0, 10.0, 20.0, 0.1), 6.0);
+        assert_eq!(approach_speed(6.0, 0.0, 10.0, 20.0, 0.1), 4.0);
+        assert_eq!(approach_speed(1.0, 0.0, 10.0, 20.0, 0.1), 0.0);
+    }
+
+    #[test]
+    fn the_body_keeps_to_the_servers_line_and_its_speed() {
+        let (t, _, _) = data();
+        let h = &t.hunt;
+        let dt = 1.0 / 60.0;
+        // Running along +z, the server's spot turns a corner to the right (+x):
+        // the body must go straight at it (never swing wide into the wall)
+        // and never run far faster than its mode.
+        let mut g = Gait {
+            speed: h.chase_speed,
+            heading: 0.0,
+        };
+        let mut pos = Vec2::ZERO;
+        let goal = Vec2::new(4.0, 0.0);
+        for _ in 0..600 {
+            let (n, go) = steer(h, g, goal - pos, 0.0, h.chase_speed, dt);
+            g = n;
+            pos += go;
+            assert!(pos.y.abs() < 1e-3, "it left the line: {pos}");
+            assert!(g.speed <= h.chase_speed * h.max_hurry + 1e-3);
+        }
+        assert!(pos.distance(goal) < 0.05, "it got there: {pos}");
+    }
+
+    #[test]
+    fn it_leaves_you_be_while_you_hide_and_after_it_gives_up() {
+        let (t, set, levels) = data();
+        let h = &t.hunt;
+        // A locker in the open station (a few sit in small cut-off pockets).
+        let Some(&(you, _)) = hiding_spots(&t, &set, &levels)
+            .iter()
+            .find(|s| around(&levels, s.0, 1000).len() > 50)
+        else {
+            panic!("the station has lockers");
+        };
+        let me = arrival(&levels, you);
+        let mut brain = Brain::new(1, 7);
+        for _ in 0..50 {
+            // Out in the open: the director sends it near you.
+            let n = drift_to(&t, &levels, me, you, false, &mut brain);
+            assert!(!around_dist(&levels, n, you, h.director_radius + 1));
+            // Hidden, or while it's calm: somewhere well away from you.
+            let n = drift_to(&t, &levels, me, you, true, &mut brain);
+            assert!(around_dist(&levels, n, you, h.calm_cells), "{n:?}");
+        }
+        brain.calm = 1.0;
+        let n = drift_to(&t, &levels, me, you, false, &mut brain);
+        assert!(around_dist(&levels, n, you, h.calm_cells));
+    }
+
+    #[test]
+    fn a_hunter_reaching_its_spot_stops_without_overshooting() {
+        let (t, _, _) = data();
+        let h = &t.hunt;
+        let mut g = Gait {
+            speed: 0.0,
+            heading: 0.0,
+        };
+        let mut pos = Vec2::ZERO;
+        let goal = Vec2::new(0.0, 3.0);
+        for _ in 0..600 {
+            let (n, go) = steer(h, g, goal - pos, 0.0, h.walk_speed, 1.0 / 60.0);
+            g = n;
+            pos += go;
+            assert!(pos.y <= 3.0 + 1e-3, "overshot to {pos}");
+        }
+        assert!(pos.distance(goal) < 0.05 && g.speed < 0.1);
     }
 
     #[test]
@@ -1500,14 +2073,14 @@ mod tests {
     }
 
     #[test]
-    fn the_director_brings_it_near_you_but_not_onto_you() {
+    fn while_you_hide_the_director_keeps_it_off_you() {
         let (t, set, levels) = data();
         let spots = hiding_spots(&t, &set, &levels);
         let li = 10;
         let you_node = (li, levels[li].goal.0, levels[li].goal.1);
         let start = arrival(&levels, you_node);
         assert_eq!(start.0, li);
-        // You're hiding, so it only has the director to go on.
+        // You're hiding, so it has nothing to go on.
         let you = Prey {
             id: 3,
             feet: node_pos(&t, you_node),
@@ -1524,8 +2097,9 @@ mod tests {
                 closest = closest.min(route(&levels, n, you_node).map_or(far, |r| r.len()));
             }
         }
+        // A locker is a way out: with nothing to go on it never gets sent onto you.
         assert!(
-            closest <= t.hunt.director_radius as usize,
+            closest > t.hunt.director_radius as usize,
             "{closest} of {far}"
         );
     }
@@ -1676,5 +2250,36 @@ mod tests {
             think(&t, &levels, &spots, &mut h, &mut brain, &[gone], &[], 0.05),
             Outcome::Gone
         );
+    }
+
+    #[test]
+    fn it_screeches_on_spotting_and_winding_up_and_groans_on_losing_you() {
+        assert_eq!(cue(Mode::Drift, Mode::Chase), Some(Cue::Spot));
+        assert_eq!(cue(Mode::Search, Mode::Chase), Some(Cue::Spot));
+        assert_eq!(cue(Mode::Chase, Mode::Roll), Some(Cue::Charge));
+        assert_eq!(cue(Mode::Chase, Mode::Retreat), Some(Cue::Catch));
+        assert_eq!(cue(Mode::Roll, Mode::Retreat), Some(Cue::Catch));
+        assert_eq!(cue(Mode::Chase, Mode::Search), Some(Cue::Lost));
+        assert_eq!(cue(Mode::Roll, Mode::Chase), None, "uncurling is quiet");
+        assert_eq!(cue(Mode::Chase, Mode::Chase), None);
+    }
+
+    #[test]
+    fn its_takes_go_round_in_order() {
+        let order: Vec<usize> = (0..7).map(|n| round_robin(n, 3)).collect();
+        assert_eq!(order, [0, 1, 2, 0, 1, 2, 0]);
+        assert_eq!(round_robin(5, 0), 0, "no takes is still safe");
+    }
+
+    #[test]
+    fn it_steps_once_a_half_stride_and_makes_no_steps_rolling() {
+        let hunt = Hunt {
+            walk_step_m: 1.16,
+            run_step_m: 1.99,
+            ..Default::default()
+        };
+        assert_eq!(step_gap(&hunt, Mode::Drift), Some(1.16));
+        assert_eq!(step_gap(&hunt, Mode::Chase), Some(1.99));
+        assert!(step_gap(&hunt, Mode::Roll).is_none());
     }
 }

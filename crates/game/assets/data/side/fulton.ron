@@ -223,7 +223,7 @@
     exit_label: "climb back up to the street",
     ride_label: "ride the J (back up to the street)",
     // Down here every sound echoes off the tiles: this many times the open
-    // air's reverb send, ringing this many seconds. No music down here.
+    // air's reverb send, ringing this many seconds. (The music down here is the hunter's score.)
     echo_wet: 6.0,
     echo_secs: 2.8,
     // Andrew's calls and the thing he sends (fulton_hunt.rs; his lines are in
@@ -262,6 +262,30 @@
         roll_cooldown_secs: 9.0,
         // How fast it turns to face where it's going (degrees a second).
         turn_speed: 150.0,
+        // At chase speed it turns this slowly (degrees a second), so a runner
+        // swings wide round corners (between walk and chase speed it blends).
+        run_turn_speed: 70.0,
+        // Metres between footfalls: half a stride of each clip (ground speed
+        // from gaits.ron x half the cycle: walk 2.89 x 0.4 s, run 6.64 x 0.3 s).
+        walk_step_m: 1.16,
+        run_step_m: 1.99,
+        // A turn wider than this many degrees slows a runner down...
+        slow_turn_degrees: 50.0,
+        // ...to this fraction of its speed for a full about-turn.
+        turn_slow_min: 0.35,
+        // Speeding up and slowing down (m/s per second).
+        accel: 14.0,
+        decel: 22.0,
+        // It eases to a stop over this many seconds of travel as it reaches the
+        // spot the server has it at.
+        follow_secs: 0.15,
+        // Behind the server by more than this many metres, it hurries by
+        // this many extra m/s per metre further back, so tight turns don't
+        // leave it trailing.
+        catch_up_slack: 1.5,
+        catch_up_gain: 2.0,
+        // ...but never faster than this many times its walk or run speed.
+        max_hurry: 1.3,
         // Out of sight, it keeps heading where it last saw you for this long.
         lose_secs: 5.0,
         // Then it checks the lockers within 4 cells for 20 s, opening the one
@@ -272,5 +296,19 @@
         // ...then backs off at least 6 cells for 25 s before drifting back.
         retreat_cells: 6,
         retreat_secs: 25.0,
+        // Then the director stays off you for 30 s more: it wanders somewhere at
+        // least 6 cells from you (looking up to 10 cells out). While you're in a
+        // locker it never homes in on you either: it has nothing to go on.
+        calm_secs: 30.0,
+        calm_cells: 6,
+        wander_cells: 10,
+        // The music (data/music/moods.ron: FultonChase, FultonTense, FultonAmbient).
+        // A hunter chasing or rolling within this many metres of you is "after you": the
+        // stinger plays as it starts and the chase music runs while it lasts (the server
+        // keeps who it's after to itself, so this is how near it is)...
+        music_chase_range: 45.0,
+        // ...and when it stops (it lost you, or you got out of its range) the music stays
+        // tense this many seconds while it searches, then falls back to the ambience.
+        music_tense_secs: 25.0,
     ),
 )

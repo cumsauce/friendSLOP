@@ -36,6 +36,39 @@
         "ba da ba dee ow",
     ],
     scat_voice: (230.0, 1.4),
+    // Michael's sound files (made in sounder). While this isn't empty he plays
+    // only these (silent until one has loaded); the synth `scats` above are
+    // used only if you empty it.
+    clips: [
+        "audio/sfx/mj_hee_hee_1.wav",
+        "audio/sfx/mj_hee_hee_2.wav",
+        "audio/sfx/mj_hee_hee_3.wav",
+        "audio/sfx/mj_wa_1.wav",
+        "audio/sfx/mj_wa_2.wav",
+        "audio/sfx/mj_wow_1.wav",
+        "audio/sfx/mj_wow_2.wav",
+        "audio/sfx/mj_yeah_1.wav",
+        "audio/sfx/mj_yeah_2.wav",
+        "audio/sfx/mj_hoo_1.wav",
+        "audio/sfx/mj_hoo_2.wav",
+        "audio/sfx/mj_ow_1.wav",
+        "audio/sfx/mj_ow_2.wav",
+    ],
+    // The Jokah's laughs as sound files (a dark laugh and a chuckle). While
+    // this isn't empty he plays only these (silent until one has loaded); the
+    // synth `laughs` above are used only if you empty it.
+    laugh_clips: [
+        "audio/sfx/jokah_dark_laugh_1.wav",
+        "audio/sfx/jokah_dark_laugh_2.wav",
+        "audio/sfx/jokah_dark_laugh_3.wav",
+        "audio/sfx/jokah_chuckle_1.wav",
+        "audio/sfx/jokah_chuckle_2.wav",
+        "audio/sfx/jokah_chuckle_3.wav",
+    ],
+    // Walls and props: how wide a ball he feels his way with (m), and how long
+    // (s) he may stand blocked before he walks on through.
+    body_radius: 0.35,
+    stuck_secs: 4.0,
     // Only heard this close (m), and how loud.
     hear_range: 40.0,
     volume: 0.9,

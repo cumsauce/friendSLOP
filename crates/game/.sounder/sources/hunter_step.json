@@ -1,0 +1,154 @@
+{
+ "doc": {
+  "name": "hunter_step",
+  "format_version": 1,
+  "kind": "oneshot",
+  "sample_rate": 48000,
+  "duration": 0.9,
+  "seed": 1,
+  "nodes": [
+   {
+    "type": "footstep",
+    "name": "foot",
+    "surface": "concrete",
+    "weight": 1,
+    "pace": "walk",
+    "shoe": "boot",
+    "body": 0.55,
+    "seed": 1
+   },
+   {
+    "type": "osc",
+    "name": "sub",
+    "freq": 48
+   },
+   {
+    "type": "decay",
+    "name": "subenv",
+    "time": 0.35
+   },
+   {
+    "type": "gain",
+    "name": "thud",
+    "input": "sub",
+    "gain": "subenv"
+   },
+   {
+    "type": "mix",
+    "name": "both",
+    "inputs": [
+     {
+      "input": "foot",
+      "gain": 1
+     },
+     {
+      "input": "thud",
+      "gain": 0.7
+     }
+    ]
+   },
+   {
+    "type": "output",
+    "name": "out",
+    "input": "both",
+    "peak_db": -3
+   }
+  ],
+  "params": {},
+  "macros": [],
+  "version": 1
+ },
+ "history": {
+  "nodes": [
+   {
+    "model": {
+     "name": "hunter_step",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "seed": 1,
+     "nodes": [],
+     "params": {},
+     "macros": [],
+     "version": 0
+    },
+    "parent": null,
+    "children": [
+     1
+    ],
+    "label": "new sound",
+    "author": "pid:33901"
+   },
+   {
+    "model": {
+     "name": "hunter_step",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 0.9,
+     "seed": 1,
+     "nodes": [
+      {
+       "type": "footstep",
+       "name": "foot",
+       "surface": "concrete",
+       "weight": 1,
+       "pace": "walk",
+       "shoe": "boot",
+       "body": 0.55,
+       "seed": 1
+      },
+      {
+       "type": "osc",
+       "name": "sub",
+       "freq": 48
+      },
+      {
+       "type": "decay",
+       "name": "subenv",
+       "time": 0.35
+      },
+      {
+       "type": "gain",
+       "name": "thud",
+       "input": "sub",
+       "gain": "subenv"
+      },
+      {
+       "type": "mix",
+       "name": "both",
+       "inputs": [
+        {
+         "input": "foot",
+         "gain": 1
+        },
+        {
+         "input": "thud",
+         "gain": 0.7
+        }
+       ]
+      },
+      {
+       "type": "output",
+       "name": "out",
+       "input": "both",
+       "peak_db": -3
+      }
+     ],
+     "params": {},
+     "macros": [],
+     "version": 1
+    },
+    "parent": 0,
+    "children": [],
+    "label": "+foot +sub +subenv +thud +both +out",
+    "author": "pid:33901"
+   }
+  ],
+  "current": 1
+ },
+ "annotations": [],
+ "knob_moves": [],
+ "unsaved": false,
+ "catalog_name": "hunter_step"
+}

@@ -1,0 +1,17 @@
+// Ground speed of each looping rigged clip (m/s): how fast a walker the clip
+// is drawn on is really moving when its feet stay planted. A rig playing
+// `RigClip::moving(speed)` (crates/base/src/rigged.rs) plays the clip at
+// speed / this. Measured by scripts/gait-speed.py, never by hand: re-run
+//   scripts/gait-speed.py <model.gltf> --write
+// after re-authoring a clip. A clip not listed plays at its authored speed.
+(
+    // Slowest and fastest playback a walker's pace may ask for (x authored).
+    min_playback: 0.4,
+    max_playback: 2.5,
+    models: {
+        "models/features/fs_hunter.gltf": {
+            "run": 6.64,
+            "walk": 2.89,
+        },
+    },
+)

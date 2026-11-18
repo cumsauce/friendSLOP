@@ -1,0 +1,20 @@
+#![enable(implicit_some)]
+// FultonTense: song 1 (its own song). See moods.ron for what the fields mean.
+// "It Knows You're Here": it lost you and it's still down in the station, searching. A low
+// pulse on the eighths, a heart that doesn't settle, a clock ticking, the drone held under
+// a diminished chord and a dominant that never gets its tonic.
+(
+    mood: "FultonTense", band: "street", form: "song",
+    bpm: 84.0, swing: 0.0, key: 6,
+    a: "FULTON_TENSE_A", b: "FULTON_TENSE_B", hook: "FULTON_TENSE_HOOK",
+    intensity: 0.55, odd: 0.0, modulate: 0.0, kime: 0.0,
+    parts: [
+        (play: Bass(lines: ["TENSE"]), inst: SubBass, bus: "bass", layer: [((), 1.0)]),
+        (play: Lane(lane: "Heart")),
+        (play: Lane(lane: "Tick")),
+        (play: Chords(comp: "Long"), inst: Drone, register: (30, 52)),
+        (play: Pad(), inst: Strings, register: (52, 68), sections: [B, Hook]),
+        (play: Melody(style: "dread"), inst: Wail, register: (66, 90)),
+        (play: Lane(lane: "Clang"), sections: [Hook]),
+    ],
+)

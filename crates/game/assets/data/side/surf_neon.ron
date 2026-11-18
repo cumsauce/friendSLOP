@@ -1,0 +1,287 @@
+// The surf course's neon megacity (stages 7-9, hall x 1800-3250;
+// crates/side/src/features/surf_neon.rs): the pink neon sky city turned up to
+// the max. The example `surf_pack_neon` bakes this into the modeler map
+// `maps/surf_neon.bsn`; the game reads the course back out of that map's
+// markers, so after editing the course re-run the example and re-export the map.
+//
+// A ramp is a start and a list of pieces walked from it:
+//   Straight(length m, drop per metre)
+//   Arc(radius m, degrees (+ turns right, towards +z), drop per metre)
+//   Join(ramp, at): a straight onto another ramp of the stage (at: metres
+//                   along it, None for its end, negative from the end)
+//   Land: a smooth landing on the next area's pad
+// Starts: Pad (off the stage's pad) or After(ramp, at, ahead, side, down,
+// turn): from a pose on another ramp, a gap to jump when `ahead` is more than 0.
+(
+    // Metres between the points a bend or straight is walked in.
+    step: 20.0,
+    // A ramp leaves its pad this far past its middle and below its top (the
+    // brief's handoff: a 4 m hop), and arrives this far before the next pad's
+    // middle and above it.
+    hop: (12.35, 5.5),
+    arrive: (30.0, 8.5),
+    // The mall's end pad that starts stage 7 (it already stands, with its
+    // pillar), and the size of the new pads of stages 8 and 9 and their pillars
+    // (width, bottom y).
+    p7: (1814.85, -749.16, -1915.74),
+    p7_size: (24.0, 1.0, 24.0),
+    pad_size: (24.0, 1.0, 24.0),
+    pillar: (14.0, -1250.0),
+    // The overgrown ruins' first pad, where stage 9 lands (a stand-in stands
+    // there until that map overrides it).
+    p10: (3200.0, -905.0, -1935.0),
+    p10_size: (16.0, 1.0, 16.0),
+
+    stages: [
+        // Stage 7, NEON BOULEVARD: teaches the area. A runway into a wide
+        // S-bend through a canyon of towers, then a straight under a neon gate.
+        // Fork: the shortcut goes straight on and jumps a small gap, the main
+        // line is the long way round.
+        (
+            stage: 7,
+            main: 2,
+            gaps: [3],
+            shortcut: Some((3, 4)),
+            look: (0.9, 0.2, 0.6, 0.8, 0.3, 0.3),
+            neon: "sf-neon-pink",
+            colour: (1.0, 0.3, 0.8),
+            ramps: [
+                (name: "runway", start: Pad, segs: [Straight(50.0, 0.06)]),
+                (name: "boulevard", start: After(ramp: 0, at: None, ahead: 0.0, side: 0.0, down: 0.0, turn: 0.0),
+                    segs: [Arc(95.0, 55.0, 0.06), Arc(95.0, -110.0, 0.06), Arc(95.0, 55.0, 0.06)]),
+                (name: "canyon", start: After(ramp: 1, at: None, ahead: 0.0, side: 0.0, down: 0.0, turn: 0.0),
+                    segs: [Straight(60.0, 0.08)]),
+                (name: "cut_a", start: After(ramp: 0, at: None, ahead: 0.0, side: 0.0, down: 0.0, turn: 0.0),
+                    segs: [Straight(100.0, 0.05)]),
+                (name: "cut_b", start: After(ramp: 3, at: None, ahead: 16.0, side: 0.0, down: 5.0, turn: 0.0),
+                    segs: [Join(1, None)]),
+            ],
+        ),
+        // Stage 8, MEGATOWER: a short approach, then a corkscrew twice round
+        // the mile-high tower (each turn 23 m below the one before, so you
+        // pass under yourself), and a straight canyon out. Fork: leave after
+        // the first turn, jump a gap and dive onto the exit straight.
+        (
+            stage: 8,
+            main: 2,
+            gaps: [3],
+            shortcut: Some((3, 4)),
+            look: (0.1, 0.65, 0.95, 0.8, 0.3, 0.3),
+            neon: "sf-neon-cyan",
+            colour: (0.3, 0.85, 1.0),
+            ramps: [
+                (name: "approach", start: Pad, segs: [Straight(40.0, 0.04)]),
+                (name: "helix", start: After(ramp: 0, at: None, ahead: 0.0, side: 0.0, down: 0.0, turn: 0.0),
+                    segs: [Arc(72.0, 360.0, 0.052), Arc(72.0, 360.0, 0.052)]),
+                (name: "exit", start: After(ramp: 1, at: None, ahead: 0.0, side: 0.0, down: 0.0, turn: 0.0),
+                    segs: [Straight(214.0, 0.05)]),
+                (name: "cut_a", start: After(ramp: 1, at: Some(452.39), ahead: 0.0, side: 0.0, down: 0.0, turn: 0.0),
+                    segs: [Straight(50.0, 0.05)]),
+                (name: "cut_b", start: After(ramp: 3, at: None, ahead: 24.0, side: 0.0, down: 10.0, turn: 0.0),
+                    segs: [Join(2, Some(-10.0))]),
+            ],
+        ),
+        // Stage 9, NIGHT MARKET: a calm, nearly flat cruise in two lazy S-bends
+        // over the night market far below, a kink round the maglev viaduct
+        // (the shortcut jumps a gap and goes straight), and a plunge through
+        // laser rings onto the overgrown ruins' pad.
+        (
+            stage: 9,
+            main: 2,
+            gaps: [3],
+            shortcut: Some((3, 4)),
+            look: (0.5, 0.25, 1.0, 0.8, 0.3, 0.3),
+            neon: "sf-neon-violet",
+            colour: (0.7, 0.45, 1.0),
+            ramps: [
+                (name: "calm", start: Pad,
+                    segs: [Straight(20.0, 0.018), Arc(320.0, 10.0, 0.018), Arc(320.0, -20.0, 0.018), Arc(320.0, 10.0, 0.018)]),
+                (name: "kink", start: After(ramp: 0, at: None, ahead: 0.0, side: 0.0, down: 0.0, turn: 0.0),
+                    segs: [Arc(105.0, 34.0, 0.045), Arc(105.0, -68.0, 0.045), Arc(105.0, 34.0, 0.045)]),
+                (name: "plunge", start: After(ramp: 1, at: None, ahead: 0.0, side: 0.0, down: 0.0, turn: 0.0),
+                    segs: [Land]),
+                (name: "cut_a", start: After(ramp: 0, at: None, ahead: 0.0, side: 0.0, down: 0.0, turn: 0.0),
+                    segs: [Straight(60.0, 0.04)]),
+                (name: "cut_b", start: After(ramp: 3, at: None, ahead: 16.0, side: 0.0, down: 6.0, turn: 0.0),
+                    segs: [Join(1, None)]),
+            ],
+        ),
+    ],
+
+    // The city of towers: a grid of blocks over x and z. A block closer than
+    // `clear` (m, across the ground) to any ridge is left out so every ramp
+    // runs through a canyon; nearer than `near` it is solid.
+    city: (
+        seed: 7777,
+        x: (1800.0, 3250.0),
+        z: (-2250.0, -1560.0),
+        pitch: 56.0,
+        street: 16.0,
+        // Towers stand on this (hall y; the clouds), and no roof is higher.
+        base: -1300.0,
+        ceiling: 420.0,
+        clear: 19.0,
+        near: 60.0,
+        // A tower rises this far over the ridge beside it (min, max); the
+        // skyline far from the course adds up to `skyline` more by `skyline_at` m out.
+        rise: (14.0, 150.0),
+        skyline: 480.0,
+        skyline_at: 320.0,
+        // Odds that a block away from the course is a low one under the fall line.
+        deep_chance: 0.2,
+        facades: ["sf-fa-glass", "sf-fa-office", "sf-fa-neon", "sf-fa-glass"],
+        neons: ["sf-neon-pink", "sf-neon-cyan", "sf-neon-violet", "sf-neon-magenta", "sf-neon-coral", "sf-neon-lime"],
+        // Neon bands round a tower: at most this many, odds, thickness, and
+        // only within `band_reach` m of the course.
+        bands: 3,
+        band_chance: 0.75,
+        band_height: 1.4,
+        band_reach: 150.0,
+        antenna_chance: 0.3,
+        antenna: (10.0, 45.0),
+        // Towers keep this far (m) from a pad's edge.
+        pad_clear: 22.0,
+    ),
+
+    // The megatower stage 8 winds round: stands beside the helix's first point
+    // (x, z from it; the helix radius is 72 so its middle is 72 to the right).
+    tower: (
+        stage: 8,
+        ramp: 1,
+        offset: (0.0, 72.0),
+        radius: 36.0,
+        bottom: -1300.0,
+        top: 380.0,
+        // A neon band round it every this many metres, and its thickness.
+        band_every: 70.0,
+        band: 3.0,
+        // Its crown (spins at `crown_rpm`; every spinning thing does) and how
+        // high over the roof, and the spire (height, width).
+        crown: "features/surf_neon_crown.gltf",
+        crown_scale: 1.0,
+        crown_rpm: 5.0,
+        crown_gap: 14.0,
+        spire: (60.0, 4.0),
+    ),
+
+    // Set pieces: (model, stage, ramp, metres along it, side (+ right of the
+    // way), up over the ridge, scale, motion, which way it faces, extra turn).
+    props: [
+        // ---- stage 7: billboards down the canyon, blimps, gate, flying cars
+        (model: "features/surf_billboard.gltf", stage: 7, ramp: 1, at: 40.0, side: 48.0, up: 22.0, scale: 2.4, motion: Still, face: Ridge, yaw: 0.0, light: 1.0),
+        (model: "features/surf_billboard.gltf", stage: 7, ramp: 1, at: 130.0, side: -48.0, up: 30.0, scale: 2.4, motion: Still, face: Ridge, yaw: 0.0, light: 0.0),
+        (model: "features/surf_billboard.gltf", stage: 7, ramp: 1, at: 215.0, side: 48.0, up: 18.0, scale: 2.4, motion: Still, face: Ridge, yaw: 0.0, light: 1.0),
+        (model: "features/surf_billboard.gltf", stage: 7, ramp: 1, at: 300.0, side: -48.0, up: 34.0, scale: 2.4, motion: Still, face: Ridge, yaw: 0.0, light: 0.0),
+        (model: "features/surf_billboard.gltf", stage: 7, ramp: 2, at: 10.0, side: 52.0, up: 40.0, scale: 3.0, motion: Still, face: Ridge, yaw: 0.0, light: 0.0),
+        (model: "features/surf_arch_neon.gltf", stage: 7, ramp: 2, at: 40.0, side: 0.0, up: 12.0, scale: 2.2, motion: Still, face: Along, yaw: 0.0, light: 1.0),
+        (model: "features/surf_blimp.gltf", stage: 7, ramp: 1, at: 160.0, side: 95.0, up: 70.0, scale: 1.7, motion: Bob, face: Along, yaw: 0.0, light: 0.0),
+        (model: "features/surf_blimp.gltf", stage: 7, ramp: 1, at: 330.0, side: -120.0, up: 100.0, scale: 2.2, motion: Bob, face: Along, yaw: 40.0, light: 0.0),
+        (model: "features/surf_neon_car.gltf", stage: 7, ramp: 0, at: 30.0, side: 34.0, up: 20.0, scale: 1.0, motion: Bob, face: Along, yaw: 0.0, light: 0.0),
+        (model: "features/surf_neon_car.gltf", stage: 7, ramp: 1, at: 90.0, side: -36.0, up: 16.0, scale: 1.0, motion: Bob, face: Along, yaw: 180.0, light: 0.0),
+        (model: "features/surf_neon_car.gltf", stage: 7, ramp: 1, at: 175.0, side: 38.0, up: 36.0, scale: 1.0, motion: Bob, face: Along, yaw: 0.0, light: 0.0),
+        (model: "features/surf_neon_car.gltf", stage: 7, ramp: 1, at: 250.0, side: -34.0, up: 28.0, scale: 1.0, motion: Bob, face: Along, yaw: 180.0, light: 0.0),
+        (model: "features/surf_neon_car.gltf", stage: 7, ramp: 4, at: 80.0, side: 36.0, up: 22.0, scale: 1.0, motion: Bob, face: Along, yaw: 0.0, light: 0.0),
+        (model: "features/surf_neon_hologram.gltf", stage: 7, ramp: 1, at: 190.0, side: 130.0, up: 30.0, scale: 3.0, motion: Spin, face: Along, yaw: 0.0, light: 1.0),
+        // ---- stage 8: billboards on the megatower itself, holograms, blimps
+        (model: "features/surf_billboard.gltf", stage: 8, ramp: 1, at: 113.0, side: 38.0, up: 34.0, scale: 2.4, motion: Still, face: Ridge, yaw: 0.0, light: 1.0),
+        (model: "features/surf_billboard.gltf", stage: 8, ramp: 1, at: 226.0, side: 38.0, up: 30.0, scale: 2.4, motion: Still, face: Ridge, yaw: 0.0, light: 0.0),
+        (model: "features/surf_billboard.gltf", stage: 8, ramp: 1, at: 340.0, side: 38.0, up: 36.0, scale: 2.4, motion: Still, face: Ridge, yaw: 0.0, light: 1.0),
+        (model: "features/surf_billboard.gltf", stage: 8, ramp: 1, at: 565.0, side: 38.0, up: 28.0, scale: 2.4, motion: Still, face: Ridge, yaw: 0.0, light: 0.0),
+        (model: "features/surf_billboard.gltf", stage: 8, ramp: 1, at: 680.0, side: 38.0, up: 34.0, scale: 2.4, motion: Still, face: Ridge, yaw: 0.0, light: 1.0),
+        (model: "features/surf_billboard.gltf", stage: 8, ramp: 1, at: 790.0, side: 38.0, up: 30.0, scale: 2.4, motion: Still, face: Ridge, yaw: 0.0, light: 0.0),
+        (model: "features/surf_neon_hologram.gltf", stage: 8, ramp: 0, at: 20.0, side: -60.0, up: 28.0, scale: 2.2, motion: Spin, face: Along, yaw: 0.0, light: 1.0),
+        (model: "features/surf_neon_hologram.gltf", stage: 8, ramp: 2, at: 120.0, side: 62.0, up: 26.0, scale: 2.2, motion: Spin, face: Along, yaw: 0.0, light: 1.0),
+        (model: "features/surf_blimp.gltf", stage: 8, ramp: 1, at: 60.0, side: -110.0, up: 40.0, scale: 1.8, motion: Bob, face: Along, yaw: 0.0, light: 0.0),
+        (model: "features/surf_blimp.gltf", stage: 8, ramp: 1, at: 600.0, side: -120.0, up: 50.0, scale: 2.0, motion: Bob, face: Along, yaw: 90.0, light: 0.0),
+        (model: "features/surf_neon_car.gltf", stage: 8, ramp: 1, at: 150.0, side: -34.0, up: 20.0, scale: 1.0, motion: Bob, face: Along, yaw: 0.0, light: 0.0),
+        (model: "features/surf_neon_car.gltf", stage: 8, ramp: 1, at: 420.0, side: -38.0, up: 12.0, scale: 1.0, motion: Bob, face: Along, yaw: 0.0, light: 0.0),
+        (model: "features/surf_neon_car.gltf", stage: 8, ramp: 1, at: 700.0, side: -36.0, up: 24.0, scale: 1.0, motion: Bob, face: Along, yaw: 0.0, light: 0.0),
+        (model: "features/surf_neon_car.gltf", stage: 8, ramp: 2, at: 60.0, side: -40.0, up: 22.0, scale: 1.0, motion: Bob, face: Along, yaw: 0.0, light: 0.0),
+        (model: "features/surf_hot_air_balloon.gltf", stage: 8, ramp: 2, at: 150.0, side: -70.0, up: 20.0, scale: 2.0, motion: Bob, face: Along, yaw: 0.0, light: 0.0),
+        // ---- stage 9: the market's balloons, a hologram, the maglev's blimps
+        (model: "features/surf_hot_air_balloon.gltf", stage: 9, ramp: 0, at: 60.0, side: 40.0, up: -12.0, scale: 1.6, motion: Bob, face: Along, yaw: 0.0, light: 0.0),
+        (model: "features/surf_hot_air_balloon.gltf", stage: 9, ramp: 0, at: 120.0, side: -46.0, up: -20.0, scale: 1.6, motion: Bob, face: Along, yaw: 60.0, light: 0.0),
+        (model: "features/surf_hot_air_balloon.gltf", stage: 9, ramp: 0, at: 190.0, side: 50.0, up: -8.0, scale: 1.6, motion: Bob, face: Along, yaw: 120.0, light: 0.0),
+        (model: "features/surf_hot_air_balloon.gltf", stage: 9, ramp: 0, at: 240.0, side: -40.0, up: -26.0, scale: 1.6, motion: Bob, face: Along, yaw: 200.0, light: 0.0),
+        (model: "features/surf_hot_air_balloon.gltf", stage: 9, ramp: 0, at: 150.0, side: 90.0, up: -30.0, scale: 2.4, motion: Bob, face: Along, yaw: 20.0, light: 0.0),
+        (model: "features/surf_neon_hologram.gltf", stage: 9, ramp: 1, at: 120.0, side: -75.0, up: 36.0, scale: 3.0, motion: Spin, face: Along, yaw: 0.0, light: 1.0),
+        (model: "features/surf_blimp.gltf", stage: 9, ramp: 1, at: 80.0, side: 110.0, up: 60.0, scale: 1.9, motion: Bob, face: Along, yaw: 0.0, light: 0.0),
+        (model: "features/surf_neon_car.gltf", stage: 9, ramp: 1, at: 60.0, side: 40.0, up: 16.0, scale: 1.0, motion: Bob, face: Along, yaw: 0.0, light: 0.0),
+        (model: "features/surf_neon_car.gltf", stage: 9, ramp: 1, at: 190.0, side: 42.0, up: 24.0, scale: 1.0, motion: Bob, face: Along, yaw: 180.0, light: 0.0),
+        (model: "features/surf_neon_car.gltf", stage: 9, ramp: 2, at: 60.0, side: 38.0, up: 20.0, scale: 1.0, motion: Bob, face: Along, yaw: 0.0, light: 0.0),
+        (model: "features/surf_billboard.gltf", stage: 9, ramp: 2, at: 50.0, side: -50.0, up: 34.0, scale: 2.8, motion: Still, face: Ridge, yaw: 0.0, light: 1.0),
+    ],
+
+    // Laser rings round a ramp: stage, ramp, from, to, every (m), scale, model.
+    rings: [
+        (stage: 7, ramp: 2, from: 25.0, to: 55.0, every: 15.0, scale: 1.5, model: "features/surf_ring_gate.gltf"),
+        (stage: 7, ramp: 1, from: 70.0, to: 340.0, every: 90.0, scale: 1.5, model: "features/surf_ring_gate.gltf"),
+        (stage: 7, ramp: 4, from: 40.0, to: 160.0, every: 40.0, scale: 1.2, model: "features/surf_ring_gate.gltf"),
+        (stage: 8, ramp: 1, from: 100.0, to: 800.0, every: 100.0, scale: 1.5, model: "features/surf_ring_gate.gltf"),
+        (stage: 8, ramp: 2, from: 20.0, to: 200.0, every: 45.0, scale: 1.5, model: "features/surf_ring_gate.gltf"),
+        (stage: 9, ramp: 1, from: 40.0, to: 240.0, every: 100.0, scale: 1.5, model: "features/surf_ring_gate.gltf"),
+        (stage: 9, ramp: 2, from: 15.0, to: 100.0, every: 28.0, scale: 1.5, model: "features/surf_ring_gate.gltf"),
+        (stage: 9, ramp: 4, from: 30.0, to: 130.0, every: 50.0, scale: 1.2, model: "features/surf_ring_gate.gltf"),
+    ],
+
+    // Bridges over the course: stage, ramp, metres along, deck up over the
+    // ridge (the tunnel rule is 26 m), width, half span, neon edge, rail on top.
+    bridges: [
+        (stage: 7, ramp: 0, at: 25.0, up: 36.0, width: 10.0, span: 72.0, neon: "sf-neon-violet", rail: false),
+        (stage: 7, ramp: 2, at: 8.0, up: 42.0, width: 10.0, span: 72.0, neon: "sf-neon-cyan", rail: false),
+        (stage: 9, ramp: 2, at: 30.0, up: 40.0, width: 18.0, span: 84.0, neon: "sf-neon-cyan", rail: true),
+    ],
+
+    // The monorail beside the kink: stage, ramp, from, to (m along), side (+
+    // right of the way), up over the ridge, beam width, pylon spacing, and its
+    // maglev cars (model, count, gap, where the first one is).
+    rail: (
+        stage: 9,
+        ramp: 1,
+        from: 0.0,
+        to: 249.0,
+        side: 34.0,
+        up: 4.0,
+        width: 6.0,
+        pylon_every: 50.0,
+        car: "features/surf_neon_maglev.gltf",
+        cars: 3,
+        car_gap: 26.0,
+        car_at: 90.0,
+    ),
+
+    // The night market far under the calm stretch: its box (hall x, z), the
+    // deck's top (under stage 9's fall line, so nobody lands on it), stalls,
+    // hanging lanterns, and how high lanterns hang over the deck.
+    market: (
+        x: (2610.0, 2830.0),
+        z: (-1995.0, -1840.0),
+        deck: -932.0,
+        stalls: 70,
+        lanterns: 120,
+        seed: 99,
+        neons: ["sf-neon-pink", "sf-neon-orange", "sf-neon-gold", "sf-neon-lime", "sf-neon-coral", "sf-neon-cyan"],
+        strings: (8.0, 30.0),
+    ),
+
+    // Lights: one over the ridge every `every` m of a stage's main line (this
+    // high up, with this much light and reach, in the stage's colour); neon
+    // beads beside each ramp every `bead_every` m (this far out past a face's
+    // foot and this far below the ridge, this big); the pads' light; the
+    // speed-gap arrow (model, scale, height over the gap's middle).
+    lamps: (
+        every: 120.0,
+        up: 10.0,
+        lumens: 300000.0,
+        range: 60.0,
+        bead_every: 24.0,
+        bead_out: 3.0,
+        bead_drop: 12.0,
+        bead: 0.5,
+        pad_lumens: 250000.0,
+        pad_range: 26.0,
+        arrow: "features/surf_giant_arrow.gltf",
+        arrow_scale: 1.0,
+        arrow_up: 9.0,
+    ),
+)

@@ -7,7 +7,8 @@
 //! He starts outside Wendy's front door and walks the route in
 //! `data/side/jokah.ron` to the J station (the Fulton St entrance, where the
 //! J train is found), laughing one of his three laughs every few seconds
-//! (speech-synth laughs at three pitches, no sound files). At the station he
+//! (sound files made in sounder: a dark laugh and a chuckle; the speech-synth
+//! laughs at three pitches are only the fallback if none are listed). At the station he
 //! pauses, changes clothes and cap ([`Mode::Michael`]) and walks the route back,
 //! scatting and every so often sliding: a moonwalk backwards or a glide to
 //! one side for a second or so. Back at Wendy's he turns into the Jokah again
@@ -62,6 +63,17 @@ pub struct Tuning {
     /// Michael's scats and voice (pitch Hz, speed).
     pub scats: Vec<String>,
     pub scat_voice: (f32, f32),
+    /// Sound files Michael scats with (paths under `assets/`). While this is
+    /// not empty he plays only these, never the speech synth (he stays quiet
+    /// until one has loaded). Leave it empty to use the synth `scats`.
+    pub clips: Vec<String>,
+    /// The same for the Jokah's laughs (`laughs` is the synth fallback).
+    pub laugh_clips: Vec<String>,
+    /// Walls and props (#377 follow-up): how wide a ball he feels his way
+    /// with (m), and how long (s) he may stand blocked before he walks on
+    /// through (so a trap can't hold him for ever).
+    pub body_radius: f32,
+    pub stuck_secs: f32,
     /// Heard this close (m), this loud.
     pub hear_range: f32,
     pub volume: f32,
@@ -123,6 +135,24 @@ pub fn points(t: &Tuning, wendys: Vec2, station: Vec2) -> Vec<Vec2> {
     p.extend(t.route.iter().map(|&(x, z)| Vec2::new(x, z)));
     p.push(station + Vec2::new(t.station_offset.0, t.station_offset.1));
     p
+}
+
+/// How far off his line (radians) he tries when it's blocked, smallest first.
+const TURNS: [f32; 4] = [0.5, 1.0, 1.5, 2.3];
+
+/// The way round: the first direction near `dir` that `clear` says is free,
+/// the smallest turn first and `side` (+1 / -1, the way he went last time)
+/// first of each pair, so he keeps going round an obstacle the same way
+/// instead of flipping at its face. Gives the new direction and side, or
+/// `None` when every way is blocked.
+pub fn detour(dir: Vec2, side: f32, clear: impl Fn(Vec2) -> bool) -> Option<(Vec2, f32)> {
+    let first = if side < 0.0 { -1.0 } else { 1.0 };
+    TURNS.into_iter().find_map(|a| {
+        [first, -first].into_iter().find_map(|sign| {
+            let d = Vec2::from_angle(a * sign).rotate(dir);
+            clear(d).then_some((d, sign))
+        })
+    })
 }
 
 /// Walk him `dt` seconds at `speed` along `pts` from `pos`: he goes point by
@@ -251,6 +281,13 @@ struct Jokah {
     sliding: f32,
     slide: Vec2,
     slides: u32,
+    /// His sound files, loaded when he starts and kept (a handle dropped right
+    /// after `load` would cancel the load): Michael's, then the Jokah's laughs.
+    clips: Vec<Handle<AudioSource>>,
+    laugh_clips: Vec<Handle<AudioSource>>,
+    /// Which way (+1 / -1) he last went round something, and seconds blocked.
+    side: f32,
+    stuck: f32,
 }
 
 pub fn plugin(app: &mut App) {
@@ -287,8 +324,14 @@ fn ground(p: Vec2) -> Vec3 {
     Vec3::new(p.x, y, p.y)
 }
 
-fn start(mut commands: Commands) {
+fn start(mut commands: Commands, assets: Option<Res<AssetServer>>) {
     let t = tuning();
+    let load = |files: &[String]| -> Vec<Handle<AudioSource>> {
+        let Some(assets) = &assets else {
+            return Vec::new();
+        };
+        files.iter().map(|f| assets.load(f)).collect()
+    };
     let pts = path();
     let Some(&at) = pts.first() else { return };
     commands.insert_resource(Jokah {
@@ -302,6 +345,10 @@ fn start(mut commands: Commands) {
         sliding: 0.0,
         slide: Vec2::ZERO,
         slides: 0,
+        clips: load(&t.clips),
+        laugh_clips: load(&t.laugh_clips),
+        side: 1.0,
+        stuck: 0.0,
     });
 }
 
@@ -359,7 +406,37 @@ fn body(
 }
 
 /// Walk him along, change him at the ends and slide him as Michael.
-fn walk(time: Res<Time>, mut j: ResMut<Jokah>) {
+/// Nothing solid within `len` (plus a little) of `from` along `dir`: a ball
+/// at chest height swept ahead, over the city floor or the terrain.
+fn clear_ahead(
+    spatial: &avian3d::prelude::SpatialQuery,
+    from: Vec2,
+    dir: Vec2,
+    len: f32,
+    t: &Tuning,
+) -> bool {
+    use avian3d::prelude::{Collider, ShapeCastConfig, SpatialQueryFilter};
+    let Ok(d) = Dir3::new(Vec3::new(dir.x, 0.0, dir.y)) else {
+        return true;
+    };
+    let at = ground(from) + Vec3::Y * 0.9;
+    let config = ShapeCastConfig {
+        ignore_origin_penetration: true,
+        ..ShapeCastConfig::from_max_distance(len + t.body_radius)
+    };
+    spatial
+        .cast_shape(
+            &Collider::sphere(t.body_radius),
+            at,
+            Quat::IDENTITY,
+            d,
+            &config,
+            &SpatialQueryFilter::default(),
+        )
+        .is_none()
+}
+
+fn walk(time: Res<Time>, mut j: ResMut<Jokah>, spatial: avian3d::prelude::SpatialQuery) {
     let t = tuning();
     let dt = time.delta_secs();
     let pts = path();
@@ -368,14 +445,41 @@ fn walk(time: Res<Time>, mut j: ResMut<Jokah>) {
         let j = &mut *j;
         if j.sliding > 0.0 {
             j.sliding -= dt;
-            j.pos += j.slide * t.slide_speed * dt;
+            let step = j.slide * t.slide_speed * dt;
+            // A slide stops at a wall rather than going through it.
+            if clear_ahead(&spatial, j.pos, step.normalize_or_zero(), step.length(), &t) {
+                j.pos += step;
+            } else {
+                j.sliding = 0.0;
+            }
         } else {
             let speed = match j.walk.mode {
                 Mode::Jokah => t.walk_speed,
                 Mode::Michael => t.mj_speed,
             };
             let was = j.pos;
-            let (pos, arrived) = step(&mut j.walk, j.pos, &pts, dt, speed, arrive, pause);
+            let (mut pos, arrived) = step(&mut j.walk, j.pos, &pts, dt, speed, arrive, pause);
+            // Feel the way: if the straight step runs into a wall or prop,
+            // go round it. Where no colliders are loaded (nobody's near) the
+            // cast finds nothing and he walks his line.
+            let delta = pos - was;
+            if arrived.is_none() && delta.length_squared() > 1e-8 {
+                let (len, dir) = (delta.length(), delta.normalize());
+                if clear_ahead(&spatial, was, dir, len, &t) {
+                    j.stuck = 0.0;
+                } else if let Some((d, side)) =
+                    detour(dir, j.side, |d| clear_ahead(&spatial, was, d, len, &t))
+                {
+                    pos = was + d * len;
+                    j.side = side;
+                    j.stuck = 0.0;
+                } else {
+                    j.stuck += dt;
+                    if j.stuck < t.stuck_secs {
+                        pos = was;
+                    }
+                }
+            }
             j.pos = pos;
             let d = pos - was;
             if d.length_squared() > 1e-8 {
@@ -397,12 +501,37 @@ fn walk(time: Res<Time>, mut j: ResMut<Jokah>) {
     }
 }
 
+/// What he says this time: a loaded sample, or (only with no samples listed)
+/// a line for the speech synth and its voice (pitch Hz, speed).
+enum Said {
+    Clip(Handle<AudioSource>),
+    Synth(String, (f32, f32)),
+}
+
+/// One of `clips` that has loaded, picked by `h`; `None` while none has.
+fn pick_clip(
+    assets: &Option<Res<AssetServer>>,
+    clips: &[Handle<AudioSource>],
+    h: u32,
+) -> Option<Handle<AudioSource>> {
+    let assets = assets.as_ref()?;
+    let ready: Vec<&Handle<AudioSource>> = clips
+        .iter()
+        .filter(|c| assets.is_loaded_with_dependencies(*c))
+        .collect();
+    if ready.is_empty() {
+        return None;
+    }
+    Some(ready[h as usize % ready.len()].clone())
+}
+
 /// Local: laugh as the Jokah, scat as Michael, while the local player's near.
 fn sound(
     mut commands: Commands,
     time: Res<Time>,
     me: Option<Res<LocalPlayer>>,
     walkers: Query<(&Player, &Walker)>,
+    assets: Option<Res<AssetServer>>,
     mut j: ResMut<Jokah>,
 ) {
     let Some(me) = me else {
@@ -420,28 +549,53 @@ fn sound(
         }
         j.said += 1;
         let h = hash(377, j.said + 100);
-        let (text, voice) = match j.walk.mode {
+        // Samples when he has any (and silence until one has loaded), the
+        // speech synth only when none are listed.
+        let said = match j.walk.mode {
             Mode::Jokah => {
                 j.next_sound = between(t.laugh_every, h);
-                if t.laughs.is_empty() {
-                    return;
+                if !j.laugh_clips.is_empty() {
+                    pick_clip(&assets, &j.laugh_clips, h).map(Said::Clip)
+                } else if t.laughs.is_empty() {
+                    None
+                } else {
+                    let i = pick_laugh(h, t.laughs.len(), j.last_laugh);
+                    j.last_laugh = Some(i);
+                    let l = &t.laughs[i];
+                    Some(Said::Synth(l.text.clone(), (l.pitch, l.speed)))
                 }
-                let i = pick_laugh(h, t.laughs.len(), j.last_laugh);
-                j.last_laugh = Some(i);
-                let l = &t.laughs[i];
-                (l.text.clone(), (l.pitch, l.speed))
             }
             Mode::Michael => {
                 j.next_sound = between(t.scat_every, h);
-                if t.scats.is_empty() {
-                    return;
+                if !j.clips.is_empty() {
+                    pick_clip(&assets, &j.clips, h).map(Said::Clip)
+                } else if t.scats.is_empty() {
+                    None
+                } else {
+                    let text = t.scats[h as usize % t.scats.len()].clone();
+                    Some(Said::Synth(text, t.scat_voice))
                 }
-                (t.scats[h as usize % t.scats.len()].clone(), t.scat_voice)
             }
+        };
+        let Some(said) = said else {
+            return;
         };
         if at.distance(w.pos) > t.hear_range {
             return;
         }
+        let (text, voice) = match said {
+            Said::Clip(clip) => {
+                crate::spatial::play_at(
+                    &mut commands,
+                    &clip,
+                    at + Vec3::Y * 1.6,
+                    t.volume,
+                    crate::spatial::Carry::CALL,
+                );
+                return;
+            }
+            Said::Synth(text, voice) => (text, voice),
+        };
         crate::spatial::play_wav_at(
             &mut commands,
             at + Vec3::Y * 1.6,
@@ -473,6 +627,22 @@ mod tests {
     }
 
     #[test]
+    fn he_goes_round_a_wall_the_same_way_and_stops_when_boxed_in() {
+        let east = Vec2::X;
+        // A wall across his way: anything within 60 degrees of east is blocked.
+        let wall = |d: Vec2| d.angle_to(east).abs() > 1.05;
+        let (d, side) = detour(east, 1.0, wall).expect("a way round");
+        assert!(wall(d) && side == 1.0, "turned left first");
+        let (d, side) = detour(east, -1.0, wall).expect("a way round");
+        assert!(wall(d) && side == -1.0, "keeps the side he was on");
+        assert!(d.y < 0.0, "and goes that way");
+        // Free ahead needs no detour of its own, but a closed box gives none.
+        assert!(detour(east, 1.0, |_| false).is_none());
+        let (d, _) = detour(east, 1.0, |_| true).expect("free");
+        assert!((d - east.rotate(Vec2::from_angle(0.5))).length() < 1e-5);
+    }
+
+    #[test]
     fn the_data_file_parses_and_has_everything() {
         let t = t();
         assert_eq!(t.laughs.len(), 3, "he has 3 unique laughs");
@@ -482,6 +652,8 @@ mod tests {
                 assert!(a.text != b.text || a.pitch != b.pitch, "laughs repeat");
             }
         }
+        assert!(t.body_radius > 0.0 && t.stuck_secs > 0.0);
+        assert!(!t.clips.is_empty() && !t.laugh_clips.is_empty());
         assert!(!t.scats.is_empty() && t.scat_voice.0 > 0.0 && t.scat_voice.1 > 0.0);
         assert!(t.arrive > 0.0 && t.walk_speed > 0.0 && t.mj_speed > 0.0);
         assert!(t.pause_secs >= 0.0 && t.hear_range > 0.0 && t.volume > 0.0);

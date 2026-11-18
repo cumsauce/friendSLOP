@@ -1,80 +1,190 @@
-// The mall at the end of the surf map (crates/side/src/features/surf_mall.rs,
-// #306): stage 7 winds in two big S-bends through a huge glass-roofed mall
-// (storefronts and balconies up both walls, a food court far below, catwalks
-// to dodge) to the finish. Hall coordinates, metres. The ramp is in surf.ron.
+// The mall of the surf course (crates/side/src/features/surf_mall.rs, #306,
+// doomy: the mall was "just a snake back and forth": make it fun). Stage 6
+// starts on pad P6 and lands on P7, where the neon megacity begins. Hall
+// coordinates, metres (the start pad's top is 0, 0, 0). The course is the
+// `ramps` below; `cargo run -p friendslop-side --example surf_pack_mall` bakes
+// them and the scenery into the modeler ops (.modeler/gen/surf_mall_ops.json).
+//
+// What a run is: the concourse bump (a wide calm sweep past the shop tiers),
+// the skybridge gauntlet (over, under and ducking), then one turn round the
+// clock tower and food court that crosses over itself (a figure-8: the exit
+// leg runs 30 m under the loop's start), a long glass-roof cruise, and the
+// last straight onto P7. Two shortcuts: the ESCALATOR (hop off the bump's
+// south face, a straight steeper lane that fuses back before the gauntlet
+// ends) and the SERVICE LINE (hop off before the loop, over the exit leg, a 32
+// m speed-check gap, a plunge, and a fuse back into the cruise: skips most of
+// the loop).
 (
-    // The ramp that winds through it: stage 7 (0-based 6), its first ramp.
+    // The stage (0-based) this area owns: it starts on P6.
     stage: 6,
-    ramp: 0,
-    // The building's box (min, max corners). Its floor top is `min.y`, below
-    // the stage's fall line, so you can never land on it.
-    min: (1100.0, -770.0, -2038.0),
-    max: (1870.0, -590.0, -1838.0),
-    // Wall, floor and roof thickness (m), and the biggest glass pane (m).
+    // The handoff pads (centre, size), fixed by the brief: P6 starts the mall,
+    // P7 starts the neon megacity (its pad belongs to that area's map; this
+    // map keeps a stand-in finish pad there until it exists).
+    pads: (
+        start: ((1030.0, -645.88, -1938.0), (24.0, 1.0, 24.0)),
+        end: ((1814.85, -749.16, -1915.74), (24.0, 1.0, 24.0)),
+    ),
+    // How the ramps look: colour (r, g, b), glow (emissive times colour),
+    // roughness, metalness. Rose gold.
+    look: (0.78, 0.46, 0.4, 0.12, 0.28, 0.65),
+    // The ramps (stage ramp 0, 1, ...): ridge points, 16 m apart. The pretty
+    // names say which is which. Each shortcut ends by fusing with the main
+    // line (its last two points are the main line's).
+    ramps: [
+        // The main line: the concourse bump, the skybridge gauntlet, the loop round the clock tower (a figure-8: its exit leg passes under the gauntlet's end), then the long glass-roof cruise to the neon pad.
+        (name: "main", points: [
+            (1046.00, -651.38, -1938.00), (1061.85, -652.95, -1937.99), (1077.69, -654.53, -1937.71),
+            (1093.49, -655.92, -1936.52), (1109.09, -657.10, -1933.78), (1124.15, -658.28, -1928.90),
+            (1138.26, -659.46, -1921.73), (1151.16, -660.64, -1912.54), (1163.21, -661.82, -1902.26),
+            (1175.24, -663.00, -1891.93), (1188.03, -664.18, -1882.60), (1202.05, -665.36, -1875.24),
+            (1217.05, -666.54, -1870.18), (1232.66, -667.72, -1867.56), (1248.49, -668.90, -1867.43),
+            (1264.14, -670.09, -1869.80), (1279.22, -671.27, -1874.61), (1293.36, -672.45, -1881.74),
+            (1306.27, -673.63, -1890.91), (1318.33, -674.81, -1901.18), (1330.35, -675.99, -1911.51),
+            (1343.13, -677.17, -1920.87), (1357.12, -678.35, -1928.27), (1372.10, -679.53, -1933.38),
+            (1387.67, -680.71, -1936.32), (1403.45, -682.07, -1937.64), (1419.30, -683.64, -1937.99),
+            (1435.14, -685.22, -1938.00), (1450.99, -686.79, -1938.00), (1466.84, -688.37, -1938.00),
+            (1482.68, -689.94, -1937.99), (1498.52, -691.52, -1937.59), (1514.28, -692.85, -1935.93),
+            (1529.64, -693.95, -1932.12), (1543.97, -695.06, -1925.44), (1556.51, -696.16, -1915.80),
+            (1566.64, -697.26, -1903.66), (1573.88, -698.36, -1889.60), (1577.88, -699.46, -1874.29),
+            (1578.44, -700.57, -1858.49), (1575.54, -701.67, -1842.94), (1569.31, -702.77, -1828.40),
+            (1560.07, -703.87, -1815.57), (1548.25, -704.97, -1805.07), (1534.42, -706.08, -1797.40),
+            (1519.24, -707.18, -1792.93), (1503.46, -708.28, -1791.88), (1487.84, -709.38, -1794.29),
+            (1473.11, -710.48, -1800.06), (1460.00, -711.59, -1808.91), (1449.13, -712.69, -1820.40),
+            (1441.04, -713.79, -1833.98), (1435.97, -714.89, -1848.97), (1433.41, -715.99, -1864.60),
+            (1432.54, -717.10, -1880.42), (1432.45, -718.20, -1896.26), (1432.45, -719.30, -1912.11),
+            (1432.52, -720.40, -1927.96), (1433.32, -721.50, -1943.78), (1435.75, -722.61, -1959.43),
+            (1440.65, -723.71, -1974.47), (1448.57, -724.81, -1988.16), (1459.29, -725.91, -1999.79),
+            (1472.30, -727.02, -2008.79), (1486.94, -728.12, -2014.77), (1502.44, -729.22, -2018.01),
+            (1518.23, -729.90, -2019.27), (1534.06, -730.47, -2019.00), (1549.82, -731.03, -2017.38),
+            (1565.29, -731.60, -2014.00), (1580.09, -732.17, -2008.36), (1593.80, -732.73, -2000.46),
+            (1606.10, -733.30, -1990.49), (1616.84, -733.87, -1978.85), (1626.69, -734.44, -1966.44),
+            (1636.66, -735.00, -1954.12), (1647.70, -735.57, -1942.77), (1660.32, -736.14, -1933.22),
+            (1674.30, -736.70, -1925.78), (1689.27, -737.27, -1920.64), (1704.83, -737.84, -1917.69),
+            (1720.62, -738.40, -1916.35), (1736.46, -738.97, -1916.00), (1752.31, -739.54, -1915.99),
+            (1768.15, -740.10, -1915.99), (1784.85, -740.66, -1915.74),
+        ]),
+        // Service shortcut, first half: hop off the gauntlet's south face before the loop, run over the loop's exit leg, to the 32 m gap (a speed check, SpeedGap on this ramp).
+        (name: "service", points: [
+            (1420.00, -688.64, -1964.00), (1436.06, -691.05, -1963.88), (1452.09, -693.63, -1963.03),
+            (1468.08, -696.27, -1961.52), (1484.00, -698.90, -1959.43), (1499.85, -701.53, -1956.87),
+        ]),
+        // Service shortcut, second half: lands 9 m lower, plunges, and fuses into the main line before the last straight.
+        (name: "service_end", points: [
+            (1531.36, -710.80, -1950.64), (1547.03, -713.10, -1947.14), (1562.67, -715.40, -1943.50),
+            (1578.29, -717.70, -1939.78), (1593.92, -720.00, -1936.08), (1609.56, -722.30, -1932.45),
+            (1625.24, -724.60, -1929.00), (1640.98, -726.90, -1925.79), (1656.78, -729.20, -1922.90),
+            (1672.64, -731.50, -1920.43), (1688.58, -733.80, -1918.46), (1704.58, -736.10, -1917.07),
+            (1720.62, -738.40, -1916.35), (1736.46, -738.97, -1916.00), (1752.31, -739.54, -1915.99),
+        ]),
+        // Escalator shortcut: hop off the concourse bump's south face, a straight steeper lane past the gauntlet that fuses back into the main line.
+        (name: "escalator", points: [
+            (1112.00, -663.19, -1958.00), (1128.39, -664.21, -1959.05), (1144.81, -665.23, -1958.88),
+            (1161.19, -666.25, -1957.69), (1177.49, -667.27, -1955.67), (1193.70, -668.29, -1953.03),
+            (1209.83, -669.32, -1949.95), (1225.92, -670.34, -1946.60), (1241.98, -671.36, -1943.15),
+            (1258.05, -672.38, -1939.77), (1274.17, -673.40, -1936.63), (1290.37, -674.42, -1933.91),
+            (1306.66, -675.45, -1931.79), (1323.03, -676.47, -1930.48), (1339.45, -677.49, -1930.17),
+            (1355.85, -678.51, -1931.08), (1372.10, -679.53, -1933.38), (1387.67, -680.71, -1936.32),
+            (1403.45, -682.07, -1937.64),
+        ]),
+    ],
+    // Speed checks: the gap after these ramps (indices) is only cleared carrying speed
+    // (the service line's 32 m gap, about 34 m/s needed).
+    speed_gaps: [1],
+    // The building's box (min, max corners). Its floor top is `min.y`, far
+    // under the stage's fall line (the lowest ridge less 18 m), so a fall
+    // wipes you out long before you could land on it.
+    min: (1100.0, -790.0, -2120.0),
+    max: (1880.0, -600.0, -1750.0),
+    // Wall and floor thickness (m).
     wall: 1.0,
-    glass_max: (30.0, 35.0),
-    // The west wall's opening for the ramp: half width, and how far below
-    // and above the ridge (m).
-    opening: (24.0, 20.0, 28.0),
-    // The storefront columns lining the north and south walls (12 storeys of
-    // shops with balconies, 20 m wide, 12 m deep): from x, to x.
+    // The walls' modeler material, and the floor's two (alternating strips
+    // of `floor_strip` m along the hall).
+    wall_material: "sf-fa-office",
+    floor_materials: ("sf-floor-light", "sf-stone"),
+    floor_strip: 30.0,
+    // The west wall's opening for the main ridge: half width, and how far it
+    // reaches below and above the ridge (m).
+    west_gate: (45.0, 26.0, 30.0),
+    // The east wall's gate for the neon ramp: its middle z, half width, and
+    // the top (hall y) of the opening, which runs down to the floor.
+    east_gate: (-1915.74, 34.0, -705.0),
+    // The storefront columns lining the long walls (8 storeys of shops with
+    // balconies, 20 m wide, 12 m deep, 96 m tall): from x, to x.
     shops: (1110.0, 1850.0),
-    // The food court far below the ramp, in the middle: x, how much bigger
-    // than the model (72 m across), and the model.
-    food_court: (1450.0, 1.6),
-    // The FOOD COURT signs on both long walls: x, how high over the ridge
-    // (m), and how much bigger than the model (26 m wide).
-    sign: (1450.0, 12.0, 2.0),
+    // The clock tower and fountain in the middle of the loop, whose ridge is
+    // a circle round `at` (x, z). Radii in metres: the pool, its rim, the
+    // stepped plinth (and its height), the shaft, then the clock block's
+    // half size and its height (hall y), and the spire's radius. All of it
+    // stays at least 20 m inside the loop's ridge.
+    tower: (
+        at: (1506.0, -1866.0),
+        pool: 44.0,
+        rim: 46.0,
+        plinth: 30.0,
+        plinth_height: 12.0,
+        shaft: 11.0,
+        clock: 15.0,
+        clock_y: -642.0,
+        spire: 2.5,
+    ),
+    // The food court: kiosks standing round the pool: how many, the ring's
+    // radius, and each kiosk's size (m), and the tint of their awnings.
+    court: (count: 14, radius: 52.0, size: (14.0, 7.0, 9.0)),
+    awnings: ["sf-neon-pink", "sf-neon-cyan", "sf-neon-orange", "sf-neon-violet", "sf-neon-lime", "sf-neon-coral"],
     // Catwalk kinds (as the skybridge slalom's): a 10 m segment along +x, its
-    // collar, the solid's half width and how far it reaches below and above
-    // its deck line.
+    // half width, and how far its solid reaches below and above its deck line.
     kinds: [
         // 0: glass sky bridge
-        (segment: "surf_skybridge_segment.gltf", end: None, half_width: 3.3, below: 0.95, above: 4.7),
+        (segment: "surf_skybridge_segment.gltf", half_width: 3.3, below: 0.95, above: 4.7),
         // 1: steel truss
-        (segment: "surf_truss_bridge_segment.gltf", end: None, half_width: 2.15, below: 0.5, above: 3.8),
+        (segment: "surf_truss_bridge_segment.gltf", half_width: 2.15, below: 0.5, above: 3.8),
         // 2: catwalk
-        (segment: "surf_catwalk_segment.gltf", end: None, half_width: 1.1, below: 1.0, above: 1.25),
+        (segment: "surf_catwalk_segment.gltf", half_width: 1.1, below: 1.0, above: 1.25),
         // 3: low bridge: its belly skims the ridge, so you drop down the face
-        (segment: "surf_slalom_low_bridge_segment.gltf", end: None, half_width: 3.45, below: 1.05, above: 3.65),
+        (segment: "surf_slalom_low_bridge_segment.gltf", half_width: 3.45, below: 1.05, above: 3.65),
     ],
-    // The catwalks over and under the winding ramp: x, kind, span (Across
-    // the whole mall, or a stub from the North / South balconies stopping
-    // short of the ridge), and the deck's height over the ridge there (m;
-    // lift 2 puts a low bridge's belly about a metre over the ridge; below -13 a
-    // catwalk crosses beneath the ramp).
+    // The skybridge gauntlet across the hall, wall to wall: x, kind and the
+    // deck's height over the MAIN ridge there (m; about a metre under a
+    // low bridge's belly at lift 2; below -13 it passes under the ramp).
+    // The escalator lane runs a few metres lower beside the main one, and
+    // the test checks every lane has a face open under each.
     catwalks: [
-        (x: 1150.0, kind: 0, span: Across, lift: 12.0),
-        (x: 1190.0, kind: 3, span: Across, lift: 2.0),
-        (x: 1230.0, kind: 1, span: Across, lift: -15.0),
-        (x: 1270.0, kind: 2, span: Across, lift: 9.0),
-        (x: 1310.0, kind: 3, span: Across, lift: 2.0),
-        (x: 1350.0, kind: 0, span: Across, lift: -17.0),
-        (x: 1390.0, kind: 1, span: Across, lift: 14.0),
-        (x: 1510.0, kind: 3, span: Across, lift: 2.0),
-        (x: 1550.0, kind: 2, span: North, lift: 4.0),
-        (x: 1590.0, kind: 1, span: Across, lift: -15.0),
-        (x: 1630.0, kind: 3, span: Across, lift: 2.0),
-        (x: 1670.0, kind: 0, span: Across, lift: 12.0),
-        (x: 1710.0, kind: 2, span: South, lift: -3.0),
-        (x: 1710.0, kind: 1, span: Across, lift: -16.0),
-        (x: 1750.0, kind: 3, span: Across, lift: 2.0),
+        (x: 1165.0, kind: 0, lift: 13.0),
+        (x: 1205.0, kind: 3, lift: 2.0),
+        (x: 1245.0, kind: 1, lift: -19.0),
+        (x: 1285.0, kind: 2, lift: 9.0),
+        (x: 1325.0, kind: 3, lift: 2.0),
+        (x: 1370.0, kind: 0, lift: -18.0),
     ],
-    // A stub stops this far (m) from the ridge, across the ground.
-    stub_reach: 9.0,
     // A surfer needs this much (m) of open face to get by, in the band from
     // 10 m under the ridge to 3 m over it.
     gap_needed: 3.0,
     band: (-10.0, 3.0),
-    // Lights over the ridge: one every this many metres, this high over it,
-    // colour (r, g, b), lumens and range (m). No shadows.
-    light_every: 40.0,
-    light_up: 12.0,
+    // The skylight roof: ribs along and across the hall every this many m,
+    // their size (width, height) and material.
+    roof: (every: 37.0, rib: (1.4, 2.4), material: "sf-hull"),
+    // Hanging banners by the long walls: one every this many m, size (width,
+    // height), how far from the wall and how far under the roof (m).
+    banners: (every: 34.0, size: (2.6, 24.0), from_wall: 26.0, under_roof: 6.0),
+    // Sky gardens: round floating decks with a tree beside the cruise, well
+    // out of the ramp's way: x, z, hall y of the deck top, radius.
+    gardens: [
+        (at: (1610.0, -2062.0), top: -764.0, radius: 24.0),
+        (at: (1668.0, -2052.0), top: -768.0, radius: 22.0),
+        (at: (1700.0, -1836.0), top: -764.0, radius: 26.0),
+        (at: (1756.0, -1850.0), top: -768.0, radius: 22.0),
+    ],
+    // Lights over the main ridge: one every this many metres, this high over
+    // it, colour (r, g, b), lumens and range (m). No shadows.
+    light_every: 70.0,
+    light_up: 14.0,
     light_colour: (1.0, 0.85, 0.75),
     light_intensity: 5000000.0,
-    light_range: 80.0,
-    // The ramp's tunnel nothing but the catwalks may enter: sideways from the
-    // ridge, and above it (m).
+    light_range: 90.0,
+    // The tunnel nothing but the catwalks may enter: sideways from the ridge,
+    // and above it (m).
     clear_side: 13.0,
     clear_up: 26.0,
+    // Seed for the little chances in the dressing (banner colours).
+    seed: 306,
 )

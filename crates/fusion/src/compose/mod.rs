@@ -41,7 +41,7 @@ use score::*;
 pub use form::LIFT_MAX;
 pub use library::{LIBRARY, Library};
 pub use mood::{Mood, MoodFlags};
-pub use score::{PartFile, SCORE, SONGS, Score, SongScore};
+pub use score::{PartFile, SCORE, SONGS, Score, SongScore, StingerHit};
 
 /// How a mood sounds on top of what it plays: the band's overall colour
 /// and feel, so the same instruments fit each place.
@@ -508,7 +508,8 @@ impl Composer {
         self.full = s.steps;
         self.beat = (s.steps / s.beats).max(1);
         (self.lead_lo, self.lead_hi) = s.lead_range;
-        // Tempo eases towards the style's (an accelerando into a duel).
+        // Tempo eases towards the style's (an accelerando into a duel); a `snap`
+        // mood (a chase) cuts in at its own tempo straight away.
         let target_bpm = s.bpm
             * if self.mood.hold() {
                 s.form.hold.tempo
@@ -516,7 +517,7 @@ impl Composer {
                 1.0
             };
         let d = target_bpm - self.bpm;
-        self.bpm = if d.abs() < 1.5 {
+        self.bpm = if d.abs() < 1.5 || (new_mood && self.mood.snap()) {
             target_bpm
         } else {
             self.bpm + d * 0.5

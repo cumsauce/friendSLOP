@@ -153,6 +153,10 @@ pub fn clear(
 
 pub use crate::rules::surf::{claim, claimed};
 
+/// The base map's stages (0-4): the generated props dress only these; the
+/// later areas are their own maps.
+pub const BASE_STAGES: usize = 5;
+
 /// Where everything goes.
 pub fn layout(t: &Tuning, p: &Props) -> Vec<Placed> {
     let mut out = Vec::new();
@@ -202,7 +206,8 @@ pub fn layout(t: &Tuning, p: &Props) -> Vec<Placed> {
         }
     }
     // A sign over every speed gap, pointing across it.
-    for &(stage, ramp) in &t.speed_gaps {
+    // Signs only over the base map's gaps (the later areas dress their own).
+    for &(stage, ramp) in t.speed_gaps.iter().filter(|g| g.0 < BASE_STAGES) {
         let Some(g) = gap(t, stage, ramp) else {
             continue;
         };
@@ -467,7 +472,11 @@ mod tests {
         assert!(bridges >= 2, "{bridges} sky bridges");
         assert!(floaters >= 6, "{floaters} floaters");
         let signs = count(&|x| x.model == p.speed_sign.0 && x.motion == Motion::Still);
-        assert_eq!(signs, t.speed_gaps.len(), "a sign over every speed gap");
+        assert_eq!(
+            signs,
+            t.speed_gaps.iter().filter(|g| g.0 < BASE_STAGES).count(),
+            "a sign over every speed gap"
+        );
         // Same seed, same layout.
         assert_eq!(all, layout(&t, &p));
     }

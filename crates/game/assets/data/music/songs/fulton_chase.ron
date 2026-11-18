@@ -1,0 +1,25 @@
+#![enable(implicit_some)]
+// FultonChase: song 1 (its own song). See moods.ron for what the fields mean.
+// "Run": it sees you. A bass hammering rough eighths, low brass stabs slamming
+// clusters, pounding irregular drums, metal struck in the dark and high strings
+// screaming a half step apart over the top. Fast and never lets up.
+(
+    mood: "FultonChase", band: "street", form: "song",
+    bpm: 168.0, swing: 0.0, key: 6,
+    a: "FULTON_CHASE_A", b: "FULTON_CHASE_B", hook: "FULTON_CHASE_HOOK",
+    intensity: 0.9, odd: 0.0, modulate: 0.0, kime: 0.0,
+    mix: {
+        // The drums hit hard and a little broken.
+        "drums": (drive: Some((0.45, 0.8)), comp: Some((-26.0, 6.0, 3.0, 90.0, 0.5))),
+    },
+    parts: [
+        (play: Drums(groove: "Dread")),
+        (play: Lane(lane: "Pound")),
+        (play: Lane(lane: "Clang")),
+        (play: Bass(lines: ["DREAD", "DREAD2"]), inst: SubBass, bus: "bass"),
+        (play: Bass(lines: ["DREAD", "DREAD2"]), inst: Reese, register: (30, 48)),
+        (play: Chords(comp: "Slam"), inst: DoomBrass, register: (36, 56)),
+        (play: Chords(comp: "Long"), inst: Screech, register: (74, 96)),
+        (play: Melody(style: "scream"), inst: Screech, register: (80, 98), sections: [Hook, B]),
+    ],
+)

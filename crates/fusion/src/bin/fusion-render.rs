@@ -16,6 +16,8 @@ const HELP: &str = "fusion-render: audition friendSLOP's music without building 
   fusion-render tour  [out.wav]             the ~100 s tour of every mood
   fusion-render mood  <mood> [secs] [out.wav] [--intensity 0..1] [--victory <sec>]
                                             [--live <signal>=<0..1 | ~secs>] (~4: on and off every 4 s)
+  fusion-render stinger <name> <from mood> <to mood> [out.wav] [--before 8] [--after 14]
+                                            a stinger (moods.ron `stingers`) cutting from one mood to another
   fusion-render climb <mood> [out.wav] [--per <secs>]  walk up the storeys and back
   fusion-render inst  <instrument> [out.wav]  one instrument alone
   fusion-render stems                       tour spectrum per bus vs a reference mix
@@ -32,6 +34,8 @@ fn main() {
     let mut intensity: Option<f32> = None;
     let mut victory: Option<f32> = None;
     let mut per = 8.0f32;
+    let mut before = 8.0f32;
+    let mut after = 14.0f32;
     let mut live: Vec<(String, String)> = Vec::new();
     let mut it = args.iter();
     while let Some(a) = it.next() {
@@ -41,6 +45,8 @@ fn main() {
             "--intensity" => intensity = val().parse().ok(),
             "--victory" => victory = val().parse().ok(),
             "--per" => per = val().parse().unwrap_or(per),
+            "--before" => before = val().parse().unwrap_or(before),
+            "--after" => after = val().parse().unwrap_or(after),
             "--live" => match val().split_once('=') {
                 Some((k, v)) => live.push((k.to_owned(), v.to_owned())),
                 None => return fail("--live wants <signal>=<value or ~secs>"),
@@ -104,6 +110,23 @@ fn main() {
             for (s, what) in log {
                 println!("{s:7.2} s  {what}");
             }
+            finish(out, &audio);
+        }
+        "stinger" => {
+            let (Some(name), Some(from), Some(to)) = (
+                pos.get(1),
+                pos.get(2).and_then(|m| mood_by_name(m)),
+                pos.get(3).and_then(|m| mood_by_name(m)),
+            ) else {
+                return fail("stinger <name> <from mood> <to mood>");
+            };
+            let out = pos.get(4).copied().unwrap_or("fusion_stinger.wav");
+            let Some((audio, cut, _)) =
+                fusion::render::render_stinger(seed, name, from, to, before, after)
+            else {
+                return fail("no stinger by that name (moods.ron `stingers`)");
+            };
+            println!("{from:?} for {before} s, then {name} and {to:?} (cut at frame {cut})");
             finish(out, &audio);
         }
         "climb" => {

@@ -201,8 +201,16 @@ fn leave(ev: On<FromClient<LeaveSurf>>, mut commands: Commands, mut bodies: Quer
 // ------------------------------------------------------------------ every peer
 
 /// `FRIENDSLOP_START=surf`: the start pad.
+/// And `FRIENDSLOP_START=surf_stage_N`: stage N's pad (from 0), in whatever
+/// area that is.
 fn starts() -> Vec<(String, Vec3)> {
-    vec![("surf".to_owned(), start_at(&tuning()))]
+    let t = tuning();
+    let mut out = vec![("surf".to_owned(), start_at(&t))];
+    out.extend(
+        (0..t.stages.len())
+            .filter_map(|i| stage_spawn(&t, i).map(|at| (format!("surf_stage_{i}"), at))),
+    );
+    out
 }
 
 pub fn plugin(app: &mut App) {
@@ -717,6 +725,15 @@ mod tests {
         assert!(standing(&t, top));
         assert!(!standing(&t, top + Vec3::Y * 1.5));
         assert!(!standing(&t, top + Vec3::new(s.x, 0.0, 0.0)));
+    }
+
+    #[test]
+    fn every_stage_has_a_start_to_test_from() {
+        let _ = t();
+        let names: Vec<String> = starts().into_iter().map(|(n, _)| n).collect();
+        assert!(names.contains(&"surf".to_owned()));
+        assert!(names.contains(&"surf_stage_5".to_owned()), "{names:?}");
+        assert!(names.contains(&"surf_stage_15".to_owned()), "{names:?}");
     }
 
     #[test]

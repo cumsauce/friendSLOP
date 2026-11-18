@@ -1,0 +1,1167 @@
+{
+ "doc": {
+  "name": "hunter_lost",
+  "format_version": 1,
+  "kind": "oneshot",
+  "sample_rate": 48000,
+  "duration": 3.2,
+  "seed": 1,
+  "nodes": [
+   {
+    "type": "ramp",
+    "name": "pitch",
+    "from": 78,
+    "to": 44,
+    "time": 3,
+    "curve": "exp"
+   },
+   {
+    "type": "wander",
+    "name": "wob",
+    "rate": 3,
+    "range": [
+     -6,
+     6
+    ]
+   },
+   {
+    "type": "math",
+    "name": "f0",
+    "op": "add",
+    "a": "pitch",
+    "b": "wob"
+   },
+   {
+    "type": "glottis",
+    "name": "src",
+    "f0": "f0",
+    "tension": 0.3,
+    "breath": 0.12,
+    "vibrato_cents": 25,
+    "vibrato_hz": 4,
+    "roughness": 0.35,
+    "fry": 0.25,
+    "seed": 3
+   },
+   {
+    "type": "ramp",
+    "name": "vow",
+    "from": 0,
+    "to": 1,
+    "time": 3
+   },
+   {
+    "type": "tract",
+    "name": "mouth",
+    "input": "src",
+    "vowel": "o",
+    "vowel_to": "u",
+    "morph": "vow",
+    "scale": 0.8,
+    "nasal": 0.25,
+    "growl": 0.2
+   },
+   {
+    "type": "filter",
+    "name": "dark",
+    "input": "rasp",
+    "mode": "lp",
+    "freq": 900,
+    "slope": 24
+   },
+   {
+    "type": "env",
+    "name": "swell",
+    "points": [
+     [
+      0,
+      0
+     ],
+     [
+      0.7,
+      1
+     ],
+     [
+      1.8,
+      0.9
+     ],
+     [
+      3,
+      0
+     ]
+    ]
+   },
+   {
+    "type": "gain",
+    "name": "voice",
+    "input": "dark",
+    "gain": "swell"
+   },
+   {
+    "type": "reverb",
+    "name": "cave",
+    "input": "dirty",
+    "model": "room",
+    "mix": 0.3
+   },
+   {
+    "type": "output",
+    "name": "out",
+    "input": "cave",
+    "lufs": -18,
+    "fade_out": 0.3
+   },
+   {
+    "type": "lfo",
+    "name": "garg",
+    "freq": 26,
+    "range": [
+     0.5,
+     1
+    ]
+   },
+   {
+    "type": "gain",
+    "name": "rasp",
+    "input": "mouth",
+    "gain": "garg"
+   },
+   {
+    "type": "noise",
+    "name": "crk",
+    "color": "crackle",
+    "density": 40,
+    "seed": 27
+   },
+   {
+    "type": "filter",
+    "name": "crkbp",
+    "input": "crk",
+    "mode": "lp",
+    "freq": 1500,
+    "slope": 24
+   },
+   {
+    "type": "poisson",
+    "name": "spits",
+    "rate": 12,
+    "values": {
+     "min": 0.3,
+     "max": 1
+    },
+    "seed": 7
+   },
+   {
+    "type": "trigger_env",
+    "name": "spitenv",
+    "events": "spits",
+    "attack": 0.002,
+    "decay": 0.05
+   },
+   {
+    "type": "noise",
+    "name": "wn",
+    "color": "pink",
+    "seed": 28
+   },
+   {
+    "type": "filter",
+    "name": "wbp",
+    "input": "wn",
+    "mode": "bp",
+    "freq": 900,
+    "q": 2
+   },
+   {
+    "type": "gain",
+    "name": "spit",
+    "input": "wbp",
+    "gain": "spitenv"
+   },
+   {
+    "type": "mix",
+    "name": "texture",
+    "inputs": [
+     {
+      "input": "crkbp",
+      "gain": 1
+     },
+     {
+      "input": "spit",
+      "gain": 0.8
+     }
+    ]
+   },
+   {
+    "type": "gain",
+    "name": "texgate",
+    "input": "texture",
+    "gain": "swell"
+   },
+   {
+    "type": "mix",
+    "name": "dirty",
+    "inputs": [
+     {
+      "input": "voice",
+      "gain": 1
+     },
+     {
+      "input": "texgate",
+      "gain": 0.3
+     }
+    ]
+   }
+  ],
+  "params": {},
+  "macros": [
+   {
+    "name": "gloom",
+    "value": 0.7745833333333334,
+    "default": 0.4,
+    "doc": "how dark and muffled the groan is",
+    "claim": [
+     "centroid",
+     1
+    ],
+    "game": false,
+    "map": [
+     {
+      "node": "dark",
+      "field": "freq",
+      "from": 400.0,
+      "to": 2400.0,
+      "curve": "exp"
+     }
+    ]
+   },
+   {
+    "name": "grit",
+    "value": 0.5712499999999999,
+    "default": 0.5,
+    "doc": "rasp, crackle and wetness together",
+    "game": false,
+    "map": [
+     {
+      "node": "garg",
+      "field": "range",
+      "from": 0.9,
+      "to": 0.15,
+      "index": 0
+     },
+     {
+      "node": "texture",
+      "field": "inputs",
+      "from": 0.0,
+      "to": 2.0,
+      "index": 0,
+      "key": "gain"
+     },
+     {
+      "node": "texture",
+      "field": "inputs",
+      "from": 0.0,
+      "to": 1.6,
+      "index": 1,
+      "key": "gain"
+     }
+    ]
+   }
+  ],
+  "version": 4
+ },
+ "history": {
+  "nodes": [
+   {
+    "model": {
+     "name": "hunter_lost",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 3.2,
+     "seed": 1,
+     "nodes": [],
+     "params": {},
+     "macros": [],
+     "version": 0
+    },
+    "parent": null,
+    "children": [
+     1
+    ],
+    "label": "new sound",
+    "author": "pid:33901"
+   },
+   {
+    "model": {
+     "name": "hunter_lost",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 3.2,
+     "seed": 1,
+     "nodes": [
+      {
+       "type": "ramp",
+       "name": "pitch",
+       "from": 78,
+       "to": 44,
+       "time": 3,
+       "curve": "exp"
+      },
+      {
+       "type": "wander",
+       "name": "wob",
+       "rate": 3,
+       "range": [
+        -6,
+        6
+       ]
+      },
+      {
+       "type": "math",
+       "name": "f0",
+       "op": "add",
+       "a": "pitch",
+       "b": "wob"
+      },
+      {
+       "type": "glottis",
+       "name": "src",
+       "f0": "f0",
+       "tension": 0.3,
+       "breath": 0.12,
+       "vibrato_cents": 25,
+       "vibrato_hz": 4,
+       "roughness": 0.35,
+       "fry": 0.25,
+       "seed": 3
+      },
+      {
+       "type": "ramp",
+       "name": "vow",
+       "from": 0,
+       "to": 1,
+       "time": 3
+      },
+      {
+       "type": "tract",
+       "name": "mouth",
+       "input": "src",
+       "vowel": "o",
+       "vowel_to": "u",
+       "morph": "vow",
+       "scale": 0.8,
+       "nasal": 0.25,
+       "growl": 0.2
+      },
+      {
+       "type": "filter",
+       "name": "dark",
+       "input": "mouth",
+       "mode": "lp",
+       "freq": 900,
+       "slope": 24
+      },
+      {
+       "type": "env",
+       "name": "swell",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.7,
+         1
+        ],
+        [
+         1.8,
+         0.9
+        ],
+        [
+         3,
+         0
+        ]
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "voice",
+       "input": "dark",
+       "gain": "swell"
+      },
+      {
+       "type": "reverb",
+       "name": "cave",
+       "input": "voice",
+       "model": "room",
+       "mix": 0.3
+      },
+      {
+       "type": "output",
+       "name": "out",
+       "input": "cave",
+       "lufs": -18,
+       "fade_out": 0.3
+      }
+     ],
+     "params": {},
+     "macros": [],
+     "version": 1
+    },
+    "parent": 0,
+    "children": [
+     2
+    ],
+    "label": "+pitch +wob +f0 +src +vow +mouth +dark +swell +voice +cave +out",
+    "author": "pid:33901"
+   },
+   {
+    "model": {
+     "name": "hunter_lost",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 3.2,
+     "seed": 1,
+     "nodes": [
+      {
+       "type": "ramp",
+       "name": "pitch",
+       "from": 78,
+       "to": 44,
+       "time": 3,
+       "curve": "exp"
+      },
+      {
+       "type": "wander",
+       "name": "wob",
+       "rate": 3,
+       "range": [
+        -6,
+        6
+       ]
+      },
+      {
+       "type": "math",
+       "name": "f0",
+       "op": "add",
+       "a": "pitch",
+       "b": "wob"
+      },
+      {
+       "type": "glottis",
+       "name": "src",
+       "f0": "f0",
+       "tension": 0.3,
+       "breath": 0.12,
+       "vibrato_cents": 25,
+       "vibrato_hz": 4,
+       "roughness": 0.35,
+       "fry": 0.25,
+       "seed": 3
+      },
+      {
+       "type": "ramp",
+       "name": "vow",
+       "from": 0,
+       "to": 1,
+       "time": 3
+      },
+      {
+       "type": "tract",
+       "name": "mouth",
+       "input": "src",
+       "vowel": "o",
+       "vowel_to": "u",
+       "morph": "vow",
+       "scale": 0.8,
+       "nasal": 0.25,
+       "growl": 0.2
+      },
+      {
+       "type": "filter",
+       "name": "dark",
+       "input": "rasp",
+       "mode": "lp",
+       "freq": 900,
+       "slope": 24
+      },
+      {
+       "type": "env",
+       "name": "swell",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.7,
+         1
+        ],
+        [
+         1.8,
+         0.9
+        ],
+        [
+         3,
+         0
+        ]
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "voice",
+       "input": "dark",
+       "gain": "swell"
+      },
+      {
+       "type": "reverb",
+       "name": "cave",
+       "input": "dirty",
+       "model": "room",
+       "mix": 0.3
+      },
+      {
+       "type": "output",
+       "name": "out",
+       "input": "cave",
+       "lufs": -18,
+       "fade_out": 0.3
+      },
+      {
+       "type": "lfo",
+       "name": "garg",
+       "freq": 26,
+       "range": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "rasp",
+       "input": "mouth",
+       "gain": "garg"
+      },
+      {
+       "type": "noise",
+       "name": "crk",
+       "color": "crackle",
+       "density": 60,
+       "seed": 27
+      },
+      {
+       "type": "filter",
+       "name": "crkbp",
+       "input": "crk",
+       "mode": "bp",
+       "freq": 1800,
+       "q": 0.8
+      },
+      {
+       "type": "poisson",
+       "name": "spits",
+       "rate": 12,
+       "values": {
+        "min": 0.3,
+        "max": 1
+       },
+       "seed": 7
+      },
+      {
+       "type": "trigger_env",
+       "name": "spitenv",
+       "events": "spits",
+       "attack": 0.002,
+       "decay": 0.05
+      },
+      {
+       "type": "noise",
+       "name": "wn",
+       "color": "pink",
+       "seed": 28
+      },
+      {
+       "type": "filter",
+       "name": "wbp",
+       "input": "wn",
+       "mode": "bp",
+       "freq": 900,
+       "q": 2
+      },
+      {
+       "type": "gain",
+       "name": "spit",
+       "input": "wbp",
+       "gain": "spitenv"
+      },
+      {
+       "type": "mix",
+       "name": "texture",
+       "inputs": [
+        {
+         "input": "crkbp",
+         "gain": 1
+        },
+        {
+         "input": "spit",
+         "gain": 0.8
+        }
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "texgate",
+       "input": "texture",
+       "gain": "swell"
+      },
+      {
+       "type": "mix",
+       "name": "dirty",
+       "inputs": [
+        {
+         "input": "voice",
+         "gain": 1
+        },
+        {
+         "input": "texgate",
+         "gain": 0.3
+        }
+       ]
+      }
+     ],
+     "params": {},
+     "macros": [],
+     "version": 2
+    },
+    "parent": 1,
+    "children": [
+     3
+    ],
+    "label": "+garg +rasp +crk +crkbp +spits +spitenv +wn +wbp +spit +texture +texgate +dirty ~dark ~cave",
+    "author": "pid:33901"
+   },
+   {
+    "model": {
+     "name": "hunter_lost",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 3.2,
+     "seed": 1,
+     "nodes": [
+      {
+       "type": "ramp",
+       "name": "pitch",
+       "from": 78,
+       "to": 44,
+       "time": 3,
+       "curve": "exp"
+      },
+      {
+       "type": "wander",
+       "name": "wob",
+       "rate": 3,
+       "range": [
+        -6,
+        6
+       ]
+      },
+      {
+       "type": "math",
+       "name": "f0",
+       "op": "add",
+       "a": "pitch",
+       "b": "wob"
+      },
+      {
+       "type": "glottis",
+       "name": "src",
+       "f0": "f0",
+       "tension": 0.3,
+       "breath": 0.12,
+       "vibrato_cents": 25,
+       "vibrato_hz": 4,
+       "roughness": 0.35,
+       "fry": 0.25,
+       "seed": 3
+      },
+      {
+       "type": "ramp",
+       "name": "vow",
+       "from": 0,
+       "to": 1,
+       "time": 3
+      },
+      {
+       "type": "tract",
+       "name": "mouth",
+       "input": "src",
+       "vowel": "o",
+       "vowel_to": "u",
+       "morph": "vow",
+       "scale": 0.8,
+       "nasal": 0.25,
+       "growl": 0.2
+      },
+      {
+       "type": "filter",
+       "name": "dark",
+       "input": "rasp",
+       "mode": "lp",
+       "freq": 900,
+       "slope": 24
+      },
+      {
+       "type": "env",
+       "name": "swell",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.7,
+         1
+        ],
+        [
+         1.8,
+         0.9
+        ],
+        [
+         3,
+         0
+        ]
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "voice",
+       "input": "dark",
+       "gain": "swell"
+      },
+      {
+       "type": "reverb",
+       "name": "cave",
+       "input": "dirty",
+       "model": "room",
+       "mix": 0.3
+      },
+      {
+       "type": "output",
+       "name": "out",
+       "input": "cave",
+       "lufs": -18,
+       "fade_out": 0.3
+      },
+      {
+       "type": "lfo",
+       "name": "garg",
+       "freq": 26,
+       "range": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "rasp",
+       "input": "mouth",
+       "gain": "garg"
+      },
+      {
+       "type": "noise",
+       "name": "crk",
+       "color": "crackle",
+       "density": 40,
+       "seed": 27
+      },
+      {
+       "type": "filter",
+       "name": "crkbp",
+       "input": "crk",
+       "mode": "lp",
+       "freq": 1500,
+       "slope": 24
+      },
+      {
+       "type": "poisson",
+       "name": "spits",
+       "rate": 12,
+       "values": {
+        "min": 0.3,
+        "max": 1
+       },
+       "seed": 7
+      },
+      {
+       "type": "trigger_env",
+       "name": "spitenv",
+       "events": "spits",
+       "attack": 0.002,
+       "decay": 0.05
+      },
+      {
+       "type": "noise",
+       "name": "wn",
+       "color": "pink",
+       "seed": 28
+      },
+      {
+       "type": "filter",
+       "name": "wbp",
+       "input": "wn",
+       "mode": "bp",
+       "freq": 900,
+       "q": 2
+      },
+      {
+       "type": "gain",
+       "name": "spit",
+       "input": "wbp",
+       "gain": "spitenv"
+      },
+      {
+       "type": "mix",
+       "name": "texture",
+       "inputs": [
+        {
+         "input": "crkbp",
+         "gain": 1
+        },
+        {
+         "input": "spit",
+         "gain": 0.8
+        }
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "texgate",
+       "input": "texture",
+       "gain": "swell"
+      },
+      {
+       "type": "mix",
+       "name": "dirty",
+       "inputs": [
+        {
+         "input": "voice",
+         "gain": 1
+        },
+        {
+         "input": "texgate",
+         "gain": 0.3
+        }
+       ]
+      }
+     ],
+     "params": {},
+     "macros": [],
+     "version": 3
+    },
+    "parent": 2,
+    "children": [
+     4
+    ],
+    "label": "~crkbp ~crk",
+    "author": "pid:33901"
+   },
+   {
+    "model": {
+     "name": "hunter_lost",
+     "format_version": 1,
+     "kind": "oneshot",
+     "sample_rate": 48000,
+     "duration": 3.2,
+     "seed": 1,
+     "nodes": [
+      {
+       "type": "ramp",
+       "name": "pitch",
+       "from": 78,
+       "to": 44,
+       "time": 3,
+       "curve": "exp"
+      },
+      {
+       "type": "wander",
+       "name": "wob",
+       "rate": 3,
+       "range": [
+        -6,
+        6
+       ]
+      },
+      {
+       "type": "math",
+       "name": "f0",
+       "op": "add",
+       "a": "pitch",
+       "b": "wob"
+      },
+      {
+       "type": "glottis",
+       "name": "src",
+       "f0": "f0",
+       "tension": 0.3,
+       "breath": 0.12,
+       "vibrato_cents": 25,
+       "vibrato_hz": 4,
+       "roughness": 0.35,
+       "fry": 0.25,
+       "seed": 3
+      },
+      {
+       "type": "ramp",
+       "name": "vow",
+       "from": 0,
+       "to": 1,
+       "time": 3
+      },
+      {
+       "type": "tract",
+       "name": "mouth",
+       "input": "src",
+       "vowel": "o",
+       "vowel_to": "u",
+       "morph": "vow",
+       "scale": 0.8,
+       "nasal": 0.25,
+       "growl": 0.2
+      },
+      {
+       "type": "filter",
+       "name": "dark",
+       "input": "rasp",
+       "mode": "lp",
+       "freq": 900,
+       "slope": 24
+      },
+      {
+       "type": "env",
+       "name": "swell",
+       "points": [
+        [
+         0,
+         0
+        ],
+        [
+         0.7,
+         1
+        ],
+        [
+         1.8,
+         0.9
+        ],
+        [
+         3,
+         0
+        ]
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "voice",
+       "input": "dark",
+       "gain": "swell"
+      },
+      {
+       "type": "reverb",
+       "name": "cave",
+       "input": "dirty",
+       "model": "room",
+       "mix": 0.3
+      },
+      {
+       "type": "output",
+       "name": "out",
+       "input": "cave",
+       "lufs": -18,
+       "fade_out": 0.3
+      },
+      {
+       "type": "lfo",
+       "name": "garg",
+       "freq": 26,
+       "range": [
+        0.5,
+        1
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "rasp",
+       "input": "mouth",
+       "gain": "garg"
+      },
+      {
+       "type": "noise",
+       "name": "crk",
+       "color": "crackle",
+       "density": 40,
+       "seed": 27
+      },
+      {
+       "type": "filter",
+       "name": "crkbp",
+       "input": "crk",
+       "mode": "lp",
+       "freq": 1500,
+       "slope": 24
+      },
+      {
+       "type": "poisson",
+       "name": "spits",
+       "rate": 12,
+       "values": {
+        "min": 0.3,
+        "max": 1
+       },
+       "seed": 7
+      },
+      {
+       "type": "trigger_env",
+       "name": "spitenv",
+       "events": "spits",
+       "attack": 0.002,
+       "decay": 0.05
+      },
+      {
+       "type": "noise",
+       "name": "wn",
+       "color": "pink",
+       "seed": 28
+      },
+      {
+       "type": "filter",
+       "name": "wbp",
+       "input": "wn",
+       "mode": "bp",
+       "freq": 900,
+       "q": 2
+      },
+      {
+       "type": "gain",
+       "name": "spit",
+       "input": "wbp",
+       "gain": "spitenv"
+      },
+      {
+       "type": "mix",
+       "name": "texture",
+       "inputs": [
+        {
+         "input": "crkbp",
+         "gain": 1
+        },
+        {
+         "input": "spit",
+         "gain": 0.8
+        }
+       ]
+      },
+      {
+       "type": "gain",
+       "name": "texgate",
+       "input": "texture",
+       "gain": "swell"
+      },
+      {
+       "type": "mix",
+       "name": "dirty",
+       "inputs": [
+        {
+         "input": "voice",
+         "gain": 1
+        },
+        {
+         "input": "texgate",
+         "gain": 0.3
+        }
+       ]
+      }
+     ],
+     "params": {},
+     "macros": [
+      {
+       "name": "gloom",
+       "value": 0.4,
+       "default": 0.4,
+       "doc": "how dark and muffled the groan is",
+       "claim": [
+        "centroid",
+        1
+       ],
+       "game": false,
+       "map": [
+        {
+         "node": "dark",
+         "field": "freq",
+         "from": 400.0,
+         "to": 2400.0,
+         "curve": "exp"
+        }
+       ]
+      },
+      {
+       "name": "grit",
+       "value": 0.5,
+       "default": 0.5,
+       "doc": "rasp, crackle and wetness together",
+       "game": false,
+       "map": [
+        {
+         "node": "garg",
+         "field": "range",
+         "from": 0.9,
+         "to": 0.15,
+         "index": 0
+        },
+        {
+         "node": "texture",
+         "field": "inputs",
+         "from": 0.0,
+         "to": 2.0,
+         "index": 0,
+         "key": "gain"
+        },
+        {
+         "node": "texture",
+         "field": "inputs",
+         "from": 0.0,
+         "to": 1.6,
+         "index": 1,
+         "key": "gain"
+        }
+       ]
+      }
+     ],
+     "version": 4
+    },
+    "parent": 3,
+    "children": [],
+    "label": "sound settings",
+    "author": "pid:33901"
+   }
+  ],
+  "current": 4
+ },
+ "annotations": [],
+ "knob_moves": [
+  {
+   "name": "grit",
+   "from": 0.5,
+   "to": 0.5712499999999999
+  },
+  {
+   "name": "gloom",
+   "from": 0.4,
+   "to": 0.7745833333333334
+  }
+ ],
+ "unsaved": true,
+ "catalog_name": "hunter_lost"
+}

@@ -3,7 +3,7 @@
 //! [`Settings::mic_on`]. Local to each player; nothing is replicated.
 
 use crate::voice_chat::*;
-use bevy::audio::Volume;
+use crate::sound::{MainBus, Volume, VolumeNode};
 use bevy::prelude::*;
 
 /// Volumes are `0..=1`, changed in steps of [`Settings::STEP`] from the menu.
@@ -172,7 +172,7 @@ fn save_settings(s: Res<Settings>) {
 
 fn apply_settings(
     settings: Res<Settings>,
-    mut global: ResMut<GlobalVolume>,
+    mut master: Query<&mut VolumeNode, With<MainBus>>,
     mut input: ResMut<VoiceInput>,
     mut muted: Local<Option<bool>>,
 ) {
@@ -185,8 +185,10 @@ fn apply_settings(
             .any(|k| std::env::var_os(k).is_some_and(|v| v != "0"))
     });
     let volume = Volume::Linear(if muted { 0.0 } else { settings.master_volume });
-    if global.volume != volume {
-        global.volume = volume;
+    for mut node in &mut master {
+        if node.volume != volume {
+            node.volume = volume;
+        }
     }
     let voice = settings.voice_output();
     if input.volume != voice {

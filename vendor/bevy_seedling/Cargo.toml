@@ -1,0 +1,90 @@
+# Vendored for friendSLOP (see VENDORED.md): dev-dependencies, benches and the
+# in-repo `hrtf` / `web_audio` subcrates are removed; everything else is upstream.
+[package]
+name = "bevy_seedling"
+version = "0.9.0"
+edition = "2024"
+rust-version = "1.95.0"
+license = "MIT OR Apache-2.0"
+authors = ["Corvus Prudens <corvusprudens@gmail.com>"]
+description = "A sprouting integration of the Firewheel audio engine"
+readme = "README.md"
+repository = "https://github.com/corvusprudens/bevy_seedling"
+publish = false
+
+[features]
+default = ["wav", "ogg", "rand", "reflect", "cpal", "diagnostics"]
+resample_inputs = ["firewheel/cpal_resample_inputs"]
+rand = ["dep:rand"]
+reflect = ["firewheel/bevy_reflect"]
+cpal = ["firewheel/cpal", "dep:cpal"]
+rtaudio = ["dep:rtaudio", "firewheel/rtaudio"]
+dev = ["entity_names", "track_location"]
+entity_names = []
+track_location = []
+symphonia = ["dep:symphonia", "dep:symphonium", "firewheel/symphonium"]
+diagnostics = ["dep:bevy_diagnostic", "firewheel/node_profiling"]
+
+# formats
+wav = ["symphonia", "symphonium/wav", "symphonium/pcm"]
+ogg = ["symphonia", "symphonium/ogg", "symphonium/vorbis"]
+flac = ["symphonia", "symphonium/flac"]
+mkv = ["symphonia", "symphonium/mkv"]
+
+# codecs
+mp3 = ["symphonia", "symphonium/mp3"]
+adpcm = ["symphonia", "symphonium/adpcm"]
+
+# nodes
+loudness = ["dep:ebur128", "dep:portable-atomic"]
+effects = ["firewheel/all_nodes"]
+
+[dependencies]
+bevy_ecs = { version = "0.20.0", default-features = false }
+bevy_app = { version = "0.20.0", default-features = false }
+bevy_math = { version = "0.20.0", default-features = false, features = [
+  "std",
+] }
+bevy_asset = { version = "0.20.0", default-features = false }
+bevy_transform = { version = "0.20.0", default-features = false, features = [
+  "bevy-support",
+] }
+bevy_log = { version = "0.20.0", default-features = false }
+bevy_platform = { version = "0.20.0", default-features = false, features = [
+  "alloc",
+] }
+bevy_time = { version = "0.20.0", default-features = false }
+bevy_reflect = { version = "0.20.0", default-features = false, features = [
+  "glam",
+] }
+bevy_utils = { version = "0.20.0", default-features = false }
+bevy_diagnostic = { version = "0.20.0", default-features = false, optional = true }
+
+firewheel = { version = "0.15.0", default-features = false, features = [
+  "bevy",
+  "spatial_basic_node",
+  "scheduled_events",
+  "musical_transport",
+  "glam-33",
+  "sampler_node",
+  "std",
+  "tracing",
+] }
+symphonium = { version = "0.13", default-features = false, features = [
+  "opt-simd",
+  "fft-resampler",
+  "resampler",
+], optional = true }
+symphonia = { version = "0.6", default-features = false, optional = true }
+smallvec = { version = "1.13", default-features = false }
+bevy_seedling_macros = { path = "./seedling_macros", version = "0.8.0" }
+rand = { version = "0.10", default-features = false, features = [
+  "sys_rng",
+], optional = true }
+ebur128 = { version = "0.1.10", optional = true }
+portable-atomic = { version = "1.11", optional = true, features = ["float"] }
+cpal = { version = "0.18", default-features = false, optional = true }
+rtaudio = { version = "0.8", default-features = false, optional = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+firewheel = { version = "0.15.0", features = ["wasm-bindgen"] }

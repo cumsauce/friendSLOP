@@ -9,7 +9,7 @@
 //! wobbly jingle first. Timing comes from the clock, so every peer agrees
 //! without network traffic.
 
-use bevy::audio::AudioSource;
+use crate::sound::AudioSample;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -202,7 +202,7 @@ fn speak(
     time: Res<Time>,
     offset: Res<super::stillness::SessionOffset>,
     mut commands: Commands,
-    audio: Option<Res<Assets<AudioSource>>>,
+    audio: Option<Res<Assets<AudioSample>>>,
     bank: Option<Res<super::babble::Bank>>,
     mut last: Local<Option<u32>>,
     mut text: Query<&mut Text, With<Subtitle>>,
@@ -219,13 +219,14 @@ fn speak(
         let (who, said) = line(n);
         let said = random_dialogue::say(said);
         // The recorded-grain bank once loaded; the synth blips without it.
-        let bytes = bank
+        let bank = bank
             .as_ref()
             .zip(audio.as_ref())
             .and_then(|(b, a)| a.get(&b.0))
-            .map(|src| src.bytes.clone());
+            .cloned();
         play_synth(&mut commands, move || {
-            wav_bytes(&voice(who, &said, n, bytes.as_deref()), RATE)
+            let grains = bank.as_ref().and_then(super::babble::bank_samples);
+            wav_bytes(&voice(who, &said, n, grains.as_deref()), RATE)
         });
     }
     *last = now;
@@ -260,11 +261,11 @@ pub fn babble_voice(who: Speaker) -> super::babble::Voice {
     }
 }
 
-/// The line as sound: recorded-grain gibberish when the bank's `bytes` are
+/// The line as sound: recorded-grain gibberish when the grain `bank` is
 /// here (music boxes still play their jingle first), else [`voice_samples`].
-pub fn voice(who: Speaker, said: &str, seed: u32, bytes: Option<&[u8]>) -> Vec<f32> {
-    let Some(bank) = bytes
-        .and_then(super::babble::parse_wav)
+/// `bank` is the grain bank at its own rate ([`super::babble::bank_samples`]).
+pub fn voice(who: Speaker, said: &str, seed: u32, bank: Option<&[f32]>) -> Vec<f32> {
+    let Some(bank) = bank
         .filter(|b| b.len() >= super::babble::bank_len())
     else {
         return voice_samples(who, said, seed, RATE);

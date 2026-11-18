@@ -6,9 +6,8 @@
 //! a "grrr~" line of text and a tiny procedurally generated growl sound.
 
 use crate::areas::AreaApp as _;
-use std::sync::Arc;
 
-use bevy::audio::AudioSource;
+use crate::sound::AudioSample;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -138,7 +137,7 @@ fn animate_bear(
 struct GrowlText;
 
 #[derive(Resource)]
-struct GrowlSound(Handle<AudioSource>);
+struct GrowlSound(Handle<AudioSample>);
 
 fn spawn_growl_text(mut commands: Commands) {
     commands.spawn((
@@ -150,12 +149,15 @@ fn spawn_growl_text(mut commands: Commands) {
     ));
 }
 
-fn load_growl_sound(mut commands: Commands, audio: Option<ResMut<Assets<AudioSource>>>) {
+fn load_growl_sound(mut commands: Commands, audio: Option<ResMut<Assets<AudioSample>>>) {
     let Some(mut audio) = audio else { return };
-    let wav = wav_bytes(&growl_samples(GROWL_SAMPLE_RATE), GROWL_SAMPLE_RATE);
-    let handle = audio.add(AudioSource {
-        bytes: Arc::from(wav),
-    });
+    // Spatial sounds read the clip at its own rate, so no conversion here.
+    let samples = growl_samples(GROWL_SAMPLE_RATE);
+    let handle = audio.add(crate::sound::from_samples(
+        &samples,
+        GROWL_SAMPLE_RATE,
+        GROWL_SAMPLE_RATE,
+    ));
     commands.insert_resource(GrowlSound(handle));
 }
 

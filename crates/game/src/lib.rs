@@ -118,6 +118,7 @@ impl Plugin for GamePlugin {
                 creator::plugin,
                 footsteps::plugin,
                 friendslop_base::sound::plugin,
+                friendslop_base::reverb::plugin,
                 spatial::plugin,
                 theme::plugin,
                 friendslop_world::map::MapPlugin,

@@ -17,7 +17,7 @@ bevy_voice_chat = { version = "0.3", features = ["replicon", "opus"] }
 avian3d = "0.8"
 # Audio (firewheel graph). seedling is vendored from the Bevy 0.20 port (vendor/bevy_seedling/VENDORED.md).
 bevy_seedling = { path = "vendor/bevy_seedling", default-features = false, features = ["wav", "ogg", "reflect", "cpal"] }
-firewheel = { version = "0.15", default-features = false, features = ["bevy", "std"] }
+firewheel = { version = "0.15", default-features = false, features = ["bevy", "std", "convolution_node"] }
 bevy_rerecast = "0.6.1"
 avian_rerecast = "0.7.1"
 bevy_landmass = "0.13"

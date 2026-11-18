@@ -11,4 +11,19 @@
     max_hrtf: 12,
     // Seconds a sound takes to fade into or out of the filter.
     fade_secs: 0.12,
+    // The room's echo: one shared reverb every world sound sends into. How
+    // long it rings comes from the room you're in (outdoors, or Fulton St's
+    // tiled halls: `echo_secs` in its data file); this is how it sounds.
+    reverb: (
+        // Milliseconds of quiet before the echo arrives, then how long it
+        // takes to build up.
+        predelay_ms: 12.0,
+        attack_ms: 8.0,
+        // Its top end at the start, and by the time it has died away (Hz):
+        // a lower `dark_hz` is a duller, softer room.
+        bright_hz: 5000.0,
+        dark_hz: 900.0,
+        // How loud the echo is (1 = as loud as it always was).
+        level: 1.0,
+    ),
 )

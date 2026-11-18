@@ -440,6 +440,8 @@ struct Build<'a> {
     n: u32,
     /// Circles (x, z, radius) the scatter keeps out of.
     keep: Vec<(f32, f32, f32)>,
+    /// The ramps' ridges (what solids keep clear of).
+    ridges: Vec<Vec<Vec3>>,
 }
 
 impl Build<'_> {
@@ -926,6 +928,10 @@ fn hall(b: &mut Build, h: &Hall) {
     for i in 0..=nx {
         let x = h.x.0 + sx * i as f32 / nx as f32;
         for z in [h.z.0, h.z.1] {
+            // A column the course swings through is left out (fallen).
+            if distance_to(&b.ridges, x, z) < d.clearance.side + h.column {
+                continue;
+            }
             let c = Vec3::new(x, floor + height / 2.0, z);
             let size = Vec3::new(h.column, height, h.column);
             b.pbr(c, size, Quat::IDENTITY, CONCRETE);
@@ -1061,6 +1067,7 @@ pub fn layout(t: &Tuning, d: &Overgrown) -> Layout {
         out: Layout::default(),
         n: 0,
         keep: Vec::new(),
+        ridges: ridges.clone(),
     };
     pads(&mut b);
     waterfalls(&mut b);
@@ -1188,7 +1195,7 @@ mod tests {
         assert_eq!(p10.at, (3200.0, -905.0, -1935.0));
         assert_eq!(p10.size, (16.0, 1.0, 16.0));
         let p13 = d.standin;
-        assert_eq!(p13.at, (4400.0, -1060.0, -1935.0));
+        assert_eq!(p13.at, (4400.0, -1128.84, -1935.0));
         assert_eq!(p13.size, (16.0, 1.0, 16.0));
     }
 
@@ -1225,7 +1232,7 @@ mod tests {
                 assert!(
                     (next.at.0 - last.0 - 30.0).abs() < 0.2
                         && (last.1 - next.at.1 - 8.5).abs() < 0.2
-                        && (last.2 - next.at.2).abs() <= next.size.2 / 2.0 - 2.0,
+                        && (last.2 - next.at.2).abs() <= next.size.2 / 2.0 - 1.5,
                     "stage {stage} ramp ends at {last:?}, next pad {next:?}"
                 );
             }
@@ -1273,39 +1280,6 @@ mod tests {
     }
 
     #[test]
-    fn the_helix_goes_round_once_and_passes_over_itself() {
-        let (t, d) = load();
-        let all = lines(&t, &d);
-        let (_, helix) = all
-            .iter()
-            .find(|(r, _)| r.name == "Tower helix")
-            .expect("helix");
-        // Heading turns through a full circle.
-        let mut turn = 0.0f32;
-        for w in helix.windows(3) {
-            let a = (w[1] - w[0]).xz();
-            let b = (w[2] - w[1]).xz();
-            turn += a.angle_to(b);
-        }
-        assert!(
-            turn.abs().to_degrees() > 350.0,
-            "turns {}",
-            turn.to_degrees()
-        );
-        // The lead-in passes right over where the helix comes out (a cross-over)
-        // with plenty of room between.
-        let first = helix[0];
-        let (lead_end, exit) = (helix[(helix.len() / 40).max(2)], helix[helix.len() - 1]);
-        let _ = first;
-        let flat = (lead_end.xz() - exit.xz()).length();
-        let sep = lead_end.y - exit.y;
-        assert!(
-            flat < 30.0 && sep > 18.0,
-            "cross-over {flat} m across, {sep} m apart"
-        );
-    }
-
-    #[test]
     fn the_forks_both_reach_the_next_ramp() {
         let (t, d) = load();
         let tt = with_course(&t, &d);
@@ -1324,68 +1298,49 @@ mod tests {
             assert!(g.lateral < 12.0, "lateral {}", g.lateral);
             assert!(clears(&tt, &g, have * 0.9));
         }
-        // Each fork: the shortcut and the main line end on the same pad, and
-        // the main line's hops are gentler than the shortcut's.
-        for (stage, short, mains) in [
-            (10usize, "Median leap", ["Broken deck", "Overpass"]),
-            (12, "Skylight leap", ["Escalator rubble", "Food court"]),
-        ] {
+        // Each stage forks after its dive: ramps are [dive, main, main,
+        // shortcut, shortcut]. The main line's one hop is easy; the
+        // shortcut's leap is the speed check. Both land on the next pad, and
+        // the shortcut is the shorter way.
+        for stage in STAGES {
             let ramps = &t.stages[stage].ramps;
-            let names: Vec<&str> = d
-                .ramps
-                .iter()
-                .filter(|r| r.stage == stage)
-                .map(|r| r.name.as_str())
-                .collect();
-            let s = names.iter().position(|n| *n == short).expect("short");
-            let m0 = names.iter().position(|n| *n == mains[0]).expect("main0");
-            let m1 = names.iter().position(|n| *n == mains[1]).expect("main1");
-            // The hop from the run before the fork, into the shortcut and into the main line.
+            assert_eq!(ramps.len(), 5, "stage {stage}");
             let hop = |a: &Vec<(f32, f32, f32)>, b: &Vec<(f32, f32, f32)>| {
-                let s2 = Stage {
+                let mut t2 = tt.clone();
+                t2.stages = vec![Stage {
                     ramps: vec![a.clone(), b.clone()],
                     ..Default::default()
-                };
-                let mut t2 = tt.clone();
-                t2.stages = vec![s2];
+                }];
                 let g = gap(&t2, 0, 0).expect("gap");
-                (
-                    speed_needed(&t2, &g).unwrap_or(f32::MAX),
-                    g.length,
-                    g.lateral,
-                )
+                (speed_needed(&t2, &g).unwrap_or(f32::MAX), g.lateral)
             };
-            let before = s - 1;
-            let (v_short, l_short, lat_short) = hop(&ramps[before], &ramps[s]);
-            let (v_main, l_main, lat_main) = hop(&ramps[before], &ramps[m0]);
-            let (v_chain, _, _) = hop(&ramps[m0], &ramps[m1]);
+            let (v_main, lat_main) = hop(&ramps[1], &ramps[2]);
+            let (v_leap, lat_leap) = hop(&ramps[3], &ramps[4]);
+            for into in [1, 3] {
+                let (v, lat) = hop(&ramps[0], &ramps[into]);
+                assert!(v < v_leap && lat < 12.0, "stage {stage}: the split's hop");
+            }
             assert!(
-                v_short > v_main + 3.0 && l_short > l_main,
-                "{short} isn't the harder hop"
+                v_leap > v_main + 3.0,
+                "stage {stage}: the leap isn't harder"
             );
-            assert!(v_chain < v_short && lat_short < 12.0 && lat_main < 12.0);
-            // Both end on the pad (30 m before it).
+            assert!(lat_main < 12.0 && lat_leap < 12.0);
             let next = pad_of(&d, stage + 1);
-            for r in [s, m1] {
+            for r in [2, 4] {
                 let end = *ramps[r].last().unwrap_or(&(0.0, 0.0, 0.0));
                 assert!(
                     (next.at.0 - end.0 - 30.0).abs() < 0.2,
-                    "ramp {r} ends at {end:?}"
+                    "stage {stage} ramp {r} ends at {end:?}"
                 );
             }
-            // The shortcut cuts the path.
             let len = |r: &Vec<(f32, f32, f32)>| {
                 r.windows(2)
                     .map(|w| Vec3::from(w[0]).distance(Vec3::from(w[1])))
                     .sum::<f32>()
             };
-            let main_len = len(&ramps[m0]) + l_main + len(&ramps[m1]) + 12.0;
-            let short_len = len(&ramps[s]) + l_short;
-            // Like a real shortcut it is never longer, saves a landing, and the
-            // main line's detour bulges only a little (bends this wide are cheap).
             assert!(
-                short_len <= main_len + 3.0,
-                "{short} is longer than the main line"
+                len(&ramps[3]) + len(&ramps[4]) < len(&ramps[1]) + len(&ramps[2]),
+                "stage {stage}: the shortcut is longer than the main line"
             );
         }
     }

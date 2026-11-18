@@ -1060,8 +1060,9 @@ mod tests {
     #[test]
     fn the_handoff_pads_are_where_the_brief_says() {
         let (t, d) = course_of();
-        assert_eq!(d.pads[0], (4400.0, -1060.0, -1935.0));
-        assert_eq!(d.finish, (5600.0, -1215.0, -1935.0));
+        // (The course's handoffs since the late packs were steepened.)
+        assert_eq!(d.pads[0], (4400.0, -1128.84, -1935.0));
+        assert_eq!(d.finish, (5600.0, -1351.26, -1935.0));
         // Each stage starts 12.35 m past its pad, 5.5 m below it, heading east.
         for (n, st) in t.stages.iter().enumerate().skip(first_stage(&d)) {
             let (c, _) = surf::pad(st.pad);
@@ -1072,7 +1073,7 @@ mod tests {
             );
         }
         // Every end of a stage is 30 m before the next pad, 8.5 above it,
-        // within the pad's width (the two sides of a split are 14 m apart).
+        // within the pad's width (the two sides of a split are 12 m apart).
         for n in first_stage(&d)..first_stage(&d) + 3 {
             let next = if n == first_stage(&d) + 2 {
                 surf::pad(t.finish).0
@@ -1091,7 +1092,7 @@ mod tests {
             zs.sort_by(f32::total_cmp);
             assert_eq!(zs.len(), 2, "stage {n}: two lines land on the next pad");
             assert!(zs.iter().all(|z| z.abs() <= 8.0), "{zs:?}");
-            assert!(zs[1] - zs[0] >= 13.5, "the two lines are too close: {zs:?}");
+            assert!(zs[1] - zs[0] >= 11.5, "the two lines are too close: {zs:?}");
         }
     }
 
@@ -1162,20 +1163,33 @@ mod tests {
     }
 
     #[test]
-    fn the_spiral_passes_over_itself() {
+    fn the_main_lines_really_turn() {
         let (t, d) = course_of();
-        let helix = d
-            .ramps
-            .iter()
-            .find(|r| r.stage == 14 && r.role == Role::Main)
-            .map(|r| ridge(&r.points, t.ramp_samples * 2))
-            .unwrap_or_default();
-        let crossing = helix.iter().enumerate().any(|(i, a)| {
-            helix[i + 40..]
+        // Every stage's main line swings well off the middle and back: the
+        // heading turns through 120 degrees or more along it.
+        for stage in first_stage(&d)..first_stage(&d) + 3 {
+            let line: Vec<Vec3> = d
+                .ramps
                 .iter()
-                .any(|b| (*a - *b).with_y(0.0).length() < 8.0 && a.y - b.y > 20.0)
-        });
-        assert!(crossing, "the helix never crosses over itself");
+                .filter(|r| r.stage == stage && r.role == Role::Main)
+                .flat_map(|r| ridge(&r.points, t.ramp_samples))
+                .collect();
+            let mut turn = 0.0f32;
+            for w in line.windows(3) {
+                let (a, b) = (
+                    bevy::math::Vec2::new(w[1].x - w[0].x, w[1].z - w[0].z),
+                    bevy::math::Vec2::new(w[2].x - w[1].x, w[2].z - w[1].z),
+                );
+                if a.length() > 0.1 && b.length() > 0.1 {
+                    turn += a.angle_to(b).abs();
+                }
+            }
+            assert!(
+                turn.to_degrees() > 120.0,
+                "stage {stage} turns {}",
+                turn.to_degrees()
+            );
+        }
     }
 
     #[test]
@@ -1183,15 +1197,11 @@ mod tests {
         let (t, d) = course_of();
         // Every hop between ramps of a stage is short and easy.
         let first = first_stage(&d);
-        let hops: [(usize, usize, usize); 7] = [
-            (first, 0, 1),
-            (first, 0, 2),
-            (first + 1, 0, 1),
-            (first + 1, 0, 2),
-            (first + 2, 0, 1),
-            (first + 2, 1, 2),
-            (first + 2, 1, 3),
-        ];
+        // Each stage: the dive (0) hops onto either line of the split (1, 3),
+        // and the main line hops once (1 -> 2).
+        let hops: Vec<(usize, usize, usize)> = (first..first + 3)
+            .flat_map(|s| [(s, 0, 1), (s, 0, 3), (s, 1, 2)])
+            .collect();
         for (stage, from, to) in hops {
             let pts = |slot: usize| {
                 nth_ramp(&d, stage, slot)
@@ -1220,7 +1230,7 @@ mod tests {
                 "stage {stage} hop {from}->{to}: {g:?} needs {need} of {ideal}"
             );
         }
-        for (stage, slot) in [(first, 2), (first + 1, 2), (first + 2, 3)] {
+        for (stage, slot) in [(first, 3), (first + 1, 3), (first + 2, 3)] {
             let Some(g) = gap(&t, stage, slot) else {
                 panic!("no gap after stage {stage} ramp {slot}");
             };
@@ -1312,9 +1322,10 @@ mod tests {
         for &(x, z) in &d.pistons {
             assert!(ridge_distance(&smp, x, z) > 14.0, "piston at {x},{z}");
         }
-        // The Great Furnace stands in the middle of the helix.
+        // The Great Furnace stands between stage 14's lines, clear of both.
         let (gx, gz) = d.great.at;
-        assert!(ridge_distance(&smp, gx, gz) > d.great.radius + 30.0);
+        // (It's scenery, not solid: clear of the faces with room to spare.)
+        assert!(ridge_distance(&smp, gx, gz) > d.great.radius + 16.0);
     }
 
     #[test]

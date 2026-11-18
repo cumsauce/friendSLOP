@@ -11,7 +11,7 @@
 //! band goes quiet underneath) and the chasing villagers jingle like a pocket
 //! full of keys. Catches don't count while you're already being chased.
 
-use bevy::audio::AudioSource;
+use crate::sound::AudioSample;
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy_replicon::prelude::*;
@@ -200,7 +200,7 @@ struct Punishment {
     /// The attack it's playing music for, and the music's entity.
     music: Option<(Entity, Entity)>,
     /// A few jingles to pick from, made once.
-    jingles: Vec<Handle<AudioSource>>,
+    jingles: Vec<Handle<AudioSample>>,
     /// Seconds until each villager jingles again.
     next_jingle: [f32; crate::rules::villagers::COUNT],
     dice: u32,
@@ -254,7 +254,7 @@ fn attack_music(
     mut commands: Commands,
     mut p: ResMut<Punishment>,
     attacks: Query<(Entity, &AttackMode)>,
-    audio: Option<Res<Assets<AudioSource>>>,
+    audio: Option<Res<Assets<AudioSample>>>,
 ) {
     let current = attacks.iter().next();
     let playing_for = p.music.map(|(a, _)| a);
@@ -284,7 +284,7 @@ fn jingle_keys(
     mut p: ResMut<Punishment>,
     attacks: Query<&AttackMode>,
     villagers: Query<&Villager>,
-    audio: Option<ResMut<Assets<AudioSource>>>,
+    audio: Option<ResMut<Assets<AudioSample>>>,
 ) {
     if attacks.is_empty() {
         return;
@@ -293,9 +293,10 @@ fn jingle_keys(
     if p.jingles.is_empty() {
         p.jingles = (0..4)
             .map(|i| {
-                audio.add(AudioSource {
-                    bytes: wav_bytes(&jingle(JINGLE_RATE, 0x6e7 + i * 977), JINGLE_RATE).into(),
-                })
+                audio.add(crate::sound::wav_or_silence(&wav_bytes(
+                    &jingle(JINGLE_RATE, 0x6e7 + i * 977),
+                    JINGLE_RATE,
+                )))
             })
             .collect();
     }

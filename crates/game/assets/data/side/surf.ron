@@ -16,7 +16,7 @@
     hall_at: (4000.0, 900.0, 0.0),
     // Fall this far (metres) below the start pad and you're back on it
     // (a backstop: falling off a stage puts you back on its pad first).
-    fall_below: 1400.0,
+    fall_below: 2850.0,
     // Movement inside the hall, from a Counter-Strike surf server (Source
     // engine) converted at 1 Hammer unit = 0.0254 m (a CS player is 72 u,
     // 1.83 m, tall). Out in the world the walker uses 10 / 0.76 / 30 / 14
@@ -55,12 +55,22 @@
     exit_label: "Leave (back to the street)",
     // The hall's inside relative to the start pad (min, max): air control
     // is surf's inside it.
-    hall: ((-140.00, -1500.00, -2600.00), (5700.00, 600.00, 124.00)),
+    hall: ((-140.00, -2900.00, -2600.00), (5700.00, 600.00, 124.00)),
     // Every ramp is a ridge with 59 degree faces: half its width and its
     // height, and how many pieces each span between two points is cut into.
     ramp_half_width: 6.0,
     ramp_height: 10.0,
     ramp_samples: 4,
+    // The ramps drawn at run time take the hall's ramp texture (the stripes
+    // that show your speed): base colour, normal, metal/rough, emissive, and
+    // the metres one repeat covers. Re-exporting the hall renames the files.
+    ramp_textures: (
+        "textures/surf-ramp-base_color-85e446c91076ba07.ktx2",
+        "textures/surf-ramp-normal-d2c21eb7bcd36316.ktx2",
+        "textures/surf-ramp-metal_rough-e9a9cc351dc046a7.ktx2",
+        "textures/surf-ramp-emissive-dd1f739b70e2e384.ktx2",
+    ),
+    ramp_tile: 4.0,
     // Fall this far below the lowest ridge of your stage and you're back on
     // its pad.
     stage_fall: 18.0,

@@ -507,6 +507,26 @@ pub fn plugin(app: &mut App) {
     #[cfg(not(target_arch = "wasm32"))]
     app.add_plugins(bevy::post_process::auto_exposure::AutoExposurePlugin)
         .add_systems(PostUpdate, apply_auto_exposure.after(apply_camera));
+    #[cfg(not(target_arch = "wasm32"))]
+    patch_auto_exposure(app);
+}
+
+/// Replaces Bevy's embedded auto exposure shader with our patched copy
+/// (`shaders/auto_exposure.wesl`): the original writes past its histogram
+/// on a NaN pixel, which on Metal corrupted GPU memory. Runs after
+/// `AutoExposurePlugin` registered its copy, before the pipeline loads it.
+#[cfg(not(target_arch = "wasm32"))]
+fn patch_auto_exposure(app: &mut App) {
+    use bevy::asset::io::embedded::EmbeddedAssetRegistry;
+    use std::path::{Path, PathBuf};
+    let Some(registry) = app.world().get_resource::<EmbeddedAssetRegistry>() else {
+        return;
+    };
+    registry.insert_asset(
+        PathBuf::new(),
+        Path::new("bevy_post_process/auto_exposure/auto_exposure.wesl"),
+        include_bytes!("shaders/auto_exposure.wesl").as_slice(),
+    );
 }
 
 /// Desktop: the camera's exposure adapts (only with the HDR target; Low keeps

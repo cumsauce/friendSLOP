@@ -18,4 +18,7 @@
     // Areas a feature builds the mesh for itself: the villagers build the
     // commune's (leaving its scattered props out of it).
     provided: ["commune"],
+    // Areas with no navmesh at all: nobody walks the surf course (you slide),
+    // and its mesh took two minutes to build.
+    skip: ["surf"],
 )

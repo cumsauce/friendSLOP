@@ -1159,7 +1159,12 @@ pub const HALL_LOOK: &str = "train_hall";
 /// Which look `p` is in, if it's somewhere dark: a ride car (deep under
 /// the map) or an underground station's hall.
 pub fn dark_at(t: &Tuning, p: Vec3) -> Option<&'static str> {
-    if p.y < t.ride_at.1 + 30.0 {
+    // In a ride car: the cars hang one under another below `ride_at`
+    // (`ride_origin`), so round that column, not anywhere that deep (the
+    // surf course goes far lower).
+    let ride = Vec3::from(t.ride_at);
+    let lowest = ride.y - RIDE_GAP * (t.lines.len() * 2 + 1) as f32;
+    if p.y < ride.y + 30.0 && p.y > lowest && p.xz().distance(ride.xz()) < 120.0 {
         return Some(RIDE_LOOK);
     }
     let under = t.lines.iter().flat_map(|l| l.stops.iter()).any(|s| {

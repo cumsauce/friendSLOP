@@ -147,53 +147,21 @@ macro_rules! areas {
     };
 }
 
-areas!(
-    (
-        build_base,
-        "surf",
-        crate::rules::surf::COURSE,
-        "maps/surf.bsn",
-        false
-    ),
-    (
-        build_office,
-        "surf",
-        crate::rules::surf::COURSE_OFFICE,
-        "maps/surf_office.bsn",
-        true
-    ),
-    (
-        build_mall,
-        "surf",
-        crate::rules::surf::COURSE_MALL,
-        "maps/surf_mall.bsn",
-        true
-    ),
-    (
-        build_neon,
-        "surf",
-        crate::rules::surf::COURSE_NEON,
-        "maps/surf_neon.bsn",
-        true
-    ),
-    (
-        build_overgrown,
-        "surf",
-        crate::rules::surf::COURSE_OVERGROWN,
-        "maps/surf_overgrown.bsn",
-        true
-    ),
-    (
-        build_foundry,
-        "surf",
-        crate::rules::surf::COURSE_FOUNDRY,
-        "maps/surf_foundry.bsn",
-        true
-    ),
-);
+// The whole course is the one map: the original stages and, since the
+// sections after its finish were remade as air-strafe chains in the same
+// modeler document (`surf-base-map`), stages 5 to the end. The old sections'
+// maps (`maps/surf_{office,mall,neon,overgrown,foundry}.*`) aren't loaded.
+areas!((
+    build_base,
+    "surf",
+    crate::rules::surf::COURSE,
+    "maps/surf.bsn",
+    // Stages 0-4's ramps are modelled in the map; later ones are drawn here.
+    5
+),);
 
 /// How a stage's ramps look: its `RampLook` marker, or dark blue steel.
-fn ramp_look(map: &MapFile, stage: u32) -> StandardMaterial {
+fn ramp_look(map: &MapFile, stage: u32, tex: &RampTextures) -> StandardMaterial {
     let (mut c, mut glow, mut rough, mut metal) = (Vec3::new(0.16, 0.19, 0.32), 0.0, 0.35, 0.5);
     if let Some(e) = map
         .entities
@@ -208,6 +176,22 @@ fn ramp_look(map: &MapFile, stage: u32) -> StandardMaterial {
             n("metal"),
         );
     }
+    if let Some([base, normal, mr, glow_map]) = tex.0.clone() {
+        // The hall's ramp texture, tinted the stage's colour (half way, so
+        // its stripes still read).
+        let tint = Color::WHITE.mix(&Color::srgb(c.x, c.y, c.z), 0.5);
+        return StandardMaterial {
+            base_color: tint,
+            base_color_texture: Some(base),
+            normal_map_texture: Some(normal),
+            metallic_roughness_texture: Some(mr),
+            emissive: LinearRgba::rgb(1.0 + c.x * glow, 1.0 + c.y * glow, 1.0 + c.z * glow),
+            emissive_texture: Some(glow_map),
+            cull_mode: None,
+            double_sided: true,
+            ..default()
+        };
+    }
     StandardMaterial {
         base_color: Color::srgb(c.x, c.y, c.z),
         emissive: LinearRgba::rgb(c.x * glow, c.y * glow, c.z * glow),
@@ -219,13 +203,53 @@ fn ramp_look(map: &MapFile, stage: u32) -> StandardMaterial {
     }
 }
 
+/// The run-time ramps' textures (`surf.ron`'s `ramp_textures`), repeating.
+struct RampTextures(Option<[Handle<Image>; 4]>);
+
+fn ramp_textures(assets: &AssetServer, t: &crate::rules::surf::Tuning) -> RampTextures {
+    use bevy::image::{
+        ImageAddressMode, ImageLoaderSettings, ImageSampler, ImageSamplerDescriptor,
+    };
+    let (a, b, c, d) = &t.ramp_textures;
+    if a.is_empty() {
+        return RampTextures(None);
+    }
+    let load = |path: &str, linear: bool| -> Handle<Image> {
+        assets
+            .load_builder()
+            .with_settings(move |s: &mut ImageLoaderSettings| {
+                s.is_srgb = !linear;
+                s.sampler = ImageSampler::Descriptor(ImageSamplerDescriptor {
+                    address_mode_u: ImageAddressMode::Repeat,
+                    address_mode_v: ImageAddressMode::Repeat,
+                    ..ImageSamplerDescriptor::linear()
+                });
+            })
+            .load(path.to_owned())
+    };
+    RampTextures(Some([
+        load(a, false),
+        load(b, true),
+        load(c, true),
+        load(d, false),
+    ]))
+}
+
 /// A ramp's two faces and underside as one flat-shaded mesh (hall coordinates).
-fn ramp_mesh(points: &[(f32, f32, f32)], samples: u32, half: f32, height: f32) -> Mesh {
+fn ramp_mesh(points: &[(f32, f32, f32)], samples: u32, half: f32, height: f32, tile: f32) -> Mesh {
     use bevy::asset::RenderAssetUsages;
     use bevy::mesh::{Indices, PrimitiveTopology};
     let js = joints(points, samples, half, height);
     let (mut pos, mut nor, mut idx) = (Vec::new(), Vec::new(), Vec::new());
+    let mut uv: Vec<[f32; 2]> = Vec::new();
+    let tile = tile.max(0.1);
+    // Metres along the ridge to each joint (the texture runs along it).
+    let mut along = vec![0.0f32];
     for w in js.windows(2) {
+        let last = *along.last().unwrap_or(&0.0);
+        along.push(last + w[0][0].distance(w[1][0]));
+    }
+    for (i, w) in js.windows(2).enumerate() {
         let (a, b) = (w[0], w[1]);
         for (quad, up) in [
             ([a[0], a[1], b[1], b[0]], true),
@@ -242,17 +266,57 @@ fn ramp_mesh(points: &[(f32, f32, f32)], samples: u32, half: f32, height: f32) -
             for v in q {
                 pos.push(v.to_array());
                 nor.push(n.to_array());
+                // Across: metres from the ridge (or the face's foot, on the
+                // underside); along: metres down the ramp.
+                let (joint, s) = if a.contains(&v) {
+                    (a, along[i])
+                } else {
+                    (b, along[i + 1])
+                };
+                let across = if up {
+                    v.distance(joint[0])
+                } else {
+                    v.distance(joint[1])
+                };
+                uv.push([across / tile, s / tile]);
             }
             idx.extend([base, base + 1, base + 2, base, base + 2, base + 3]);
         }
     }
-    Mesh::new(
+    // Close both ends (open ends show the ramp is hollow): a triangle facing
+    // out of each end.
+    if let (Some(first), Some(last)) = (js.first(), js.last()) {
+        for (cap, other) in [(first, last), (last, first)] {
+            let mut t = [cap[0], cap[1], cap[2]];
+            let mut n = (t[1] - t[0]).cross(t[2] - t[0]).normalize_or_zero();
+            let mid = (t[0] + t[1] + t[2]) / 3.0;
+            let away = mid - (other[0] + other[1] + other[2]) / 3.0;
+            if n.dot(away) < 0.0 {
+                t.swap(1, 2);
+                n = -n;
+            }
+            let base = pos.len() as u32;
+            for v in t {
+                pos.push(v.to_array());
+                nor.push(n.to_array());
+                uv.push([(v - t[0]).length() / tile, 0.0]);
+            }
+            idx.extend([base, base + 1, base + 2]);
+        }
+    }
+    let mut mesh = Mesh::new(
         PrimitiveTopology::TriangleList,
         RenderAssetUsages::default(),
     )
     .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, pos)
     .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, nor)
-    .with_inserted_indices(Indices::U32(idx))
+    .with_inserted_attribute(Mesh::ATTRIBUTE_UV_0, uv)
+    .with_inserted_indices(Indices::U32(idx));
+    // Tangents for the normal map; without them the ramp still draws.
+    if let Err(e) = mesh.generate_tangents() {
+        warn!("surf: a ramp's tangents: {e}");
+    }
+    mesh
 }
 
 /// Where a bobbing thing rests.
@@ -289,7 +353,7 @@ fn build(
     mut materials: ResMut<Assets<StandardMaterial>>,
     data: &friendslop_data::Data<MapFile>,
     bsn: &'static str,
-    ramp_meshes: bool,
+    meshes_from: u32,
 ) {
     let map = data.get();
     if map.entities.is_empty() {
@@ -312,9 +376,10 @@ fn build(
     // The ramps' colliders come from the course's ridge points (so they never
     // wait on a model file).
     let parts = course_parts(&map);
-    if ramp_meshes {
-        for (stage, st) in &parts.stages {
-            let look = ramp_look(&map, *stage);
+    let textures = ramp_textures(&assets, &t);
+    {
+        for (stage, st) in parts.stages.iter().filter(|(s, _)| **s >= meshes_from) {
+            let look = ramp_look(&map, *stage, &textures);
             let mat = materials.add(look);
             for ramp in &st.ramps {
                 commands.spawn((
@@ -323,6 +388,7 @@ fn build(
                         t.ramp_samples,
                         t.ramp_half_width,
                         t.ramp_height,
+                        t.ramp_tile,
                     ))),
                     MeshMaterial3d(mat.clone()),
                     Transform::from_translation(o),

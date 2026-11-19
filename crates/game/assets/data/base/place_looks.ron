@@ -12,6 +12,10 @@
 //            thickest (m). Outside it's the sky's horizon colour.
 (
     looks: {
+        // The surf course (areas.ron's `look`): always a bright clear day up
+        // there, however deep the course goes and whatever the time outside.
+        // Priority 3 so nothing that only checks your height can put it out.
+        "surf": (priority: 3, sun: Some(15000.0), ambient: Some(1100.0)),
         // The hell pit (afterlife.rs): no sky, a smoky red haze, the lava's light.
         "hell": (
             priority: 2,

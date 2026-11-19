@@ -316,8 +316,8 @@ Rules for growing it:
 
 ```sh
 nix develop                     # toolchain + native libs (or install Rust + the apt libs in ci.yml)
-cargo run -- host               # host; join code is printed and copied
-cargo run -- join <code>        # join from a second instance
+cargo run --bin friendslop -- host               # host; join code is printed and copied
+cargo run --bin friendslop -- join <code>        # join from a second instance
 cargo test --workspace
 cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all
@@ -355,14 +355,14 @@ Tuning in `data/game/probes.ron`.
 
 ### Starting somewhere else
 
-`FRIENDSLOP_START=<name> cargo run -- host` puts the host at a named place as soon as the game
+`FRIENDSLOP_START=<name> cargo run --bin friendslop -- host` puts the host at a named place as soon as the game
 starts: any spot on the commune map (`warehouse`, `lake`, `village`, ...) or a start a feature
 adds with `features::start::StartPoints::add` (`fulton` is Fulton St's top level). Add one when
 you make a place the map doesn't have.
 
 ### Finding what's slow
 
-`FRIENDSLOP_PERF=2 FRIENDSLOP_START=<place> cargo run -- host` logs frame time and what's drawn
+`FRIENDSLOP_PERF=2 FRIENDSLOP_START=<place> cargo run --bin friendslop -- host` logs frame time and what's drawn
 every 5 s (with material edits a second, transforms rewritten a frame and frames over 25 ms) and,
 25 s in, which models own the meshes, the lights and the transforms that moved. Big counts usually mean a model
 with many parts: re-export it with `optimize: {preset: "game", merge: "by_material"}` (one mesh
@@ -380,7 +380,7 @@ with the screen, so frame times snap to its refresh (8.3, 16.7, 25 ms): read GPU
 Dev builds switch off objc2's debug assertions (`Cargo.toml`): with them every Metal call is
 type-checked at run time, which was most of the render thread.
 
-**The profiling bot.** `FRIENDSLOP_BOT=<route> FRIENDSLOP_PERF=1 cargo run -- host` drives your
+**The profiling bot.** `FRIENDSLOP_BOT=<route> FRIENDSLOP_PERF=1 cargo run --bin friendslop -- host` drives your
 own body through a route from `assets/data/game/bot.ron` (`Start` a place, `Walk`/`Run`/`WalkTo`,
 `Ride` a train or the plane, `Wait`, `Spin`, `Look`, `Click`, `Repeat`; `tour` visits everywhere,
 `borders` hops in and out of areas), then logs each step's median, p95 and worst frame and the

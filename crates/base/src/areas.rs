@@ -78,6 +78,12 @@ pub struct Area {
     /// courses); `None` (left out) is as tall as the world.
     #[serde(default)]
     pub heights: Option<(f32, f32)>,
+    /// The area's light: a look in `data/base/place_looks.ron` that holds
+    /// while you're in it (`place.rs`). Left out: the day/night cycle's
+    /// outdoors. Places inside it (a shop, a station level) lay theirs over it
+    /// when their priority is higher.
+    #[serde(default)]
+    pub look: Option<String>,
 }
 
 impl Area {
@@ -1085,6 +1091,7 @@ mod tests {
             load: 20.0,
             unload: 10.0,
             heights: None,
+            look: None,
         }
     }
 

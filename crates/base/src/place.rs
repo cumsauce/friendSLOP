@@ -29,6 +29,7 @@ pub fn plugin(app: &mut App) {
     app.init_resource::<Here>()
         .init_resource::<PlaceLooks>()
         .add_systems(First, |mut looks: ResMut<PlaceLooks>| looks.0.clear())
+        .add_systems(Update, area_look.in_set(PlaceSet))
         .add_systems(PostUpdate, apply_hidden);
 }
 
@@ -117,6 +118,37 @@ impl PlaceLooks {
     pub fn ids(&self) -> &[&'static str] {
         &self.0
     }
+}
+
+/// The look of the area you're in (`areas.ron`'s `look`), for the whole area.
+fn area_look(here: Res<Here>, mut looks: ResMut<PlaceLooks>) {
+    let Some(area) = crate::areas::area_at(here.0) else {
+        return;
+    };
+    let list = crate::areas::areas();
+    if let Some(look) = list
+        .areas
+        .iter()
+        .find(|a| a.id == area)
+        .and_then(|a| a.look.as_deref())
+    {
+        looks.push(intern(look));
+    }
+}
+
+/// A look id from a data file as a `&'static str` (each distinct id leaks
+/// once: there are a handful).
+fn intern(id: &str) -> &'static str {
+    static IDS: std::sync::Mutex<Vec<&'static str>> = std::sync::Mutex::new(Vec::new());
+    let Ok(mut ids) = IDS.lock() else {
+        return "";
+    };
+    if let Some(&have) = ids.iter().find(|&&i| i == id) {
+        return have;
+    }
+    let leaked: &'static str = Box::leak(id.to_owned().into_boxed_str());
+    ids.push(leaked);
+    leaked
 }
 
 /// Places push their look in this set; the world's lighting is written after.
@@ -212,6 +244,23 @@ pub fn blend(outdoor: Light, look: Option<&Look>) -> Light {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn every_area_look_is_a_look() {
+        let read = |path: &str| {
+            let full = format!("{}/../game/assets/{path}", env!("CARGO_MANIFEST_DIR"));
+            std::fs::read(&full).unwrap_or_else(|_| panic!("no {full}"))
+        };
+        assert!(LOOKS.set_bytes(&read(LOOKS.path())));
+        assert!(crate::areas::AREAS.set_bytes(&read(crate::areas::AREAS.path())));
+        let looks = LOOKS.get();
+        for a in &crate::areas::areas().areas {
+            if let Some(l) = &a.look {
+                assert!(looks.looks.contains_key(l), "area {} has no look {l}", a.id);
+            }
+        }
+        assert_eq!(intern("surf"), intern("surf"));
+    }
 
     fn looks() -> Looks {
         let mut looks = BTreeMap::new();

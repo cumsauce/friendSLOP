@@ -51,6 +51,14 @@ pub struct Tuning {
     pub ramp_height: f32,
     /// Pieces each span between two ridge points is cut into.
     pub ramp_samples: u32,
+    /// The ramps drawn at run time (stages not modelled in the hall): their
+    /// textures (under `assets/`: base colour, normal, metal/rough, emissive;
+    /// the hall model's own `surf-ramp` set) and how many metres one repeat
+    /// covers. Empty paths: plain colour.
+    #[serde(default)]
+    pub ramp_textures: (String, String, String, String),
+    #[serde(default)]
+    pub ramp_tile: f32,
     /// Fall this far below your stage's lowest ridge and you're back on its pad.
     pub stage_fall: f32,
     /// A checkpoint (a stage's pad, and the finish) counts you this high
@@ -623,27 +631,9 @@ pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("d
 /// finish pad ends the course.
 pub static COURSE: friendslop_data::Data<friendslop_world::places::MapFile> =
     friendslop_data::Data::json("maps/surf.map.json");
-pub static COURSE_OFFICE: friendslop_data::Data<friendslop_world::places::MapFile> =
-    friendslop_data::Data::json("maps/surf_office.map.json");
-pub static COURSE_MALL: friendslop_data::Data<friendslop_world::places::MapFile> =
-    friendslop_data::Data::json("maps/surf_mall.map.json");
-pub static COURSE_NEON: friendslop_data::Data<friendslop_world::places::MapFile> =
-    friendslop_data::Data::json("maps/surf_neon.map.json");
-pub static COURSE_OVERGROWN: friendslop_data::Data<friendslop_world::places::MapFile> =
-    friendslop_data::Data::json("maps/surf_overgrown.map.json");
-pub static COURSE_FOUNDRY: friendslop_data::Data<friendslop_world::places::MapFile> =
-    friendslop_data::Data::json("maps/surf_foundry.map.json");
-
 /// Every map of the course, in order.
-pub fn courses() -> [&'static friendslop_data::Data<friendslop_world::places::MapFile>; 6] {
-    [
-        &COURSE,
-        &COURSE_OFFICE,
-        &COURSE_MALL,
-        &COURSE_NEON,
-        &COURSE_OVERGROWN,
-        &COURSE_FOUNDRY,
-    ]
+pub fn courses() -> [&'static friendslop_data::Data<friendslop_world::places::MapFile>; 1] {
+    [&COURSE]
 }
 
 /// What one map says about the course.

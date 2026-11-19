@@ -120,7 +120,7 @@ or another area's files**; if you need a shared change, say so in your report.
    into `crates/game/assets/textures/`, and rewrite the `.gltf`'s `"uri":"textures/` to
    `"uri":"../textures/` (prefab/model exports use `../../textures/`). Prefab instances land in
    `models/prefabs/` (check they exist). The daemon can restart (docs are lost; rebuild from the ops).
-4. **Test it in the game**: `FRIENDSLOP_START=surf_stage_<N> cargo run -p friendslop -- host` starts you on
+4. **Test it in the game**: `FRIENDSLOP_START=surf_stage_<N> cargo run --bin friendslop -- host` starts you on
    stage N's pad; screenshots: `FRIENDSLOP_START=surf_stage_<N> FRIENDSLOP_SCREENSHOT_WAIT=90
    scripts/screenshot.sh renders/tmp/x.png "eye x,y,z,look x,y,z" clean` (**world** coordinates; big
    packs need 80-110 s; a screenshot right after a heavy build can come out black: run it again). You can

@@ -39,6 +39,9 @@ pub struct Tuning {
     pub merge_region_size: u16,
     /// Areas a feature builds the mesh for itself (the villagers: the commune).
     pub provided: Vec<String>,
+    /// Areas nobody walks in (the surf course: you slide), so no mesh at all.
+    #[serde(default)]
+    pub skip: Vec<String>,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> = friendslop_data::Data::ron("data/base/nav.ron");
@@ -241,7 +244,8 @@ fn build(
     let list = areas::areas();
     for area in &list.areas {
         let id = area.id.as_str();
-        let theirs = TUNING.get().provided.iter().any(|p| p == id);
+        let t = TUNING.get();
+        let theirs = t.provided.iter().chain(&t.skip).any(|p| p == id);
         if theirs
             || navs.navs.contains_key(id)
             || !loaded.is(id, Layer::Sim)

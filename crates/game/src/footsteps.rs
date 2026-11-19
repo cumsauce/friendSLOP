@@ -189,7 +189,7 @@ fn step_sounds(
     if matches!(fall, Footfall::Step { .. }) && crate::rules::surf::unbounded(w.pos) {
         return;
     }
-    let volume = if fall == Footfall::Land { 0.5 } else { 0.22 };
+    let volume = if fall == Footfall::Land { 0.25 } else { 0.1 };
     if let Some(handle) = gait.sound(&sounds, fall) {
         let e = crate::sound::play_sfx(&mut commands, handle, volume);
         commands.entity(e).insert(DespawnOnExit(AppState::InGame));

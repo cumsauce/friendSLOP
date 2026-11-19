@@ -99,7 +99,18 @@ pub fn plugin(app: &mut App) {
     app.insert_resource(Audible)
         .add_systems(Startup, spawn_buses)
         .add_systems(First, track_rate)
-        .add_systems(PostUpdate, steer_volumes);
+        .add_systems(PostUpdate, steer_volumes)
+        .add_systems(Update, trim_effects);
+}
+
+/// Headroom for every sound effect (flat and world): many are mixed at 1.0
+/// and clipped the limiter once they overlap. Music and voice skip this bus.
+const EFFECTS_GAIN: f32 = 0.5;
+
+fn trim_effects(mut bus: Query<&mut VolumeNode, (With<SoundEffectsBus>, Added<VolumeNode>)>) {
+    for mut node in &mut bus {
+        node.volume = Volume::Linear(EFFECTS_GAIN);
+    }
 }
 
 fn spawn_buses(mut commands: Commands) {
@@ -185,7 +196,12 @@ pub fn resample(samples: &[f32], from: u32, to: u32) -> Vec<f32> {
 /// A playable sound from mono samples at `rate`, converted to the graph's
 /// `out_rate`.
 pub fn from_samples(samples: &[f32], rate: u32, out_rate: u32) -> AudioSample {
-    let data = resample(samples, rate, out_rate);
+    // The old path went through 16-bit WAV bytes, which clamped to full scale;
+    // raw f32 samples (and the resampler's overshoot) must not exceed it either.
+    let mut data = resample(samples, rate, out_rate);
+    for s in &mut data {
+        *s = s.clamp(-1.0, 1.0);
+    }
     let out = NonZeroU32::new(out_rate).unwrap_or(NonZeroU32::MIN);
     let original = NonZeroU32::new(rate).unwrap_or(out);
     AudioSample::new(

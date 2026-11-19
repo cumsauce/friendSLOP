@@ -66,7 +66,7 @@ fn start_ambience(mut commands: Commands, sounds: Option<Res<AmbientSounds>>) {
         &mut commands,
         &sounds.fire,
         crate::scenery::bonfire_at() + Vec3::Y * 0.5,
-        0.9,
+        0.45,
         crate::spatial::Carry::NEARBY,
     );
     commands

@@ -1512,6 +1512,8 @@ pub fn cue(from: Mode, to: Mode) -> Option<Cue> {
         (_, Mode::Roll) => Some(Cue::Charge),
         (Mode::Chase | Mode::Roll, Mode::Retreat) => Some(Cue::Catch),
         (Mode::Chase, Mode::Search) => Some(Cue::Lost),
+        (Mode::Roll, Mode::Chase) => Some(Cue::Uncurl),
+        (_, Mode::Retreat) => Some(Cue::Retreat),
         (Mode::Drift | Mode::Search | Mode::Retreat, Mode::Chase) => Some(Cue::Spot),
         _ => None,
     }
@@ -1529,6 +1531,20 @@ pub enum Cue {
     Charge,
     Catch,
     Lost,
+    /// The ball breaks back into a run.
+    Uncurl,
+    /// It gives up on you without having caught you.
+    Retreat,
+}
+
+/// Seconds between the sounds it makes unprompted: a breath while it drifts,
+/// a rattle and a sniff while it checks lockers.
+pub fn idle_gap(mode: Mode) -> Option<f32> {
+    match mode {
+        Mode::Drift => Some(4.5),
+        Mode::Search => Some(2.6),
+        _ => None,
+    }
 }
 
 /// Metres between footfalls: half a stride of the clip it's playing, so a
@@ -1556,7 +1572,9 @@ struct HuntEars {
     /// Footfalls so far (picks the variation).
     n: usize,
     /// Each cue's takes so far, in `Cue` order (round-robin).
-    takes: [usize; 4],
+    takes: [usize; 6],
+    /// Seconds until its next unprompted breath or rattle.
+    idle: f32,
     /// Seconds until the roll's slapping starts, while it's winding up.
     wind_up: f32,
     /// The looping slaps, while it rolls.
@@ -1574,6 +1592,10 @@ struct HuntSounds {
     slaps: Handle<AudioSample>,
     catch: [Handle<AudioSample>; 3],
     lost: [Handle<AudioSample>; 3],
+    uncurl: [Handle<AudioSample>; 3],
+    retreat: [Handle<AudioSample>; 3],
+    drift: [Handle<AudioSample>; 3],
+    search: [Handle<AudioSample>; 3],
 }
 
 impl HuntSounds {
@@ -1587,6 +1609,10 @@ impl HuntSounds {
             slaps: at("hunter_roll"),
             catch: [1, 2, 3].map(|i| at(&format!("hunter_catch_{i}"))),
             lost: [1, 2, 3].map(|i| at(&format!("hunter_lost_{i}"))),
+            uncurl: [1, 2, 3].map(|i| at(&format!("hunter_uncurl_{i}"))),
+            retreat: [1, 2, 3].map(|i| at(&format!("hunter_retreat_{i}"))),
+            drift: [1, 2, 3].map(|i| at(&format!("hunter_drift_{i}"))),
+            search: [1, 2, 3].map(|i| at(&format!("hunter_search_{i}"))),
         }
     }
 }
@@ -1617,7 +1643,8 @@ fn hunt_sounds(
                 last: here,
                 step: 0.0,
                 n: 0,
-                takes: [0; 4],
+                takes: [0; 6],
+                idle: 1.5,
                 wind_up: 0.0,
                 slaps: None,
             });
@@ -1630,6 +1657,8 @@ fn hunt_sounds(
                 Cue::Charge => (&sounds.charge, 0.7, Carry::LOUD),
                 Cue::Catch => (&sounds.catch, 0.8, Carry::LOUD),
                 Cue::Lost => (&sounds.lost, 0.9, Carry::CALL),
+                Cue::Uncurl => (&sounds.uncurl, 0.7, Carry::LOUD),
+                Cue::Retreat => (&sounds.retreat, 0.7, Carry::CALL),
             };
             // Round-robin: each cue goes through its takes in turn.
             let take = &mut ears.takes[cue as usize];
@@ -1641,6 +1670,23 @@ fn hunt_sounds(
             }
         }
         ears.mode = h.mode;
+        // Its unprompted noises: a breath while it drifts, lockers while it searches.
+        if let Some(gap) = idle_gap(h.mode) {
+            ears.idle -= dt;
+            if ears.idle <= 0.0 {
+                ears.idle = gap;
+                let (set, slot, carry) = if h.mode == Mode::Search {
+                    (&sounds.search, 4, Carry::NEARBY)
+                } else {
+                    (&sounds.drift, 5, Carry::NEARBY)
+                };
+                let clip = &set[round_robin(ears.takes[slot], set.len())];
+                ears.takes[slot] += 1;
+                play_at(&mut commands, clip, voice, 0.6, carry);
+            }
+        } else {
+            ears.idle = 1.5;
+        }
         // The ball's wet slapping, from the end of the wind-up until it uncurls.
         if h.mode == Mode::Roll {
             ears.wind_up -= dt;
@@ -2280,7 +2326,10 @@ mod tests {
         assert_eq!(cue(Mode::Chase, Mode::Retreat), Some(Cue::Catch));
         assert_eq!(cue(Mode::Roll, Mode::Retreat), Some(Cue::Catch));
         assert_eq!(cue(Mode::Chase, Mode::Search), Some(Cue::Lost));
-        assert_eq!(cue(Mode::Roll, Mode::Chase), None, "uncurling is quiet");
+        assert_eq!(cue(Mode::Roll, Mode::Chase), Some(Cue::Uncurl));
+        assert_eq!(cue(Mode::Drift, Mode::Retreat), Some(Cue::Retreat));
+        assert_eq!(idle_gap(Mode::Chase), None);
+        assert!(idle_gap(Mode::Search).is_some());
         assert_eq!(cue(Mode::Chase, Mode::Chase), None);
     }
 

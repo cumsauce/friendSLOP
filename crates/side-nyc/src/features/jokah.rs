@@ -15,6 +15,15 @@
 //! and sets off once more (the issue doesn't say what happens there; looping
 //! keeps him around).
 //!
+//! How he finds his way: where his area is loaded and has a navmesh (the
+//! host's; see `base::nav`), an invisible landmass agent ([`JokahAgent`]) follows
+//! him and says which way round the buildings, props and trees, so he doesn't
+//! stall on them. Where it hasn't (nobody is near, so there is no ground to
+//! path on; or this peer builds no meshes) he's simulated by timing, a
+//! straight walk from point to point at his speed, feeling his way round
+//! colliders if any are loaded and walking on through after a few seconds
+//! stuck. Either way his position carries on from where it was.
+//!
 //! It's local dressing like the street people: every peer runs its own Jokah
 //! from the data file, nothing is replicated. He's drawn by two rigged modeler
 //! models (sources `.modeler/prefabs/np-jokah.json` and `np-jokah-mj.json`):
@@ -159,6 +168,9 @@ pub fn detour(dir: Vec2, side: f32, clear: impl Fn(Vec2) -> bool) -> Option<(Vec
 /// Walk him `dt` seconds at `speed` along `pts` from `pos`: he goes point by
 /// point to the station as the Jokah, becomes Michael there and comes back,
 /// and becomes the Jokah again at Wendy's, standing `pause` seconds at each end.
+/// He heads straight for the next point, or along `heading` (a unit
+/// direction) when the area's navmesh says which way round the buildings.
+#[allow(clippy::too_many_arguments)]
 pub fn step(
     w: &mut Walk,
     pos: Vec2,
@@ -167,6 +179,7 @@ pub fn step(
     speed: f32,
     arrive: f32,
     pause: f32,
+    heading: Option<Vec2>,
 ) -> (Vec2, Option<Arrived>) {
     if pts.is_empty() {
         return (pos, None);
@@ -182,7 +195,8 @@ pub fn step(
     let len = d.length();
     let stride = speed * dt;
     if len > arrive && len > stride {
-        return (pos + d / len * stride, None);
+        let dir = heading.unwrap_or(d / len);
+        return (pos + dir * stride, None);
     }
     match w.mode {
         Mode::Jokah if target >= last => {
@@ -299,7 +313,7 @@ pub fn plugin(app: &mut App) {
         Update,
         (
             start.run_if(not(resource_exists::<Jokah>)),
-            (walk, body, sound).run_if(resource_exists::<Jokah>),
+            (agent, walk, body, sound).run_if(resource_exists::<Jokah>),
         )
             .chain()
             .run_if(in_state(AppState::InGame)),
@@ -323,6 +337,100 @@ fn ground(p: Vec2) -> Vec3 {
         crate::terrain::height_at(p.x, p.y)
     };
     Vec3::new(p.x, y, p.y)
+}
+
+/// The navmesh's stand-in for him: an invisible landmass agent in whichever
+/// area he's in, kept on him, aimed at his next point. His own walk follows
+/// the way it says (round buildings, up the right street). Only where the
+/// area is loaded and has a mesh: the host builds those, and an area nobody
+/// is near has no ground to path on, so there he's simulated by timing, a
+/// straight walk from point to point (see [`step`]).
+#[derive(Component)]
+struct JokahAgent {
+    area: String,
+}
+
+/// Where the agent is sent: `goal` if that's in the area, else the nearest
+/// point inside its box (an area's mesh stops at its edge, and the next
+/// stretch of his route is in the next area, which has an agent of its own).
+pub fn goal_in(goal: Vec2, bounds: ((f32, f32), (f32, f32)), inset: f32) -> Vec2 {
+    let ((x0, z0), (x1, z1)) = bounds;
+    Vec2::new(
+        goal.x.clamp(x0 + inset, (x1 - inset).max(x0 + inset)),
+        goal.y.clamp(z0 + inset, (z1 - inset).max(z0 + inset)),
+    )
+}
+
+/// Keep one agent for the area he's in, while it's loaded and meshed.
+fn agent(
+    mut commands: Commands,
+    j: Res<Jokah>,
+    navs: Option<Res<friendslop_base::nav::AreaNavs>>,
+    loaded: Res<friendslop_base::areas::Loaded>,
+    mut agents: Query<(
+        Entity,
+        &JokahAgent,
+        &mut Transform,
+        &mut bevy_landmass::AgentTarget3d,
+    )>,
+) {
+    use friendslop_base::areas::{Layer, area_at, areas};
+    let t = tuning();
+    let here = ground(j.pos);
+    let area = area_at(here)
+        .or_else(|| friendslop_base::areas::nearest_area(here))
+        .filter(|a| loaded.is(a, Layer::Sim));
+    let archipelago = area
+        .as_deref()
+        .and_then(|a| navs.as_ref().and_then(|n| n.archipelago(a)));
+    let want = area.zip(archipelago);
+    let pts = path();
+    let goal = pts.get(j.walk.target).copied().unwrap_or(j.pos);
+    let mut have = false;
+    for (e, a, mut tf, mut target) in &mut agents {
+        if want.as_ref().is_none_or(|(w, _)| *w != a.area) || have {
+            commands.entity(e).despawn();
+            continue;
+        }
+        have = true;
+        tf.translation = here;
+        let bounds = areas()
+            .areas
+            .iter()
+            .find(|x| x.id == a.area)
+            .map(|x| x.bounds);
+        let to = bounds.map_or(goal, |b| goal_in(goal, b, 1.0));
+        let want_target = bevy_landmass::AgentTarget3d::Point(ground(to));
+        if *target != want_target {
+            *target = want_target;
+        }
+    }
+    let Some((area, archipelago)) = want.filter(|_| !have) else {
+        return;
+    };
+    let speed = match j.walk.mode {
+        Mode::Jokah => t.walk_speed,
+        Mode::Michael => t.mj_speed,
+    };
+    let bounds = areas()
+        .areas
+        .iter()
+        .find(|x| x.id == area)
+        .map(|x| x.bounds);
+    let to = bounds.map_or(goal, |b| goal_in(goal, b, 1.0));
+    commands.spawn((
+        JokahAgent { area },
+        Transform::from_translation(here),
+        bevy_landmass::Agent3d::default(),
+        bevy_landmass::AgentSettings {
+            radius: friendslop_base::nav::TUNING.get().agent_radius,
+            desired_speed: speed,
+            max_speed: speed,
+        },
+        bevy_landmass::ArchipelagoRef3d::new(archipelago),
+        bevy_landmass::AgentTarget3d::Point(ground(to)),
+        DespawnOnExit(AppState::InGame),
+    ));
 }
 
 fn start(mut commands: Commands, assets: Option<Res<AssetServer>>) {
@@ -437,7 +545,18 @@ fn clear_ahead(
         .is_none()
 }
 
-fn walk(time: Res<Time>, mut j: ResMut<Jokah>, spatial: avian3d::prelude::SpatialQuery) {
+fn walk(
+    time: Res<Time>,
+    mut j: ResMut<Jokah>,
+    spatial: avian3d::prelude::SpatialQuery,
+    agents: Query<
+        (
+            Option<&bevy_landmass::AgentDesiredVelocity3d>,
+            Option<&bevy_landmass::AgentState>,
+        ),
+        With<JokahAgent>,
+    >,
+) {
     let t = tuning();
     let dt = time.delta_secs();
     let pts = path();
@@ -459,12 +578,19 @@ fn walk(time: Res<Time>, mut j: ResMut<Jokah>, spatial: avian3d::prelude::Spatia
                 Mode::Michael => t.mj_speed,
             };
             let was = j.pos;
-            let (mut pos, arrived) = step(&mut j.walk, j.pos, &pts, dt, speed, arrive, pause);
-            // Feel the way: if the straight step runs into a wall or prop,
-            // go round it. Where no colliders are loaded (nobody's near) the
-            // cast finds nothing and he walks his line.
+            // The navmesh's way round, when his area has one and it has a path.
+            let steer = agents.iter().find_map(|(v, s)| {
+                let moving = matches!(s, Some(bevy_landmass::AgentState::Moving));
+                let v = v?.velocity().xz();
+                (moving && v.length() > 1e-3).then(|| v.normalize())
+            });
+            let (mut pos, arrived) =
+                step(&mut j.walk, j.pos, &pts, dt, speed, arrive, pause, steer);
+            // Without a mesh, feel the way: if the straight step runs into a
+            // wall or prop, go round it. Where no colliders are loaded
+            // (nobody's near) the cast finds nothing and he walks his line.
             let delta = pos - was;
-            if arrived.is_none() && delta.length_squared() > 1e-8 {
+            if steer.is_none() && arrived.is_none() && delta.length_squared() > 1e-8 {
                 let (len, dir) = (delta.length(), delta.normalize());
                 if clear_ahead(&spatial, was, dir, len, &t) {
                     j.stuck = 0.0;
@@ -695,11 +821,50 @@ mod tests {
         let mut seen = Vec::new();
         let dt = 0.1;
         for _ in 0..(secs / dt).round() as usize {
-            let (p, a) = step(w, pos, pts, dt, 2.0, 0.3, 1.0);
+            let (p, a) = step(w, pos, pts, dt, 2.0, 0.3, 1.0, None);
             pos = p;
             seen.extend(a);
         }
         (pos, seen)
+    }
+
+    #[test]
+    fn the_agent_is_sent_to_the_nearest_point_in_its_area() {
+        let commune = ((-110.0, -110.0), (110.0, 110.0));
+        // A goal inside is the goal; one past the edge is the edge, inset.
+        assert_eq!(
+            goal_in(Vec2::new(8.0, 50.0), commune, 1.0),
+            Vec2::new(8.0, 50.0)
+        );
+        assert_eq!(
+            goal_in(Vec2::new(8.0, 150.0), commune, 1.0),
+            Vec2::new(8.0, 109.0)
+        );
+        assert_eq!(
+            goal_in(Vec2::new(-300.0, -300.0), commune, 1.0),
+            Vec2::splat(-109.0)
+        );
+    }
+
+    #[test]
+    fn a_navmesh_heading_bends_his_walk() {
+        let pts = [Vec2::ZERO, Vec2::new(0.0, 10.0)];
+        let mut w = Walk::start(pts.len());
+        // The mesh says go sideways round something: he does, at his speed.
+        let (p, _) = step(&mut w, Vec2::ZERO, &pts, 0.5, 2.0, 0.3, 1.0, Some(Vec2::X));
+        assert_eq!(p, Vec2::new(1.0, 0.0));
+        // Close to the point he still arrives, whatever it says.
+        let (p, a) = step(
+            &mut w,
+            Vec2::new(0.0, 9.8),
+            &pts,
+            0.5,
+            2.0,
+            0.3,
+            1.0,
+            Some(Vec2::X),
+        );
+        assert_eq!((p, a), (pts[1], Some(Arrived::Station)));
     }
 
     #[test]

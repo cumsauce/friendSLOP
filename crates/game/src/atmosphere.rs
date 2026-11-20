@@ -266,6 +266,7 @@ fn day_night(
     mut bounce: Query<&mut DirectionalLight, (With<Bounce>, Without<Sun>)>,
     ambient: Option<ResMut<GlobalAmbientLight>>,
     mut fog: Query<(Entity, Option<&mut DistanceFog>), With<MainCamera>>,
+    mut cameras: Query<&mut Camera, With<MainCamera>>,
     started: Query<&DayStart>,
     mut darkness: ResMut<friendslop_base::rules::daylight::Darkness>,
     places: Res<crate::place::PlaceLooks>,
@@ -363,6 +364,24 @@ fn day_night(
             None => {
                 commands.entity(camera).insert(want.clone());
             }
+        }
+    }
+    // Somewhere with its own haze the screen clears to that haze, not the
+    // sky: a crack between pieces of a dark place (Fulton St) shows dark,
+    // not a flash of sky.
+    let clear = if lights.indoor_fog {
+        ClearColorConfig::Custom(lights.fog_color)
+    } else {
+        ClearColorConfig::Default
+    };
+    for mut cam in &mut cameras {
+        let same = match (&cam.clear_color, &clear) {
+            (ClearColorConfig::Custom(a), ClearColorConfig::Custom(b)) => a == b,
+            (ClearColorConfig::Default, ClearColorConfig::Default) => true,
+            _ => false,
+        };
+        if !same {
+            cam.clear_color = clear;
         }
     }
     let sun_dir = Vec3::new(-a.sin(), h, 0.45).normalize();
@@ -513,6 +532,10 @@ fn hdr(c: Color) -> LinearRgba {
 /// Give the main camera tonemapping, bloom and horizon-matched fog.
 fn dress_camera(add: On<Add<MainCamera>>, mut commands: Commands) {
     let mut camera = commands.entity(add.entity);
+    // macOS / Metal: GPU-driven indirect drawing makes meshes flicker in and
+    // out and draw garbled (bevyengine/bevy#25595, #26245): draw directly.
+    #[cfg(target_os = "macos")]
+    camera.insert(bevy::render::view::NoIndirectDrawing);
     // Without `Hdr`, bloom is a silent no-op (tonemapping then runs in the
     // material shaders). Browsers skip both (#242, `graphics::HDR_SUPPORTED`).
     if crate::graphics::HDR_SUPPORTED {

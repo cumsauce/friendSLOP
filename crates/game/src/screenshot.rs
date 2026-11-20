@@ -16,6 +16,7 @@
 //! FRIENDSLOP_SCREENSHOT_SHOTS=shots.txt  (lines `out.png x,y,z,lx,ly,lz`; edit and save it
 //!   while the game runs to take more pictures without restarting)
 //! FRIENDSLOP_SCREENSHOT_SCENE=busy
+//! FRIENDSLOP_SCREENSHOT_DROPDOWN=shadows   (scene settings: with that list open; or `window`)
 //! FRIENDSLOP_SCREENSHOT_WAREHOUSE=7   (open the warehouse with floor plan 7: its inside is at y -60)
 //! # optional: window size in logical pixels (scale factor forced to 1)
 //! FRIENDSLOP_SCREENSHOT_SIZE=1920x1080
@@ -379,6 +380,7 @@ impl Plugin for ScreenshotPlugin {
             .init_resource::<ShotQueue>()
             .add_systems(Startup, size_window)
             .add_systems(Update, run_shot_list.before(take))
+            .add_systems(Update, burst.run_if(in_state(AppState::InGame)))
             .add_systems(
                 Update,
                 take.run_if(in_state(if scene.on_title() {
@@ -569,14 +571,21 @@ fn aim_at_cat(
     *cam = Transform::from_translation(eye).looking_at(at, Vec3::Y);
 }
 
-/// Settings scene: open the notebook once.
+/// Settings scene: open the notebook once, and with
+/// `FRIENDSLOP_SCREENSHOT_DROPDOWN=shadows|window` one of its lists.
 fn open_settings(
     mut done: Local<bool>,
     mut panel: Query<&mut Node, With<crate::ui::settings_panel::SettingsPanel>>,
+    mut open: ResMut<crate::ui::settings_panel::OpenDropdown>,
 ) {
     if !*done && !panel.is_empty() {
         *done = true;
         crate::ui::settings_panel::toggle(&mut panel);
+        open.0 = match std::env::var("FRIENDSLOP_SCREENSHOT_DROPDOWN").as_deref() {
+            Ok("shadows") => Some(crate::graphics::VideoOption::Shadows),
+            Ok("window") => Some(crate::graphics::VideoOption::WindowSize),
+            _ => None,
+        };
     }
 }
 
@@ -632,14 +641,73 @@ fn hold_tab(mut keys: ResMut<ButtonInput<KeyCode>>) {
 }
 
 /// Hold the camera where the job asked, over whatever the game set.
-fn frame_camera(job: Res<ScreenshotJob>, mut camera: Query<&mut Transform, With<MainCamera>>) {
+/// With `FRIENDSLOP_SCREENSHOT_WOBBLE=<degrees>` the held camera turns that
+/// far on every other frame (two poses, alternating: a burst of frames is two
+/// still scenes interleaved, as if you looked back and forth).
+fn frame_camera(
+    job: Res<ScreenshotJob>,
+    frame: Res<bevy::diagnostic::FrameCount>,
+    mut camera: Query<&mut Transform, With<MainCamera>>,
+) {
     let Some((eye, at)) = job.camera else {
         return;
     };
     let Ok(mut cam) = camera.single_mut() else {
         return;
     };
+    let wobble = std::env::var("FRIENDSLOP_SCREENSHOT_WOBBLE")
+        .ok()
+        .and_then(|v| v.parse::<f32>().ok())
+        .unwrap_or(0.0);
+    let at = if frame.0 % 2 == 1 {
+        eye + Quat::from_rotation_y(wobble.to_radians()) * (at - eye)
+    } else {
+        at
+    };
     *cam = Transform::from_translation(eye).looking_at(at, Vec3::Y);
+}
+
+/// `FRIENDSLOP_SCREENSHOT_BURST=<n>`: once the world is ready and the wait is
+/// up, save `n` frames in a row (`<path>_000.png`, ...), one every frame, then
+/// quit. With a held camera, frames of a still scene should all match: one
+/// that doesn't is a rendering bug (flicker).
+fn burst_count() -> Option<u32> {
+    std::env::var("FRIENDSLOP_SCREENSHOT_BURST")
+        .ok()
+        .and_then(|v| v.trim().parse().ok())
+        .filter(|n| *n > 0)
+}
+
+fn burst(
+    mut commands: Commands,
+    time: Res<Time<Real>>,
+    job: Res<ScreenshotJob>,
+    ready: Res<WorldReady>,
+    mut progress: ResMut<Progress>,
+    mut taken: Local<u32>,
+    mut exit: MessageWriter<AppExit>,
+) {
+    let Some(n) = burst_count() else { return };
+    if !ready.ready {
+        return;
+    }
+    let now = time.elapsed_secs();
+    let ready_at = *progress.ready_at.get_or_insert(now);
+    if now - ready_at < job.wait {
+        return;
+    }
+    if *taken >= n + 10 {
+        exit.write(AppExit::Success);
+        return;
+    }
+    if *taken < n {
+        let stem = job.path.trim_end_matches(".png");
+        let path = format!("{stem}_{:03}.png", *taken);
+        commands
+            .spawn(Screenshot::primary_window())
+            .observe(save_to_disk(path));
+    }
+    *taken += 1;
 }
 
 fn take(
@@ -650,6 +718,9 @@ fn take(
     mut progress: ResMut<Progress>,
     mut exit: MessageWriter<AppExit>,
 ) {
+    if burst_count().is_some() {
+        return;
+    }
     if let Some(frames) = progress.saved_frames.as_mut() {
         *frames += 1;
         if *frames > 2 {

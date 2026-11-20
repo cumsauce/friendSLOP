@@ -284,6 +284,17 @@ impl VideoOption {
         VideoOption::WindowSize,
     ];
 
+    /// The values of an option that has more than two, which the settings show
+    /// as a dropdown (and which [`GraphicsQuality::set_choice`] picks); empty
+    /// for the rest, which are a checkbox or a slider.
+    pub fn choices(self) -> &'static [&'static str] {
+        match self {
+            Self::Shadows => &["Off", "Short", "Long"],
+            Self::WindowSize if !cfg!(target_arch = "wasm32") => &WINDOW_LABELS,
+            _ => &[],
+        }
+    }
+
     pub fn name(self) -> &'static str {
         match self {
             Self::Preset => "Preset",
@@ -322,15 +333,16 @@ fn next_scale(scale: u8) -> u8 {
         .unwrap_or(SCALES[0])
 }
 
+/// The text for each of [`WINDOW_SIZES`], Auto first.
+const WINDOW_LABELS: [&str; WINDOW_SIZES.len()] =
+    ["Auto", "1280x720", "1600x900", "1920x1080", "2560x1440"];
+
 /// The text for a window size choice.
 fn window_label(i: u8) -> &'static str {
-    match i {
-        1 => "1280x720",
-        2 => "1600x900",
-        3 => "1920x1080",
-        4 => "2560x1440",
-        _ => "Auto",
-    }
+    WINDOW_LABELS
+        .get(usize::from(i))
+        .copied()
+        .unwrap_or(WINDOW_LABELS[0])
 }
 
 fn on_off(b: bool) -> &'static str {
@@ -396,6 +408,46 @@ impl GraphicsQuality {
             VideoOption::WindowSize if cfg!(target_arch = "wasm32") => "N/A",
             VideoOption::WindowSize => window_label(self.window),
         }
+    }
+
+    /// Which of [`VideoOption::choices`] this option is on.
+    pub fn choice(self, o: VideoOption) -> usize {
+        match o {
+            VideoOption::Shadows if !self.shadows => 0,
+            VideoOption::Shadows if self.short_shadows => 1,
+            VideoOption::Shadows => 2,
+            VideoOption::WindowSize => usize::from(self.window),
+            _ => 0,
+        }
+    }
+
+    /// Pick one of [`VideoOption::choices`]; anything out of range is ignored.
+    pub fn set_choice(&mut self, o: VideoOption, i: usize) {
+        if i >= o.choices().len() {
+            return;
+        }
+        match o {
+            VideoOption::Shadows => {
+                (self.shadows, self.short_shadows) = match i {
+                    0 => (false, false),
+                    1 => (true, true),
+                    _ => (true, false),
+                }
+            }
+            VideoOption::WindowSize => self.window = i as u8,
+            _ => {}
+        }
+    }
+
+    /// Set the render scale to the nearest of [`SCALES`] (desktop).
+    pub fn set_scale(&mut self, percent: f32) {
+        let nearest = SCALES
+            .iter()
+            .copied()
+            .min_by_key(|s| (f32::from(*s) - percent).abs() as u32)
+            .unwrap_or(100);
+        self.scale = nearest;
+        self.sharp = nearest >= 100;
     }
 
     /// Click an option's button: flip it, or step to the next preset.
@@ -872,6 +924,32 @@ mod tests {
         assert_eq!(q.value(VideoOption::Preset), "Custom");
         q.cycle(VideoOption::Preset);
         assert_eq!(q.preset(), Some(Preset::Low));
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
+    fn dropdown_choices_read_and_set() {
+        let mut q = Preset::High.apply(GraphicsQuality::platform_default());
+        assert_eq!(VideoOption::Shadows.choices(), ["Off", "Short", "Long"]);
+        assert_eq!(q.choice(VideoOption::Shadows), 2);
+        q.set_choice(VideoOption::Shadows, 1);
+        assert_eq!(q.value(VideoOption::Shadows), "Short");
+        q.set_choice(VideoOption::Shadows, 0);
+        assert_eq!(q.value(VideoOption::Shadows), "Off");
+        // Off is what the Low preset has, short or not.
+        assert_eq!(Preset::Low.apply(q).choice(VideoOption::Shadows), 0);
+        q.set_choice(VideoOption::Shadows, 9);
+        assert_eq!(q.choice(VideoOption::Shadows), 0, "out of range is ignored");
+        q.set_choice(VideoOption::WindowSize, 3);
+        assert_eq!(q.value(VideoOption::WindowSize), "1920x1080");
+        assert_eq!(q.choice(VideoOption::WindowSize), 3);
+        // The slider snaps to a step.
+        q.set_scale(73.2);
+        assert_eq!(q.scale, 70);
+        q.set_scale(99.0);
+        assert_eq!((q.scale, q.sharp), (100, true));
+        q.set_scale(10.0);
+        assert_eq!(q.scale, 50);
     }
 
     #[cfg(not(target_arch = "wasm32"))]

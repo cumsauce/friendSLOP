@@ -5,8 +5,12 @@
 //! screen's Settings link or Tab; Esc or Done closes it. In game Esc opens
 //! it too (#317), with a "Leave game" button (Esc no longer leaves).
 
+use bevy::math::Rot2;
 use bevy::prelude::*;
-use bevy::ui_widgets::{Activate, Button, ButtonPlugin};
+use bevy::ui_widgets::{
+    Activate, Button, ButtonPlugin, SetSliderValue, Slider, SliderPlugin, SliderRange, SliderStep,
+    SliderThumb, SliderValue, SliderValueChange, TrackClick, ValueChange,
+};
 use bevy::window::PrimaryWindow;
 
 use super::pad_nav::{PadFocusable, PadNudge, PadSlider};
@@ -59,26 +63,6 @@ pub const VIDEO_BOXES: [VideoOption; 9] = [
     VideoOption::Fullscreen,
 ];
 
-/// Options with more than two values are cards that step through them when
-/// pressed (render scale, window size), not checkboxes. (A browser's
-/// Resolution is still the Sharp / Fast checkbox, and has no window size.)
-pub fn is_stepper(o: VideoOption) -> bool {
-    !cfg!(target_arch = "wasm32") && matches!(o, VideoOption::Resolution | VideoOption::WindowSize)
-}
-
-/// Every card of the Video page, in grid order: the checkboxes, then the
-/// steppers this build has.
-pub fn video_cards() -> Vec<VideoOption> {
-    let mut cards: Vec<VideoOption> = VIDEO_BOXES
-        .into_iter()
-        .filter(|o| !is_stepper(*o))
-        .collect();
-    if !cfg!(target_arch = "wasm32") {
-        cards.extend([VideoOption::Resolution, VideoOption::WindowSize]);
-    }
-    cards
-}
-
 /// Is this option on?
 pub fn checked(q: GraphicsQuality, o: VideoOption) -> bool {
     match o {
@@ -97,15 +81,6 @@ pub fn checked(q: GraphicsQuality, o: VideoOption) -> bool {
 
 /// The checkbox's label.
 pub fn box_label(q: GraphicsQuality, o: VideoOption) -> String {
-    // A stepper shows what it's set to.
-    if is_stepper(o) {
-        let name = if o == VideoOption::Resolution {
-            "Render scale"
-        } else {
-            o.name()
-        };
-        return format!("{name}: {}", q.value(o));
-    }
     let name = match o {
         VideoOption::DrawDistance => "View distance",
         VideoOption::Resolution => "Sharp resolution",
@@ -187,6 +162,17 @@ enum Part {
     Handle(Volume),
     Box(Check),
     BoxLabel(VideoOption),
+    /// A dropdown's current value, its list, one row of the list, and the
+    /// invisible layer that closes the list when you click anywhere else.
+    DropValue(VideoOption),
+    DropList(VideoOption),
+    DropItem(VideoOption, usize),
+    DropBackdrop,
+    /// The render scale slider: its value text, the slider, its fill and thumb.
+    ScaleValue,
+    ScaleSlider,
+    ScaleFill,
+    ScaleThumb,
     /// One of the Controls page's two columns of bindings.
     Help(usize),
     /// "Esc close", or "B close" after a gamepad was used.
@@ -301,12 +287,22 @@ enum Check {
 }
 
 pub fn plugin(app: &mut App) {
-    // Bevy's headless buttons (the video steppers), and nothing else of its
-    // widgets: the rest of the UI hears clicks itself.
+    // Bevy's headless buttons and slider (the video dropdowns and render
+    // scale), and nothing else of its widgets: the rest of the UI hears
+    // clicks itself.
     if !app.is_plugin_added::<ButtonPlugin>() {
         app.add_plugins(ButtonPlugin);
     }
-    app.insert_resource(OnPage(Page::Video))
+    if !app.is_plugin_added::<SliderPlugin>() {
+        app.add_plugins(SliderPlugin);
+    }
+    app.init_resource::<OpenDropdown>()
+        .add_systems(
+            PreUpdate,
+            close_dropdown_on_esc.after(bevy::input::InputSystems),
+        )
+        .add_systems(Update, forget_dropdown)
+        .insert_resource(OnPage(Page::Video))
         .add_systems(OnEnter(AppState::Menu), spawn_in(AppState::Menu))
         .add_systems(OnEnter(AppState::InGame), spawn_in(AppState::InGame))
         .add_systems(
@@ -504,60 +500,7 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
                 }
             });
         }
-        for (i, o) in video_cards().into_iter().enumerate() {
-            let (x, y) = (18.0 + 228.0 * (i % 3) as f32, 110.0 + 72.0 * (i / 3) as f32);
-            let mut card = c.spawn((
-                Node {
-                    width: px(214),
-                    height: px(62),
-                    border_radius: BorderRadius::all(px(12)),
-                    ..at(x, y, B)
-                },
-                BackgroundColor(RAISED),
-            ));
-            if is_stepper(o) {
-                // Bevy's headless button: a click (or the pad's A) steps it.
-                // No tick: the label says what it's set to.
-                card.insert(Button).observe(
-                    move |_: On<Activate>, mut q: ResMut<GraphicsQuality>| {
-                        q.cycle(o);
-                    },
-                );
-                card.with_child((
-                    Part::BoxLabel(o),
-                    Text::new(o.name()),
-                    body(16.0, TEXT),
-                    Node {
-                        width: px(190),
-                        ..at(14.0, 19.0, 0.0)
-                    },
-                ));
-            } else {
-                card.with_children(|k| {
-                    k.spawn(checkbox(check, Check::Video(o), 12.0, 17.0));
-                    k.spawn((
-                        Part::BoxLabel(o),
-                        Text::new(o.name()),
-                        body(16.0, TEXT),
-                        Node {
-                            width: px(150),
-                            ..at(52.0, 19.0, 0.0)
-                        },
-                    ));
-                });
-            }
-            // An option this build can't do has nothing to press.
-            if GraphicsQuality::platform_default().value(o) != "N/A" {
-                card.insert(PadFocusable);
-            }
-            if !is_stepper(o) {
-                card.observe(move |_: On<PointerClick>, mut q: ResMut<GraphicsQuality>| {
-                    if q.value(o) != "N/A" {
-                        q.cycle(o);
-                    }
-                });
-            }
-        }
+        video_page(c, check);
         c.spawn(label(
             "Preset changes apply immediately. Change an option: Custom.",
             14.0,
@@ -777,6 +720,346 @@ fn check_row(
     );
 }
 
+/// The width of one option card on the Video page, and the gap between them.
+const CARD_W: f32 = 214.0;
+const CARD_PITCH: f32 = 228.0;
+/// A card's height; the render scale's is a little taller (it has a track).
+const CARD_H: f32 = 52.0;
+
+/// Which dropdown's list is showing (one at a time).
+#[derive(Resource, Default)]
+pub struct OpenDropdown(pub Option<VideoOption>);
+
+/// A small group heading on the Video page.
+fn group_heading(c: &mut ChildSpawnerCommands, text: &str, y: f32) {
+    c.spawn(label(text, 14.0, ACCENT, 18.0, y, B));
+}
+
+/// The Video page below the presets, in two groups: the window (its size,
+/// fullscreen, V-sync, render scale) and what's drawn in it
+/// (shadows, anti-aliasing, ambient occlusion, bloom, grass, view distance).
+/// Anything with more than two values is a dropdown, a range is a slider,
+/// the rest are checkboxes.
+fn video_page(c: &mut ChildSpawnerCommands, check: &Handle<Image>) {
+    let col = |i: usize| 18.0 + CARD_PITCH * i as f32;
+    let desktop = !cfg!(target_arch = "wasm32");
+    group_heading(c, "WINDOW", 104.0);
+    if desktop {
+        dropdown(c, VideoOption::WindowSize, col(0), 126.0);
+    } else {
+        // A browser's Resolution is a Sharp / Fast switch, and it has no window.
+        option_card(c, check, VideoOption::Resolution, col(0), 126.0);
+    }
+    option_card(c, check, VideoOption::Fullscreen, col(1), 126.0);
+    option_card(c, check, VideoOption::VSync, col(2), 126.0);
+    if desktop {
+        scale_row(c, 18.0, 186.0, CARD_PITCH * 2.0 + CARD_W);
+    }
+    group_heading(c, "QUALITY", 252.0);
+    dropdown(c, VideoOption::Shadows, col(0), 274.0);
+    option_card(c, check, VideoOption::AntiAlias, col(1), 274.0);
+    option_card(c, check, VideoOption::AmbientOcclusion, col(2), 274.0);
+    option_card(c, check, VideoOption::Bloom, col(0), 334.0);
+    option_card(c, check, VideoOption::Grass, col(1), 334.0);
+    option_card(c, check, VideoOption::DrawDistance, col(2), 334.0);
+    // Behind an open list, catching the click that should only close it.
+    c.spawn((
+        Part::DropBackdrop,
+        Button,
+        Node {
+            position_type: PositionType::Absolute,
+            left: px(0),
+            top: px(0),
+            width: percent(100),
+            height: percent(100),
+            display: Display::None,
+            ..default()
+        },
+        BackgroundColor(Color::NONE),
+        GlobalZIndex(25),
+    ))
+    .observe(|_: On<Activate>, mut open: ResMut<OpenDropdown>| open.0 = None);
+}
+
+/// A checkbox card: tick, name; a press flips it.
+fn option_card(
+    c: &mut ChildSpawnerCommands,
+    check: &Handle<Image>,
+    o: VideoOption,
+    x: f32,
+    y: f32,
+) {
+    let mut card = c.spawn((
+        Node {
+            width: px(CARD_W),
+            height: px(CARD_H),
+            border_radius: BorderRadius::all(px(12)),
+            ..at(x, y, B)
+        },
+        BackgroundColor(RAISED),
+        children![
+            checkbox(check, Check::Video(o), 12.0, 12.0),
+            (
+                Part::BoxLabel(o),
+                Text::new(o.name()),
+                body(16.0, TEXT),
+                Node {
+                    width: px(150),
+                    ..at(52.0, 16.0, 0.0)
+                }
+            ),
+        ],
+    ));
+    // An option this build can't do has nothing to press.
+    if GraphicsQuality::platform_default().value(o) != "N/A" {
+        card.insert(PadFocusable);
+    }
+    card.observe(move |_: On<PointerClick>, mut q: ResMut<GraphicsQuality>| {
+        if q.value(o) != "N/A" {
+            q.cycle(o);
+        }
+    });
+}
+
+/// A dropdown card: the name, what it's set to and a chevron; pressing opens
+/// a list of the values under it. Bevy's headless buttons all the way down
+/// (the pad's A presses them too, and while the list is up it's the only
+/// thing the pad can reach: it's on a higher layer).
+fn dropdown(c: &mut ChildSpawnerCommands, o: VideoOption, x: f32, y: f32) {
+    c.spawn((
+        Button,
+        Node {
+            width: px(CARD_W),
+            height: px(CARD_H),
+            border_radius: BorderRadius::all(px(12)),
+            ..at(x, y, B)
+        },
+        BackgroundColor(RAISED),
+        PadFocusable,
+    ))
+    .observe(move |_: On<Activate>, mut open: ResMut<OpenDropdown>| {
+        open.0 = if open.0 == Some(o) { None } else { Some(o) };
+    })
+    .with_children(|k| {
+        k.spawn((
+            Text::new(o.name()),
+            body(16.0, TEXT),
+            Pickable::IGNORE,
+            at(14.0, 16.0, 0.0),
+        ));
+        k.spawn((
+            Part::DropValue(o),
+            Text::new(""),
+            body(16.0, ACCENT),
+            Pickable::IGNORE,
+            Node {
+                position_type: PositionType::Absolute,
+                right: px(36),
+                top: px(16),
+                ..default()
+            },
+        ));
+        // The chevron: a square's corner, turned.
+        k.spawn((
+            Node {
+                position_type: PositionType::Absolute,
+                right: px(16),
+                top: px(18),
+                width: px(10),
+                height: px(10),
+                border: UiRect {
+                    right: px(2),
+                    bottom: px(2),
+                    ..default()
+                },
+                ..default()
+            },
+            BorderColor::all(TEXT),
+            UiTransform::from_rotation(Rot2::degrees(45.0)),
+            Pickable::IGNORE,
+        ));
+        k.spawn((
+            Part::DropList(o),
+            Node {
+                position_type: PositionType::Absolute,
+                left: px(0),
+                top: px(CARD_H + 4.0),
+                width: px(CARD_W),
+                flex_direction: FlexDirection::Column,
+                row_gap: px(4),
+                padding: UiRect::all(px(6)),
+                border: UiRect::all(px(B)),
+                border_radius: BorderRadius::all(px(12)),
+                display: Display::None,
+                ..default()
+            },
+            BackgroundColor(PANEL),
+            BorderColor::all(LINE),
+            GlobalZIndex(30),
+        ))
+        .with_children(|list| {
+            for (i, name) in o.choices().iter().enumerate() {
+                list.spawn((
+                    Part::DropItem(o, i),
+                    Button,
+                    Node {
+                        width: percent(100),
+                        height: px(36),
+                        border_radius: BorderRadius::all(px(8)),
+                        padding: UiRect::horizontal(px(10)),
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    BackgroundColor(RAISED),
+                    PadFocusable,
+                    children![(Text::new(*name), body(16.0, TEXT), Pickable::IGNORE)],
+                ))
+                .observe(
+                    move |_: On<Activate>,
+                          mut q: ResMut<GraphicsQuality>,
+                          mut open: ResMut<OpenDropdown>| {
+                        let mut next = *q;
+                        next.set_choice(o, i);
+                        q.set_if_neq(next);
+                        open.0 = None;
+                    },
+                );
+            }
+        });
+    });
+}
+
+/// The render scale: a row with its name and value over a slider (Bevy's
+/// headless one) in the audio sliders' colours, 50% to 100% in steps of 10.
+fn scale_row(c: &mut ChildSpawnerCommands, x: f32, y: f32, w: f32) {
+    let track = w - 28.0;
+    c.spawn((
+        Node {
+            width: px(w),
+            height: px(CARD_H + 6.0),
+            border_radius: BorderRadius::all(px(12)),
+            ..at(x, y, B)
+        },
+        BackgroundColor(RAISED),
+        children![
+            (
+                Text::new("Render scale"),
+                body(16.0, TEXT),
+                at(14.0, 6.0, 0.0)
+            ),
+            (
+                Part::ScaleValue,
+                Text::new(""),
+                body(16.0, ACCENT),
+                Node {
+                    position_type: PositionType::Absolute,
+                    right: px(14),
+                    top: px(6),
+                    ..default()
+                },
+            ),
+        ],
+    ))
+    .with_children(|row| {
+        row.spawn((
+            Part::ScaleSlider,
+            Slider {
+                track_click: TrackClick::Snap,
+                ..default()
+            },
+            SliderValue(100.0),
+            SliderRange::new(50.0, 100.0),
+            SliderStep(10.0),
+            Node {
+                width: px(track),
+                height: px(22),
+                ..at(14.0, 30.0, 0.0)
+            },
+            PadFocusable,
+            PadSlider,
+            children![
+                (
+                    Node {
+                        width: px(track),
+                        height: px(8),
+                        border_radius: BorderRadius::all(px(4)),
+                        ..at(0.0, 7.0, 0.0)
+                    },
+                    BackgroundColor(TRACK),
+                    Pickable::IGNORE,
+                ),
+                (
+                    Part::ScaleFill,
+                    Node {
+                        width: px(0),
+                        height: px(8),
+                        border_radius: BorderRadius::all(px(4)),
+                        ..at(0.0, 7.0, 0.0)
+                    },
+                    BackgroundColor(ACCENT),
+                    Pickable::IGNORE,
+                ),
+                (
+                    Part::ScaleThumb,
+                    SliderThumb,
+                    Node {
+                        width: px(SCALE_THUMB),
+                        height: px(SCALE_THUMB),
+                        border: UiRect::all(px(B)),
+                        border_radius: BorderRadius::all(px(SCALE_THUMB / 2.0)),
+                        ..at(0.0, 0.0, 0.0)
+                    },
+                    BackgroundColor(t::CARD_100),
+                    BorderColor::all(t::INK),
+                ),
+            ],
+        ))
+        .observe(
+            |change: On<ValueChange<f32>>, mut q: ResMut<GraphicsQuality>| {
+                let mut next = *q;
+                next.set_scale(change.value);
+                q.set_if_neq(next);
+            },
+        )
+        .observe(|nudge: On<PadNudge>, mut commands: Commands| {
+            commands.trigger(SetSliderValue {
+                entity: nudge.entity,
+                change: SliderValueChange::RelativeStep(nudge.steps as f32),
+            });
+        });
+    });
+}
+
+/// The render scale slider's thumb size, and its track's width (the row less
+/// its 14 px margins).
+const SCALE_THUMB: f32 = 22.0;
+
+fn scale_track_width() -> f32 {
+    CARD_PITCH * 2.0 + CARD_W - 28.0
+}
+
+/// Esc closes an open dropdown first, and the notebook only the time after:
+/// the key is used up here, before the menus and the pause screen see it.
+fn close_dropdown_on_esc(mut keys: ResMut<ButtonInput<KeyCode>>, mut open: ResMut<OpenDropdown>) {
+    if open.0.is_some() && keys.just_pressed(KeyCode::Escape) {
+        keys.clear_just_pressed(KeyCode::Escape);
+        open.0 = None;
+    }
+}
+
+/// A list left open doesn't wait for you when the notebook closes or turns
+/// to another page.
+fn forget_dropdown(
+    mut open: ResMut<OpenDropdown>,
+    on: Res<OnPage>,
+    panel: Query<&Node, With<SettingsPanel>>,
+) {
+    let shown = panel.iter().any(|n| n.display != Display::None);
+    if open.0.is_some() && (!shown || on.0 != Page::Video) {
+        open.0 = None;
+    }
+}
+
 /// A 28 px square checkbox; [`refresh`] fills and ticks it.
 fn checkbox(check: &Handle<Image>, what: Check, x: f32, y: f32) -> impl Bundle {
     (
@@ -810,6 +1093,9 @@ fn refresh(
     pad: Res<PadSettings>,
     device: Res<crate::input::InputDevice>,
     q: Res<GraphicsQuality>,
+    open: Res<OpenDropdown>,
+    values: Query<&SliderValue>,
+    mut commands: Commands,
     mut nodes: Query<&mut Node>,
     mut parts: Query<(
         Entity,
@@ -932,6 +1218,68 @@ fn refresh(
                     t.0 = want;
                 }
             }
+            Part::DropValue(o) => {
+                let want = o.choices().get(q.choice(o)).copied().unwrap_or("");
+                if let Some(mut t) = text
+                    && t.0 != want
+                {
+                    t.0 = want.to_string();
+                }
+            }
+            Part::DropList(o) => {
+                if let Ok(mut n) = nodes.get_mut(e) {
+                    let want = if open.0 == Some(o) {
+                        Display::Flex
+                    } else {
+                        Display::None
+                    };
+                    if n.display != want {
+                        n.display = want;
+                    }
+                }
+            }
+            Part::DropBackdrop => {
+                if let Ok(mut n) = nodes.get_mut(e) {
+                    let want = if open.0.is_some() {
+                        Display::Flex
+                    } else {
+                        Display::None
+                    };
+                    if n.display != want {
+                        n.display = want;
+                    }
+                }
+            }
+            Part::DropItem(o, i) => tab(q.choice(o) == i, bg, &mut texts),
+            Part::ScaleValue => {
+                let want = q.value(VideoOption::Resolution);
+                if let Some(mut t) = text
+                    && t.0 != want
+                {
+                    t.0 = want.to_string();
+                }
+            }
+            Part::ScaleSlider => {
+                let want = f32::from(q.scale);
+                if values.get(e).is_ok_and(|v| v.0 != want) {
+                    commands.entity(e).insert(SliderValue(want));
+                }
+            }
+            Part::ScaleFill | Part::ScaleThumb => {
+                // The thumb travels the track less its own width.
+                let frac = (f32::from(q.scale) - 50.0) / 50.0;
+                if let Ok(mut n) = nodes.get_mut(e) {
+                    let travel = scale_track_width() - SCALE_THUMB;
+                    let want = if matches!(part, Part::ScaleFill) {
+                        (px(travel * frac + SCALE_THUMB / 2.0), n.left)
+                    } else {
+                        (n.width, px(travel * frac))
+                    };
+                    if (n.width, n.left) != want {
+                        (n.width, n.left) = want;
+                    }
+                }
+            }
         }
     }
 }
@@ -960,16 +1308,91 @@ mod tests {
     fn every_box_is_a_real_option() {
         assert!(!VIDEO_BOXES.contains(&VideoOption::Preset));
         assert_eq!(VIDEO_BOXES.len(), 9);
-        // Every option is a card, once; a desktop build adds window size.
-        let cards = video_cards();
-        for o in VIDEO_BOXES {
-            assert_eq!(cards.iter().filter(|c| **c == o).count(), 1);
+        // Dropdowns are the options with more than two values.
+        for o in VideoOption::ALL {
+            if o != VideoOption::Preset {
+                assert_ne!(o.choices().len(), 2, "{o:?} is a checkbox, or has 3+");
+            }
         }
+    }
+
+    /// The Video page's dropdowns and slider, pressed the way the widgets
+    /// report a press (a click, or the pad's A).
+    #[test]
+    fn dropdowns_and_the_scale_slider_change_the_settings() {
+        let mut app = App::new();
+        app.add_plugins(MinimalPlugins)
+            .add_plugins((ButtonPlugin, SliderPlugin))
+            .init_resource::<OpenDropdown>()
+            .insert_resource(Preset::High.apply(GraphicsQuality::platform_default()));
+        app.world_mut()
+            .commands()
+            .spawn(Node::default())
+            .with_children(|c| video_page(c, &Handle::default()));
+        app.world_mut().flush();
+        app.update();
+        let find = |app: &mut App, want: Part| -> Entity {
+            let mut parts = app.world_mut().query::<(Entity, &Part)>();
+            let Some((e, _)) = parts.iter(app.world()).find(|(_, p)| {
+                std::mem::discriminant(*p) == std::mem::discriminant(&want) && same(**p, want)
+            }) else {
+                panic!("a part the Video page should have is missing");
+            };
+            e
+        };
+        fn same(a: Part, b: Part) -> bool {
+            match (a, b) {
+                (Part::DropList(x), Part::DropList(y)) => x == y,
+                (Part::DropItem(x, i), Part::DropItem(y, j)) => x == y && i == j,
+                (Part::ScaleSlider, Part::ScaleSlider) => true,
+                _ => false,
+            }
+        }
+        // Pressing the Shadows dropdown opens its list ...
+        let list = find(&mut app, Part::DropList(VideoOption::Shadows));
+        let button = app
+            .world()
+            .get::<ChildOf>(list)
+            .map(ChildOf::parent)
+            .unwrap_or(list);
+        app.world_mut().trigger(Activate { entity: button });
+        app.update();
         assert_eq!(
-            cards.contains(&VideoOption::WindowSize),
-            !cfg!(target_arch = "wasm32")
+            app.world().resource::<OpenDropdown>().0,
+            Some(VideoOption::Shadows)
         );
-        assert!(cards.len() <= 12, "the grid has room for 4 rows of 3");
+        // ... and pressing "Off" in it sets that and closes it.
+        let off = find(&mut app, Part::DropItem(VideoOption::Shadows, 0));
+        app.world_mut().trigger(Activate { entity: off });
+        app.update();
+        let q = *app.world().resource::<GraphicsQuality>();
+        assert_eq!(q.value(VideoOption::Shadows), "Off");
+        assert_eq!(app.world().resource::<OpenDropdown>().0, None);
+        // The window size list has every size.
+        if !cfg!(target_arch = "wasm32") {
+            let big = find(&mut app, Part::DropItem(VideoOption::WindowSize, 3));
+            app.world_mut().trigger(Activate { entity: big });
+            app.update();
+            let q = *app.world().resource::<GraphicsQuality>();
+            assert_eq!(q.value(VideoOption::WindowSize), "1920x1080");
+            // The slider moves the render scale, snapped to its steps.
+            let slider = find(&mut app, Part::ScaleSlider);
+            app.world_mut().trigger(SetSliderValue {
+                entity: slider,
+                change: SliderValueChange::Absolute(63.0),
+            });
+            app.update();
+            assert_eq!(app.world().resource::<GraphicsQuality>().scale, 60);
+            // A pad nudge is one step. (`refresh` keeps the slider on the
+            // setting; here, that's done by hand.)
+            app.world_mut().entity_mut(slider).insert(SliderValue(60.0));
+            app.world_mut().trigger(PadNudge {
+                entity: slider,
+                steps: 1,
+            });
+            app.update();
+            assert_eq!(app.world().resource::<GraphicsQuality>().scale, 70);
+        }
     }
 
     #[test]

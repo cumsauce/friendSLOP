@@ -345,6 +345,15 @@ Rules for growing it:
   mentions not needing `Cargo.lock`, x didn't set us up for success, we need more SME's, we
   haven't considered the problem space enough, BSN syntax needs more changes, `Children` sugaring
   and Sam "Salt" Saltman. `tests/it/bsn_salting.rs` enforces it and has an example.
+- **UI keeps the established style and favours Bevy's headless widgets.** New screens and
+  controls look like the ones around them (the cards, colours and spacing of
+  `crates/game/src/ui/settings_panel.rs` and `theme`), and are built from `bevy::ui_widgets`
+  (`Button` + `Activate`, `Slider` + `ValueChange` / `SetSliderValue`, ...) rather than new
+  hand-rolled click handling. Add only the plugin you use (`ButtonPlugin`, `SliderPlugin`).
+  The pad's A fires `Activate` on a headless `Button` and `PadNudge` steps a `PadSlider`
+  (`ui/pad_nav.rs`), so keep `PadFocusable` on what the pad should reach. In settings, an
+  option with more than two values is a dropdown, a range is a slider, the rest are checkboxes,
+  grouped under small headings (`video_page`).
 - No `unwrap()`/`expect()` in systems. Use `let Ok(..) = .. else { return };`.
 - Pinned versions: `bevy =0.20.0` and `bevy_replicon =0.45.2` (required by bevy_voice_chat). Only
   bump them together, and only when every dependency supports the new version.
@@ -442,7 +451,7 @@ context's binds and prompt bar come from the same file. A test fails on unknown 
 
 To check UI against its design, screenshot mode can force a HUD state:
 `FRIENDSLOP_SCREENSHOT_SCENE=play|busy|full|clickable|chapter|tab|title|settings|join|creator|fault|kori|pause|journal|loading` (full: busy with every quiet HUD element forced up) (title, settings, join, creator, fault and kori run without `host`; and
-`FRIENDSLOP_SCREENSHOT_SIZE=1920x1080`), e.g. `scripts/screenshot.sh busy.png "" busy`. Add
+`FRIENDSLOP_SCREENSHOT_SIZE=1920x1080` (scene `settings` with `FRIENDSLOP_SCREENSHOT_DROPDOWN=shadows|window` shows a list open)), e.g. `scripts/screenshot.sh busy.png "" busy`. Add
 `FRIENDSLOP_SCREENSHOT_EVERY=3` to keep the game running and re-save the picture every 3 s.
 To frame shots without restarting, add `FRIENDSLOP_SCREENSHOT_SHOTS=shots.txt` (desktop only):
 the running game watches that file, and every save of it moves the camera to each

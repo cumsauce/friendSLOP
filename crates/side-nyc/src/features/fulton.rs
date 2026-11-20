@@ -586,6 +586,17 @@ pub struct Ducts {
     /// Seconds it takes to squeeze out of a service door.
     #[serde(default)]
     pub emerge_secs: f32,
+    /// Before it comes out of a door it throws itself at it from behind this
+    /// many times (at least, at most), `knock_secs` apart.
+    #[serde(default)]
+    pub knocks: (usize, usize),
+    #[serde(default)]
+    pub knock_secs: f32,
+    /// Its first appearance: out of a service door on your level this many
+    /// steps from you (at least, at most), knocking first, so you learn
+    /// where it comes from. (0, 0): wherever it would arrive anyway.
+    #[serde(default)]
+    pub first_door: (u32, u32),
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -728,6 +739,10 @@ pub struct Skin {
     /// Its column (corners, rooms, galleries), modelled on the origin.
     #[serde(default)]
     pub column: String,
+    /// A wall with a hole in its middle for a service door (the door's
+    /// dark passage shows through it).
+    #[serde(default)]
+    pub wall_door: String,
 }
 
 impl Skin {
@@ -4006,7 +4021,22 @@ pub fn corridor_columns(t: &Tuning, li: usize, level: &Level) -> Vec<Vec3> {
                     && joined.iter().all(|&(cell, side)| level.open(cell, side))
                     && walls.iter().all(|&(cell, side)| !level.open(cell, side))
             });
-            if outside {
+            // A wall between two walkable cells (two wall pieces back to
+            // back) that stops here, open floor carrying on straight past its
+            // end: its end needs covering too.
+            let partition = |(c, s): (wfc::Cell, wfc::Side)| {
+                wfc::neighbour(level.width, level.depth, c, s)
+                    .is_some_and(|n| corridor(c) && corridor(n) && !level.open(c, s))
+            };
+            let through = |(c, s): (wfc::Cell, wfc::Side)| {
+                wfc::neighbour(level.width, level.depth, c, s)
+                    .is_some_and(|n| corridor(c) && corridor(n) && level.open(c, s))
+            };
+            let edges = [(tl, East), (bl, East), (tl, South), (tr, South)];
+            let wall_end = [(0, 1), (1, 0), (2, 3), (3, 2)]
+                .into_iter()
+                .any(|(a, b)| partition(edges[a]) && through(edges[b]));
+            if outside || wall_end {
                 out.push(cell_world(t, li, level, tl) + Vec3::new(CELL / 2.0, 0.0, CELL / 2.0));
             }
         }
@@ -4145,7 +4175,11 @@ pub fn service_doors(t: &Tuning, li: usize, level: &Level) -> Vec<(wfc::Cell, wf
                 continue;
             }
             for s in wfc::Side::ALL {
-                if f.mask & bit(s) == 0 {
+                // Only with rock behind: the door opens on a short dark
+                // passage, which mustn't come out in a corridor next door.
+                let rock = wfc::neighbour(level.width, level.depth, c, s)
+                    .is_none_or(|n| level.fill(n).mask == 0);
+                if f.mask & bit(s) == 0 && rock {
                     spots.push((c, s));
                 }
             }
@@ -5966,7 +6000,9 @@ fn stream_levels(
                         if f.mask & bit(side) != 0 {
                             continue;
                         }
+                        let door = level.service.contains(&((x, z), side));
                         let wall = match skin.filter(|_| skinned) {
+                            Some(s) if door && !s.wall_door.is_empty() => s.wall_door.as_str(),
                             Some(s) => s.wall(&t, li, (x, z), side),
                             None => set.room.wall.as_str(),
                         };
@@ -7006,6 +7042,34 @@ mod tests {
             assert_eq!(downs, ends.len(), "level {li}");
         }
         assert!(extra >= 5, "only {extra} more landings signed");
+    }
+
+    #[test]
+    fn a_wall_that_stops_gets_a_column_on_its_end() {
+        // 2x2: a wall between the top and bottom cells on the left only; the
+        // right pair open to each other, the top pair and bottom pair too.
+        use wfc::Side::{East, North, South, West};
+        let (t, _) = data();
+        let f = |m: u8| Fill {
+            mask: m,
+            track: 0,
+            kind: Kind::Corridor(None),
+            turns: 0,
+        };
+        let mut l = Level::empty(2, 2);
+        l.cells = vec![
+            f(bit(East)),
+            f(bit(West) | bit(South)),
+            f(bit(East)),
+            f(bit(West) | bit(North)),
+        ];
+        let cols = corridor_columns(&t, 1, &l);
+        let corner = cell_world(&t, 1, &l, (0, 0)) + Vec3::new(CELL / 2.0, 0.0, CELL / 2.0);
+        assert!(cols.iter().any(|c| c.distance(corner) < 1e-3), "{cols:?}");
+        // With the wall carrying on (right pair shut too) there's no end there.
+        l.cells[1] = f(bit(West));
+        l.cells[3] = f(bit(West));
+        assert!(corridor_columns(&t, 1, &l).is_empty());
     }
 
     #[test]

@@ -35,6 +35,9 @@ pub struct Tuning {
     pub click_radius: f32,
     /// How far (metres) your aim line may pass beside a thing and still use it.
     pub aim_slack: f32,
+    /// Something solid between the camera and a thing hides it from the aim,
+    /// unless it's within this many metres of the thing (its own body).
+    pub sight_margin: f32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -58,6 +61,9 @@ pub struct Clickable {
     pub label: Option<&'static str>,
     /// Extra metres of reach (a big thing's body is that much closer than its middle).
     pub reach_bonus: f32,
+    /// How high its body goes, for the aim line (default: a bit over `height`).
+    /// A door pick point at its middle is still hit all the way up a tall door.
+    pub top: Option<f32>,
 }
 
 impl Clickable {
@@ -67,7 +73,14 @@ impl Clickable {
             radius_px: tuning().click_radius,
             label: None,
             reach_bonus: 0.0,
+            top: None,
         }
+    }
+
+    /// The thing's body reaches `metres` up (a door), so aiming at any part of it counts.
+    pub fn tall(mut self, metres: f32) -> Self {
+        self.top = Some(metres);
+        self
     }
 
     /// The verb shown in the hover hint.
@@ -206,17 +219,65 @@ pub fn ray_gap(origin: Vec3, dir: Vec3, foot: Vec3, height: f32) -> f32 {
         .fold(f32::INFINITY, f32::min)
 }
 
-/// Every visible clickable seen from the camera through `cursor`.
+/// The point of the upright segment from `foot` up `height` metres that the ray
+/// (`origin`, unit `dir`, forwards only) passes closest to.
+pub fn nearest_on_upright(origin: Vec3, dir: Vec3, foot: Vec3, height: f32) -> Vec3 {
+    const STEPS: usize = 12;
+    (0..=STEPS)
+        .map(|i| foot + Vec3::Y * (height * i as f32 / STEPS as f32))
+        .min_by(|a, b| {
+            let gap = |p: Vec3| p.distance(origin + dir * (p - origin).dot(dir).max(0.0));
+            gap(*a).total_cmp(&gap(*b))
+        })
+        .unwrap_or(foot)
+}
+
+/// The physics world, to tell whether a wall stands between the camera and a
+/// thing. Absent where there is no physics (headless tests): nothing is hidden.
+type Sight<'w, 's> = Option<(
+    avian3d::prelude::SpatialQuery<'w, 's>,
+    Query<'w, 's, (), With<avian3d::prelude::Sensor>>,
+)>;
+
+/// Is something solid (not a sensor) on the line from `from` to `to`, more
+/// than `margin` metres before `to`?
+fn blocked(sight: &Sight, from: Vec3, to: Vec3, margin: f32) -> bool {
+    let Some((spatial, sensors)) = sight else {
+        return false;
+    };
+    let along = to - from;
+    let len = along.length();
+    let Ok(dir) = Dir3::new(along) else {
+        return false;
+    };
+    if len <= margin {
+        return false;
+    }
+    spatial
+        .cast_ray_predicate(
+            from,
+            dir,
+            len - margin,
+            true,
+            &avian3d::prelude::SpatialQueryFilter::default(),
+            &|e| !sensors.contains(e),
+        )
+        .is_some()
+}
+
+/// Every visible clickable seen from the camera through `cursor` (not behind a wall).
 fn candidates(
     camera: &Camera,
     cam_tf: &GlobalTransform,
     cursor: Vec2,
     here: Option<Vec3>,
     clickables: &Query<(Entity, &Clickable, &GlobalTransform, &InheritedVisibility)>,
+    sight: &Sight,
 ) -> Vec<Candidate> {
     let Ok(ray) = camera.viewport_to_world(cam_tf, cursor) else {
         return Vec::new();
     };
+    let margin = tuning().sight_margin;
     clickables
         .iter()
         .filter(|(_, _, _, vis)| vis.get())
@@ -225,11 +286,17 @@ fn candidates(
             let screen = camera
                 .world_to_viewport(cam_tf, foot + Vec3::Y * c.height)
                 .ok()?;
+            let top = c.top.unwrap_or(c.height + 0.25);
+            // The part of it you're aiming at must be in sight from the camera.
+            let aimed = nearest_on_upright(ray.origin, *ray.direction, foot, top);
+            if blocked(sight, ray.origin, aimed, margin) {
+                return None;
+            }
             Some(Candidate {
                 entity: e,
                 screen,
                 radius_px: c.radius_px,
-                gap: ray_gap(ray.origin, *ray.direction, foot, c.height + 0.25),
+                gap: ray_gap(ray.origin, *ray.direction, foot, top),
                 in_reach: here.is_some_and(|h| within(h, foot, c.reach())),
             })
         })
@@ -286,6 +353,7 @@ fn hover_hint(
     duelists: Query<&Duelist>,
     view: Res<FpsView>,
     mut hover: ResMut<AimHover>,
+    sight: Sight,
 ) {
     let target = (|| {
         let me = me.as_ref()?;
@@ -296,7 +364,7 @@ fn hover_hint(
         let cursor = aim_point(window, &view)?;
         let (camera, cam_tf) = camera.single().ok()?;
         let here = walkers.iter().find(|(p, _)| p.id == me.0)?.1.pos;
-        let seen = candidates(camera, cam_tf, cursor, Some(here), &clickables);
+        let seen = candidates(camera, cam_tf, cursor, Some(here), &clickables, &sight);
         let target = pick_forgiving(cursor, tuning().aim_slack, seen)?;
         let (_, c, tf, _) = clickables.get(target).ok()?;
         Some(Aim {
@@ -337,6 +405,7 @@ fn click(
     mut view: ResMut<FpsView>,
     mut toast: ResMut<Toast>,
     overlay: Option<Res<crate::ui::Overlay>>,
+    sight: Sight,
 ) {
     if !mouse.just_pressed(MouseButton::Left) {
         return;
@@ -367,7 +436,7 @@ fn click(
     else {
         return;
     };
-    let seen = candidates(camera, cam_tf, cursor, Some(here), &clickables);
+    let seen = candidates(camera, cam_tf, cursor, Some(here), &clickables, &sight);
     let Some(target) = pick_forgiving(cursor, tuning().aim_slack, seen) else {
         return;
     };

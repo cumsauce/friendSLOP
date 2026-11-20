@@ -5,4 +5,8 @@
     click_radius: 40.0,
     // How far (metres) your aim may pass beside a thing and still use it.
     aim_slack: 0.6,
+    // A wall between your eyes and a thing hides it (no using things through
+    // walls), unless the wall is within this many metres of the thing: its
+    // own body or a cupboard it sits in doesn't count.
+    sight_margin: 0.45,
 )

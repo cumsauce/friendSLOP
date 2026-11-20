@@ -1,0 +1,1021 @@
+{
+  "name": "hunter-rot",
+  "format_version": 1,
+  "domain": "object",
+  "tile": 1.0,
+  "resolution": 2048,
+  "nodes": [
+    {
+      "name": "wv",
+      "octaves": 3,
+      "seed": 71,
+      "size": 0.12,
+      "type": "noise"
+    },
+    {
+      "amount": 0.06,
+      "by": "wv",
+      "name": "wp",
+      "type": "warp"
+    },
+    {
+      "coords": "wp",
+      "name": "patch",
+      "octaves": 4,
+      "seed": 72,
+      "size": 0.18,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.52,
+        0.6
+      ],
+      "input": "patch",
+      "name": "rot",
+      "type": "levels"
+    },
+    {
+      "in": [
+        0.44,
+        0.54
+      ],
+      "input": "patch",
+      "name": "edge",
+      "type": "levels"
+    },
+    {
+      "coords": "wp",
+      "mode": "ridged",
+      "name": "fib",
+      "octaves": 4,
+      "seed": 73,
+      "size": 0.025,
+      "type": "noise"
+    },
+    {
+      "input": "fib",
+      "name": "meat",
+      "stops": [
+        [
+          0,
+          "#1e0404"
+        ],
+        [
+          0.45,
+          "#4f0f0c"
+        ],
+        [
+          0.75,
+          "#7a2a1e"
+        ],
+        [
+          1,
+          "#a8705a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "name": "mot",
+      "octaves": 4,
+      "seed": 74,
+      "size": 0.06,
+      "type": "noise"
+    },
+    {
+      "input": "mot",
+      "name": "skin",
+      "stops": [
+        [
+          0,
+          "#3f3d33"
+        ],
+        [
+          0.5,
+          "#5f5b4c"
+        ],
+        [
+          1,
+          "#7c7462"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "skin",
+      "b": "#3b2a2c",
+      "c": "edge",
+      "name": "bruise",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "bruise",
+      "b": "meat",
+      "c": "rot",
+      "name": "col0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "name": "pusn",
+      "octaves": 2,
+      "seed": 75,
+      "size": 0.015,
+      "type": "noise"
+    },
+    {
+      "in": [
+        0.78,
+        0.84
+      ],
+      "input": "pusn",
+      "name": "pus",
+      "type": "levels"
+    },
+    {
+      "a": "pus",
+      "b": "edge",
+      "name": "pusm",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "col0",
+      "b": "#b8a24a",
+      "c": "pusm",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": 0.9,
+      "b": 0.55,
+      "c": "rot",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "rot",
+      "b": -0.0008,
+      "name": "sink",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "fib",
+      "b": 0.0004,
+      "name": "fh",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "fh",
+      "b": "rot",
+      "name": "fh2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "sink",
+      "b": "fh2",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "out",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 4,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "hunter-rot",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 3,
+              "seed": 71,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "amount": 0.06,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "patch",
+              "octaves": 4,
+              "seed": 72,
+              "size": 0.18,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.52,
+                0.6
+              ],
+              "input": "patch",
+              "name": "rot",
+              "type": "levels"
+            },
+            {
+              "in": [
+                0.44,
+                0.54
+              ],
+              "input": "patch",
+              "name": "edge",
+              "type": "levels"
+            },
+            {
+              "coords": "wp",
+              "mode": "ridged",
+              "name": "fib",
+              "octaves": 4,
+              "seed": 73,
+              "size": 0.025,
+              "type": "noise"
+            },
+            {
+              "input": "fib",
+              "name": "meat",
+              "stops": [
+                [
+                  0,
+                  "#3a0606"
+                ],
+                [
+                  0.5,
+                  "#7d1612"
+                ],
+                [
+                  0.8,
+                  "#a83a2c"
+                ],
+                [
+                  1,
+                  "#d9a58a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "name": "mot",
+              "octaves": 4,
+              "seed": 74,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "input": "mot",
+              "name": "skin",
+              "stops": [
+                [
+                  0,
+                  "#59584a"
+                ],
+                [
+                  0.5,
+                  "#7d7a68"
+                ],
+                [
+                  1,
+                  "#9c947c"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "skin",
+              "b": "#3b2a2c",
+              "c": "edge",
+              "name": "bruise",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "bruise",
+              "b": "meat",
+              "c": "rot",
+              "name": "col0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "name": "pusn",
+              "octaves": 2,
+              "seed": 75,
+              "size": 0.015,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.78,
+                0.84
+              ],
+              "input": "pusn",
+              "name": "pus",
+              "type": "levels"
+            },
+            {
+              "a": "pus",
+              "b": "edge",
+              "name": "pusm",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "col0",
+              "b": "#b8a24a",
+              "c": "pusm",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.75,
+              "b": 0.22,
+              "c": "rot",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "rot",
+              "b": -0.004,
+              "name": "sink",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "fib",
+              "b": 0.0015,
+              "name": "fh",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "fh",
+              "b": "rot",
+              "name": "fh2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "sink",
+              "b": "fh2",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+wv +wp +patch +rot +edge +fib +meat +mot +skin +bruise +col0 +pusn +pus +pusm +col +rough +sink +fh +fh2 +h +out"
+      },
+      {
+        "model": {
+          "name": "hunter-rot",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 3,
+              "seed": 71,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "amount": 0.06,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "patch",
+              "octaves": 4,
+              "seed": 72,
+              "size": 0.18,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.52,
+                0.6
+              ],
+              "input": "patch",
+              "name": "rot",
+              "type": "levels"
+            },
+            {
+              "in": [
+                0.44,
+                0.54
+              ],
+              "input": "patch",
+              "name": "edge",
+              "type": "levels"
+            },
+            {
+              "coords": "wp",
+              "mode": "ridged",
+              "name": "fib",
+              "octaves": 4,
+              "seed": 73,
+              "size": 0.025,
+              "type": "noise"
+            },
+            {
+              "input": "fib",
+              "name": "meat",
+              "stops": [
+                [
+                  0,
+                  "#1e0404"
+                ],
+                [
+                  0.45,
+                  "#4f0f0c"
+                ],
+                [
+                  0.75,
+                  "#7a2a1e"
+                ],
+                [
+                  1,
+                  "#a8705a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "name": "mot",
+              "octaves": 4,
+              "seed": 74,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "input": "mot",
+              "name": "skin",
+              "stops": [
+                [
+                  0,
+                  "#3f3d33"
+                ],
+                [
+                  0.5,
+                  "#5f5b4c"
+                ],
+                [
+                  1,
+                  "#7c7462"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "skin",
+              "b": "#3b2a2c",
+              "c": "edge",
+              "name": "bruise",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "bruise",
+              "b": "meat",
+              "c": "rot",
+              "name": "col0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "name": "pusn",
+              "octaves": 2,
+              "seed": 75,
+              "size": 0.015,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.78,
+                0.84
+              ],
+              "input": "pusn",
+              "name": "pus",
+              "type": "levels"
+            },
+            {
+              "a": "pus",
+              "b": "edge",
+              "name": "pusm",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "col0",
+              "b": "#b8a24a",
+              "c": "pusm",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.8,
+              "b": 0.3,
+              "c": "rot",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "rot",
+              "b": -0.004,
+              "name": "sink",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "fib",
+              "b": 0.0015,
+              "name": "fh",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "fh",
+              "b": "rot",
+              "name": "fh2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "sink",
+              "b": "fh2",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "~meat ~skin ~rough"
+      },
+      {
+        "model": {
+          "name": "hunter-rot",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 2048,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 3,
+              "seed": 71,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "amount": 0.06,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "patch",
+              "octaves": 4,
+              "seed": 72,
+              "size": 0.18,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.52,
+                0.6
+              ],
+              "input": "patch",
+              "name": "rot",
+              "type": "levels"
+            },
+            {
+              "in": [
+                0.44,
+                0.54
+              ],
+              "input": "patch",
+              "name": "edge",
+              "type": "levels"
+            },
+            {
+              "coords": "wp",
+              "mode": "ridged",
+              "name": "fib",
+              "octaves": 4,
+              "seed": 73,
+              "size": 0.025,
+              "type": "noise"
+            },
+            {
+              "input": "fib",
+              "name": "meat",
+              "stops": [
+                [
+                  0,
+                  "#1e0404"
+                ],
+                [
+                  0.45,
+                  "#4f0f0c"
+                ],
+                [
+                  0.75,
+                  "#7a2a1e"
+                ],
+                [
+                  1,
+                  "#a8705a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "name": "mot",
+              "octaves": 4,
+              "seed": 74,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "input": "mot",
+              "name": "skin",
+              "stops": [
+                [
+                  0,
+                  "#3f3d33"
+                ],
+                [
+                  0.5,
+                  "#5f5b4c"
+                ],
+                [
+                  1,
+                  "#7c7462"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "skin",
+              "b": "#3b2a2c",
+              "c": "edge",
+              "name": "bruise",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "bruise",
+              "b": "meat",
+              "c": "rot",
+              "name": "col0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "name": "pusn",
+              "octaves": 2,
+              "seed": 75,
+              "size": 0.015,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.78,
+                0.84
+              ],
+              "input": "pusn",
+              "name": "pus",
+              "type": "levels"
+            },
+            {
+              "a": "pus",
+              "b": "edge",
+              "name": "pusm",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "col0",
+              "b": "#b8a24a",
+              "c": "pusm",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.8,
+              "b": 0.3,
+              "c": "rot",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "rot",
+              "b": -0.0008,
+              "name": "sink",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "fib",
+              "b": 0.0004,
+              "name": "fh",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "fh",
+              "b": "rot",
+              "name": "fh2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "sink",
+              "b": "fh2",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 3
+        },
+        "parent": 1,
+        "children": [
+          3
+        ],
+        "label": "~sink ~fh"
+      },
+      {
+        "model": {
+          "name": "hunter-rot",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 2048,
+          "nodes": [
+            {
+              "name": "wv",
+              "octaves": 3,
+              "seed": 71,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "amount": 0.06,
+              "by": "wv",
+              "name": "wp",
+              "type": "warp"
+            },
+            {
+              "coords": "wp",
+              "name": "patch",
+              "octaves": 4,
+              "seed": 72,
+              "size": 0.18,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.52,
+                0.6
+              ],
+              "input": "patch",
+              "name": "rot",
+              "type": "levels"
+            },
+            {
+              "in": [
+                0.44,
+                0.54
+              ],
+              "input": "patch",
+              "name": "edge",
+              "type": "levels"
+            },
+            {
+              "coords": "wp",
+              "mode": "ridged",
+              "name": "fib",
+              "octaves": 4,
+              "seed": 73,
+              "size": 0.025,
+              "type": "noise"
+            },
+            {
+              "input": "fib",
+              "name": "meat",
+              "stops": [
+                [
+                  0,
+                  "#1e0404"
+                ],
+                [
+                  0.45,
+                  "#4f0f0c"
+                ],
+                [
+                  0.75,
+                  "#7a2a1e"
+                ],
+                [
+                  1,
+                  "#a8705a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "name": "mot",
+              "octaves": 4,
+              "seed": 74,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "input": "mot",
+              "name": "skin",
+              "stops": [
+                [
+                  0,
+                  "#3f3d33"
+                ],
+                [
+                  0.5,
+                  "#5f5b4c"
+                ],
+                [
+                  1,
+                  "#7c7462"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "skin",
+              "b": "#3b2a2c",
+              "c": "edge",
+              "name": "bruise",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "bruise",
+              "b": "meat",
+              "c": "rot",
+              "name": "col0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "name": "pusn",
+              "octaves": 2,
+              "seed": 75,
+              "size": 0.015,
+              "type": "noise"
+            },
+            {
+              "in": [
+                0.78,
+                0.84
+              ],
+              "input": "pusn",
+              "name": "pus",
+              "type": "levels"
+            },
+            {
+              "a": "pus",
+              "b": "edge",
+              "name": "pusm",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "col0",
+              "b": "#b8a24a",
+              "c": "pusm",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": 0.9,
+              "b": 0.55,
+              "c": "rot",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "rot",
+              "b": -0.0008,
+              "name": "sink",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "fib",
+              "b": 0.0004,
+              "name": "fh",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "fh",
+              "b": "rot",
+              "name": "fh2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "sink",
+              "b": "fh2",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "out",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 4
+        },
+        "parent": 2,
+        "children": [],
+        "label": "~rough"
+      }
+    ],
+    "current": 3
+  }
+}

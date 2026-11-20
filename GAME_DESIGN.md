@@ -325,10 +325,24 @@ free, and organ dollars only buy boba, joints and hats so far (and Wendy's butch
   `FRIENDSLOP_BAKE=1` into `assets/probes/`. Open: more places lack their own probe.
 - **Andrew and the thing he sends**. Deep in Fulton St Andrew phones you three times (a speech
   synth with moods: annoyed, then angry, then furious, down a telephone line; lines can stress a word,
-  hesitate or shout), then a monster hunts you with a view cone; hide in lockers. Caught means back to the
-  street. It has a voice: heavy steps, quicker running steps, a screech on spotting you, another as it
+  hesitate or shout), then a monster hunts you with a view cone; hide in lockers. It stops at each locker it
+  checks, prises the door open and peers in. When it gets you (out in the open or pulled out of a
+  locker) it holds you in front of it and you're made to watch it lunge, grab and bite (a stinger
+  plays), then you're back on the street. The body is a 3 m bellhop (`fs-hunter-c`): a filthy,
+  torn vintage bellhop uniform (no hat), a neck twice as long, a scoliotic spine, wide staring eyes with
+  pinprick pupils, no nose, a grin in smeared dark red lipstick, balding stubble, varicose veins and
+  skin that goes from dark blotchy blue at the feet to grey-white at the head. It shambles with a limp,
+  runs with both arms reaching out, tumbles end over end when it rolls, and jiggles. The model is chosen in
+  `fulton.ron` (`model`), so the gaunt `fs_hunter_b.gltf` before it is one line away. It has a voice: heavy steps, quicker running steps, a screech on spotting you, another as it
   winds up into the ball (then wet slapping with a growl that cuts out on each hit), a screech when it
-  catches you, and a low forlorn groan when it loses you (`assets/audio/sfx/hunter/`). `data/text/fulton_calls.ron`, `fulton.ron` (`features/fulton_hunt.rs`).
+  catches you, and a low forlorn groan when it loses you (`assets/audio/sfx/hunter/`); it also
+  breathes while it drifts, rattles lockers and sniffs while it searches, snarls as it uncurls and
+  grumbles as it backs off. The lockers are real: each one is a hollow metal locker with a hinged
+  door (grille slits at eye height to peek through) that swings shut behind you and open as you climb
+  out, with its own sounds, and any part of a door takes the click. `data/text/fulton_calls.ron`, `fulton.ron` (`features/fulton_hunt.rs`).
+- **Fulton St's ambience**. Down the stairs the station hums (fluorescent buzz, drips, a far train);
+  the lower you go the more the hum gives way to a low drone, and groans and something breathing
+  start to show up. `data/side/fulton_ambience.ron` (`features/fulton_ambience.rs`).
 - **Money and the lost wallet** (#322). Personal dollars (start $100); you may lose your wallet
   in Fulton St, find it or call a drone insurer for 30%; scattered wallets for others; B brags
   and drops coins others can take. `data/side/wallet.ron` (`features/wallet.rs`).

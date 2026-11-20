@@ -31,6 +31,8 @@ const KNOWN_ORPHANS: &[&str] = &[
     // (276 instances), so these never got placed. Sources stay in .modeler.
     "cfm-desk-fan-mount",
     "cfm-desk-fan-rotor",
+    // An AK-47 prefab modelled ahead of any feature that uses it.
+    "ak47",
 ];
 
 /// Stems loaded by family/dynamic template instead of a literal per file.

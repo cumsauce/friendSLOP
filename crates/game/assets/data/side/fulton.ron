@@ -285,6 +285,16 @@
         // Its speeds (m/s): wandering and searching, and chasing. You walk 5 and run 10.5.
         walk_speed: 3.0,
         chase_speed: 6.5,
+        // Rubber band, so you can't just outrun it for good: while you can't
+        // see it and it's after you (chasing, searching or drifting your way;
+        // not while it backs off), it moves at 1.4x its speed, plus 0.15x for
+        // every second you keep running, up to 2.2x (14 m/s chasing). Seeing
+        // it, or stopping running, drops it back.
+        rubber_base: 1.4,
+        rubber_per_run_sec: 0.15,
+        rubber_max: 2.2,
+        // Your view's width (degrees), for "you can't see it".
+        player_view_degrees: 100.0,
         // It sees this far (m) in a cone this wide (degrees), never through walls.
         view_range: 25.0,
         view_degrees: 160.0,
@@ -309,9 +319,10 @@
         // swings wide round corners (between walk and chase speed it blends).
         run_turn_speed: 70.0,
         // Metres between footfalls: half a stride of each clip (ground speed
-        // from gaits.ron x half the cycle: walk 2.89 x 0.4 s, run 6.64 x 0.3 s).
-        walk_step_m: 1.16,
-        run_step_m: 1.99,
+        // from gaits.ron x half the cycle of fs_hunter_c: walk 1.56 x 0.6 s,
+        // run 4.60 x 0.25 s).
+        walk_step_m: 0.94,
+        run_step_m: 1.15,
         // A turn wider than this many degrees slows a runner down...
         slow_turn_degrees: 50.0,
         // ...to this fraction of its speed for a full about-turn.
@@ -353,5 +364,17 @@
         // ...and when it stops (it lost you, or you got out of its range) the music stays
         // tense this many seconds while it searches, then falls back to the ambience.
         music_tense_secs: 25.0,
+        // Its model: fs_hunter_c.gltf is the bellhop (long neck, limping shamble,
+        // arms-out run, tumbling roll; walk, run, roll, search, kill, idle);
+        // fs_hunter_b.gltf is the gaunt bald one before it, fs_hunter.gltf the first
+        // (no search or kill clips). Switching back? Restore walk_step_m / run_step_m
+        // for that model too.
+        model: "models/features/fs_hunter_c.gltf",
+        // At a locker it stops this long to prise it open and peer in.
+        check_secs: 2.6,
+        // When it gets you it holds you this far in front of it (m) and kills you
+        // over this many seconds (you watch), then you wake up on the street.
+        kill_reach: 0.95,
+        kill_secs: 2.4,
     ),
 )

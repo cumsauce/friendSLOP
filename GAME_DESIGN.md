@@ -46,8 +46,8 @@ or read the Tome of Uncancelling over it. Otherwise it's hell: hop across a lava
 golden, nights are dark blue with stars, a moon, and a city whose windows and street lamps light up. Some nights you hear whispers behind you.
 Every way in or out (doors, stairs, manholes, train doors) glows and names where it goes.
 **In New York:** find the J to Brooklyn in Fulton St station, 40 levels down (past empty
-long subway platforms every few levels, huge halls and atriums a floor deep, and big train-tunnel rings you must cross, sometimes round a cave-in: don't get caught with no stamina), for Pelf, while
-Andrew calls, gets angry, and sends something after you (hide in lockers). Everyone carries
+long subway platforms, concourses of looping corridors and long curved galleries, rooms two floors high, and train-tunnel rings; most levels have 2-3 stairs down and signs to the nearest), for Pelf, while
+Andrew calls, gets angry, and sends something after you that crawls the ducts between staff doors (hide in lockers). Everyone carries
 $100; going down may drop your wallet somewhere in the station: find it (and strangers'
 wallets), or press I for an insurance drone that keeps 70%. B brags: coins fall out for others. Or step into the
 brownstone with the neon SURF sign: a surf map, a 3.7 km seven-stage course of bending ramps between sky towers to a timed finish.
@@ -278,6 +278,19 @@ free, and organ dollars only buy boba, joints and hats so far (and Wendy's butch
   plain corridors. Weights, depths, sizes in `data/side/fulton_layout.ron`; the big halls'
   dressing is `rooms.kinds` with `set_piece: true`. Not yet tried in game (hunter in big
   halls, frame time on a Line level).
+- **Fulton St concourses** (doomy: more ways round, long curved halls, not a maze). A
+  fifth level type, Concourse (10x10 up to 12x10), is planned as a graph, not by WFC
+  (`features/fulton/graph.rs`): stairs and landings first, then 1-2 galleries (12 m wide halls
+  of straights and rounded quarter turns, columns down the middle) and 1-3 rooms (some
+  L-shaped), then corridors routed between every doorway (wandering a little, few turns),
+  1-3 extra corridors that close loops, and short dead ends (where the lockers are). If it
+  doesn't fit, the level is plain corridors at the same size. Tuning in
+  `fulton_layout.ron` (`concourse`).
+- **Two-storey rooms** (doomy: a room two levels high with a balcony). A concourse over another
+  concourse may (`two_storey` chance) drop its biggest room's floor a whole level: balconies at
+  its doors, long stairs down, and its floor is the level below's floor. The level below runs
+  corridors to one or two doorways in the room's lower walls, so the room is another way down
+  (and the hunter's). Not yet walked in game by a person.
 - **Fulton St horror music**. Down in the station the band no longer goes quiet: slow dark
   drones and a lone ill-tuned tone (FultonAmbient); when the hunter spots you a stinger blast
   cuts straight into fast brass-and-screech chase music (FultonChase); when it loses you

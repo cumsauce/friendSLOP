@@ -1,154 +1,170 @@
 {
- "doc": {
-  "name": "hunter_step",
+  "name": "hc_step",
   "format_version": 1,
   "kind": "oneshot",
   "sample_rate": 48000,
   "duration": 0.9,
-  "seed": 1,
+  "seed": 15,
   "nodes": [
-   {
-    "type": "footstep",
-    "name": "foot",
-    "surface": "concrete",
-    "weight": 1,
-    "pace": "walk",
-    "shoe": "boot",
-    "body": 0.55,
-    "seed": 1
-   },
-   {
-    "type": "osc",
-    "name": "sub",
-    "freq": 48
-   },
-   {
-    "type": "decay",
-    "name": "subenv",
-    "time": 0.35
-   },
-   {
-    "type": "gain",
-    "name": "thud",
-    "input": "sub",
-    "gain": "subenv"
-   },
-   {
-    "type": "mix",
-    "name": "both",
-    "inputs": [
-     {
-      "input": "foot",
-      "gain": 1
-     },
-     {
-      "input": "thud",
-      "gain": 0.7
-     }
-    ]
-   },
-   {
-    "type": "output",
-    "name": "out",
-    "input": "both",
-    "peak_db": -3
-   }
-  ],
-  "params": {},
-  "macros": [],
-  "version": 1
- },
- "history": {
-  "nodes": [
-   {
-    "model": {
-     "name": "hunter_step",
-     "format_version": 1,
-     "kind": "oneshot",
-     "sample_rate": 48000,
-     "seed": 1,
-     "nodes": [],
-     "params": {},
-     "macros": [],
-     "version": 0
+    {
+      "type": "footstep",
+      "name": "foot",
+      "surface": "concrete",
+      "weight": 1,
+      "pace": "walk",
+      "shoe": "bare",
+      "body": 0.5,
+      "seed": 1
     },
-    "parent": null,
-    "children": [
-     1
-    ],
-    "label": "new sound",
-    "author": "pid:33901"
-   },
-   {
-    "model": {
-     "name": "hunter_step",
-     "format_version": 1,
-     "kind": "oneshot",
-     "sample_rate": 48000,
-     "duration": 0.9,
-     "seed": 1,
-     "nodes": [
-      {
-       "type": "footstep",
-       "name": "foot",
-       "surface": "concrete",
-       "weight": 1,
-       "pace": "walk",
-       "shoe": "boot",
-       "body": 0.55,
-       "seed": 1
-      },
-      {
-       "type": "osc",
-       "name": "sub",
-       "freq": 48
-      },
-      {
-       "type": "decay",
-       "name": "subenv",
-       "time": 0.35
-      },
-      {
-       "type": "gain",
-       "name": "thud",
-       "input": "sub",
-       "gain": "subenv"
-      },
-      {
-       "type": "mix",
-       "name": "both",
-       "inputs": [
+    {
+      "type": "noise",
+      "name": "slapn",
+      "color": "white",
+      "seed": 4
+    },
+    {
+      "type": "filter",
+      "name": "slapbp",
+      "input": "slapn",
+      "mode": "bp",
+      "freq": 900,
+      "q": 1.2
+    },
+    {
+      "type": "decay",
+      "name": "slapenv",
+      "time": 0.09
+    },
+    {
+      "type": "gain",
+      "name": "slap0",
+      "input": "slapbp",
+      "gain": "slapenv"
+    },
+    {
+      "type": "gain",
+      "name": "slapg",
+      "input": "slap0",
+      "gain": "=$slap * 0.5"
+    },
+    {
+      "type": "osc",
+      "name": "sub",
+      "freq": 36
+    },
+    {
+      "type": "decay",
+      "name": "subenv",
+      "time": 0.5
+    },
+    {
+      "type": "gain",
+      "name": "thud",
+      "input": "sub",
+      "gain": "subenv"
+    },
+    {
+      "type": "osc",
+      "name": "body",
+      "freq": 72
+    },
+    {
+      "type": "decay",
+      "name": "bodyenv",
+      "time": 0.25
+    },
+    {
+      "type": "gain",
+      "name": "bodyg",
+      "input": "body",
+      "gain": "bodyenv"
+    },
+    {
+      "type": "mix",
+      "name": "lowmix",
+      "inputs": [
         {
-         "input": "foot",
-         "gain": 1
+          "input": "thud",
+          "gain": 1
         },
         {
-         "input": "thud",
-         "gain": 0.7
+          "input": "bodyg",
+          "gain": 0.6
         }
-       ]
-      },
-      {
-       "type": "output",
-       "name": "out",
-       "input": "both",
-       "peak_db": -3
-      }
-     ],
-     "params": {},
-     "macros": [],
-     "version": 1
+      ]
     },
-    "parent": 0,
-    "children": [],
-    "label": "+foot +sub +subenv +thud +both +out",
-    "author": "pid:33901"
-   }
+    {
+      "type": "gain",
+      "name": "low_lvl",
+      "input": "lowmix",
+      "gain": "$low"
+    },
+    {
+      "type": "mix",
+      "name": "both",
+      "inputs": [
+        {
+          "input": "foot",
+          "gain": 1
+        },
+        {
+          "input": "slapg",
+          "gain": 1
+        },
+        {
+          "input": "low_lvl",
+          "gain": 0.9
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "name": "out",
+      "input": "both",
+      "peak_db": -3
+    }
   ],
-  "current": 1
- },
- "annotations": [],
- "knob_moves": [],
- "unsaved": false,
- "catalog_name": "hunter_step"
+  "params": {
+    "low": 1.0,
+    "slap": 1.0
+  },
+  "macros": [
+    {
+      "name": "heavy",
+      "value": 0.5,
+      "default": 0.5,
+      "doc": "how deep and heavy the footfall thud is",
+      "claim": [
+        "centroid",
+        -1
+      ],
+      "game": false,
+      "map": [
+        {
+          "param": "low",
+          "from": 0.3,
+          "to": 2.0
+        }
+      ]
+    },
+    {
+      "name": "wet",
+      "value": 0.5,
+      "default": 0.5,
+      "doc": "how fleshy the bare-foot slap is",
+      "claim": [
+        "centroid",
+        1
+      ],
+      "game": false,
+      "map": [
+        {
+          "param": "slap",
+          "from": 0.2,
+          "to": 2.0
+        }
+      ]
+    }
+  ],
+  "version": 1
 }

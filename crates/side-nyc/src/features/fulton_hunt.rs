@@ -96,21 +96,111 @@ pub fn neighbours(levels: &[Level], n: Node) -> Vec<Node> {
         .map(|c| (li, c.0, c.1))
         .collect();
     // (Levels differ in size: the stairs land on the same spot in the world.)
-    if (x, z) == l.goal
-        && l.fill(l.goal).kind == Kind::Stairs
+    // Any stairs down (a level has several) and any landing up.
+    if l.fill((x, z)).kind == Kind::Stairs
         && let Some(below) = levels.get(li + 1)
         && let Some(c) = map_cell(l, below, (x, z))
     {
         out.push((li + 1, c.0, c.1));
     }
+    // A two-storey room's floor is the level below's: through its doorways.
+    for &(c, s) in &l.from_above {
+        if c == (x, z)
+            && li > 0
+            && let Some(n) = wfc::neighbour(l.width, l.depth, c, s)
+            && let Some(a) = map_cell(l, &levels[li - 1], n)
+        {
+            out.push((li - 1, a.0, a.1));
+        }
+    }
+    if let Some(below) = levels.get(li + 1) {
+        for &(c, s) in &below.from_above {
+            if let Some(n) = wfc::neighbour(below.width, below.depth, c, s)
+                && map_cell(below, l, n) == Some((x, z))
+            {
+                out.push((li + 1, c.0, c.1));
+            }
+        }
+    }
     if li > 0
-        && (x, z) == l.arrive
-        && l.fill(l.arrive).kind == Kind::Landing
+        && l.fill((x, z)).kind == Kind::Landing
         && let Some(c) = map_cell(l, &levels[li - 1], (x, z))
     {
         out.push((li - 1, c.0, c.1));
     }
     out
+}
+
+/// The ducts out of `n` (only the hunter's): from a service door to every
+/// other service door on its level, and to the nearest on the levels above
+/// and below.
+pub fn ducts(levels: &[Level], n: Node) -> Vec<Node> {
+    let (li, x, z) = n;
+    let Some(l) = levels.get(li) else {
+        return Vec::new();
+    };
+    if !l.service.iter().any(|d| d.0 == (x, z)) {
+        return Vec::new();
+    }
+    let here = l.lattice((x, z));
+    let mut out: Vec<Node> = l
+        .service
+        .iter()
+        .filter(|d| d.0 != (x, z))
+        .map(|d| (li, d.0.0, d.0.1))
+        .collect();
+    for other in [li.checked_sub(1), Some(li + 1)].into_iter().flatten() {
+        let Some(o) = levels.get(other) else { continue };
+        let nearest = o.service.iter().min_by_key(|d| {
+            let at = o.lattice(d.0);
+            at.0.abs_diff(here.0) + at.1.abs_diff(here.1)
+        });
+        if let Some(d) = nearest {
+            out.push((other, d.0.0, d.0.1));
+        }
+    }
+    out
+}
+
+/// The cheapest way from `from` to `to` (without `from`) through the
+/// station and, a duct costing `duct_cost` steps, its ducts.
+pub fn route_ducts(levels: &[Level], from: Node, to: Node, duct_cost: u32) -> Option<Vec<Node>> {
+    if from == to {
+        return Some(Vec::new());
+    }
+    let mut best: HashMap<Node, (u32, Node)> = HashMap::new();
+    let mut heap = std::collections::BinaryHeap::new();
+    heap.push(std::cmp::Reverse((0u32, from)));
+    best.insert(from, (0, from));
+    while let Some(std::cmp::Reverse((d, n))) = heap.pop() {
+        if n == to {
+            break;
+        }
+        if best.get(&n).is_some_and(|b| b.0 < d) {
+            continue;
+        }
+        let walks = neighbours(levels, n).into_iter().map(|m| (m, 1));
+        let crawls = ducts(levels, n).into_iter().map(|m| (m, duct_cost.max(1)));
+        for (m, c) in walks.chain(crawls) {
+            let nd = d + c;
+            if best.get(&m).is_none_or(|b| nd < b.0) {
+                best.insert(m, (nd, n));
+                heap.push(std::cmp::Reverse((nd, m)));
+            }
+        }
+    }
+    best.get(&to)?;
+    let mut out = vec![to];
+    let mut at = to;
+    while let Some(&(_, p)) = best.get(&at) {
+        if p == from || p == at {
+            break;
+        }
+        out.push(p);
+        at = p;
+    }
+    out.reverse();
+    Some(out)
 }
 
 /// Steps from `from` to every node within `radius` (breadth first).
@@ -288,6 +378,10 @@ pub struct Hunter {
     /// While it checks a bank: the locker it has prised open (where you'd
     /// stand inside it). Every peer swings that door open.
     pub opening: Option<Vec3>,
+    /// Crawling through a duct between service doors: out of sight (you
+    /// only hear it in the walls).
+    #[serde(default)]
+    pub ducted: bool,
 }
 
 /// The hunter's mind (server only).
@@ -318,6 +412,8 @@ pub struct Brain {
     pub found: Option<u64>,
     /// Seconds its target has kept running out of sight (the rubber band).
     pub ran: f32,
+    /// The node it last stood on (where a duct it crawls through starts).
+    pub at: Option<Node>,
 }
 
 impl Brain {
@@ -338,6 +434,7 @@ impl Brain {
             victim: None,
             found: None,
             ran: 0.0,
+            at: None,
         }
     }
 }
@@ -379,9 +476,15 @@ pub fn think(
     dt: f32,
 ) -> Outcome {
     let h = &t.hunt;
+    // In a duct it just crawls on to the door it's making for.
+    if hunter.ducted {
+        walk(t, levels, hunter, brain, dt);
+        return Outcome::Nothing;
+    }
     let Some(me) = node_at(t, levels, hunter.pos) else {
         return Outcome::Gone;
     };
+    brain.at = Some(me);
     let Some(target) = prey.iter().find(|p| p.id == brain.target) else {
         return Outcome::Gone;
     };
@@ -390,10 +493,10 @@ pub fn think(
     };
     let mut out = Outcome::Nothing;
     // Close enough to grab someone out in the open.
-    // (Never while the profiling bot drives.)
+    // (Never while the profiling bot drives, or with FRIENDSLOP_GOD.)
     for p in prey
         .iter()
-        .filter(|p| p.hidden.is_none() && !super::fulton::bot_run())
+        .filter(|p| p.hidden.is_none() && !super::fulton::bot_run() && !super::fulton::god())
     {
         if level_at(p.feet.y) == level_at(hunter.pos.y)
             && p.feet.xz().distance(hunter.pos.xz()) < h.catch_range
@@ -594,7 +697,7 @@ pub fn think(
                 } else {
                     far[brain.rng.below(far.len())]
                 };
-                brain.route = route(levels, me, to).unwrap_or_default();
+                brain.route = route_ducts(levels, me, to, h.ducts.cost).unwrap_or_default();
             }
         }
         Mode::Retreat => {
@@ -607,7 +710,7 @@ pub fn think(
         Mode::Drift => {
             if brain.timer <= 0.0 || brain.route.is_empty() {
                 let pick = drift_to(t, levels, me, target_node, target.hidden.is_some(), brain);
-                brain.route = route(levels, me, pick).unwrap_or_default();
+                brain.route = route_ducts(levels, me, pick, h.ducts.cost).unwrap_or_default();
                 brain.timer = h.director_secs;
             }
         }
@@ -728,11 +831,26 @@ fn mode_speed(t: &Tuning, mode: Mode) -> f32 {
 
 /// Move along the route (on the floor: up and down a tall room's stairs).
 fn walk(t: &Tuning, levels: &[Level], hunter: &mut Hunter, brain: &mut Brain, dt: f32) {
-    let mut left = speed(t, hunter) * dt;
+    let duct_speed = t.hunt.ducts.speed.max(0.5);
+    let mut left = if hunter.ducted {
+        duct_speed * dt
+    } else {
+        speed(t, hunter) * dt
+    };
     while left > 0.0 {
         let Some(&next) = brain.route.first() else {
+            hunter.ducted = false;
             break;
         };
+        // A step that isn't a walk is a duct: crawl straight to its far
+        // door (through walls and floors), out of sight, at duct speed.
+        let crawl = brain
+            .at
+            .is_some_and(|a| a != next && !neighbours(levels, a).contains(&next));
+        if crawl && !hunter.ducted {
+            hunter.ducted = true;
+            left = duct_speed * dt;
+        }
         let to = node_floor(t, levels, next);
         let same_level = level_at(to.y) == level_at(hunter.pos.y);
         let d = to - hunter.pos;
@@ -744,9 +862,15 @@ fn walk(t: &Tuning, levels: &[Level], hunter: &mut Hunter, brain: &mut Brain, dt
             hunter.pos = to;
             left -= len;
             brain.route.remove(0);
+            brain.at = Some(next);
+            if hunter.ducted {
+                // Out of the far door.
+                hunter.ducted = false;
+                break;
+            }
         } else {
             hunter.pos += d / len * left;
-            if same_level {
+            if same_level && !hunter.ducted {
                 hunter.pos.y = floor_at(t, levels, hunter.pos);
             }
             left = 0.0;
@@ -754,10 +878,22 @@ fn walk(t: &Tuning, levels: &[Level], hunter: &mut Hunter, brain: &mut Brain, dt
     }
 }
 
-/// Where it turns up: on your level, as far from you as it can get.
+/// Where it turns up: on your level, as far from you as it can get, out of
+/// a service door when the level has one you can be reached from.
 pub fn arrival(levels: &[Level], you: Node) -> Node {
-    around(levels, you, 1000)
-        .into_iter()
+    let reach = around(levels, you, 1000);
+    let doors: Vec<(Node, u32)> = reach
+        .iter()
+        .copied()
+        .filter(|(n, _)| {
+            n.0 == you.0
+                && levels
+                    .get(n.0)
+                    .is_some_and(|l| l.service.iter().any(|d| d.0 == (n.1, n.2)))
+        })
+        .collect();
+    let pool = if doors.is_empty() { reach } else { doors };
+    pool.into_iter()
         .filter(|(n, _)| n.0 == you.0)
         .max_by_key(|(_, d)| *d)
         .map_or(you, |(n, _)| n)
@@ -949,6 +1085,7 @@ fn calls(
                 mode: Mode::Drift,
                 pace: 1.0,
                 opening: None,
+                ducted: false,
             },
             Brain::new(
                 p.id,
@@ -1288,6 +1425,8 @@ pub fn plugin(app: &mut App) {
                 hunter_gaze,
                 move_hunters,
                 hunt_sounds,
+                duct_sounds,
+                hide_ducted,
                 hunter_opens_lockers,
             )
                 .run_if(in_state(AppState::InGame))
@@ -2404,7 +2543,11 @@ fn hunt_sounds(
         {
             at.translation = here + Vec3::Y * 0.6;
         }
-        // Feet.
+        // Feet (none while it crawls through a duct: `duct_sounds`).
+        if h.ducted {
+            ears.last = here;
+            continue;
+        }
         let moved = here.distance(ears.last);
         let speed = moved / dt;
         ears.last = here;
@@ -2428,6 +2571,98 @@ fn hunt_sounds(
         let clip = &set[round_robin(ears.n, set.len())];
         ears.n += 1;
         play_at(&mut commands, clip, here, 1.0, Carry::NEARBY);
+    }
+}
+
+/// Local: the duct sounds, from the Fulton St sounds already there (pipe
+/// clanks and a metal door): a door as it goes in and comes out, and bangs
+/// from inside the walls where it is while it crawls.
+#[derive(Resource)]
+struct DuctSounds {
+    bangs: [Handle<AudioSample>; 3],
+    door: [Handle<AudioSample>; 3],
+}
+
+/// Local: what this peer has heard of a hunter's ducts.
+#[derive(Component, Default)]
+struct DuctEars {
+    ducted: bool,
+    /// Seconds to the next bang.
+    bang: f32,
+    n: usize,
+}
+
+fn duct_sounds(
+    time: Res<Time>,
+    assets: Option<Res<AssetServer>>,
+    sounds: Option<Res<DuctSounds>>,
+    mut commands: Commands,
+    mut hunters: Query<(Entity, &Hunter, Option<&mut DuctEars>)>,
+) {
+    use crate::spatial::{Carry, play_at};
+    let Some(sounds) = sounds else {
+        if let Some(assets) = assets {
+            commands.insert_resource(DuctSounds {
+                bangs: [1, 2, 3]
+                    .map(|i| assets.load(format!("audio/sfx/fulton/fulton_clank_{i}.wav"))),
+                door: [1, 2, 3]
+                    .map(|i| assets.load(format!("audio/sfx/fulton/locker_open_{i}.ogg"))),
+            });
+        }
+        return;
+    };
+    let t = tuning();
+    for (e, h, ears) in &mut hunters {
+        let Some(mut ears) = ears else {
+            commands.entity(e).insert(DuctEars {
+                ducted: h.ducted,
+                ..default()
+            });
+            continue;
+        };
+        if ears.ducted != h.ducted {
+            // In through a service door, or out of one.
+            ears.ducted = h.ducted;
+            ears.n += 1;
+            play_at(
+                &mut commands,
+                &sounds.door[ears.n % 3],
+                h.pos + Vec3::Y,
+                0.8,
+                Carry::LOUD,
+            );
+            ears.bang = 0.4;
+        }
+        if !h.ducted {
+            continue;
+        }
+        ears.bang -= time.delta_secs();
+        if ears.bang <= 0.0 {
+            ears.bang =
+                t.hunt.ducts.bang_secs.max(0.2) * (0.7 + 0.6 * ((ears.n * 7 % 10) as f32 / 10.0));
+            ears.n += 1;
+            play_at(
+                &mut commands,
+                &sounds.bangs[ears.n % 3],
+                h.pos + Vec3::Y * 1.5,
+                0.9,
+                Carry::LOUD,
+            );
+        }
+    }
+}
+
+/// Local: out of sight in a duct.
+fn hide_ducted(mut hunters: Query<(&Hunter, &mut Visibility), Changed<Hunter>>) {
+    for (h, mut v) in &mut hunters {
+        let want = if h.ducted {
+            Visibility::Hidden
+        } else {
+            Visibility::Inherited
+        };
+        if *v != want {
+            *v = want;
+        }
     }
 }
 
@@ -2561,6 +2796,7 @@ mod tests {
             mode,
             pace: 1.0,
             opening: None,
+            ducted: false,
         };
         let me = Vec3::ZERO;
         assert!(after_you(&at(Mode::Chase, 10.0), me, 45.0));
@@ -2738,6 +2974,70 @@ mod tests {
         assert_eq!(node_at(&t, &levels, node_pos(&t, &levels, low)), Some(low));
     }
 
+    #[test]
+    fn service_doors_are_on_walls_and_ducts_join_them_up_and_down() {
+        let (t, _, levels) = data();
+        let (lo, hi) = t.hunt.ducts.doors;
+        assert!(hi >= 2, "doors per level");
+        for (li, l) in levels.iter().enumerate() {
+            assert!(l.service.len() <= hi, "level {li}");
+            if l.tunnel.is_empty() {
+                assert!(l.service.len() >= lo.min(2), "level {li}: {:?}", l.service);
+            }
+            let reach = l.distances();
+            for &(c, side) in &l.service {
+                // On a wall (a closed side) of a cell you can walk to.
+                assert_eq!(
+                    l.fill(c).mask & (1 << side.index()),
+                    0,
+                    "level {li} {c:?} {side:?}"
+                );
+                assert!(reach[c.1 * l.width + c.0].is_some(), "level {li} {c:?}");
+                let ducts = ducts(&levels, (li, c.0, c.1));
+                assert!(ducts.len() + 1 >= l.service.len(), "level {li}");
+                // A door on the level below is a duct away (when it has one).
+                if levels.get(li + 1).is_some_and(|b| !b.service.is_empty()) {
+                    assert!(ducts.iter().any(|n| n.0 == li + 1), "level {li} {c:?}");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn it_crawls_through_a_duct_out_of_sight_and_out_of_the_far_door() {
+        let (t, _, levels) = data();
+        // Two doors on one level, far apart on foot.
+        let (li, l) = levels
+            .iter()
+            .enumerate()
+            .find(|(_, l)| l.service.len() >= 2)
+            .expect("a level with two service doors");
+        let (a, b) = (l.service[0].0, l.service[1].0);
+        let (from, to) = ((li, a.0, a.1), (li, b.0, b.1));
+        let cheap = route_ducts(&levels, from, to, 1).expect("a way");
+        assert_eq!(cheap, vec![to], "a cheap duct is one step");
+        let mut hunter = hunter_at(&t, &levels, from);
+        let mut brain = Brain::new(7, 1);
+        brain.at = Some(from);
+        brain.route = cheap;
+        let mut hidden = false;
+        for _ in 0..2000 {
+            walk(&t, &levels, &mut hunter, &mut brain, 1.0 / 30.0);
+            hidden |= hunter.ducted;
+            if brain.route.is_empty() {
+                break;
+            }
+        }
+        assert!(hidden, "it was out of sight in the duct");
+        assert!(!hunter.ducted, "and came out");
+        assert!(brain.route.is_empty());
+        assert!(hunter.pos.distance(node_floor(&t, &levels, to)) < 0.01);
+        // A duct costing more than the walk round isn't taken.
+        let walked = route(&levels, from, to).expect("a way on foot");
+        let dear = route_ducts(&levels, from, to, walked.len() as u32 + 5).expect("a way");
+        assert_eq!(dear, walked);
+    }
+
     fn hunter_at(t: &Tuning, levels: &[Level], n: Node) -> Hunter {
         Hunter {
             pos: node_pos(t, levels, n),
@@ -2745,6 +3045,7 @@ mod tests {
             mode: Mode::Drift,
             pace: 1.0,
             opening: None,
+            ducted: false,
         }
     }
 

@@ -44,6 +44,11 @@ So, every time:
   markers in the map (see Architecture, "Maps from the modeler"), not boxes typed into code.
 - Using materials: define them in the document (`material_ops`) and keep them there, so the
   next agent can rebuild the model; never rely on one that only existed in a past session.
+- **Lettering is a texture, not geometry.** Signs, labels, plates and posters get their words
+  from a card-domain material (a `text` node masked onto a background, like `wh-exit-sign` or
+  `fs-staff-only`) on a flat part with `uvs` projection `face`, never from the `text` op's 3D
+  letters. Letters as meshes cost thousands of triangles each and read worse. Use 3D `text`
+  only when the letters are meant to stand out as objects (a rooftop sign's big cut-out letters).
 
 ## Interpreting ideas
 

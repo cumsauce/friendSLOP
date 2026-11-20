@@ -1,2475 +1,339 @@
 {
- "doc": {
-  "name": "hunter_roll",
+  "name": "hc_roll_rag",
   "format_version": 1,
-  "kind": "loop",
+  "kind": "oneshot",
   "sample_rate": 48000,
-  "duration": 3.5,
+  "duration": 3.8,
   "seed": 1,
   "nodes": [
-   {
-    "type": "pattern",
-    "name": "hits",
-    "times": [
-     0,
-     0.3,
-     0.58,
-     0.88,
-     1.17,
-     1.47,
-     1.76,
-     2.05,
-     2.35,
-     2.63,
-     2.93,
-     3.22
-    ]
-   },
-   {
-    "type": "trigger_env",
-    "name": "hitenv",
-    "events": "slaphits",
-    "attack": 0.002,
-    "decay": 0.07
-   },
-   {
-    "type": "noise",
-    "name": "wetn",
-    "color": "pink"
-   },
-   {
-    "type": "filter",
-    "name": "wetbp",
-    "input": "wetn",
-    "mode": "bp",
-    "freq": 650,
-    "q": 1.2
-   },
-   {
-    "type": "gain",
-    "name": "slap",
-    "input": "wetbp",
-    "gain": "hitenv"
-   },
-   {
-    "type": "trigger_env",
-    "name": "thumpenv",
-    "events": "hits",
-    "attack": 0.003,
-    "decay": 0.12
-   },
-   {
-    "type": "osc",
-    "name": "thumpo",
-    "freq": 95
-   },
-   {
-    "type": "gain",
-    "name": "thump",
-    "input": "thumpo",
-    "gain": "thumpenv"
-   },
-   {
-    "type": "mix",
-    "name": "both",
-    "inputs": [
-     {
-      "input": "slap",
-      "gain": 1
-     },
-     {
-      "input": "thump",
-      "gain": 1
-     },
-     {
-      "input": "meat",
-      "gain": 1.8
-     },
-     {
-      "input": "ducked",
-      "gain": 1.1
-     },
-     {
-      "input": "huffhit",
-      "gain": 1.6
-     }
-    ]
-   },
-   {
-    "type": "output",
-    "name": "out",
-    "input": "seamless",
-    "lufs": -19
-   },
-   {
-    "type": "lfo",
-    "name": "pitchlfo",
-    "freq": 2,
-    "range": [
-     65,
-     110
-    ]
-   },
-   {
-    "type": "glottis",
-    "name": "gut",
-    "f0": "pitchlfo",
-    "tension": 0.35,
-    "breath": 0.2,
-    "roughness": 0.5,
-    "fry": 0.5,
-    "seed": 41
-   },
-   {
-    "type": "lfo",
-    "name": "vowlfo",
-    "freq": 4,
-    "range": [
-     0,
-     1
-    ]
-   },
-   {
-    "type": "tract",
-    "name": "guttract",
-    "input": "gut",
-    "vowel": "o",
-    "vowel_to": "a",
-    "morph": "vowlfo",
-    "scale": 0.8,
-    "nasal": 0.3,
-    "growl": 0.6
-   },
-   {
-    "type": "filter",
-    "name": "gutlp",
-    "input": "guttract",
-    "mode": "lp",
-    "freq": 1400,
-    "slope": 12
-   },
-   {
-    "type": "trigger_env",
-    "name": "duckenv",
-    "events": "hits",
-    "attack": 0.003,
-    "decay": 0.16
-   },
-   {
-    "type": "math",
-    "name": "duckneg",
-    "op": "mul",
-    "a": "duckenv",
-    "b": -0.92
-   },
-   {
-    "type": "math",
-    "name": "duckgain",
-    "op": "add",
-    "a": 1,
-    "b": "duckneg"
-   },
-   {
-    "type": "gain",
-    "name": "ducked",
-    "input": "gutlp",
-    "gain": "duckgain"
-   },
-   {
-    "type": "crossfade_loop",
-    "name": "seamless",
-    "input": "glue",
-    "fade": 0.1
-   },
-   {
-    "type": "trigger_env",
-    "name": "huffenv",
-    "events": "hits",
-    "attack": 0.004,
-    "decay": 0.14
-   },
-   {
-    "type": "math",
-    "name": "huffkick",
-    "op": "mul",
-    "a": "huffenv",
-    "b": 130
-   },
-   {
-    "type": "math",
-    "name": "hufff0",
-    "op": "add",
-    "a": 85,
-    "b": "huffkick"
-   },
-   {
-    "type": "glottis",
-    "name": "huff",
-    "f0": "hufff0",
-    "tension": 0.9,
-    "breath": 0.5,
-    "roughness": 0.6,
-    "fry": 0.3,
-    "seed": 43
-   },
-   {
-    "type": "tract",
-    "name": "hufftract",
-    "input": "huff",
-    "vowel": "a",
-    "vowel_to": "uh",
-    "morph": 0.5,
-    "scale": 0.9,
-    "frication": {
-     "freq": 1800,
-     "level": "huffenv"
+    {
+      "type": "impulse",
+      "name": "thud_hit",
+      "at": [
+        0.29,
+        0.301,
+        0.581,
+        0.948,
+        1.408,
+        1.449,
+        1.579,
+        1.592,
+        1.74,
+        1.825,
+        1.956,
+        2.46,
+        2.512,
+        2.866
+      ],
+      "amp": 1
     },
-    "growl": 0.5
-   },
-   {
-    "type": "shape",
-    "name": "huffdrive",
-    "input": "hufftract",
-    "mode": "tanh",
-    "drive": 4,
-    "mix": 0.8
-   },
-   {
-    "type": "gain",
-    "name": "huffhit",
-    "input": "huffdrive",
-    "gain": "huffenv"
-   },
-   {
-    "type": "compress",
-    "name": "glue",
-    "input": "both",
-    "threshold_db": -26,
-    "ratio": 4
-   },
-   {
-    "type": "pattern",
-    "name": "slaphits",
-    "times": [
-     0.12,
-     0.47,
-     0.72,
-     1.07,
-     1.28,
-     1.63,
-     1.94,
-     2.18,
-     2.55,
-     2.75,
-     3.08,
-     3.39
-    ]
-   },
-   {
-    "type": "noise",
-    "name": "bodyn",
-    "color": "brown",
-    "seed": 51
-   },
-   {
-    "type": "filter",
-    "name": "bodylp",
-    "input": "bodyn",
-    "mode": "lp",
-    "freq": 320,
-    "slope": 24
-   },
-   {
-    "type": "trigger_env",
-    "name": "bodyenv",
-    "events": "hits",
-    "attack": 0.003,
-    "decay": 0.11
-   },
-   {
-    "type": "gain",
-    "name": "meat",
-    "input": "bodylp",
-    "gain": "bodyenv"
-   }
-  ],
-  "params": {},
-  "macros": [],
-  "version": 9
- },
- "history": {
-  "nodes": [
-   {
-    "model": {
-     "name": "hunter_roll",
-     "format_version": 1,
-     "kind": "loop",
-     "sample_rate": 48000,
-     "seed": 1,
-     "nodes": [],
-     "params": {},
-     "macros": [],
-     "version": 0
+    {
+      "material": "soft",
+      "f0": 70,
+      "noise": 0.7,
+      "modes": 24,
+      "seed": 1,
+      "type": "modal",
+      "name": "thud",
+      "excite": "thud_hit"
     },
-    "parent": null,
-    "children": [
-     1
-    ],
-    "label": "new sound",
-    "author": "pid:33901"
-   },
-   {
-    "model": {
-     "name": "hunter_roll",
-     "format_version": 1,
-     "kind": "loop",
-     "sample_rate": 48000,
-     "duration": 1.0,
-     "seed": 1,
-     "nodes": [
-      {
-       "type": "pattern",
-       "name": "hits",
-       "times": [
-        0,
-        0.25,
-        0.5,
-        0.75
-       ]
-      },
-      {
-       "type": "trigger_env",
-       "name": "hitenv",
-       "events": "hits",
-       "attack": 0.002,
-       "decay": 0.07
-      },
-      {
-       "type": "noise",
-       "name": "wetn",
-       "color": "pink"
-      },
-      {
-       "type": "filter",
-       "name": "wetbp",
-       "input": "wetn",
-       "mode": "bp",
-       "freq": 650,
-       "q": 1.2
-      },
-      {
-       "type": "gain",
-       "name": "slap",
-       "input": "wetbp",
-       "gain": "hitenv"
-      },
-      {
-       "type": "trigger_env",
-       "name": "thumpenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.12
-      },
-      {
-       "type": "osc",
-       "name": "thumpo",
-       "freq": 95
-      },
-      {
-       "type": "gain",
-       "name": "thump",
-       "input": "thumpo",
-       "gain": "thumpenv"
-      },
-      {
-       "type": "mix",
-       "name": "both",
-       "inputs": [
-        {
-         "input": "slap",
-         "gain": 1
-        },
-        {
-         "input": "thump",
-         "gain": 0.8
-        }
-       ]
-      },
-      {
-       "type": "output",
-       "name": "out",
-       "input": "both",
-       "peak_db": -3
-      }
-     ],
-     "params": {},
-     "macros": [],
-     "version": 1
+    {
+      "type": "impulse",
+      "name": "thud2_hit",
+      "at": [
+        0.056,
+        0.139,
+        0.194,
+        0.497,
+        0.598,
+        1.643,
+        1.912,
+        2.031,
+        2.153,
+        2.991,
+        3.045
+      ],
+      "amp": 0.6
     },
-    "parent": 0,
-    "children": [
-     2
-    ],
-    "label": "+hits +hitenv +wetn +wetbp +slap +thumpenv +thumpo +thump +both +out",
-    "author": "pid:33901"
-   },
-   {
-    "model": {
-     "name": "hunter_roll",
-     "format_version": 1,
-     "kind": "loop",
-     "sample_rate": 48000,
-     "duration": 1.0,
-     "seed": 1,
-     "nodes": [
-      {
-       "type": "pattern",
-       "name": "hits",
-       "times": [
-        0,
-        0.25,
-        0.5,
-        0.75
-       ]
-      },
-      {
-       "type": "trigger_env",
-       "name": "hitenv",
-       "events": "hits",
-       "attack": 0.002,
-       "decay": 0.07
-      },
-      {
-       "type": "noise",
-       "name": "wetn",
-       "color": "pink"
-      },
-      {
-       "type": "filter",
-       "name": "wetbp",
-       "input": "wetn",
-       "mode": "bp",
-       "freq": 650,
-       "q": 1.2
-      },
-      {
-       "type": "gain",
-       "name": "slap",
-       "input": "wetbp",
-       "gain": "hitenv"
-      },
-      {
-       "type": "trigger_env",
-       "name": "thumpenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.12
-      },
-      {
-       "type": "osc",
-       "name": "thumpo",
-       "freq": 95
-      },
-      {
-       "type": "gain",
-       "name": "thump",
-       "input": "thumpo",
-       "gain": "thumpenv"
-      },
-      {
-       "type": "mix",
-       "name": "both",
-       "inputs": [
-        {
-         "input": "slap",
-         "gain": 1
-        },
-        {
-         "input": "thump",
-         "gain": 0.8
-        },
-        {
-         "input": "ducked",
-         "gain": 1.1
-        }
-       ]
-      },
-      {
-       "type": "output",
-       "name": "out",
-       "input": "seamless",
-       "peak_db": -3
-      },
-      {
-       "type": "lfo",
-       "name": "pitchlfo",
-       "freq": 2,
-       "range": [
-        65,
-        110
-       ]
-      },
-      {
-       "type": "glottis",
-       "name": "gut",
-       "f0": "pitchlfo",
-       "tension": 0.35,
-       "breath": 0.2,
-       "roughness": 0.5,
-       "fry": 0.5,
-       "seed": 41
-      },
-      {
-       "type": "lfo",
-       "name": "vowlfo",
-       "freq": 4,
-       "range": [
-        0,
-        1
-       ]
-      },
-      {
-       "type": "tract",
-       "name": "guttract",
-       "input": "gut",
-       "vowel": "o",
-       "vowel_to": "a",
-       "morph": "vowlfo",
-       "scale": 0.8,
-       "nasal": 0.3,
-       "growl": 0.6
-      },
-      {
-       "type": "filter",
-       "name": "gutlp",
-       "input": "guttract",
-       "mode": "lp",
-       "freq": 1400,
-       "slope": 12
-      },
-      {
-       "type": "trigger_env",
-       "name": "duckenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.16
-      },
-      {
-       "type": "math",
-       "name": "duckneg",
-       "op": "mul",
-       "a": "duckenv",
-       "b": -0.92
-      },
-      {
-       "type": "math",
-       "name": "duckgain",
-       "op": "add",
-       "a": 1,
-       "b": "duckneg"
-      },
-      {
-       "type": "gain",
-       "name": "ducked",
-       "input": "gutlp",
-       "gain": "duckgain"
-      },
-      {
-       "type": "crossfade_loop",
-       "name": "seamless",
-       "input": "both",
-       "fade": 0.06
-      }
-     ],
-     "params": {},
-     "macros": [],
-     "version": 2
+    {
+      "material": "soft",
+      "f0": 95,
+      "noise": 0.7,
+      "modes": 24,
+      "seed": 2,
+      "type": "modal",
+      "name": "thud2",
+      "excite": "thud2_hit"
     },
-    "parent": 1,
-    "children": [
-     3
-    ],
-    "label": "+pitchlfo +gut +vowlfo +guttract +gutlp +duckenv +duckneg +duckgain +ducked +seamless ~both ~out",
-    "author": "pid:33901"
-   },
-   {
-    "model": {
-     "name": "hunter_roll",
-     "format_version": 1,
-     "kind": "loop",
-     "sample_rate": 48000,
-     "duration": 1.0,
-     "seed": 1,
-     "nodes": [
-      {
-       "type": "pattern",
-       "name": "hits",
-       "times": [
-        0,
-        0.25,
-        0.5,
-        0.75
-       ]
-      },
-      {
-       "type": "trigger_env",
-       "name": "hitenv",
-       "events": "hits",
-       "attack": 0.002,
-       "decay": 0.07
-      },
-      {
-       "type": "noise",
-       "name": "wetn",
-       "color": "pink"
-      },
-      {
-       "type": "filter",
-       "name": "wetbp",
-       "input": "wetn",
-       "mode": "bp",
-       "freq": 650,
-       "q": 1.2
-      },
-      {
-       "type": "gain",
-       "name": "slap",
-       "input": "wetbp",
-       "gain": "hitenv"
-      },
-      {
-       "type": "trigger_env",
-       "name": "thumpenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.12
-      },
-      {
-       "type": "osc",
-       "name": "thumpo",
-       "freq": 95
-      },
-      {
-       "type": "gain",
-       "name": "thump",
-       "input": "thumpo",
-       "gain": "thumpenv"
-      },
-      {
-       "type": "mix",
-       "name": "both",
-       "inputs": [
-        {
-         "input": "slap",
-         "gain": 1
-        },
-        {
-         "input": "thump",
-         "gain": 0.8
-        },
-        {
-         "input": "ducked",
-         "gain": 1.1
-        },
-        {
-         "input": "huffhit",
-         "gain": 2.2
-        }
-       ]
-      },
-      {
-       "type": "output",
-       "name": "out",
-       "input": "seamless",
-       "peak_db": -3
-      },
-      {
-       "type": "lfo",
-       "name": "pitchlfo",
-       "freq": 2,
-       "range": [
-        65,
-        110
-       ]
-      },
-      {
-       "type": "glottis",
-       "name": "gut",
-       "f0": "pitchlfo",
-       "tension": 0.35,
-       "breath": 0.2,
-       "roughness": 0.5,
-       "fry": 0.5,
-       "seed": 41
-      },
-      {
-       "type": "lfo",
-       "name": "vowlfo",
-       "freq": 4,
-       "range": [
-        0,
-        1
-       ]
-      },
-      {
-       "type": "tract",
-       "name": "guttract",
-       "input": "gut",
-       "vowel": "o",
-       "vowel_to": "a",
-       "morph": "vowlfo",
-       "scale": 0.8,
-       "nasal": 0.3,
-       "growl": 0.6
-      },
-      {
-       "type": "filter",
-       "name": "gutlp",
-       "input": "guttract",
-       "mode": "lp",
-       "freq": 1400,
-       "slope": 12
-      },
-      {
-       "type": "trigger_env",
-       "name": "duckenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.16
-      },
-      {
-       "type": "math",
-       "name": "duckneg",
-       "op": "mul",
-       "a": "duckenv",
-       "b": -0.92
-      },
-      {
-       "type": "math",
-       "name": "duckgain",
-       "op": "add",
-       "a": 1,
-       "b": "duckneg"
-      },
-      {
-       "type": "gain",
-       "name": "ducked",
-       "input": "gutlp",
-       "gain": "duckgain"
-      },
-      {
-       "type": "crossfade_loop",
-       "name": "seamless",
-       "input": "both",
-       "fade": 0.06
-      },
-      {
-       "type": "trigger_env",
-       "name": "huffenv",
-       "events": "hits",
-       "attack": 0.004,
-       "decay": 0.14
-      },
-      {
-       "type": "math",
-       "name": "huffkick",
-       "op": "mul",
-       "a": "huffenv",
-       "b": 130
-      },
-      {
-       "type": "math",
-       "name": "hufff0",
-       "op": "add",
-       "a": 85,
-       "b": "huffkick"
-      },
-      {
-       "type": "glottis",
-       "name": "huff",
-       "f0": "hufff0",
-       "tension": 0.9,
-       "breath": 0.5,
-       "roughness": 0.6,
-       "fry": 0.3,
-       "seed": 43
-      },
-      {
-       "type": "tract",
-       "name": "hufftract",
-       "input": "huff",
-       "vowel": "a",
-       "vowel_to": "uh",
-       "morph": 0.5,
-       "scale": 0.9,
-       "frication": {
-        "freq": 1800,
-        "level": "huffenv"
-       },
-       "growl": 0.5
-      },
-      {
-       "type": "shape",
-       "name": "huffdrive",
-       "input": "hufftract",
-       "mode": "tanh",
-       "drive": 4,
-       "mix": 0.8
-      },
-      {
-       "type": "gain",
-       "name": "huffhit",
-       "input": "huffdrive",
-       "gain": "huffenv"
-      }
-     ],
-     "params": {},
-     "macros": [],
-     "version": 3
+    {
+      "type": "impulse",
+      "name": "floor_hit",
+      "at": [
+        0.103,
+        0.758,
+        0.87,
+        0.984,
+        1.371,
+        1.423,
+        1.444,
+        1.554,
+        1.614,
+        1.989,
+        2.057,
+        2.197,
+        2.606,
+        2.613,
+        3.087,
+        3.093
+      ],
+      "amp": 0.7
     },
-    "parent": 2,
-    "children": [
-     4
-    ],
-    "label": "+huffenv +huffkick +hufff0 +huff +hufftract +huffdrive +huffhit ~both",
-    "author": "pid:33901"
-   },
-   {
-    "model": {
-     "name": "hunter_roll",
-     "format_version": 1,
-     "kind": "loop",
-     "sample_rate": 48000,
-     "duration": 1.0,
-     "seed": 1,
-     "nodes": [
-      {
-       "type": "pattern",
-       "name": "hits",
-       "times": [
-        0,
-        0.25,
-        0.5,
-        0.75
-       ]
-      },
-      {
-       "type": "trigger_env",
-       "name": "hitenv",
-       "events": "hits",
-       "attack": 0.002,
-       "decay": 0.07
-      },
-      {
-       "type": "noise",
-       "name": "wetn",
-       "color": "pink"
-      },
-      {
-       "type": "filter",
-       "name": "wetbp",
-       "input": "wetn",
-       "mode": "bp",
-       "freq": 650,
-       "q": 1.2
-      },
-      {
-       "type": "gain",
-       "name": "slap",
-       "input": "wetbp",
-       "gain": "hitenv"
-      },
-      {
-       "type": "trigger_env",
-       "name": "thumpenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.12
-      },
-      {
-       "type": "osc",
-       "name": "thumpo",
-       "freq": 95
-      },
-      {
-       "type": "gain",
-       "name": "thump",
-       "input": "thumpo",
-       "gain": "thumpenv"
-      },
-      {
-       "type": "mix",
-       "name": "both",
-       "inputs": [
-        {
-         "input": "slap",
-         "gain": 1
-        },
-        {
-         "input": "thump",
-         "gain": 0.8
-        },
-        {
-         "input": "ducked",
-         "gain": 1.1
-        },
-        {
-         "input": "huffhit",
-         "gain": 2.2
-        }
-       ]
-      },
-      {
-       "type": "output",
-       "name": "out",
-       "input": "glue",
-       "lufs": -17.5
-      },
-      {
-       "type": "lfo",
-       "name": "pitchlfo",
-       "freq": 2,
-       "range": [
-        65,
-        110
-       ]
-      },
-      {
-       "type": "glottis",
-       "name": "gut",
-       "f0": "pitchlfo",
-       "tension": 0.35,
-       "breath": 0.2,
-       "roughness": 0.5,
-       "fry": 0.5,
-       "seed": 41
-      },
-      {
-       "type": "lfo",
-       "name": "vowlfo",
-       "freq": 4,
-       "range": [
-        0,
-        1
-       ]
-      },
-      {
-       "type": "tract",
-       "name": "guttract",
-       "input": "gut",
-       "vowel": "o",
-       "vowel_to": "a",
-       "morph": "vowlfo",
-       "scale": 0.8,
-       "nasal": 0.3,
-       "growl": 0.6
-      },
-      {
-       "type": "filter",
-       "name": "gutlp",
-       "input": "guttract",
-       "mode": "lp",
-       "freq": 1400,
-       "slope": 12
-      },
-      {
-       "type": "trigger_env",
-       "name": "duckenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.16
-      },
-      {
-       "type": "math",
-       "name": "duckneg",
-       "op": "mul",
-       "a": "duckenv",
-       "b": -0.92
-      },
-      {
-       "type": "math",
-       "name": "duckgain",
-       "op": "add",
-       "a": 1,
-       "b": "duckneg"
-      },
-      {
-       "type": "gain",
-       "name": "ducked",
-       "input": "gutlp",
-       "gain": "duckgain"
-      },
-      {
-       "type": "crossfade_loop",
-       "name": "seamless",
-       "input": "both",
-       "fade": 0.06
-      },
-      {
-       "type": "trigger_env",
-       "name": "huffenv",
-       "events": "hits",
-       "attack": 0.004,
-       "decay": 0.14
-      },
-      {
-       "type": "math",
-       "name": "huffkick",
-       "op": "mul",
-       "a": "huffenv",
-       "b": 130
-      },
-      {
-       "type": "math",
-       "name": "hufff0",
-       "op": "add",
-       "a": 85,
-       "b": "huffkick"
-      },
-      {
-       "type": "glottis",
-       "name": "huff",
-       "f0": "hufff0",
-       "tension": 0.9,
-       "breath": 0.5,
-       "roughness": 0.6,
-       "fry": 0.3,
-       "seed": 43
-      },
-      {
-       "type": "tract",
-       "name": "hufftract",
-       "input": "huff",
-       "vowel": "a",
-       "vowel_to": "uh",
-       "morph": 0.5,
-       "scale": 0.9,
-       "frication": {
-        "freq": 1800,
-        "level": "huffenv"
-       },
-       "growl": 0.5
-      },
-      {
-       "type": "shape",
-       "name": "huffdrive",
-       "input": "hufftract",
-       "mode": "tanh",
-       "drive": 4,
-       "mix": 0.8
-      },
-      {
-       "type": "gain",
-       "name": "huffhit",
-       "input": "huffdrive",
-       "gain": "huffenv"
-      },
-      {
-       "type": "compress",
-       "name": "glue",
-       "input": "seamless",
-       "threshold_db": -14,
-       "ratio": 3
-      }
-     ],
-     "params": {},
-     "macros": [],
-     "version": 4
+    {
+      "type": "modal",
+      "name": "floor",
+      "excite": "floor_hit",
+      "material": "stone",
+      "f0": 140,
+      "noise": 0.7,
+      "noise_width": 0.4,
+      "modes": 24,
+      "loss": 0.8,
+      "seed": 3
     },
-    "parent": 3,
-    "children": [
-     5
-    ],
-    "label": "+glue ~out",
-    "author": "pid:33901"
-   },
-   {
-    "model": {
-     "name": "hunter_roll",
-     "format_version": 1,
-     "kind": "loop",
-     "sample_rate": 48000,
-     "duration": 1.0,
-     "seed": 1,
-     "nodes": [
-      {
-       "type": "pattern",
-       "name": "hits",
-       "times": [
-        0,
-        0.25,
-        0.5,
-        0.75
-       ]
-      },
-      {
-       "type": "trigger_env",
-       "name": "hitenv",
-       "events": "hits",
-       "attack": 0.002,
-       "decay": 0.07
-      },
-      {
-       "type": "noise",
-       "name": "wetn",
-       "color": "pink"
-      },
-      {
-       "type": "filter",
-       "name": "wetbp",
-       "input": "wetn",
-       "mode": "bp",
-       "freq": 650,
-       "q": 1.2
-      },
-      {
-       "type": "gain",
-       "name": "slap",
-       "input": "wetbp",
-       "gain": "hitenv"
-      },
-      {
-       "type": "trigger_env",
-       "name": "thumpenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.12
-      },
-      {
-       "type": "osc",
-       "name": "thumpo",
-       "freq": 95
-      },
-      {
-       "type": "gain",
-       "name": "thump",
-       "input": "thumpo",
-       "gain": "thumpenv"
-      },
-      {
-       "type": "mix",
-       "name": "both",
-       "inputs": [
-        {
-         "input": "slap",
-         "gain": 1
-        },
-        {
-         "input": "thump",
-         "gain": 0.8
-        },
-        {
-         "input": "ducked",
-         "gain": 1.1
-        },
-        {
-         "input": "huffhit",
-         "gain": 2.2
-        }
-       ]
-      },
-      {
-       "type": "output",
-       "name": "out",
-       "input": "glue",
-       "lufs": -18
-      },
-      {
-       "type": "lfo",
-       "name": "pitchlfo",
-       "freq": 2,
-       "range": [
-        65,
-        110
-       ]
-      },
-      {
-       "type": "glottis",
-       "name": "gut",
-       "f0": "pitchlfo",
-       "tension": 0.35,
-       "breath": 0.2,
-       "roughness": 0.5,
-       "fry": 0.5,
-       "seed": 41
-      },
-      {
-       "type": "lfo",
-       "name": "vowlfo",
-       "freq": 4,
-       "range": [
-        0,
-        1
-       ]
-      },
-      {
-       "type": "tract",
-       "name": "guttract",
-       "input": "gut",
-       "vowel": "o",
-       "vowel_to": "a",
-       "morph": "vowlfo",
-       "scale": 0.8,
-       "nasal": 0.3,
-       "growl": 0.6
-      },
-      {
-       "type": "filter",
-       "name": "gutlp",
-       "input": "guttract",
-       "mode": "lp",
-       "freq": 1400,
-       "slope": 12
-      },
-      {
-       "type": "trigger_env",
-       "name": "duckenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.16
-      },
-      {
-       "type": "math",
-       "name": "duckneg",
-       "op": "mul",
-       "a": "duckenv",
-       "b": -0.92
-      },
-      {
-       "type": "math",
-       "name": "duckgain",
-       "op": "add",
-       "a": 1,
-       "b": "duckneg"
-      },
-      {
-       "type": "gain",
-       "name": "ducked",
-       "input": "gutlp",
-       "gain": "duckgain"
-      },
-      {
-       "type": "crossfade_loop",
-       "name": "seamless",
-       "input": "both",
-       "fade": 0.06
-      },
-      {
-       "type": "trigger_env",
-       "name": "huffenv",
-       "events": "hits",
-       "attack": 0.004,
-       "decay": 0.14
-      },
-      {
-       "type": "math",
-       "name": "huffkick",
-       "op": "mul",
-       "a": "huffenv",
-       "b": 130
-      },
-      {
-       "type": "math",
-       "name": "hufff0",
-       "op": "add",
-       "a": 85,
-       "b": "huffkick"
-      },
-      {
-       "type": "glottis",
-       "name": "huff",
-       "f0": "hufff0",
-       "tension": 0.9,
-       "breath": 0.5,
-       "roughness": 0.6,
-       "fry": 0.3,
-       "seed": 43
-      },
-      {
-       "type": "tract",
-       "name": "hufftract",
-       "input": "huff",
-       "vowel": "a",
-       "vowel_to": "uh",
-       "morph": 0.5,
-       "scale": 0.9,
-       "frication": {
-        "freq": 1800,
-        "level": "huffenv"
-       },
-       "growl": 0.5
-      },
-      {
-       "type": "shape",
-       "name": "huffdrive",
-       "input": "hufftract",
-       "mode": "tanh",
-       "drive": 4,
-       "mix": 0.8
-      },
-      {
-       "type": "gain",
-       "name": "huffhit",
-       "input": "huffdrive",
-       "gain": "huffenv"
-      },
-      {
-       "type": "compress",
-       "name": "glue",
-       "input": "seamless",
-       "threshold_db": -22,
-       "ratio": 4
-      }
-     ],
-     "params": {},
-     "macros": [],
-     "version": 5
-    },
-    "parent": 4,
-    "children": [
-     6
-    ],
-    "label": "~glue ~out",
-    "author": "pid:33901"
-   },
-   {
-    "model": {
-     "name": "hunter_roll",
-     "format_version": 1,
-     "kind": "loop",
-     "sample_rate": 48000,
-     "duration": 1.0,
-     "seed": 1,
-     "nodes": [
-      {
-       "type": "pattern",
-       "name": "hits",
-       "times": [
-        0,
-        0.25,
-        0.5,
-        0.75
-       ]
-      },
-      {
-       "type": "trigger_env",
-       "name": "hitenv",
-       "events": "hits",
-       "attack": 0.002,
-       "decay": 0.07
-      },
-      {
-       "type": "noise",
-       "name": "wetn",
-       "color": "pink"
-      },
-      {
-       "type": "filter",
-       "name": "wetbp",
-       "input": "wetn",
-       "mode": "bp",
-       "freq": 650,
-       "q": 1.2
-      },
-      {
-       "type": "gain",
-       "name": "slap",
-       "input": "wetbp",
-       "gain": "hitenv"
-      },
-      {
-       "type": "trigger_env",
-       "name": "thumpenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.12
-      },
-      {
-       "type": "osc",
-       "name": "thumpo",
-       "freq": 95
-      },
-      {
-       "type": "gain",
-       "name": "thump",
-       "input": "thumpo",
-       "gain": "thumpenv"
-      },
-      {
-       "type": "mix",
-       "name": "both",
-       "inputs": [
-        {
-         "input": "slap",
-         "gain": 1
-        },
-        {
-         "input": "thump",
-         "gain": 0.8
-        },
-        {
-         "input": "ducked",
-         "gain": 1.1
-        },
-        {
-         "input": "huffhit",
-         "gain": 2.2
-        }
-       ]
-      },
-      {
-       "type": "output",
-       "name": "out",
-       "input": "seamless",
-       "lufs": -18
-      },
-      {
-       "type": "lfo",
-       "name": "pitchlfo",
-       "freq": 2,
-       "range": [
-        65,
-        110
-       ]
-      },
-      {
-       "type": "glottis",
-       "name": "gut",
-       "f0": "pitchlfo",
-       "tension": 0.35,
-       "breath": 0.2,
-       "roughness": 0.5,
-       "fry": 0.5,
-       "seed": 41
-      },
-      {
-       "type": "lfo",
-       "name": "vowlfo",
-       "freq": 4,
-       "range": [
-        0,
-        1
-       ]
-      },
-      {
-       "type": "tract",
-       "name": "guttract",
-       "input": "gut",
-       "vowel": "o",
-       "vowel_to": "a",
-       "morph": "vowlfo",
-       "scale": 0.8,
-       "nasal": 0.3,
-       "growl": 0.6
-      },
-      {
-       "type": "filter",
-       "name": "gutlp",
-       "input": "guttract",
-       "mode": "lp",
-       "freq": 1400,
-       "slope": 12
-      },
-      {
-       "type": "trigger_env",
-       "name": "duckenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.16
-      },
-      {
-       "type": "math",
-       "name": "duckneg",
-       "op": "mul",
-       "a": "duckenv",
-       "b": -0.92
-      },
-      {
-       "type": "math",
-       "name": "duckgain",
-       "op": "add",
-       "a": 1,
-       "b": "duckneg"
-      },
-      {
-       "type": "gain",
-       "name": "ducked",
-       "input": "gutlp",
-       "gain": "duckgain"
-      },
-      {
-       "type": "crossfade_loop",
-       "name": "seamless",
-       "input": "glue",
-       "fade": 0.06
-      },
-      {
-       "type": "trigger_env",
-       "name": "huffenv",
-       "events": "hits",
-       "attack": 0.004,
-       "decay": 0.14
-      },
-      {
-       "type": "math",
-       "name": "huffkick",
-       "op": "mul",
-       "a": "huffenv",
-       "b": 130
-      },
-      {
-       "type": "math",
-       "name": "hufff0",
-       "op": "add",
-       "a": 85,
-       "b": "huffkick"
-      },
-      {
-       "type": "glottis",
-       "name": "huff",
-       "f0": "hufff0",
-       "tension": 0.9,
-       "breath": 0.5,
-       "roughness": 0.6,
-       "fry": 0.3,
-       "seed": 43
-      },
-      {
-       "type": "tract",
-       "name": "hufftract",
-       "input": "huff",
-       "vowel": "a",
-       "vowel_to": "uh",
-       "morph": 0.5,
-       "scale": 0.9,
-       "frication": {
-        "freq": 1800,
-        "level": "huffenv"
-       },
-       "growl": 0.5
-      },
-      {
-       "type": "shape",
-       "name": "huffdrive",
-       "input": "hufftract",
-       "mode": "tanh",
-       "drive": 4,
-       "mix": 0.8
-      },
-      {
-       "type": "gain",
-       "name": "huffhit",
-       "input": "huffdrive",
-       "gain": "huffenv"
-      },
-      {
-       "type": "compress",
-       "name": "glue",
-       "input": "both",
-       "threshold_db": -22,
-       "ratio": 4
-      }
-     ],
-     "params": {},
-     "macros": [],
-     "version": 6
-    },
-    "parent": 5,
-    "children": [
-     7
-    ],
-    "label": "~glue ~seamless ~out",
-    "author": "pid:33901"
-   },
-   {
-    "model": {
-     "name": "hunter_roll",
-     "format_version": 1,
-     "kind": "loop",
-     "sample_rate": 48000,
-     "duration": 1.0,
-     "seed": 1,
-     "nodes": [
-      {
-       "type": "pattern",
-       "name": "hits",
-       "times": [
-        0,
-        0.25,
-        0.5,
-        0.75
-       ]
-      },
-      {
-       "type": "trigger_env",
-       "name": "hitenv",
-       "events": "slaphits",
-       "attack": 0.002,
-       "decay": 0.07
-      },
-      {
-       "type": "noise",
-       "name": "wetn",
-       "color": "pink"
-      },
-      {
-       "type": "filter",
-       "name": "wetbp",
-       "input": "wetn",
-       "mode": "bp",
-       "freq": 650,
-       "q": 1.2
-      },
-      {
-       "type": "gain",
-       "name": "slap",
-       "input": "wetbp",
-       "gain": "hitenv"
-      },
-      {
-       "type": "trigger_env",
-       "name": "thumpenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.12
-      },
-      {
-       "type": "osc",
-       "name": "thumpo",
-       "freq": 95
-      },
-      {
-       "type": "gain",
-       "name": "thump",
-       "input": "thumpo",
-       "gain": "thumpenv"
-      },
-      {
-       "type": "mix",
-       "name": "both",
-       "inputs": [
-        {
-         "input": "slap",
-         "gain": 1
-        },
-        {
-         "input": "thump",
-         "gain": 1.3
-        },
-        {
-         "input": "meat",
-         "gain": 3
-        },
-        {
-         "input": "ducked",
-         "gain": 1.1
-        },
-        {
-         "input": "huffhit",
-         "gain": 2.2
-        }
-       ]
-      },
-      {
-       "type": "output",
-       "name": "out",
-       "input": "seamless",
-       "lufs": -18
-      },
-      {
-       "type": "lfo",
-       "name": "pitchlfo",
-       "freq": 2,
-       "range": [
-        65,
-        110
-       ]
-      },
-      {
-       "type": "glottis",
-       "name": "gut",
-       "f0": "pitchlfo",
-       "tension": 0.35,
-       "breath": 0.2,
-       "roughness": 0.5,
-       "fry": 0.5,
-       "seed": 41
-      },
-      {
-       "type": "lfo",
-       "name": "vowlfo",
-       "freq": 4,
-       "range": [
-        0,
-        1
-       ]
-      },
-      {
-       "type": "tract",
-       "name": "guttract",
-       "input": "gut",
-       "vowel": "o",
-       "vowel_to": "a",
-       "morph": "vowlfo",
-       "scale": 0.8,
-       "nasal": 0.3,
-       "growl": 0.6
-      },
-      {
-       "type": "filter",
-       "name": "gutlp",
-       "input": "guttract",
-       "mode": "lp",
-       "freq": 1400,
-       "slope": 12
-      },
-      {
-       "type": "trigger_env",
-       "name": "duckenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.16
-      },
-      {
-       "type": "math",
-       "name": "duckneg",
-       "op": "mul",
-       "a": "duckenv",
-       "b": -0.92
-      },
-      {
-       "type": "math",
-       "name": "duckgain",
-       "op": "add",
-       "a": 1,
-       "b": "duckneg"
-      },
-      {
-       "type": "gain",
-       "name": "ducked",
-       "input": "gutlp",
-       "gain": "duckgain"
-      },
-      {
-       "type": "crossfade_loop",
-       "name": "seamless",
-       "input": "glue",
-       "fade": 0.06
-      },
-      {
-       "type": "trigger_env",
-       "name": "huffenv",
-       "events": "hits",
-       "attack": 0.004,
-       "decay": 0.14
-      },
-      {
-       "type": "math",
-       "name": "huffkick",
-       "op": "mul",
-       "a": "huffenv",
-       "b": 130
-      },
-      {
-       "type": "math",
-       "name": "hufff0",
-       "op": "add",
-       "a": 85,
-       "b": "huffkick"
-      },
-      {
-       "type": "glottis",
-       "name": "huff",
-       "f0": "hufff0",
-       "tension": 0.9,
-       "breath": 0.5,
-       "roughness": 0.6,
-       "fry": 0.3,
-       "seed": 43
-      },
-      {
-       "type": "tract",
-       "name": "hufftract",
-       "input": "huff",
-       "vowel": "a",
-       "vowel_to": "uh",
-       "morph": 0.5,
-       "scale": 0.9,
-       "frication": {
-        "freq": 1800,
-        "level": "huffenv"
-       },
-       "growl": 0.5
-      },
-      {
-       "type": "shape",
-       "name": "huffdrive",
-       "input": "hufftract",
-       "mode": "tanh",
-       "drive": 4,
-       "mix": 0.8
-      },
-      {
-       "type": "gain",
-       "name": "huffhit",
-       "input": "huffdrive",
-       "gain": "huffenv"
-      },
-      {
-       "type": "compress",
-       "name": "glue",
-       "input": "both",
-       "threshold_db": -22,
-       "ratio": 4
-      },
-      {
-       "type": "pattern",
-       "name": "slaphits",
-       "times": [
-        0.045,
-        0.295,
-        0.545,
-        0.795
-       ]
-      },
-      {
-       "type": "noise",
-       "name": "bodyn",
-       "color": "brown",
-       "seed": 51
-      },
-      {
-       "type": "filter",
-       "name": "bodylp",
-       "input": "bodyn",
-       "mode": "lp",
-       "freq": 320,
-       "slope": 24
-      },
-      {
-       "type": "trigger_env",
-       "name": "bodyenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.11
-      },
-      {
-       "type": "gain",
-       "name": "meat",
-       "input": "bodylp",
-       "gain": "bodyenv"
-      }
-     ],
-     "params": {},
-     "macros": [],
-     "version": 7
-    },
-    "parent": 6,
-    "children": [
-     8
-    ],
-    "label": "+slaphits +bodyn +bodylp +bodyenv +meat ~hitenv ~both",
-    "author": "pid:33901"
-   },
-   {
-    "model": {
-     "name": "hunter_roll",
-     "format_version": 1,
-     "kind": "loop",
-     "sample_rate": 48000,
-     "duration": 1.0,
-     "seed": 1,
-     "nodes": [
-      {
-       "type": "pattern",
-       "name": "hits",
-       "times": [
-        0,
-        0.25,
-        0.5,
-        0.75
-       ]
-      },
-      {
-       "type": "trigger_env",
-       "name": "hitenv",
-       "events": "slaphits",
-       "attack": 0.002,
-       "decay": 0.07
-      },
-      {
-       "type": "noise",
-       "name": "wetn",
-       "color": "pink"
-      },
-      {
-       "type": "filter",
-       "name": "wetbp",
-       "input": "wetn",
-       "mode": "bp",
-       "freq": 650,
-       "q": 1.2
-      },
-      {
-       "type": "gain",
-       "name": "slap",
-       "input": "wetbp",
-       "gain": "hitenv"
-      },
-      {
-       "type": "trigger_env",
-       "name": "thumpenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.12
-      },
-      {
-       "type": "osc",
-       "name": "thumpo",
-       "freq": 95
-      },
-      {
-       "type": "gain",
-       "name": "thump",
-       "input": "thumpo",
-       "gain": "thumpenv"
-      },
-      {
-       "type": "mix",
-       "name": "both",
-       "inputs": [
-        {
-         "input": "slap",
-         "gain": 1
-        },
-        {
-         "input": "thump",
-         "gain": 1
-        },
-        {
-         "input": "meat",
-         "gain": 1.8
-        },
-        {
-         "input": "ducked",
-         "gain": 1.1
-        },
-        {
-         "input": "huffhit",
-         "gain": 1.6
-        }
-       ]
-      },
-      {
-       "type": "output",
-       "name": "out",
-       "input": "seamless",
-       "lufs": -19
-      },
-      {
-       "type": "lfo",
-       "name": "pitchlfo",
-       "freq": 2,
-       "range": [
-        65,
-        110
-       ]
-      },
-      {
-       "type": "glottis",
-       "name": "gut",
-       "f0": "pitchlfo",
-       "tension": 0.35,
-       "breath": 0.2,
-       "roughness": 0.5,
-       "fry": 0.5,
-       "seed": 41
-      },
-      {
-       "type": "lfo",
-       "name": "vowlfo",
-       "freq": 4,
-       "range": [
-        0,
-        1
-       ]
-      },
-      {
-       "type": "tract",
-       "name": "guttract",
-       "input": "gut",
-       "vowel": "o",
-       "vowel_to": "a",
-       "morph": "vowlfo",
-       "scale": 0.8,
-       "nasal": 0.3,
-       "growl": 0.6
-      },
-      {
-       "type": "filter",
-       "name": "gutlp",
-       "input": "guttract",
-       "mode": "lp",
-       "freq": 1400,
-       "slope": 12
-      },
-      {
-       "type": "trigger_env",
-       "name": "duckenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.16
-      },
-      {
-       "type": "math",
-       "name": "duckneg",
-       "op": "mul",
-       "a": "duckenv",
-       "b": -0.92
-      },
-      {
-       "type": "math",
-       "name": "duckgain",
-       "op": "add",
-       "a": 1,
-       "b": "duckneg"
-      },
-      {
-       "type": "gain",
-       "name": "ducked",
-       "input": "gutlp",
-       "gain": "duckgain"
-      },
-      {
-       "type": "crossfade_loop",
-       "name": "seamless",
-       "input": "glue",
-       "fade": 0.06
-      },
-      {
-       "type": "trigger_env",
-       "name": "huffenv",
-       "events": "hits",
-       "attack": 0.004,
-       "decay": 0.14
-      },
-      {
-       "type": "math",
-       "name": "huffkick",
-       "op": "mul",
-       "a": "huffenv",
-       "b": 130
-      },
-      {
-       "type": "math",
-       "name": "hufff0",
-       "op": "add",
-       "a": 85,
-       "b": "huffkick"
-      },
-      {
-       "type": "glottis",
-       "name": "huff",
-       "f0": "hufff0",
-       "tension": 0.9,
-       "breath": 0.5,
-       "roughness": 0.6,
-       "fry": 0.3,
-       "seed": 43
-      },
-      {
-       "type": "tract",
-       "name": "hufftract",
-       "input": "huff",
-       "vowel": "a",
-       "vowel_to": "uh",
-       "morph": 0.5,
-       "scale": 0.9,
-       "frication": {
-        "freq": 1800,
-        "level": "huffenv"
-       },
-       "growl": 0.5
-      },
-      {
-       "type": "shape",
-       "name": "huffdrive",
-       "input": "hufftract",
-       "mode": "tanh",
-       "drive": 4,
-       "mix": 0.8
-      },
-      {
-       "type": "gain",
-       "name": "huffhit",
-       "input": "huffdrive",
-       "gain": "huffenv"
-      },
-      {
-       "type": "compress",
-       "name": "glue",
-       "input": "both",
-       "threshold_db": -26,
-       "ratio": 4
-      },
-      {
-       "type": "pattern",
-       "name": "slaphits",
-       "times": [
-        0.045,
-        0.295,
-        0.545,
-        0.795
-       ]
-      },
-      {
-       "type": "noise",
-       "name": "bodyn",
-       "color": "brown",
-       "seed": 51
-      },
-      {
-       "type": "filter",
-       "name": "bodylp",
-       "input": "bodyn",
-       "mode": "lp",
-       "freq": 320,
-       "slope": 24
-      },
-      {
-       "type": "trigger_env",
-       "name": "bodyenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.11
-      },
-      {
-       "type": "gain",
-       "name": "meat",
-       "input": "bodylp",
-       "gain": "bodyenv"
-      }
-     ],
-     "params": {},
-     "macros": [],
-     "version": 8
-    },
-    "parent": 7,
-    "children": [
-     9
-    ],
-    "label": "~both ~glue ~out",
-    "author": "pid:33901"
-   },
-   {
-    "model": {
-     "name": "hunter_roll",
-     "format_version": 1,
-     "kind": "loop",
-     "sample_rate": 48000,
-     "duration": 3.5,
-     "seed": 1,
-     "nodes": [
-      {
-       "type": "pattern",
-       "name": "hits",
-       "times": [
-        0,
-        0.3,
-        0.58,
-        0.88,
-        1.17,
-        1.47,
-        1.76,
-        2.05,
-        2.35,
-        2.63,
-        2.93,
-        3.22
-       ]
-      },
-      {
-       "type": "trigger_env",
-       "name": "hitenv",
-       "events": "slaphits",
-       "attack": 0.002,
-       "decay": 0.07
-      },
-      {
-       "type": "noise",
-       "name": "wetn",
-       "color": "pink"
-      },
-      {
-       "type": "filter",
-       "name": "wetbp",
-       "input": "wetn",
-       "mode": "bp",
-       "freq": 650,
-       "q": 1.2
-      },
-      {
-       "type": "gain",
-       "name": "slap",
-       "input": "wetbp",
-       "gain": "hitenv"
-      },
-      {
-       "type": "trigger_env",
-       "name": "thumpenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.12
-      },
-      {
-       "type": "osc",
-       "name": "thumpo",
-       "freq": 95
-      },
-      {
-       "type": "gain",
-       "name": "thump",
-       "input": "thumpo",
-       "gain": "thumpenv"
-      },
-      {
-       "type": "mix",
-       "name": "both",
-       "inputs": [
-        {
-         "input": "slap",
-         "gain": 1
-        },
-        {
-         "input": "thump",
-         "gain": 1
-        },
-        {
-         "input": "meat",
-         "gain": 1.8
-        },
-        {
-         "input": "ducked",
-         "gain": 1.1
-        },
-        {
-         "input": "huffhit",
-         "gain": 1.6
-        }
-       ]
-      },
-      {
-       "type": "output",
-       "name": "out",
-       "input": "seamless",
-       "lufs": -19
-      },
-      {
-       "type": "lfo",
-       "name": "pitchlfo",
-       "freq": 2,
-       "range": [
-        65,
-        110
-       ]
-      },
-      {
-       "type": "glottis",
-       "name": "gut",
-       "f0": "pitchlfo",
-       "tension": 0.35,
-       "breath": 0.2,
-       "roughness": 0.5,
-       "fry": 0.5,
-       "seed": 41
-      },
-      {
-       "type": "lfo",
-       "name": "vowlfo",
-       "freq": 4,
-       "range": [
-        0,
-        1
-       ]
-      },
-      {
-       "type": "tract",
-       "name": "guttract",
-       "input": "gut",
-       "vowel": "o",
-       "vowel_to": "a",
-       "morph": "vowlfo",
-       "scale": 0.8,
-       "nasal": 0.3,
-       "growl": 0.6
-      },
-      {
-       "type": "filter",
-       "name": "gutlp",
-       "input": "guttract",
-       "mode": "lp",
-       "freq": 1400,
-       "slope": 12
-      },
-      {
-       "type": "trigger_env",
-       "name": "duckenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.16
-      },
-      {
-       "type": "math",
-       "name": "duckneg",
-       "op": "mul",
-       "a": "duckenv",
-       "b": -0.92
-      },
-      {
-       "type": "math",
-       "name": "duckgain",
-       "op": "add",
-       "a": 1,
-       "b": "duckneg"
-      },
-      {
-       "type": "gain",
-       "name": "ducked",
-       "input": "gutlp",
-       "gain": "duckgain"
-      },
-      {
-       "type": "crossfade_loop",
-       "name": "seamless",
-       "input": "glue",
-       "fade": 0.1
-      },
-      {
-       "type": "trigger_env",
-       "name": "huffenv",
-       "events": "hits",
-       "attack": 0.004,
-       "decay": 0.14
-      },
-      {
-       "type": "math",
-       "name": "huffkick",
-       "op": "mul",
-       "a": "huffenv",
-       "b": 130
-      },
-      {
-       "type": "math",
-       "name": "hufff0",
-       "op": "add",
-       "a": 85,
-       "b": "huffkick"
-      },
-      {
-       "type": "glottis",
-       "name": "huff",
-       "f0": "hufff0",
-       "tension": 0.9,
-       "breath": 0.5,
-       "roughness": 0.6,
-       "fry": 0.3,
-       "seed": 43
-      },
-      {
-       "type": "tract",
-       "name": "hufftract",
-       "input": "huff",
-       "vowel": "a",
-       "vowel_to": "uh",
-       "morph": 0.5,
-       "scale": 0.9,
-       "frication": {
-        "freq": 1800,
-        "level": "huffenv"
-       },
-       "growl": 0.5
-      },
-      {
-       "type": "shape",
-       "name": "huffdrive",
-       "input": "hufftract",
-       "mode": "tanh",
-       "drive": 4,
-       "mix": 0.8
-      },
-      {
-       "type": "gain",
-       "name": "huffhit",
-       "input": "huffdrive",
-       "gain": "huffenv"
-      },
-      {
-       "type": "compress",
-       "name": "glue",
-       "input": "both",
-       "threshold_db": -26,
-       "ratio": 4
-      },
-      {
-       "type": "pattern",
-       "name": "slaphits",
-       "times": [
-        0.12,
-        0.47,
+    {
+      "type": "impulse",
+      "name": "slap_hit",
+      "at": [
+        0.012,
+        0.227,
+        0.236,
+        0.658,
         0.72,
-        1.07,
-        1.28,
-        1.63,
-        1.94,
-        2.18,
-        2.55,
-        2.75,
-        3.08,
-        3.39
-       ]
-      },
-      {
-       "type": "noise",
-       "name": "bodyn",
-       "color": "brown",
-       "seed": 51
-      },
-      {
-       "type": "filter",
-       "name": "bodylp",
-       "input": "bodyn",
-       "mode": "lp",
-       "freq": 320,
-       "slope": 24
-      },
-      {
-       "type": "trigger_env",
-       "name": "bodyenv",
-       "events": "hits",
-       "attack": 0.003,
-       "decay": 0.11
-      },
-      {
-       "type": "gain",
-       "name": "meat",
-       "input": "bodylp",
-       "gain": "bodyenv"
-      }
-     ],
-     "params": {},
-     "macros": [],
-     "version": 9
+        0.903,
+        1.204,
+        1.238,
+        1.247,
+        1.462,
+        1.955,
+        2.378,
+        2.416,
+        2.626,
+        2.628,
+        2.823,
+        2.97,
+        3.039
+      ],
+      "amp": 0.8
     },
-    "parent": 8,
-    "children": [],
-    "label": "~hits ~slaphits ~seamless",
-    "author": "pid:33901"
-   }
+    {
+      "material": "soft",
+      "f0": 380,
+      "noise": 0.95,
+      "noise_width": 1.2,
+      "modes": 16,
+      "seed": 4,
+      "type": "modal",
+      "name": "slap",
+      "excite": "slap_hit"
+    },
+    {
+      "type": "impulse",
+      "name": "slap2_hit",
+      "at": [
+        0.195,
+        0.279,
+        0.322,
+        0.375,
+        0.771,
+        0.844,
+        1.038,
+        2.352,
+        2.473,
+        2.989
+      ],
+      "amp": 0.5
+    },
+    {
+      "material": "soft",
+      "f0": 620,
+      "noise": 0.95,
+      "noise_width": 1.2,
+      "modes": 16,
+      "seed": 5,
+      "type": "modal",
+      "name": "slap2",
+      "excite": "slap2_hit"
+    },
+    {
+      "type": "impulse",
+      "name": "bone_hit",
+      "at": [
+        0.37,
+        0.415,
+        0.559,
+        0.599,
+        0.668,
+        1.31,
+        1.393,
+        1.738,
+        1.999,
+        2.272
+      ],
+      "amp": 0.35
+    },
+    {
+      "material": "wood",
+      "shape": "bar",
+      "f0": 850,
+      "noise": 0.4,
+      "modes": 16,
+      "loss": 1.8,
+      "seed": 6,
+      "type": "modal",
+      "name": "bone",
+      "excite": "bone_hit"
+    },
+    {
+      "type": "noise",
+      "name": "scr"
+    },
+    {
+      "type": "filter",
+      "name": "scrf",
+      "input": "scr",
+      "mode": "bp",
+      "freq": 900,
+      "q": 0.8
+    },
+    {
+      "type": "wander",
+      "name": "scramp",
+      "rate": 12,
+      "range": [
+        0,
+        0.25
+      ]
+    },
+    {
+      "type": "gain",
+      "name": "scrape",
+      "input": "scrf",
+      "gain": "scramp"
+    },
+    {
+      "type": "mix",
+      "name": "body",
+      "inputs": [
+        {
+          "input": "thud",
+          "gain": "=2.0 * $weight"
+        },
+        {
+          "input": "thud2",
+          "gain": "=1.8 * $weight"
+        },
+        {
+          "input": "floor",
+          "gain": "=1.0 * $weight"
+        },
+        {
+          "input": "subthud",
+          "gain": "=2.5 * $weight"
+        },
+        {
+          "input": "subthud2",
+          "gain": "=1.8 * $weight"
+        },
+        {
+          "input": "slap",
+          "gain": "=0.4 / $weight"
+        },
+        {
+          "input": "slap2",
+          "gain": "=0.15 / $weight"
+        },
+        {
+          "input": "bone",
+          "gain": "=0.12 / $weight"
+        },
+        {
+          "input": "scrape",
+          "gain": 0.2
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "name": "out",
+      "input": "dc",
+      "peak_db": -1,
+      "fade_in": 0.0005,
+      "fade_out": 0.1
+    },
+    {
+      "type": "shape",
+      "name": "squash",
+      "input": "dark",
+      "mode": "tanh",
+      "drive": 2,
+      "mix": 1
+    },
+    {
+      "type": "modal",
+      "name": "subthud",
+      "excite": "thud_hit",
+      "material": "soft",
+      "f0": 45,
+      "noise": 0.3,
+      "modes": 8,
+      "loss": 0.25,
+      "seed": 9
+    },
+    {
+      "type": "modal",
+      "name": "subthud2",
+      "excite": "floor_hit",
+      "material": "soft",
+      "f0": 60,
+      "noise": 0.3,
+      "modes": 8,
+      "loss": 0.3,
+      "seed": 10
+    },
+    {
+      "type": "onepole",
+      "name": "dc",
+      "input": "squash",
+      "mode": "hp",
+      "freq": 20
+    },
+    {
+      "type": "filter",
+      "name": "dark",
+      "input": "body",
+      "mode": "lp",
+      "freq": 2800,
+      "slope": 24
+    }
   ],
-  "current": 9
- },
- "annotations": [],
- "knob_moves": [],
- "unsaved": true,
- "catalog_name": "hunter_roll"
+  "params": {
+    "weight": 1.0
+  },
+  "macros": [
+    {
+      "name": "weight",
+      "value": 1.0,
+      "default": 1.0,
+      "doc": "how heavy the body is: more low thuds, less slap and clack",
+      "game": false,
+      "map": [
+        {
+          "param": "weight",
+          "from": 0.3,
+          "to": 3.0
+        }
+      ]
+    }
+  ],
+  "version": 10
 }

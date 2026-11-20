@@ -4916,7 +4916,7 @@ pub fn plan_station(mut station: ResMut<Station>, walkers: Query<&Walker>) {
     }
     let t = tuning();
     let deepest = body_levels(walkers.iter()).into_iter().max();
-    let n = levels_wanted(&t, deepest, station.want);
+    let n = levels_wanted(&t, deepest, station.want.max(start_wants()));
     if station.plan.levels.len() < n && !station.plan.done() {
         let mut next = station.plan.carry_on();
         station.planning = Some(
@@ -5323,6 +5323,42 @@ pub fn bot_run() -> bool {
     *BOT.get_or_init(|| std::env::var("FRIENDSLOP_BOT").is_ok_and(|r| !r.is_empty()))
 }
 
+/// A service door in the world (rigged: clips `closed`, `open`, `close`).
+#[derive(Component)]
+pub struct ServiceDoor;
+
+/// The service door's model path, kept for the rig (which wants a `'static`
+/// path; the data file names it once).
+fn service_door_model(path: &str) -> &'static str {
+    static PATH: std::sync::Mutex<Option<&'static str>> = std::sync::Mutex::new(None);
+    let Ok(mut kept) = PATH.lock() else {
+        return "models/features/fs_service_door.gltf";
+    };
+    match *kept {
+        Some(p) if p == path => p,
+        _ => {
+            let p: &'static str = Box::leak(path.to_string().into_boxed_str());
+            *kept = Some(p);
+            p
+        }
+    }
+}
+
+/// How many levels a `FRIENDSLOP_START=fulton_<n>` start needs planned before
+/// you land there (0 for any other start): its level, and the two under it.
+fn start_wants() -> usize {
+    static WANT: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    *WANT.get_or_init(|| {
+        std::env::var("FRIENDSLOP_START")
+            .ok()
+            .and_then(|s| {
+                let rest = s.strip_prefix("fulton_")?;
+                rest.split('_').next()?.parse::<usize>().ok()
+            })
+            .map_or(0, |n| n + 3)
+    })
+}
+
 /// Testing (`FRIENDSLOP_GOD=1`): the hunter never catches anyone and every
 /// level has starts of its own (`FRIENDSLOP_START=fulton_3`), as for the bot,
 /// but you drive.
@@ -5386,7 +5422,10 @@ fn bot_starts() -> Vec<(String, Vec3)> {
     for (k, at) in walk.enumerate() {
         out.push((format!("fulton_walk_{k}"), at));
     }
-    if let Ok(mut all) = ALL.lock() {
+    // Only keep starts planned from the real data (a lookup before the data
+    // files loaded plans another station, and its starts are somewhere else).
+    let loaded = TUNING.loaded() && TILES.loaded() && LAYOUT.loaded();
+    if loaded && let Ok(mut all) = ALL.lock() {
         *all = out.clone();
     }
     out
@@ -5732,13 +5771,15 @@ fn stream_levels(
                 let face = dir(side);
                 let at = cell_world(&t, li, level, c) + face * (CELL / 2.0 - WALL_FACE_IN);
                 commands.spawn((
-                    WorldAssetRoot(
-                        assets
-                            .load(GltfAssetLabel::Scene(0).from_asset(t.hunt.ducts.model.clone())),
-                    ),
+                    ServiceDoor,
+                    crate::rigged::Rigged {
+                        path: service_door_model(&t.hunt.ducts.model),
+                    },
+                    crate::rigged::RigClip::looping("closed"),
                     // Modelled facing +z with its back on the wall: turned to face in.
                     Transform::from_translation(at)
                         .with_rotation(Quat::from_rotation_y((-face.x).atan2(-face.z))),
+                    Visibility::default(),
                     ChildOf(root),
                 ));
             }

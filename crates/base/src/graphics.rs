@@ -63,6 +63,10 @@ pub struct Tuning {
     /// Desktop: the most pixels (millions) the world is ever rendered at.
     /// A bigger window is rendered at this many and stretched. 0 = no cap.
     pub max_megapixels: f32,
+    /// How many times sharper model textures stay at a slant (anisotropic
+    /// filtering, 1 = off, at most 16): floors and walls seen along their
+    /// length would otherwise blur a few metres away. The browser caps it at 4.
+    pub anisotropy: u16,
     /// The sun's shadow cascades when Shadows is Long (every preset's look).
     pub long_shadows: Cascades,
     /// ... and when it's Short.
@@ -826,6 +830,7 @@ mod tests {
         let text = String::from_utf8_lossy(&bytes);
         assert!(text.contains("ssao_quality") && text.contains("max_megapixels"));
         assert!(TUNING.get().max_megapixels >= 0.0);
+        assert!((1..=16).contains(&TUNING.get().anisotropy));
         assert!(text.contains("long_shadows") && text.contains("short_shadows"));
         assert!(TUNING.get().long_shadows.count >= TUNING.get().short_shadows.count);
         assert!(TUNING.get().short_shadows.count >= 1);

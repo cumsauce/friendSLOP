@@ -22,6 +22,11 @@
     // stretched to fit; the menus and HUD stay sharp. 1920x1080 is 2.1,
     // 2560x1440 is 3.7. 0 = no cap.
     max_megapixels: 2.6,
+    // Anisotropic filtering of model textures (1 = off, up to 16): how sharp
+    // floors, walls and roads stay when you look along them. Without it they
+    // turn blurry a few metres away. Costs next to nothing on a desktop GPU;
+    // the browser build caps it at 4.
+    anisotropy: 16,
     // The sun's shadow cascades (the Shadows option: Long, Short or Off).
     // count: shadow maps (every caster is drawn once per cascade, ~0.8-1 ms
     // each at 2560x1440); first: how far the sharpest one reaches (m);

@@ -112,6 +112,38 @@ fn no_anisotropy(
     }
 }
 
+/// `sampler` asking for `n`x anisotropic filtering, if it's a plain trilinear
+/// one that doesn't already. Without it a floor or wall seen at a slant falls
+/// to a blurry mip level a few metres away; with it the texels along the
+/// slant stay sharp. (Filtering must be linear everywhere for the GPU to allow
+/// it, which the glTFs' and KTX2s' samplers are.)
+pub fn with_anisotropy(
+    sampler: &bevy::image::ImageSampler,
+    n: u16,
+) -> Option<bevy::image::ImageSampler> {
+    use bevy::image::{ImageFilterMode::Linear, ImageSampler};
+    let ImageSampler::Descriptor(d) = sampler else {
+        return None;
+    };
+    let linear = d.min_filter == Linear && d.mag_filter == Linear && d.mipmap_filter == Linear;
+    (linear && d.anisotropy_clamp < n).then(|| {
+        let mut d = d.clone();
+        d.anisotropy_clamp = n;
+        ImageSampler::Descriptor(d)
+    })
+}
+
+/// The anisotropy model textures ask for (`data/base/graphics.ron`); phones
+/// in the browser get at most 4.
+fn anisotropy() -> u16 {
+    let n = crate::graphics::TUNING.get().anisotropy.clamp(1, 16);
+    if cfg!(target_arch = "wasm32") {
+        n.min(4)
+    } else {
+        n
+    }
+}
+
 /// Newly loaded images still to look at.
 #[derive(Resource, Default)]
 struct Pending(Vec<AssetId<Image>>);
@@ -151,6 +183,15 @@ fn mipmap(
     for id in std::mem::take(&mut pending.0) {
         if !is_model_texture(server.get_path(id)) {
             continue;
+        }
+        // Sharper at a slant, for every model texture, whatever its format.
+        let n = anisotropy();
+        if let Some(sampler) = images
+            .get(id)
+            .and_then(|image| with_anisotropy(&image.sampler, n))
+            && let Some(mut image) = images.get_mut(id)
+        {
+            image.sampler = sampler;
         }
         // Peek first: `get_mut` marks the image changed (a re-upload).
         let Some(image) = images.get(id) else {
@@ -202,6 +243,69 @@ fn mipmap(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use bevy::image::{ImageFilterMode, ImageSampler, ImageSamplerDescriptor};
+
+    /// The modeler's KTX2 textures ship their own mip chain; make sure Bevy's
+    /// loader keeps every level (so `mipmap` rightly leaves them alone) and
+    /// that the sampler reads them. Skipped when LFS data isn't pulled.
+    #[test]
+    fn prebaked_ktx2_mips_survive_loading() {
+        use bevy::image::{CompressedImageFormats, ImageType};
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../game/assets/textures");
+        let Ok(entries) = std::fs::read_dir(dir) else {
+            return;
+        };
+        let mut checked = 0;
+        for path in entries
+            .flatten()
+            .map(|e| e.path())
+            .filter(|p| p.extension().is_some_and(|e| e == "ktx2"))
+            .take(40)
+        {
+            let Ok(bytes) = std::fs::read(&path) else {
+                continue;
+            };
+            if !bytes.starts_with(b"\xabKTX 20\xbb") {
+                continue; // an LFS pointer
+            }
+            let image = Image::from_buffer(
+                &bytes,
+                ImageType::Extension("ktx2"),
+                CompressedImageFormats::all(),
+                true,
+                ImageSampler::Descriptor(ImageSamplerDescriptor::linear()),
+                bevy::asset::RenderAssetUsages::default(),
+            )
+            .unwrap_or_else(|e| panic!("{} didn't load: {e}", path.display()));
+            let d = &image.texture_descriptor;
+            let full = d.size.width.max(d.size.height).ilog2() + 1;
+            assert_eq!(d.mip_level_count, full, "{} lost its mips", path.display());
+            checked += 1;
+        }
+        eprintln!("{checked} KTX2 textures keep their full mip chains");
+    }
+
+    #[test]
+    fn trilinear_samplers_get_anisotropic_filtering_and_others_are_left_alone() {
+        let linear = ImageSampler::Descriptor(ImageSamplerDescriptor::linear());
+        let Some(ImageSampler::Descriptor(d)) = with_anisotropy(&linear, 16) else {
+            panic!("a linear sampler should be sharpened");
+        };
+        assert_eq!(d.anisotropy_clamp, 16);
+        // Already sharp enough: nothing to change (so no re-upload).
+        let sharp = ImageSampler::Descriptor(ImageSamplerDescriptor {
+            anisotropy_clamp: 16,
+            ..ImageSamplerDescriptor::linear()
+        });
+        assert!(with_anisotropy(&sharp, 16).is_none());
+        // Nearest filtering (pixel art) can't use it.
+        let nearest = ImageSampler::Descriptor(ImageSamplerDescriptor {
+            mag_filter: ImageFilterMode::Nearest,
+            ..ImageSamplerDescriptor::linear()
+        });
+        assert!(with_anisotropy(&nearest, 16).is_none());
+        assert!(with_anisotropy(&ImageSampler::Default, 16).is_none());
+    }
 
     #[test]
     fn anisotropy_stays_off_when_a_material_reloads() {

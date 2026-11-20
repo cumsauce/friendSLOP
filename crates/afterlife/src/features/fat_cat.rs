@@ -288,6 +288,13 @@ fn attach_cat_agents(
     }
 }
 
+/// Does a cat follow an owner standing at `feet`? Only out in the open of the
+/// commune and New York's streets: not in the surf course, Fulton St, the
+/// warehouse or any other place of its own.
+pub fn follows_in(area: Option<&str>, feet: Vec3) -> bool {
+    matches!(area, Some("commune" | "nyc")) && !crate::rules::nyc::in_station(feet)
+}
+
 #[allow(clippy::type_complexity)]
 fn follow_and_grow(
     time: Res<Time>,
@@ -311,6 +318,13 @@ fn follow_and_grow(
         let Some((_, walker)) = players.iter().find(|(p, _)| p.id == cat.owner) else {
             continue;
         };
+        // Somewhere it doesn't follow you: it stays where it was left.
+        if !follows_in(
+            friendslop_base::areas::area_at(walker.pos).as_deref(),
+            walker.pos,
+        ) {
+            continue;
+        }
         let mut next = *cat;
         next.size = grown(cat.size, watched.0, dt);
         // Something better than you (a puddle) pulls it there instead.
@@ -1065,6 +1079,16 @@ mod tests {
             gobble_text(1, 2, Some(1)),
             "GULP. YOUR fat cat gobbled up player 2"
         );
+    }
+
+    #[test]
+    fn cats_follow_only_in_the_commune_and_new_york() {
+        assert!(follows_in(Some("commune"), Vec3::ZERO));
+        assert!(follows_in(Some("nyc"), Vec3::new(0.0, 0.0, 200.0)));
+        assert!(!follows_in(Some("surf"), Vec3::ZERO));
+        assert!(!follows_in(None, Vec3::ZERO));
+        let down = Vec3::new(0.0, crate::rules::nyc::STATION_TOP_Y - 3.0, 200.0);
+        assert!(!follows_in(Some("nyc"), down));
     }
 
     #[test]

@@ -1,0 +1,73 @@
+[
+ {
+  "type": "primitive",
+  "name": "wall",
+  "kind": "plane",
+  "size": [
+   6,
+   3.8
+  ],
+  "translation": [
+   0,
+   1.9,
+   -2.8
+  ],
+  "facing": "+z"
+ },
+ {
+  "type": "primitive",
+  "name": "band",
+  "kind": "box",
+  "size": [
+   6,
+   0.4,
+   0.04
+  ],
+  "translation": [
+   0,
+   2.6,
+   -2.78
+  ]
+ },
+ {
+  "type": "primitive",
+  "name": "skirt",
+  "kind": "box",
+  "size": [
+   6,
+   0.25,
+   0.05
+  ],
+  "translation": [
+   0,
+   0.125,
+   -2.775
+  ]
+ },
+ {
+  "type": "group",
+  "name": "trim",
+  "inputs": [
+   "band",
+   "skirt"
+  ]
+ },
+ {
+  "type": "hide_part",
+  "part": "band"
+ },
+ {
+  "type": "hide_part",
+  "part": "skirt"
+ },
+ {
+  "type": "material",
+  "name": "wall",
+  "pbr": "wd-meat"
+ },
+ {
+  "type": "material",
+  "name": "trim",
+  "pbr": "bt-cheek"
+ }
+]

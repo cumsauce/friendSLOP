@@ -148,6 +148,7 @@ fn navigate(
     mut repeat: Local<Repeat>,
     items: Query<(Entity, &ComputedNode, &UiGlobalTransform, Has<PadSlider>), With<PadFocusable>>,
     up: Query<(Option<&ChildOf>, &Node, Option<&GlobalZIndex>)>,
+    headless: Query<(), With<bevy::ui_widgets::Button>>,
 ) {
     focus.pad_click = false;
     if pads.is_empty() || !ui_owns_pad(state.get(), &overlay) {
@@ -224,6 +225,11 @@ fn navigate(
     let a = pads.iter().any(|p| p.just_pressed(GamepadButton::South));
     if a && let Some(&(e, at, _, _)) = here {
         focus.pad_click = true;
+        // A headless button only hears a press-and-release; A activates it.
+        if headless.contains(e) {
+            commands.trigger(bevy::ui_widgets::Activate { entity: e });
+            return;
+        }
         commands.trigger(PointerClick {
             entity: e,
             pointer: Pointer::new(

@@ -17,6 +17,11 @@
     face: 128,
     levels: 8,
     diffuse: 32,
+    // How much brighter reflections are baked than the scene they saw (the
+    // map's `intensity` dims diffuse light and reflections alike; metals want
+    // their reflections back). Applies to the maps baked from now on: the
+    // world map was rebaked with it, the other places' still have 1.
+    specular_gain: 2.5,
     // Seconds to let a place load and settle before its pictures.
     settle_secs: 5.0,
 )

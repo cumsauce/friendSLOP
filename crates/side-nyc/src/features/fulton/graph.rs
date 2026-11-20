@@ -56,7 +56,7 @@ pub struct ConcourseAsk {
 }
 
 /// How many times it tries before giving up.
-const TRIES: usize = 60;
+const TRIES: usize = 90;
 
 /// One try's grid: every cell's open sides and what is fixed there.
 struct Grid {
@@ -378,7 +378,7 @@ pub(super) fn plan(
         // The ways down, in the core (so they land on the next level),
         // the main one far enough from the way in.
         let far = |x: wfc::Cell| {
-            attempt >= TRIES / 2
+            attempt + 6 >= TRIES
                 || (arrive.0.abs_diff(x.0) + arrive.1.abs_diff(x.1)) as u32 * 2 >= min_path
         };
         let apart = |a: wfc::Cell, b: wfc::Cell| a.0.abs_diff(b.0) + a.1.abs_diff(b.1) >= 3;
@@ -743,7 +743,8 @@ pub(super) fn plan(
             ..Level::empty(w, h)
         };
         let d = level.distances();
-        let need = if attempt < TRIES / 2 { min_path } else { 1 };
+        // (Only the last few tries settle for a short way through.)
+        let need = if attempt + 6 < TRIES { min_path } else { 1 };
         let reached = (0..w * h).all(|i| level.cells[i].mask == 0 || d[i].is_some());
         if !reached || d[goal.1 * w + goal.0].is_none_or(|d| d < need) {
             continue;

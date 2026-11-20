@@ -144,6 +144,37 @@
                 (model: "features/fs_broken_light.gltf", place: Ceiling, chance: 0.3, slots: [1.0]),
                 (model: "features/fs_pump.gltf", chance: 0.1, slots: [1.0], size: (1.5, 1.15, 0.75)),
             ]),
+            // Deeper down (`from`: the first level they turn up on) the rooms get
+            // stranger: what the station's lost people and machines left behind.
+            (name: "pump station", weight: 1.6, from: 8, columns: true, props: [
+                (model: "features/fs_pump.gltf", chance: 0.5, slots: [-1.6, 1.6], size: (1.5, 1.15, 0.75)),
+                (model: "features/fs_valve_cluster.gltf", flush: true, chance: 0.4, slots: [0.0]),
+                (model: "features/fs_pipe_run.gltf", flush: true, chance: 0.5, slots: [0.0]),
+                (model: "features/fs_puddle.gltf", place: Middle, chance: 0.6, slots: [1.2], scale: 1.6),
+            ]),
+            (name: "squatters' camp", weight: 1.4, from: 10, props: [
+                (model: "features/fs_camp.gltf", place: Middle, chance: 0.5, slots: [0.8]),
+                (model: "features/fs_trash_pile.gltf", chance: 0.4, slots: [-1.8, 1.8]),
+                (model: "features/fs_shopping_cart.gltf", place: Middle, chance: 0.25, slots: [1.8], yaw: 30.0),
+                (model: "features/fs_trash_bag.gltf", place: Middle, chance: 0.4, slots: [2.0]),
+            ]),
+            (name: "breaker hall", weight: 1.2, from: 14, columns: true, props: [
+                (model: "features/fs_breaker_box.gltf", flush: true, chance: 0.6, slots: [-1.5, 0.0, 1.5]),
+                (model: "features/fs_cable_tray.gltf", flush: true, chance: 0.5, slots: [0.0]),
+                (model: "features/fs_broken_light.gltf", place: Ceiling, chance: 0.4, slots: [1.0]),
+            ]),
+            (name: "barricaded hall", weight: 1.0, from: 18, props: [
+                (model: "features/fs_barricade.gltf", place: Middle, chance: 0.35, slots: [1.4]),
+                (model: "features/fs_cone.gltf", place: Middle, chance: 0.5, slots: [2.2]),
+                (model: "features/fs_caution_tape.gltf", flush: true, chance: 0.4, slots: [0.0]),
+                (model: "features/fs_broken_light.gltf", place: Ceiling, chance: 0.5, slots: [1.0]),
+            ]),
+            // A deep set piece: a hall of lockers, every wall lined with them.
+            (name: "locker vault", weight: 1.5, from: 20, set_piece: true, columns: true, props: [
+                (model: "features/fs_locker.gltf", chance: 0.9, slots: [-2.1, -1.4, -0.7, 0.0, 0.7, 1.4, 2.1], size: (0.66, 2.1, 0.6)),
+                (model: "features/fs_broken_light.gltf", place: Ceiling, chance: 0.4, slots: [1.0]),
+                (model: "features/fs_trash_litter.gltf", place: Middle, chance: 0.4, slots: [1.5]),
+            ]),
             (name: "concourse", weight: 2.0, sizes: [(3, 3), (3, 2), (2, 4)], columns: true, props: [
                 (model: "features/fs_bench.gltf", chance: 0.35, slots: [-1.2, 1.2], size: (2.0, 0.95, 0.5)),
                 (model: "features/fs_trash_can.gltf", chance: 0.2, slots: [2.3], size: (0.65, 0.95, 0.65)),
@@ -240,6 +271,10 @@
     // off it's a squeeze instead) or is a squeeze with chance `squeeze`. Leave
     // out a level that's a platform level or the one below one (their track
     // beds sink into it). `every: 0` turns them off.
+    // Train tunnels on the platform levels: from each tunnel end's mouth a
+    // tunnel runs on this many cells (at least, at most) through the rock,
+    // down on the track bed, turning at each cell with `turn`, to a buffer stop.
+    rails: (len: (4, 10), turn: 0.35),
     tunnels: (every: 4, offset: 2, blocked: 0.3, squeeze: 0.12),
     // Cars left standing on the platforms' tracks (10 ft B Division cars,
     // their floors level with the platform): the chance of one on each
@@ -311,6 +346,10 @@
         // Hold it in clear sight this long and it stops pretending: it curls into
         // a ball and rolls at you, faster than you run (you run 10.5).
         roll_sight_secs: 3.0,
+        // When it first sees you it stops and stares this long, head on one side,
+        // with a sting, before it comes: a moment's grace. Break its sight and it
+        // comes to look where it saw you.
+        notice_secs: 1.3,
         // How fast the ball rolls (m/s).
         roll_speed: 12.0,
         // A roll lasts this long, then it breaks back into a run.
@@ -394,6 +433,13 @@
             cost: 6,
             bang_secs: 1.3,
             model: "models/features/fs_service_door.gltf",
+            // While it drifts, the chance each time it picks a way that it takes a
+            // duct out of a service door near you (within `show_cells` steps, on
+            // your level), so you see it come out; and how long it takes to
+            // squeeze out of a door.
+            show_chance: 0.45,
+            show_cells: 7,
+            emerge_secs: 1.4,
         ),
     ),
 )

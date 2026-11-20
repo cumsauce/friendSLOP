@@ -154,6 +154,9 @@ pub struct Tuning {
     /// Train tunnel levels: a ring of big tiles with cave-ins.
     #[serde(default)]
     pub tunnels: Tunnels,
+    /// Train tunnels running on from the platforms' tunnel mouths.
+    #[serde(default)]
+    pub rails: RailsAsk,
     /// Pelf for reaching the J.
     pub reward_pelf: u8,
     /// Toast on entering.
@@ -332,6 +335,16 @@ pub struct Collapse {
     pub gap: f32,
 }
 
+/// Train tunnels off the platforms (`fs-rails-*`, one cell across).
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct RailsAsk {
+    /// How many cells a train tunnel runs on from a platform's tunnel mouth
+    /// (at least, at most; 0: none), winding through the rock...
+    pub len: (usize, usize),
+    /// ...turning at each cell with this chance.
+    pub turn: f32,
+}
+
 /// Train tunnel levels (`fs-tunnel-*` tiles, [`TUNNEL_CELLS`] cells across).
 #[derive(Deserialize, Default, Debug, Clone)]
 pub struct Tunnels {
@@ -387,6 +400,9 @@ pub struct RoomKind {
     /// Its dressing.
     #[serde(default)]
     pub props: Vec<RoomProp>,
+    /// The first level (0 is the top) it turns up on: the deeper kinds.
+    #[serde(default)]
+    pub from: usize,
 }
 
 /// Where a room prop goes.
@@ -471,6 +487,10 @@ pub struct Hunt {
     /// Hold it in clear sight this long and it stops walking: it curls into
     /// a ball and rolls at you, faster than you can run.
     pub roll_sight_secs: f32,
+    /// When it first sees you it stops and stares this long (head on one
+    /// side, a sting) before it comes; break its sight and it comes to look.
+    #[serde(default)]
+    pub notice_secs: f32,
     /// How fast the ball rolls (m/s).
     pub roll_speed: f32,
     /// How long a roll lasts before it breaks back into a run.
@@ -557,6 +577,15 @@ pub struct Ducts {
     pub bang_secs: f32,
     /// The service door's model (`assets/models/`).
     pub model: String,
+    /// While it drifts: the chance it takes a duct out of a door near you
+    /// (within `show_cells` steps, on your level), so you can see it come out.
+    #[serde(default)]
+    pub show_chance: f32,
+    #[serde(default)]
+    pub show_cells: u32,
+    /// Seconds it takes to squeeze out of a service door.
+    #[serde(default)]
+    pub emerge_secs: f32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -601,6 +630,10 @@ pub struct Piece {
     /// these, its deck on the piece's N half, the track bed on its S half.
     #[serde(default)]
     pub track: Vec<Side>,
+    /// A tunnel end's model with its tunnel mouth open, for when a train
+    /// tunnel runs on from it ([`Kind::Rails`]).
+    #[serde(default)]
+    pub mouth_open: String,
 }
 
 /// How far the track bed lies below the platform (m): the rails' tops are
@@ -621,7 +654,7 @@ pub const TRACK_STEPS_Z: f32 = -2.25;
 /// Where a tunnel end's platform stops (own frame, x): the tunnel is W of it.
 pub const TUNNEL_PORTAL_X: f32 = -1.2;
 /// The columns on a platform (own frame, x, z).
-pub const COLUMNS: [(f32, f32); 2] = [(-1.5, -1.5), (1.5, -1.5)];
+pub const COLUMNS: [(f32, f32); 2] = [(-2.4, -2.55), (2.4, -2.55)];
 
 /// Where a hiding piece's hiding spot is, in its own frame (inside the middle locker).
 pub const HIDE_AT: Vec3 = Vec3::new(0.0, 0.0, 2.48);
@@ -655,6 +688,62 @@ pub struct TileSet {
     /// Looks that take over the corridors as you go down, weirder each time.
     #[serde(default)]
     pub themes: Vec<Theme>,
+    /// The train tunnels running on from the platforms.
+    #[serde(default)]
+    pub rails: RailsKit,
+    /// The skins: from a depth down, every corridor, room and gallery cell
+    /// is drawn as the skin's floor plus one of its walls on each walled
+    /// side, so the same plan takes any skin and walls always match.
+    #[serde(default)]
+    pub skins: Vec<Skin>,
+}
+
+/// A train tunnel's pieces ([`Kind::Rails`]), each with its origin on the
+/// track bed: the straight (rails along x), the curve (rails from the N edge
+/// to the E edge), the wall (along the N edge, bed to ceiling) and the buffer
+/// stop at a dead end (facing +x, along its rails).
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct RailsKit {
+    pub straight: String,
+    pub curve: String,
+    pub wall: String,
+    pub buffer: String,
+}
+
+/// A skin (see [`TileSet::skins`]): models one cell across, under
+/// `assets/models/features/`.
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct Skin {
+    pub name: String,
+    /// The first level (0 is the top) that has it.
+    pub from: usize,
+    /// The cell lights' colour (r, g, b), if not the default cold white.
+    #[serde(default)]
+    pub light: Option<(f32, f32, f32)>,
+    /// A cell's floor and ceiling (with its light fitting), no walls.
+    pub floor: String,
+    /// Walls, each modelled along the cell's N edge facing in, and how often
+    /// each is picked.
+    pub walls: Vec<(String, f32)>,
+    /// Its column (corners, rooms, galleries), modelled on the origin.
+    #[serde(default)]
+    pub column: String,
+}
+
+impl Skin {
+    /// The wall on side `side` of cell `c` of level `li`: picked by weight,
+    /// the same every time.
+    pub fn wall(&self, t: &Tuning, li: usize, c: wfc::Cell, side: wfc::Side) -> &str {
+        let total: f32 = self.walls.iter().map(|w| w.1.max(0.0)).sum();
+        let mut pick = dress_roll(t, [li, c.0 * 131 + c.1, side.index(), 0x5c1]) * total;
+        for (file, w) in &self.walls {
+            if pick < *w {
+                return file;
+            }
+            pick -= w.max(0.0);
+        }
+        self.walls.last().map_or("", |w| w.0.as_str())
+    }
 }
 
 /// A depth look: from level `from` down, corridor pieces named in `swap` are
@@ -680,6 +769,14 @@ impl TileSet {
             .iter()
             .filter(|t| t.from <= li)
             .max_by_key(|t| t.from)
+    }
+
+    /// The skin level `li` is drawn in: the deepest one whose `from` it has reached.
+    pub fn skin(&self, li: usize) -> Option<&Skin> {
+        self.skins
+            .iter()
+            .filter(|s| s.from <= li && !s.floor.is_empty() && !s.walls.is_empty())
+            .max_by_key(|s| s.from)
     }
 
     /// The model a corridor piece is drawn with on level `li`.
@@ -800,6 +897,9 @@ pub enum Kind {
     /// A cell of a gallery: a tunnel tile without the track (see
     /// [`Level::galleries`]), walled like a room.
     Gallery,
+    /// A cell of a train tunnel running on from a platform's tunnel mouth:
+    /// its floor is the track bed, [`TRACK_DROP`] down.
+    Rails,
 }
 
 /// How many cells across a tunnel tile is.
@@ -1031,7 +1131,13 @@ impl Level {
 
     /// How far below the level's floor `c`'s floor is.
     pub fn drop(&self, c: wfc::Cell) -> f32 {
-        if self.sunk(c) { self.sink } else { 0.0 }
+        if self.sunk(c) {
+            self.sink
+        } else if self.fill(c).kind == Kind::Rails {
+            TRACK_DROP
+        } else {
+            0.0
+        }
     }
 
     /// Can you walk from `c` across `s`? (Both cells open on the shared
@@ -2944,6 +3050,122 @@ fn make_tall(l: &mut Level, ri: usize, roll: impl Fn(usize) -> f32) {
     }
 }
 
+/// Dig train tunnels on from a platform level's tunnel ends: from each end's
+/// mouth (the side across from its track), a winding run of [`Kind::Rails`]
+/// cells through solid rock (never where a stairs below lands or opens),
+/// a dead end at its far end. Seeded by the level, so the same every time.
+fn dig_rails(t: &Tuning, li: usize, l: &mut Level) {
+    let (lo, hi) = t.rails.len;
+    if hi == 0 {
+        return;
+    }
+    let (w, h) = (l.width, l.depth);
+    // Cells a stairs (or the way out of a landing below) needs.
+    let mut keep: Vec<wfc::Cell> = Vec::new();
+    for (g, e) in l.downs().into_iter().chain(l.ups()) {
+        keep.push(g);
+        for s in [e, e.opposite()] {
+            if let Some(n) = wfc::neighbour(w, h, g, s) {
+                keep.push(n);
+            }
+        }
+    }
+    let rock = |l: &Level, c: wfc::Cell| {
+        let f = l.fill(c);
+        f.mask == 0
+            && f.track == 0
+            && matches!(f.kind, Kind::Corridor(_))
+            && !l.sunk(c)
+            && !keep.contains(&c)
+    };
+    let ends: Vec<(wfc::Cell, wfc::Side)> = (0..w * h)
+        .map(|i| (i % w, i / w))
+        .filter_map(|c| {
+            let f = l.fill(c);
+            if f.track.count_ones() != 1 {
+                return None;
+            }
+            let t_side = wfc::Side::ALL
+                .into_iter()
+                .find(|&s| f.track & bit(s) != 0)?;
+            Some((c, t_side.opposite()))
+        })
+        .collect();
+    for (k, (end, mouth)) in ends.into_iter().enumerate() {
+        let roll = |n: usize| dress_roll(t, [li, end.0 * 97 + end.1, k, 0xa11 + n]);
+        let want = lo + (roll(0) * (hi.max(lo) - lo + 1) as f32) as usize;
+        let Some(first) = wfc::neighbour(w, h, end, mouth).filter(|&c| rock(l, c)) else {
+            continue;
+        };
+        let mut path = vec![first];
+        let mut d = mouth;
+        for step in 1..want.max(1) {
+            let at = path[path.len() - 1];
+            let turn = roll(step * 3 + 1) < t.rails.turn;
+            let left = wfc::Side::ALL[(d.index() + 3) % 4];
+            let right = wfc::Side::ALL[(d.index() + 1) % 4];
+            let order = if !turn {
+                [d, left, right]
+            } else if roll(step * 3 + 2) < 0.5 {
+                [left, right, d]
+            } else {
+                [right, left, d]
+            };
+            // On into rock, never back alongside itself.
+            let next = order.into_iter().find_map(|s| {
+                let n = wfc::neighbour(w, h, at, s)?;
+                let lonely = wfc::Side::ALL.into_iter().all(|o| {
+                    wfc::neighbour(w, h, n, o).is_none_or(|m| m == at || !path.contains(&m))
+                });
+                (rock(l, n) && !path.contains(&n) && n != end && lonely).then_some((n, s))
+            });
+            let Some((n, s)) = next else { break };
+            path.push(n);
+            d = s;
+        }
+        if path.len() < lo.max(2) {
+            continue;
+        }
+        // Join it up: the mouth opens, each cell to the next.
+        l.cells[end.1 * w + end.0].mask |= bit(mouth);
+        let mut prev = end;
+        for &c in &path {
+            let back = wfc::Side::ALL
+                .into_iter()
+                .find(|&s| wfc::neighbour(w, h, c, s) == Some(prev))
+                .map_or(0, bit);
+            l.cells[c.1 * w + c.0] = Fill {
+                mask: back,
+                track: 0,
+                kind: Kind::Rails,
+                turns: 0,
+            };
+            if prev != end {
+                let fwd = wfc::Side::ALL
+                    .into_iter()
+                    .find(|&s| wfc::neighbour(w, h, prev, s) == Some(c))
+                    .map_or(0, bit);
+                l.cells[prev.1 * w + prev.0].mask |= fwd;
+            }
+            prev = c;
+        }
+    }
+}
+
+/// How a train tunnel cell is drawn: curve or straight, and its quarter
+/// turns (the straight is modelled along x, the curve from N to E).
+pub fn rails_piece(mask: u8) -> (bool, u8) {
+    let ns = bit(wfc::Side::North) | bit(wfc::Side::South);
+    if mask.count_ones() == 2 && mask != ns && mask != (bit(wfc::Side::East) | bit(wfc::Side::West))
+    {
+        let ne = bit(wfc::Side::North) | bit(wfc::Side::East);
+        let t = (0..4u8).find(|&t| turned(ne, t) == mask).unwrap_or(0);
+        return (true, t);
+    }
+    // Along x unless it runs N-S.
+    (false, u8::from(mask & ns != 0))
+}
+
 /// The station's plan so far, planned a level at a time (each takes a WFC
 /// solve): the same levels [`generate`] makes, in the same order, from the
 /// same seed, however many are planned at once. Every peer plans its own copy.
@@ -3212,12 +3434,17 @@ impl StationPlan {
         level.above_drop = self.above_drop;
         level.below = below.clone();
         shape_level(t, l, &mut level);
+        if platform_level(t, l) {
+            dig_rails(t, l, &mut level);
+        }
         level.service = service_doors(t, l, &level);
         // Ground sunk into the level below (tall rooms, track beds) cramps
         // it: an extra stairs whose landing would open onto that ground, or
         // any when a lot of the core sinks, turns into the corridor's dead end.
         let sunk_at: Vec<bool> = (0..level.cells.len())
-            .map(|i| level.sunk[i] || level.cells[i].track != 0)
+            .map(|i| {
+                level.sunk[i] || level.cells[i].track != 0 || level.cells[i].kind == Kind::Rails
+            })
             .collect();
         let sinks = |i: usize| sunk_at[i];
         let core_at = level.local(centred(self.size)).unwrap_or((0, 0));
@@ -3262,7 +3489,9 @@ impl StationPlan {
             .map(|(c, s)| (level.lattice(c), s.opposite()))
             .collect();
         self.under = (0..level.cells.len())
-            .filter(|&i| level.cells[i].track != 0 || level.sunk[i])
+            .filter(|&i| {
+                level.cells[i].track != 0 || level.sunk[i] || level.cells[i].kind == Kind::Rails
+            })
             .map(|i| level.lattice((i % level.width, i / level.width)))
             .collect();
         self.low = if two_storey && level.sink >= STATION_LEVEL_H - 0.01 {
@@ -3413,6 +3642,9 @@ pub fn floor_at(t: &Tuning, levels: &[Level], p: Vec3) -> f32 {
         return top;
     }
     let c = (x as usize, z as usize);
+    if l.fill(c).kind == Kind::Rails {
+        return top - TRACK_DROP;
+    }
     if !l.sunk(c) {
         return top;
     }
@@ -3904,6 +4136,8 @@ pub fn service_doors(t: &Tuning, li: usize, level: &Level) -> Vec<(wfc::Cell, wf
             let f = level.fill(c);
             let ok = match f.kind {
                 Kind::Corridor(Some(p)) => !set.pieces.get(p as usize).is_some_and(|p| p.hide),
+                // (The fallback's open hall.)
+                Kind::Corridor(None) => f.mask != 0,
                 Kind::Room(_) => !level.sunk(c),
                 _ => false,
             };
@@ -3963,6 +4197,7 @@ pub fn room_kind<'a>(t: &'a Tuning, li: usize, l: &Level, ri: usize) -> Option<&
         .iter()
         .filter(|k| {
             k.weight > 0.0
+                && k.from <= li
                 && k.set_piece == set_piece
                 && (k.sizes.is_empty() || k.sizes.iter().any(|&s| s == (a, b) || s == (b, a)))
         })
@@ -4915,6 +5150,11 @@ pub fn plan_station(mut station: ResMut<Station>, walkers: Query<&Walker>) {
         station.plan.take(next);
     }
     let t = tuning();
+    // A deep start (`FRIENDSLOP_START=fulton_<n>`) plans down to its level
+    // right away, before anyone lands there (testing only: it holds a frame).
+    if station.planning.is_none() && station.plan.levels.len() < start_wants() {
+        station.plan.plan_to(&t, start_wants());
+    }
     let deepest = body_levels(walkers.iter()).into_iter().max();
     let n = levels_wanted(&t, deepest, station.want.max(start_wants()));
     if station.plan.levels.len() < n && !station.plan.done() {
@@ -5596,15 +5836,81 @@ fn stream_levels(
         for z in 0..level.depth {
             for x in 0..level.width {
                 let f = level.fill((x, z));
+                let skin = set.skin(li);
+                // A skinned cell: the skin's floor, and its walls (below).
+                let skinned = skin.is_some()
+                    && f.mask != 0
+                    && match f.kind {
+                        Kind::Corridor(Some(i)) => set
+                            .pieces
+                            .get(i as usize)
+                            .is_some_and(|p| p.track.is_empty()),
+                        Kind::Room(_) | Kind::Gallery | Kind::Corridor(None) => true,
+                        _ => false,
+                    };
+                // A train tunnel cell: its bed and rails, walls, and a buffer
+                // stop at its dead end, all a track bed's depth down.
+                if f.kind == Kind::Rails {
+                    let at = cell_world(&t, li, level, (x, z)) - Vec3::Y * TRACK_DROP;
+                    let (curve, turns) = rails_piece(f.mask);
+                    let file = if curve {
+                        &set.rails.curve
+                    } else {
+                        &set.rails.straight
+                    };
+                    let turn =
+                        |n: u8| Quat::from_rotation_y(-std::f32::consts::FRAC_PI_2 * n as f32);
+                    if !file.is_empty() {
+                        commands.spawn((
+                            model(&assets, file),
+                            Merge,
+                            Transform::from_translation(at).with_rotation(turn(turns)),
+                            ChildOf(root),
+                        ));
+                    }
+                    for side in wfc::Side::ALL {
+                        if f.mask & bit(side) != 0 || set.rails.wall.is_empty() {
+                            continue;
+                        }
+                        commands.spawn((
+                            model(&assets, &set.rails.wall),
+                            Merge,
+                            Transform::from_translation(at).with_rotation(turn(side.index() as u8)),
+                            ChildOf(root),
+                        ));
+                    }
+                    if f.mask.count_ones() == 1 && !set.rails.buffer.is_empty() {
+                        // Facing back along the track, its back to the end wall.
+                        let open = wfc::Side::ALL
+                            .into_iter()
+                            .find(|&s| f.mask & bit(s) != 0)
+                            .unwrap_or(wfc::Side::North);
+                        let (back, ahead) = (dir(open.opposite()), dir(open));
+                        // (Modelled facing +x, along the rails.)
+                        commands.spawn((
+                            model(&assets, &set.rails.buffer),
+                            Transform::from_translation(at + back * (CELL / 2.0 - 1.2))
+                                .with_rotation(Quat::from_rotation_y((-ahead.z).atan2(ahead.x))),
+                            ChildOf(root),
+                        ));
+                    }
+                    continue;
+                }
                 let file = match f.kind {
-                    Kind::Corridor(Some(i)) => set
-                        .pieces
-                        .get(i as usize)
-                        .map(|p| set.themed(li, p.model.as_str())),
+                    _ if skinned => skin.map(|s| s.floor.as_str()),
+                    Kind::Corridor(Some(i)) => set.pieces.get(i as usize).map(|p| {
+                        // A tunnel end whose mouth runs on into a train tunnel.
+                        let mouth = p.track.len() == 1 && f.mask != f.track;
+                        if mouth && !p.mouth_open.is_empty() {
+                            p.mouth_open.as_str()
+                        } else {
+                            set.themed(li, p.model.as_str())
+                        }
+                    }),
                     Kind::Stairs => Some(set.stairs.as_str()),
                     Kind::Platform => Some(set.platform.as_str()),
                     Kind::Room(_) | Kind::Tunnel | Kind::Gallery => Some(set.room.floor.as_str()),
-                    Kind::Corridor(None) | Kind::Landing | Kind::Under => None,
+                    Kind::Corridor(None) | Kind::Landing | Kind::Under | Kind::Rails => None,
                 };
                 let Some(file) = file else { continue };
                 let at = cell_world(&t, li, level, (x, z));
@@ -5616,8 +5922,9 @@ fn stream_levels(
                         CellLight,
                         PointLight {
                             color: set
-                                .theme(li)
-                                .and_then(|th| th.light)
+                                .skin(li)
+                                .and_then(|s| s.light)
+                                .or_else(|| set.theme(li).and_then(|th| th.light))
                                 .map_or(Color::srgb(0.9, 0.95, 1.0), |(r, g, b)| {
                                     Color::srgb(r, g, b)
                                 }),
@@ -5650,18 +5957,25 @@ fn stream_levels(
                         ChildOf(root),
                     ));
                 }
-                // A room cell's walls: the wall piece turned onto each walled side.
-                if matches!(f.kind, Kind::Room(_) | Kind::Gallery) && !set.room.wall.is_empty() {
+                // A room cell's walls: the wall piece turned onto each walled
+                // side (any skinned cell's: the skin's walls).
+                if (skinned || matches!(f.kind, Kind::Room(_) | Kind::Gallery))
+                    && !set.room.wall.is_empty()
+                {
                     for side in wfc::Side::ALL {
                         if f.mask & bit(side) != 0 {
                             continue;
                         }
+                        let wall = match skin.filter(|_| skinned) {
+                            Some(s) => s.wall(&t, li, (x, z), side),
+                            None => set.room.wall.as_str(),
+                        };
                         let turn = Fill {
                             turns: side.index() as u8,
                             ..f
                         };
                         commands.spawn((
-                            model(&assets, &set.room.wall),
+                            model(&assets, wall),
                             Merge,
                             Transform::from_translation(at).with_rotation(turn.rotation()),
                             ChildOf(root),
@@ -5744,7 +6058,12 @@ fn stream_levels(
                 ChildOf(root),
             ));
         }
-        if !set.room.column.is_empty() {
+        let column = set
+            .skin(li)
+            .map(|s| s.column.as_str())
+            .filter(|c| !c.is_empty())
+            .unwrap_or(set.room.column.as_str());
+        if !column.is_empty() {
             for at in room_columns(&t, li, level)
                 .into_iter()
                 .chain(tunnel_columns(&t, li, level))
@@ -5753,7 +6072,7 @@ fn stream_levels(
                 .chain(deck_columns(&t, li, level))
             {
                 commands.spawn((
-                    model(&assets, &set.room.column),
+                    model(&assets, column),
                     Merge,
                     Transform::from_translation(at).with_scale(Vec3::new(
                         1.0,
@@ -6009,6 +6328,14 @@ struct CellLight;
 #[derive(Component)]
 struct ShadowTube;
 
+/// How near a cell light at `p` counts as from the camera at `at` (lower is
+/// nearer): squared distance, with any light off the camera's floor ranked
+/// behind every one on it.
+pub fn light_rank(at: Vec3, p: Vec3) -> f32 {
+    let off_floor = (p.y - at.y).abs() > STATION_LEVEL_H * 0.75;
+    at.distance_squared(p) + if off_floor { 1.0e6 } else { 0.0 }
+}
+
 /// Local: only the nearest [`Lights::max_lights`] cell lights are on, and
 /// the nearest [`Lights::shadow_lights`] of them are [`ShadowTube`]s.
 #[allow(clippy::type_complexity)]
@@ -6032,9 +6359,14 @@ fn light_shadows(
     } else {
         0
     };
+    // (Lights on your own floor first: one a level up or down is behind
+    // the floor, and lighting it would take the place of one you can see.)
     let mut all: Vec<_> = lights
         .iter_mut()
-        .map(|(g, l, v)| (g.translation().distance_squared(at), g.translation(), l, v))
+        .map(|(g, l, v)| {
+            let p = g.translation();
+            (light_rank(at, p), p, l, v)
+        })
         .collect();
     all.sort_by(|a, b| a.0.total_cmp(&b.0));
     let mut tubes: Vec<_> = tubes.iter_mut().collect();
@@ -6339,7 +6671,10 @@ mod tests {
     fn atriums_drop_a_whole_level_and_the_level_below_goes_round() {
         let (t, set) = data();
         let lay = LAYOUT.get();
-        let levels = generate(&t, &set);
+        let (t, levels) = station_with(&t, &set, |ls| {
+            ls.iter()
+                .any(|l| l.kind == LevelKind::Atrium && l.sunk.iter().any(|s| *s))
+        });
         let mut atriums = 0;
         for (li, l) in levels.iter().enumerate() {
             if !l.room_meta.contains(&Meta::Atrium) || !l.sunk.iter().any(|s| *s) {
@@ -6450,6 +6785,27 @@ mod tests {
             pockets * 20 <= extras,
             "{pockets} of {extras} extra landings cut off"
         );
+    }
+
+    /// The first station (from the data's seed on) that has what a test is
+    /// about: the station a seed makes changes with the data, so a test
+    /// about something that only some stations have looks for one.
+    fn station_with(
+        t: &Tuning,
+        set: &TileSet,
+        ok: impl Fn(&[Level]) -> bool,
+    ) -> (Tuning, Vec<Level>) {
+        for k in 0..12 {
+            let t = Tuning {
+                seed: t.seed.wrapping_add(k),
+                ..t.clone()
+            };
+            let levels = generate(&t, set);
+            if ok(&levels) {
+                return (t, levels);
+            }
+        }
+        panic!("no station has it");
     }
 
     /// How many loops a level's ways make: each room and each gallery counts
@@ -6653,6 +7009,57 @@ mod tests {
     }
 
     #[test]
+    fn lights_on_your_floor_come_first() {
+        let at = Vec3::new(0.0, -40.0 + 1.7, 0.0);
+        let near_above = Vec3::new(0.0, -36.0 + 3.6, 1.0);
+        let far_here = Vec3::new(40.0, -40.0 + 3.6, 0.0);
+        assert!(light_rank(at, far_here) < light_rank(at, near_above));
+    }
+
+    #[test]
+    fn train_tunnels_run_on_from_the_platforms() {
+        let (t0, set) = data();
+        let mut tunnels = 0;
+        for seed in 1..6 {
+            let t = Tuning { seed, ..t0.clone() };
+            let levels = generate(&t, &set);
+            for (li, l) in levels.iter().enumerate() {
+                let rails: Vec<usize> = (0..l.cells.len())
+                    .filter(|&i| l.cells[i].kind == Kind::Rails)
+                    .collect();
+                if rails.is_empty() {
+                    continue;
+                }
+                assert!(platform_level(&t, li), "seed {seed} level {li}");
+                let d = l.distances();
+                let ends = rails
+                    .iter()
+                    .filter(|&&i| l.cells[i].mask.count_ones() == 1)
+                    .count();
+                tunnels += ends;
+                for &i in &rails {
+                    let c = (i % l.width, i / l.width);
+                    // Walkable from the way in, on the track bed.
+                    assert!(d[i].is_some(), "seed {seed} level {li} {c:?}");
+                    let p = cell_world(&t, li, l, c);
+                    assert!(
+                        (floor_at(&t, &levels, p) - (level_floor(li) - TRACK_DROP)).abs() < 1e-3
+                    );
+                    // Never branching: a run, ending in a dead end.
+                    assert!(l.cells[i].mask.count_ones() <= 2);
+                    // Solid under it on the level below.
+                    if let Some(below) = levels.get(li + 1)
+                        && let Some(b) = map_cell(l, below, c)
+                    {
+                        assert_eq!(below.fill(b).kind, Kind::Under, "seed {seed} level {li}");
+                    }
+                }
+            }
+        }
+        assert!(tunnels >= 4, "only {tunnels} train tunnels");
+    }
+
+    #[test]
     fn other_seeds_build_whole_stations_too() {
         let (t0, set) = data();
         for seed in 1..7 {
@@ -6717,7 +7124,23 @@ mod tests {
     #[test]
     fn levels_come_in_types_with_long_lines_and_big_halls() {
         let (t, set) = data();
-        let levels = generate(&t, &set);
+        let (t, levels) = station_with(&t, &set, |ls| {
+            let came = |k: LevelKind| {
+                ls.iter().any(|l| {
+                    l.kind == k
+                        && match k {
+                            LevelKind::Hall => l.room_meta.contains(&Meta::Hall),
+                            LevelKind::Atrium => l.room_meta.contains(&Meta::Atrium),
+                            LevelKind::Concourse => !l.galleries.is_empty(),
+                            _ => true,
+                        }
+                })
+            };
+            [LevelKind::Warren, LevelKind::Line, LevelKind::Hall]
+                .into_iter()
+                .chain([LevelKind::Atrium, LevelKind::Concourse])
+                .all(came)
+        });
         let mut kinds = HashSet::new();
         let (mut track, mut room) = (0, 0);
         let (mut pieces, mut tall, mut columns) = (0, 0, 0);
@@ -6883,6 +7306,7 @@ mod tests {
                     Kind::Landing => 'u',
                     Kind::Room(_) => 'R',
                     Kind::Gallery => 'G',
+                    Kind::Rails => 'r',
                     Kind::Tunnel => 'T',
                     _ if l.fill(c).mask == 0 => '#',
                     _ => '+',
@@ -7566,7 +7990,21 @@ mod tests {
     #[test]
     fn l_shaped_rooms_appear_and_join_the_way() {
         let (t, set) = data();
-        let levels = generate(&t, &set);
+        let (_, levels) = station_with(&t, &set, |ls| {
+            ls.iter()
+                .flat_map(|l| {
+                    l.rooms.iter().enumerate().filter(move |(ri, r)| {
+                        let n = l
+                            .cells
+                            .iter()
+                            .filter(|f| f.kind == Kind::Room(*ri as u8))
+                            .count();
+                        n > 0 && n < r.size.0 * r.size.1
+                    })
+                })
+                .count()
+                >= 3
+        });
         let mut l_rooms = 0;
         for l in &levels {
             let d = l.distances();
@@ -7634,7 +8072,9 @@ mod tests {
     #[test]
     fn mezzanines_are_reachable_by_stairs_you_can_walk() {
         let (t, set) = data();
-        let levels = generate(&t, &set);
+        let (t, levels) = station_with(&t, &set, |ls| {
+            ls.iter().filter(|l| l.sunk.iter().any(|s| *s)).count() >= 3
+        });
         let (mut tall, mut stairs) = (0, 0);
         for (li, l) in levels.iter().enumerate() {
             let d = l.distances();

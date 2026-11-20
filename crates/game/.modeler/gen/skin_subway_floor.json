@@ -1,0 +1,168 @@
+[
+ {
+  "type": "primitive",
+  "name": "floor",
+  "kind": "plane",
+  "size": [
+   6,
+   6
+  ],
+  "translation": [
+   0,
+   0,
+   0
+  ],
+  "facing": "up"
+ },
+ {
+  "type": "primitive",
+  "name": "ceiling",
+  "kind": "plane",
+  "size": [
+   6,
+   6
+  ],
+  "translation": [
+   0,
+   3.8,
+   0
+  ],
+  "facing": "down"
+ },
+ {
+  "type": "primitive",
+  "name": "fx_housing",
+  "kind": "box",
+  "size": [
+   0.3,
+   0.07,
+   1.25
+  ],
+  "translation": [
+   0,
+   3.765,
+   0
+  ]
+ },
+ {
+  "type": "primitive",
+  "name": "fx_lipa",
+  "kind": "box",
+  "size": [
+   0.02,
+   0.03,
+   1.25
+  ],
+  "translation": [
+   0.14,
+   3.715,
+   0
+  ]
+ },
+ {
+  "type": "primitive",
+  "name": "fx_lipb",
+  "kind": "box",
+  "size": [
+   0.02,
+   0.03,
+   1.25
+  ],
+  "translation": [
+   -0.14,
+   3.715,
+   0
+  ]
+ },
+ {
+  "type": "primitive",
+  "name": "fx_tubea",
+  "kind": "cylinder",
+  "size": [
+   0.016,
+   1.17
+  ],
+  "translation": [
+   0.07,
+   3.705,
+   0
+  ],
+  "rotation": {
+   "x": 90
+  }
+ },
+ {
+  "type": "primitive",
+  "name": "fx_tubeb",
+  "kind": "cylinder",
+  "size": [
+   0.016,
+   1.17
+  ],
+  "translation": [
+   -0.07,
+   3.705,
+   0
+  ],
+  "rotation": {
+   "x": 90
+  }
+ },
+ {
+  "type": "group",
+  "name": "fixture",
+  "inputs": [
+   "fx_housing",
+   "fx_lipa",
+   "fx_lipb"
+  ]
+ },
+ {
+  "type": "group",
+  "name": "lamps",
+  "inputs": [
+   "fx_tubea",
+   "fx_tubeb"
+  ]
+ },
+ {
+  "type": "hide_part",
+  "part": "fx_housing"
+ },
+ {
+  "type": "hide_part",
+  "part": "fx_lipa"
+ },
+ {
+  "type": "hide_part",
+  "part": "fx_lipb"
+ },
+ {
+  "type": "hide_part",
+  "part": "fx_tubea"
+ },
+ {
+  "type": "hide_part",
+  "part": "fx_tubeb"
+ },
+ {
+  "type": "material",
+  "name": "floor",
+  "pbr": "sp-concrete"
+ },
+ {
+  "type": "material",
+  "name": "ceiling",
+  "pbr": "ns-paint"
+ },
+ {
+  "type": "material",
+  "name": "fixture",
+  "pbr": "ns-paint"
+ },
+ {
+  "type": "material",
+  "name": "lamps",
+  "pbr": "wh-tube"
+ }
+]

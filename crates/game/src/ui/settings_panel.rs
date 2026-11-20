@@ -6,6 +6,7 @@
 //! it too (#317), with a "Leave game" button (Esc no longer leaves).
 
 use bevy::prelude::*;
+use bevy::ui_widgets::{Activate, Button, ButtonPlugin};
 use bevy::window::PrimaryWindow;
 
 use super::pad_nav::{PadFocusable, PadNudge, PadSlider};
@@ -58,6 +59,26 @@ pub const VIDEO_BOXES: [VideoOption; 9] = [
     VideoOption::Fullscreen,
 ];
 
+/// Options with more than two values are cards that step through them when
+/// pressed (render scale, window size), not checkboxes. (A browser's
+/// Resolution is still the Sharp / Fast checkbox, and has no window size.)
+pub fn is_stepper(o: VideoOption) -> bool {
+    !cfg!(target_arch = "wasm32") && matches!(o, VideoOption::Resolution | VideoOption::WindowSize)
+}
+
+/// Every card of the Video page, in grid order: the checkboxes, then the
+/// steppers this build has.
+pub fn video_cards() -> Vec<VideoOption> {
+    let mut cards: Vec<VideoOption> = VIDEO_BOXES
+        .into_iter()
+        .filter(|o| !is_stepper(*o))
+        .collect();
+    if !cfg!(target_arch = "wasm32") {
+        cards.extend([VideoOption::Resolution, VideoOption::WindowSize]);
+    }
+    cards
+}
+
 /// Is this option on?
 pub fn checked(q: GraphicsQuality, o: VideoOption) -> bool {
     match o {
@@ -70,12 +91,21 @@ pub fn checked(q: GraphicsQuality, o: VideoOption) -> bool {
         VideoOption::Grass => q.dense,
         VideoOption::VSync => q.vsync,
         VideoOption::Fullscreen => q.fullscreen,
-        VideoOption::Preset => false,
+        VideoOption::Preset | VideoOption::WindowSize => false,
     }
 }
 
 /// The checkbox's label.
 pub fn box_label(q: GraphicsQuality, o: VideoOption) -> String {
+    // A stepper shows what it's set to.
+    if is_stepper(o) {
+        let name = if o == VideoOption::Resolution {
+            "Render scale"
+        } else {
+            o.name()
+        };
+        return format!("{name}: {}", q.value(o));
+    }
     let name = match o {
         VideoOption::DrawDistance => "View distance",
         VideoOption::Resolution => "Sharp resolution",
@@ -271,6 +301,11 @@ enum Check {
 }
 
 pub fn plugin(app: &mut App) {
+    // Bevy's headless buttons (the video steppers), and nothing else of its
+    // widgets: the rest of the UI hears clicks itself.
+    if !app.is_plugin_added::<ButtonPlugin>() {
+        app.add_plugins(ButtonPlugin);
+    }
     app.insert_resource(OnPage(Page::Video))
         .add_systems(OnEnter(AppState::Menu), spawn_in(AppState::Menu))
         .add_systems(OnEnter(AppState::InGame), spawn_in(AppState::InGame))
@@ -469,41 +504,62 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
                 }
             });
         }
-        for (i, o) in VIDEO_BOXES.into_iter().enumerate() {
-            let (x, y) = (18.0 + 228.0 * (i % 3) as f32, 118.0 + 90.0 * (i / 3) as f32);
+        for (i, o) in video_cards().into_iter().enumerate() {
+            let (x, y) = (18.0 + 228.0 * (i % 3) as f32, 110.0 + 72.0 * (i / 3) as f32);
             let mut card = c.spawn((
                 Node {
                     width: px(214),
-                    height: px(76),
+                    height: px(62),
                     border_radius: BorderRadius::all(px(12)),
                     ..at(x, y, B)
                 },
                 BackgroundColor(RAISED),
-                children![
-                    checkbox(check, Check::Video(o), 12.0, 24.0),
-                    (
+            ));
+            if is_stepper(o) {
+                // Bevy's headless button: a click (or the pad's A) steps it.
+                // No tick: the label says what it's set to.
+                card.insert(Button).observe(
+                    move |_: On<Activate>, mut q: ResMut<GraphicsQuality>| {
+                        q.cycle(o);
+                    },
+                );
+                card.with_child((
+                    Part::BoxLabel(o),
+                    Text::new(o.name()),
+                    body(16.0, TEXT),
+                    Node {
+                        width: px(190),
+                        ..at(14.0, 19.0, 0.0)
+                    },
+                ));
+            } else {
+                card.with_children(|k| {
+                    k.spawn(checkbox(check, Check::Video(o), 12.0, 17.0));
+                    k.spawn((
                         Part::BoxLabel(o),
                         Text::new(o.name()),
                         body(16.0, TEXT),
                         Node {
                             width: px(150),
-                            ..at(52.0, 26.0, 0.0)
-                        }
-                    ),
-                ],
-            ));
+                            ..at(52.0, 19.0, 0.0)
+                        },
+                    ));
+                });
+            }
             // An option this build can't do has nothing to press.
             if GraphicsQuality::platform_default().value(o) != "N/A" {
                 card.insert(PadFocusable);
             }
-            card.observe(move |_: On<PointerClick>, mut q: ResMut<GraphicsQuality>| {
-                if q.value(o) != "N/A" {
-                    q.cycle(o);
-                }
-            });
+            if !is_stepper(o) {
+                card.observe(move |_: On<PointerClick>, mut q: ResMut<GraphicsQuality>| {
+                    if q.value(o) != "N/A" {
+                        q.cycle(o);
+                    }
+                });
+            }
         }
         c.spawn(label(
-            "Preset changes apply immediately. Change a checkbox: Custom.",
+            "Preset changes apply immediately. Change an option: Custom.",
             14.0,
             TEXT,
             18.0,
@@ -904,6 +960,16 @@ mod tests {
     fn every_box_is_a_real_option() {
         assert!(!VIDEO_BOXES.contains(&VideoOption::Preset));
         assert_eq!(VIDEO_BOXES.len(), 9);
+        // Every option is a card, once; a desktop build adds window size.
+        let cards = video_cards();
+        for o in VIDEO_BOXES {
+            assert_eq!(cards.iter().filter(|c| **c == o).count(), 1);
+        }
+        assert_eq!(
+            cards.contains(&VideoOption::WindowSize),
+            !cfg!(target_arch = "wasm32")
+        );
+        assert!(cards.len() <= 12, "the grid has room for 4 rows of 3");
     }
 
     #[test]

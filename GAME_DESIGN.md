@@ -47,7 +47,7 @@ golden, nights are dark blue with stars, a moon, and a city whose windows and st
 Every way in or out (doors, stairs, manholes, train doors) glows and names where it goes.
 **In New York:** find the J to Brooklyn in Fulton St station, 40 levels down (past empty
 long subway platforms, concourses of looping corridors and long curved galleries, rooms two floors high, and train-tunnel rings; most levels have 2-3 stairs down and signs to the nearest), for Pelf, while
-Andrew calls, gets angry, and sends something after you that crawls the ducts between staff doors (hide in lockers). Everyone carries
+Andrew calls, gets angry, and sends something after you that crawls the ducts between staff doors and squeezes out of them near you; when it sees you it stops and stares a moment before it comes (hide in lockers). Everyone carries
 $100; going down may drop your wallet somewhere in the station: find it (and strangers'
 wallets), or press I for an insurance drone that keeps 70%. B brags: coins fall out for others. Or step into the
 brownstone with the neon SURF sign: a surf map, a 3.7 km seven-stage course of bending ramps between sky towers to a timed finish.
@@ -286,6 +286,20 @@ free, and organ dollars only buy boba, joints and hats so far (and Wendy's butch
   1-3 extra corridors that close loops, and short dead ends (where the lockers are). If it
   doesn't fit, the level is plain corridors at the same size. Tuning in
   `fulton_layout.ron` (`concourse`).
+- **Fulton St skins** (doomy: variety, no patchwork walls, reskinnable). Every corridor, room
+  and gallery cell is drawn from a skin: its floor (floor, ceiling, one tube light) plus one of
+  its walls on each walled side (plain, piers and grille, pipes; picked by weight) and its column.
+  Six skins by depth (subway, service from 6, sewer 12, liminal 20, flesh 28, hell 35), sources
+  `fs-skin-<skin>-*`, listed in `fulton_tiles.ron` (`skins`). The plan is the same whatever the
+  skin. Stairs and platform pieces keep their own models.
+- **Train tunnels** (doomy: go down the tunnels on winding paths). On platform levels a train
+  tunnel runs on from each tunnel end's mouth, 4-10 cells winding through the rock on the track
+  bed, to a buffer stop (`fulton.ron` `rails`, pieces `fs-rails-*`). Platforms' columns stand back
+  at the wall now and more of the platform opens onto the corridor behind it.
+- **Deeper rooms**: room kinds take a `from` depth: pump stations (8+), squatters' camps (10+),
+  breaker halls (14+), barricaded halls (18+) and a locker vault set piece (20+).
+- **Hiding**: more lockers in dead ends; in a locker you hear your held breath and heartbeat,
+  louder as the hunter comes closer.
 - **Two-storey rooms** (doomy: a room two levels high with a balcony). A concourse over another
   concourse may (`two_storey` chance) drop its biggest room's floor a whole level: balconies at
   its doors, long stairs down, and its floor is the level below's floor. The level below runs

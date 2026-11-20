@@ -364,6 +364,9 @@ pub enum Mode {
     /// It has you: holding you in front of it while it kills you
     /// (`kill_secs`). The server drives this, not `think`.
     Kill,
+    /// It has just seen you: it stops and stares, head on one side
+    /// (`notice_secs`), before it comes. Break its sight and it comes to look.
+    Notice,
 }
 
 /// The hunter as everyone sees it (replicated).
@@ -382,6 +385,9 @@ pub struct Hunter {
     /// only hear it in the walls).
     #[serde(default)]
     pub ducted: bool,
+    /// Squeezing out of a service door (just out of a duct).
+    #[serde(default)]
+    pub emerging: bool,
 }
 
 /// The hunter's mind (server only).
@@ -414,6 +420,10 @@ pub struct Brain {
     pub ran: f32,
     /// The node it last stood on (where a duct it crawls through starts).
     pub at: Option<Node>,
+    /// Seconds left of staring at you ([`Mode::Notice`]).
+    pub noticing: f32,
+    /// Seconds left of squeezing out of a service door.
+    pub emerge: f32,
 }
 
 impl Brain {
@@ -421,6 +431,8 @@ impl Brain {
         Self {
             target,
             route: Vec::new(),
+            noticing: 0.0,
+            emerge: 0.0,
             timer: 0.0,
             last_seen: None,
             searched: Vec::new(),
@@ -481,6 +493,14 @@ pub fn think(
         walk(t, levels, hunter, brain, dt);
         return Outcome::Nothing;
     }
+    // Just out of a duct: it unfolds out of the doorway before it goes on.
+    if brain.emerge > 0.0 {
+        brain.emerge -= dt;
+        if brain.emerge > 0.0 {
+            return Outcome::Nothing;
+        }
+        hunter.emerging = false;
+    }
     let Some(me) = node_at(t, levels, hunter.pos) else {
         return Outcome::Gone;
     };
@@ -532,6 +552,24 @@ pub fn think(
     }
     if let Some(p) = seen {
         let at = node_at(t, levels, p.feet);
+        // First it stops and stares: a moment's grace before it comes.
+        let after_you = matches!(hunter.mode, Mode::Chase | Mode::Roll);
+        if !after_you && h.notice_secs > 0.0 {
+            if hunter.mode != Mode::Notice {
+                hunter.mode = Mode::Notice;
+                brain.noticing = h.notice_secs;
+                brain.route.clear();
+            }
+            brain.last_seen = at;
+            brain.noticing -= dt;
+            let d = (p.feet - hunter.pos).xz();
+            if d.length() > 0.01 {
+                hunter.yaw = d.x.atan2(d.y);
+            }
+            if brain.noticing > 0.0 {
+                return Outcome::Nothing;
+            }
+        }
         if hunter.mode != Mode::Chase {
             out = Outcome::Spotted(p.id);
         }
@@ -629,6 +667,16 @@ pub fn think(
             }
         }
         Mode::Kill => {}
+        Mode::Notice => {
+            // You slipped out of sight while it stared: it comes to look.
+            hunter.mode = Mode::Search;
+            brain.timer = h.search_secs;
+            brain.searched.clear();
+            brain.route = brain
+                .last_seen
+                .and_then(|a| route(levels, me, a))
+                .unwrap_or_default();
+        }
         Mode::Search => {
             if brain.route.is_empty() {
                 // At a locker it hasn't tried? Stop and open it.
@@ -709,8 +757,13 @@ pub fn think(
         }
         Mode::Drift => {
             if brain.timer <= 0.0 || brain.route.is_empty() {
-                let pick = drift_to(t, levels, me, target_node, target.hidden.is_some(), brain);
-                brain.route = route_ducts(levels, me, pick, h.ducts.cost).unwrap_or_default();
+                // Now and then it takes a duct out of a door near you, where
+                // you might see it come out.
+                let show = show_route(t, levels, me, target_node, target.hidden.is_some(), brain);
+                brain.route = show.unwrap_or_else(|| {
+                    let pick = drift_to(t, levels, me, target_node, target.hidden.is_some(), brain);
+                    route_ducts(levels, me, pick, h.ducts.cost).unwrap_or_default()
+                });
                 brain.timer = h.director_secs;
             }
         }
@@ -824,7 +877,7 @@ fn mode_speed(t: &Tuning, mode: Mode) -> f32 {
     match mode {
         Mode::Roll => t.hunt.roll_speed,
         Mode::Chase => t.hunt.chase_speed,
-        Mode::Check | Mode::Kill => 0.0,
+        Mode::Check | Mode::Kill | Mode::Notice => 0.0,
         _ => t.hunt.walk_speed,
     }
 }
@@ -864,8 +917,10 @@ fn walk(t: &Tuning, levels: &[Level], hunter: &mut Hunter, brain: &mut Brain, dt
             brain.route.remove(0);
             brain.at = Some(next);
             if hunter.ducted {
-                // Out of the far door.
+                // Out of the far door, squeezing through it.
                 hunter.ducted = false;
+                brain.emerge = t.hunt.ducts.emerge_secs;
+                hunter.emerging = brain.emerge > 0.0;
                 break;
             }
         } else {
@@ -876,6 +931,43 @@ fn walk(t: &Tuning, levels: &[Level], hunter: &mut Hunter, brain: &mut Brain, dt
             left = 0.0;
         }
     }
+}
+
+/// A way for it to come out of a service door near you (within `show_cells`,
+/// on your level, not right on top of you): walk to the nearest door it can
+/// reach, then the duct to that one. Only some of the time (`show_chance`),
+/// and never while you're hidden.
+pub fn show_route(
+    t: &Tuning,
+    levels: &[Level],
+    me: Node,
+    you: Node,
+    hidden: bool,
+    brain: &mut Brain,
+) -> Option<Vec<Node>> {
+    let d = &t.hunt.ducts;
+    if hidden || brain.rng.roll() >= d.show_chance {
+        return None;
+    }
+    let door = |n: &Node| {
+        levels
+            .get(n.0)
+            .is_some_and(|l| l.service.iter().any(|s| s.0 == (n.1, n.2)))
+    };
+    let near: Vec<Node> = around(levels, you, d.show_cells)
+        .into_iter()
+        .filter(|(n, dist)| n.0 == you.0 && *dist >= 2 && door(n))
+        .map(|(n, _)| n)
+        .collect();
+    let exit = *near.get(brain.rng.below(near.len()))?;
+    let way_in = around(levels, me, 60)
+        .into_iter()
+        .filter(|(n, _)| door(n) && *n != exit)
+        .min_by_key(|(_, dist)| *dist)?
+        .0;
+    let mut out = route(levels, me, way_in)?;
+    out.push(exit);
+    Some(out)
 }
 
 /// Where it turns up: on your level, as far from you as it can get, out of
@@ -1086,6 +1178,7 @@ fn calls(
                 pace: 1.0,
                 opening: None,
                 ducted: false,
+                emerging: false,
             },
             Brain::new(
                 p.id,
@@ -1428,6 +1521,7 @@ pub fn plugin(app: &mut App) {
                 duct_sounds,
                 shut_doors,
                 hide_ducted,
+                held_breath,
                 hunter_opens_lockers,
             )
                 .run_if(in_state(AppState::InGame))
@@ -1994,7 +2088,11 @@ fn hunter_gaze(
 ) {
     let eye = camera.single().ok().map(GlobalTransform::translation);
     for (h, mut o) in &mut hunters {
-        let want = if h.mode == Mode::Chase { eye } else { None };
+        let want = if matches!(h.mode, Mode::Chase | Mode::Notice) {
+            eye
+        } else {
+            None
+        };
         if o.look_at != want {
             o.look_at = want;
         }
@@ -2009,6 +2107,7 @@ pub fn clip_for(mode: Mode) -> (&'static str, bool) {
         Mode::Roll => ("roll", false),
         Mode::Chase => ("run", false),
         Mode::Check => ("search", true),
+        Mode::Notice => ("notice", false),
         Mode::Kill => ("kill", true),
         Mode::Drift | Mode::Search | Mode::Retreat => ("walk", false),
     }
@@ -2025,7 +2124,11 @@ fn hunt_clips(
     )>,
 ) {
     for (e, hunter, gait, clip) in &mut hunters {
-        let (want, once) = clip_for(hunter.mode);
+        let (want, once) = if hunter.emerging {
+            ("squeeze", true)
+        } else {
+            clip_for(hunter.mode)
+        };
         let next = if once {
             crate::rigged::RigClip::once(want).fade(0.2)
         } else {
@@ -2346,6 +2449,9 @@ fn move_hunters(
 pub fn cue(from: Mode, to: Mode) -> Option<Cue> {
     match (from, to) {
         (a, b) if a == b => None,
+        // It sees you and stops: the sting. Then the screech as it comes.
+        (Mode::Notice, Mode::Chase) => Some(Cue::Spot),
+        (_, Mode::Notice) => Some(Cue::Notice),
         // It has you: the screech as it grabs. After the kill it just goes.
         (_, Mode::Kill) => Some(Cue::Catch),
         (Mode::Kill | Mode::Check, Mode::Retreat | Mode::Search) => None,
@@ -2376,6 +2482,8 @@ pub enum Cue {
     Uncurl,
     /// It gives up on you without having caught you.
     Retreat,
+    /// It has seen you and stops to stare: the sting.
+    Notice,
 }
 
 /// Seconds between the sounds it makes unprompted: a breath while it drifts,
@@ -2414,7 +2522,7 @@ struct HuntEars {
     /// Footfalls so far (picks the variation).
     n: usize,
     /// Each cue's takes so far, in `Cue` order (round-robin).
-    takes: [usize; 6],
+    takes: [usize; 8],
     /// Seconds until its next unprompted breath or rattle.
     idle: f32,
     /// Seconds until the roll's slapping starts, while it's winding up.
@@ -2438,6 +2546,7 @@ struct HuntSounds {
     retreat: [Handle<AudioSample>; 3],
     drift: [Handle<AudioSample>; 3],
     search: [Handle<AudioSample>; 3],
+    notice: [Handle<AudioSample>; 3],
 }
 
 impl HuntSounds {
@@ -2447,6 +2556,7 @@ impl HuntSounds {
             steps: [1, 2, 3].map(|i| at(&format!("hunter_step_{i}"))),
             runs: [1, 2, 3].map(|i| at(&format!("hunter_run_{i}"))),
             spot: [1, 2, 3].map(|i| at(&format!("hunter_spot_{i}"))),
+            notice: [1, 2, 3].map(|i| at(&format!("hunter_notice_{i}"))),
             charge: [1, 2, 3].map(|i| at(&format!("hunter_charge_{i}"))),
             slaps: at("hunter_roll"),
             catch: [1, 2, 3].map(|i| at(&format!("hunter_catch_{i}"))),
@@ -2485,7 +2595,7 @@ fn hunt_sounds(
                 last: here,
                 step: 0.0,
                 n: 0,
-                takes: [0; 6],
+                takes: [0; 8],
                 idle: 1.5,
                 wind_up: 0.0,
                 slaps: None,
@@ -2501,6 +2611,7 @@ fn hunt_sounds(
                 Cue::Lost => (&sounds.lost, 0.9, Carry::CALL),
                 Cue::Uncurl => (&sounds.uncurl, 0.7, Carry::LOUD),
                 Cue::Retreat => (&sounds.retreat, 0.7, Carry::CALL),
+                Cue::Notice => (&sounds.notice, 0.9, Carry::LOUD),
             };
             // Round-robin: each cue goes through its takes in turn.
             let take = &mut ears.takes[cue as usize];
@@ -2682,6 +2793,61 @@ fn shut_doors(time: Res<Time>, mut commands: Commands, mut doors: Query<(Entity,
     }
 }
 
+/// Local: your held breath and heartbeat while you're in a locker and the
+/// hunter is near (louder the closer it gets).
+#[derive(Component)]
+struct HeldBreath;
+
+/// How loud your held breath is: nothing outside a locker or with it far
+/// off, rising to full as it comes within a few metres. Pure, so it's tested.
+pub fn breath_level(hidden: bool, hunter_dist: Option<f32>) -> f32 {
+    match (hidden, hunter_dist) {
+        (true, Some(d)) => ((16.0 - d) / 12.0).clamp(0.0, 1.0),
+        _ => 0.0,
+    }
+}
+
+#[allow(clippy::type_complexity)]
+fn held_breath(
+    time: Res<Time>,
+    assets: Option<Res<AssetServer>>,
+    mut commands: Commands,
+    me: Option<Res<LocalPlayer>>,
+    walkers: Query<(&Player, &Walker)>,
+    lockers: Query<&GlobalTransform, With<LockerDoor>>,
+    hunters: Query<&Hunter>,
+    mut breath: Query<(Entity, &mut crate::sound::SoundVolume), With<HeldBreath>>,
+) {
+    let Some(me) = me else { return };
+    let Some((_, w)) = walkers.iter().find(|(p, _)| p.id == me.0) else {
+        return;
+    };
+    let hidden = lockers.iter().any(|g| {
+        g.translation().xz().distance(w.pos.xz()) < 0.5 && (g.translation().y - w.pos.y).abs() < 1.5
+    });
+    let near = hunters
+        .iter()
+        .filter(|h| !h.ducted)
+        .map(|h| h.pos.distance(w.pos))
+        .reduce(f32::min);
+    let want = breath_level(hidden, near);
+    let k = (time.delta_secs() * 3.0).min(1.0);
+    if let Some((e, mut v)) = breath.iter_mut().next() {
+        v.0 += (want - v.0) * k;
+        if want == 0.0 && v.0 < 0.01 {
+            commands.entity(e).despawn();
+        }
+    } else if want > 0.0
+        && let Some(assets) = assets
+    {
+        let handle = assets.load("audio/sfx/hunter/hide_breath.ogg");
+        let e = crate::sound::play_loop(&mut commands, &handle, 0.0);
+        commands
+            .entity(e)
+            .insert((HeldBreath, DespawnOnExit(crate::AppState::InGame)));
+    }
+}
+
 /// Local: out of sight in a duct.
 fn hide_ducted(mut hunters: Query<(&Hunter, &mut Visibility), Changed<Hunter>>) {
     for (h, mut v) in &mut hunters {
@@ -2827,6 +2993,7 @@ mod tests {
             pace: 1.0,
             opening: None,
             ducted: false,
+            emerging: false,
         };
         let me = Vec3::ZERO;
         assert!(after_you(&at(Mode::Chase, 10.0), me, 45.0));
@@ -3034,6 +3201,103 @@ mod tests {
     }
 
     #[test]
+    fn it_comes_out_of_a_door_near_you_and_squeezes_out() {
+        let (t0, _, levels) = data();
+        let mut t = t0.clone();
+        t.hunt.ducts.show_chance = 1.0;
+        let mut shown = 0;
+        for (li, l) in levels.iter().enumerate().take(12) {
+            let Some(&(c, _)) = l.service.first() else {
+                continue;
+            };
+            // You stand a few steps from a door; it starts across the level.
+            let near = around(&levels, (li, c.0, c.1), 3);
+            let Some(&(you, _)) = near.iter().find(|(n, d)| *d == 3 && n.0 == li) else {
+                continue;
+            };
+            let far = around(&levels, you, 40)
+                .into_iter()
+                .filter(|(n, _)| n.0 == li)
+                .max_by_key(|(_, d)| *d)
+                .map(|(n, _)| n)
+                .unwrap_or(you);
+            let mut brain = Brain::new(1, li as u32 + 3);
+            let Some(r) = show_route(&t, &levels, far, you, false, &mut brain) else {
+                continue;
+            };
+            shown += 1;
+            let exit = *r.last().unwrap_or(&far);
+            // Out of a door on your level, near you.
+            assert_eq!(exit.0, li);
+            assert!(l.service.iter().any(|s| s.0 == (exit.1, exit.2)));
+            assert!(
+                around(&levels, you, t.hunt.ducts.show_cells)
+                    .iter()
+                    .any(|(n, _)| *n == exit)
+            );
+            // Hidden, it never shows off.
+            assert!(show_route(&t, &levels, far, you, true, &mut brain).is_none());
+            // Walked along that route it crawls out there, and squeezes out.
+            let mut h = hunter_at(&t, &levels, far);
+            brain.route = r;
+            brain.at = Some(far);
+            let mut out_at = None;
+            for _ in 0..4000 {
+                let was = h.ducted;
+                walk(&t, &levels, &mut h, &mut brain, 0.05);
+                if was && !h.ducted {
+                    out_at = Some(h.pos);
+                    break;
+                }
+            }
+            assert!(out_at.is_some(), "level {li}: never came out");
+            assert!(h.emerging, "level {li}");
+            assert!(brain.emerge > 0.0);
+        }
+        assert!(shown >= 3, "only {shown}");
+    }
+
+    #[test]
+    fn you_hold_your_breath_louder_the_closer_it_comes() {
+        assert_eq!(breath_level(false, Some(2.0)), 0.0);
+        assert_eq!(breath_level(true, None), 0.0);
+        assert_eq!(breath_level(true, Some(30.0)), 0.0);
+        let (far, near) = (
+            breath_level(true, Some(12.0)),
+            breath_level(true, Some(5.0)),
+        );
+        assert!(far > 0.0 && near > far);
+        assert_eq!(breath_level(true, Some(2.0)), 1.0);
+    }
+
+    #[test]
+    fn it_comes_to_look_if_you_slip_away_while_it_stares() {
+        let (t, set, levels) = data();
+        let spots = hiding_spots(&t, &set, &levels);
+        let Some((a, b)) = corridor(&levels) else {
+            panic!("no corridor")
+        };
+        let mut h = hunter_at(&t, &levels, a);
+        let d = node_pos(&t, &levels, b) - node_pos(&t, &levels, a);
+        h.yaw = d.x.atan2(d.z);
+        let mut you = Prey {
+            id: 7,
+            feet: node_pos(&t, &levels, b),
+            hidden: None,
+            yaw: 0.0,
+            running: false,
+        };
+        let mut brain = Brain::new(7, 1);
+        think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05);
+        assert_eq!(h.mode, Mode::Notice);
+        // Into a locker before it's done staring.
+        you.hidden = Some(you.feet);
+        think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05);
+        assert_eq!(h.mode, Mode::Search);
+        assert_eq!(brain.last_seen, Some(b));
+    }
+
+    #[test]
     fn it_crawls_through_a_duct_out_of_sight_and_out_of_the_far_door() {
         let (t, _, levels) = data();
         // Two doors on one level, far apart on foot.
@@ -3065,7 +3329,16 @@ mod tests {
         // A duct costing more than the walk round isn't taken.
         let walked = route(&levels, from, to).expect("a way on foot");
         let dear = route_ducts(&levels, from, to, walked.len() as u32 + 5).expect("a way");
-        assert_eq!(dear, walked);
+        // (On foot all the way: as long as the walk, every step a neighbour.)
+        assert_eq!(dear.len(), walked.len());
+        let mut at = from;
+        for n in &dear {
+            assert!(
+                neighbours(&levels, at).contains(n),
+                "{at:?} to {n:?} is a duct"
+            );
+            at = *n;
+        }
     }
 
     fn hunter_at(t: &Tuning, levels: &[Level], n: Node) -> Hunter {
@@ -3076,6 +3349,7 @@ mod tests {
             pace: 1.0,
             opening: None,
             ducted: false,
+            emerging: false,
         }
     }
 
@@ -3191,8 +3465,23 @@ mod tests {
             running: false,
         };
         let mut brain = Brain::new(7, 1);
+        // First it stops and stares (a moment's grace), not moving...
+        let at = h.pos;
         let first = think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05);
-        assert_eq!(first, Outcome::Spotted(7));
+        assert_eq!(first, Outcome::Nothing);
+        assert_eq!(h.mode, Mode::Notice);
+        let mut spotted = 0.05;
+        while think(&t, &levels, &spots, &mut h, &mut brain, &[you], &[], 0.05)
+            != Outcome::Spotted(7)
+        {
+            spotted += 0.05;
+            assert!(spotted < t.hunt.notice_secs + 0.2, "it never came");
+            if h.mode == Mode::Notice {
+                assert!(h.pos.distance(at) < 1e-3, "it moved while staring");
+            }
+        }
+        // ...then it comes.
+        assert!(spotted + 0.1 >= t.hunt.notice_secs, "{spotted}");
         assert_eq!(h.mode, Mode::Chase);
         let mut caught = false;
         for _ in 0..200 {

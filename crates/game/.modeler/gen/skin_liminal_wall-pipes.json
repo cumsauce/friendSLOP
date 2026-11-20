@@ -1,0 +1,201 @@
+[
+ {
+  "type": "primitive",
+  "name": "wall",
+  "kind": "plane",
+  "size": [
+   6,
+   3.8
+  ],
+  "translation": [
+   0,
+   1.9,
+   -2.8
+  ],
+  "facing": "+z"
+ },
+ {
+  "type": "primitive",
+  "name": "band",
+  "kind": "box",
+  "size": [
+   6,
+   0.4,
+   0.04
+  ],
+  "translation": [
+   0,
+   2.6,
+   -2.78
+  ]
+ },
+ {
+  "type": "primitive",
+  "name": "skirt",
+  "kind": "box",
+  "size": [
+   6,
+   0.25,
+   0.05
+  ],
+  "translation": [
+   0,
+   0.125,
+   -2.775
+  ]
+ },
+ {
+  "type": "group",
+  "name": "trim",
+  "inputs": [
+   "band",
+   "skirt"
+  ]
+ },
+ {
+  "type": "hide_part",
+  "part": "band"
+ },
+ {
+  "type": "hide_part",
+  "part": "skirt"
+ },
+ {
+  "type": "material",
+  "name": "wall",
+  "pbr": "wd-checker"
+ },
+ {
+  "type": "material",
+  "name": "trim",
+  "pbr": "bt-tiles"
+ },
+ {
+  "type": "primitive",
+  "name": "pipe_a",
+  "kind": "cylinder",
+  "size": [
+   0.09,
+   6
+  ],
+  "translation": [
+   0,
+   3.35,
+   -2.62
+  ],
+  "rotation": {
+   "z": 90
+  }
+ },
+ {
+  "type": "primitive",
+  "name": "pipe_b",
+  "kind": "cylinder",
+  "size": [
+   0.06,
+   6
+  ],
+  "translation": [
+   0,
+   3.1,
+   -2.66
+  ],
+  "rotation": {
+   "z": 90
+  }
+ },
+ {
+  "type": "primitive",
+  "name": "bracket_l",
+  "kind": "box",
+  "size": [
+   0.08,
+   0.5,
+   0.3
+  ],
+  "translation": [
+   -1.8,
+   3.25,
+   -2.65
+  ]
+ },
+ {
+  "type": "primitive",
+  "name": "bracket_r",
+  "kind": "box",
+  "size": [
+   0.08,
+   0.5,
+   0.3
+  ],
+  "translation": [
+   1.8,
+   3.25,
+   -2.65
+  ]
+ },
+ {
+  "type": "primitive",
+  "name": "valve",
+  "kind": "cylinder",
+  "size": [
+   0.12,
+   0.04
+  ],
+  "translation": [
+   0.6,
+   3.1,
+   -2.55
+  ],
+  "rotation": {
+   "x": 90
+  }
+ },
+ {
+  "type": "group",
+  "name": "pipes",
+  "inputs": [
+   "pipe_a",
+   "pipe_b",
+   "valve"
+  ]
+ },
+ {
+  "type": "group",
+  "name": "brackets",
+  "inputs": [
+   "bracket_l",
+   "bracket_r"
+  ]
+ },
+ {
+  "type": "hide_part",
+  "part": "pipe_a"
+ },
+ {
+  "type": "hide_part",
+  "part": "pipe_b"
+ },
+ {
+  "type": "hide_part",
+  "part": "valve"
+ },
+ {
+  "type": "hide_part",
+  "part": "bracket_l"
+ },
+ {
+  "type": "hide_part",
+  "part": "bracket_r"
+ },
+ {
+  "type": "material",
+  "name": "pipes",
+  "pbr": "ns-paint"
+ },
+ {
+  "type": "material",
+  "name": "brackets",
+  "pbr": "bt-tiles"
+ }
+]

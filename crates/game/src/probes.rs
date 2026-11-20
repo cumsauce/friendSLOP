@@ -44,6 +44,11 @@ pub struct Tuning {
     pub levels: usize,
     /// The diffuse map's size (px).
     pub diffuse: usize,
+    /// How much brighter the specular (reflection) map is baked than the
+    /// scene it saw. A map is applied at `intensity` for both its diffuse
+    /// light and its reflections; the diffuse side wants that dimming and
+    /// metals don't, so the reflections get it back here.
+    pub specular_gain: f32,
     /// Seconds to let a place load and settle before its pictures.
     pub settle_secs: f32,
 }
@@ -158,6 +163,8 @@ fn bake(
             Vec3::new(p.x, ground + t.world_height, p.y),
         )];
         q.extend(bakes.0.iter().cloned());
+        // `FRIENDSLOP_BAKE=world,fulton` bakes just those.
+        q.retain(|(name, _)| wanted(name));
         info!("bake: {} probes", q.len());
         q
     });
@@ -308,6 +315,18 @@ fn assemble(shots: &[Image], size: usize) -> Cube {
     })
 }
 
+/// Is `name` among the probes to bake? All of them unless `FRIENDSLOP_BAKE`
+/// lists some (`world,fulton`) instead of just `1`.
+fn wanted(name: &str) -> bool {
+    let var = std::env::var("FRIENDSLOP_BAKE").unwrap_or_default();
+    listed(&var, name)
+}
+
+fn listed(var: &str, name: &str) -> bool {
+    let var = var.trim();
+    matches!(var, "" | "0" | "1") || var.split(',').any(|n| n.trim() == name)
+}
+
 #[cfg(not(target_arch = "wasm32"))]
 fn write(name: &str, cube: &Cube, t: &Tuning) {
     use friendslop_art::envmap;
@@ -318,7 +337,7 @@ fn write(name: &str, cube: &Cube, t: &Tuning) {
         return;
     }
     let (d, s) = probes::files(name);
-    let spec = envmap::specular(cube, t.face, t.levels);
+    let spec = envmap::specular(&cube.clone().scaled(t.specular_gain), t.face, t.levels);
     let diff = envmap::diffuse(cube, t.diffuse);
     for (file, levels) in [(s, spec), (d, vec![diff])] {
         let path = std::path::Path::new(&root).join("assets").join(&file);
@@ -335,6 +354,19 @@ fn write(_: &str, _: &Cube, _: &Tuning) {}
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn bake_lists_pick_probes() {
+        assert!(listed("1", "world") && listed("1", "fulton"));
+        assert!(listed("world, fulton", "fulton") && listed("world,fulton", "world"));
+        assert!(!listed("world", "fulton"));
+    }
+
+    #[test]
+    fn the_data_file_parses_and_has_everything() {
+        let t = TUNING.get();
+        assert!(t.intensity > 0.0 && t.specular_gain >= 1.0 && t.face > 0);
+    }
 
     #[test]
     fn half_floats_decode() {

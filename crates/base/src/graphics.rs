@@ -17,12 +17,15 @@
 //! - Resolution: in the browser (#191) "Sharp" renders at the screen's pixel
 //!   density (up to 2x), "Fast" at 1x (phones are 2-3x, so that's 4-9x fewer
 //!   pixels); index.html picks it before the game starts, so a change applies
-//!   on the next page load. On desktop "Fast" (the Low preset) renders the
-//!   world at `fast_scale` of the window (`data/base/graphics.ron`) and
-//!   stretches it to fit, live; the UI stays sharp. A weak GPU (the Steam
-//!   Deck, #393) spends most of its frame shading pixels. Sharp or Fast,
-//!   the world is never rendered at more than `max_megapixels` (a Retina
-//!   screen has four times the pixels of a plain one the same size).
+//!   on the next page load. On desktop it's the render scale, 50% to 100% of
+//!   the window in steps ([`SCALES`]; the Low preset picks [`LOW_SCALE`]): the
+//!   world is drawn that size and stretched to fit, live; the UI stays sharp.
+//!   A weak GPU (the Steam Deck, #393) spends most of its frame shading
+//!   pixels. Whatever the scale, the world is never rendered at more than
+//!   `max_megapixels` (a Retina screen has four times the pixels of a plain
+//!   one the same size).
+//! - Window size (desktop): Auto leaves the window as it is, or pick a
+//!   windowed size from [`WINDOW_SIZES`] (fullscreen ignores it).
 //! - Grass & particles: half or full (applies the next time a world is built).
 //! - VSync and Fullscreen: the window.
 //!
@@ -51,8 +54,6 @@ pub const HDR_SUPPORTED: bool = !cfg!(target_arch = "wasm32");
 /// Tuning: `assets/data/base/graphics.ron`.
 #[derive(serde::Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
-    /// Desktop "Fast": the world's render size as a fraction of the window's.
-    pub fast_scale: f32,
     /// How many samples ambient occlusion takes per pixel.
     pub ssao_quality: SsaoQuality,
     /// How far (meters, in view space) ambient occlusion looks for occluders.
@@ -169,6 +170,18 @@ pub static TUNING: friendslop_data::Data<Tuning> =
 /// The Resolution setting the page started with (what index.html applied).
 static BOOT_SHARP: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
 
+/// The desktop render scales the Resolution option steps through (percent of
+/// the window's size, each side).
+pub const SCALES: [u8; 6] = [50, 60, 70, 80, 90, 100];
+
+/// The render scale the Low preset picks.
+pub const LOW_SCALE: u8 = 70;
+
+/// The windowed sizes the Window size option steps through (logical pixels);
+/// the first, 0x0, is Auto: leave the window as the player has it.
+pub const WINDOW_SIZES: [(u32, u32); 5] =
+    [(0, 0), (1280, 720), (1600, 900), (1920, 1080), (2560, 1440)];
+
 /// The UI is laid out for at least this many logical pixels. Smaller screens
 /// (a phone held sideways is ~850x390) scale the whole UI down to fit,
 /// touch controls included, instead of cutting it off (#191).
@@ -190,9 +203,14 @@ pub struct GraphicsQuality {
     pub msaa: bool,
     pub far: bool,
     pub sharp: bool,
+    /// Desktop: the render scale, percent of the window's size each side (one
+    /// of [`SCALES`]). Browsers have `sharp` instead.
+    pub scale: u8,
     pub dense: bool,
     pub vsync: bool,
     pub fullscreen: bool,
+    /// Desktop: which of [`WINDOW_SIZES`] the window is set to (0 = Auto).
+    pub window: u8,
 }
 
 /// The presets, from fastest to prettiest.
@@ -228,6 +246,7 @@ impl Preset {
             far: !low,
             // Desktop Medium stays sharp: only Low trades pixels for speed.
             sharp: high || (!low && !cfg!(target_arch = "wasm32")),
+            scale: if low { LOW_SCALE } else { 100 },
             dense: !low,
             ..q
         }
@@ -247,10 +266,11 @@ pub enum VideoOption {
     Grass,
     VSync,
     Fullscreen,
+    WindowSize,
 }
 
 impl VideoOption {
-    pub const ALL: [VideoOption; 10] = [
+    pub const ALL: [VideoOption; 11] = [
         VideoOption::Preset,
         VideoOption::Shadows,
         VideoOption::AmbientOcclusion,
@@ -261,6 +281,7 @@ impl VideoOption {
         VideoOption::Grass,
         VideoOption::VSync,
         VideoOption::Fullscreen,
+        VideoOption::WindowSize,
     ];
 
     pub fn name(self) -> &'static str {
@@ -275,7 +296,40 @@ impl VideoOption {
             Self::Grass => "Grass & particles",
             Self::VSync => "VSync",
             Self::Fullscreen => "Fullscreen",
+            Self::WindowSize => "Window size",
         }
+    }
+}
+
+/// The text for a render scale.
+fn scale_label(scale: u8) -> &'static str {
+    match scale {
+        50 => "50%",
+        60 => "60%",
+        70 => "70%",
+        80 => "80%",
+        90 => "90%",
+        _ => "100%",
+    }
+}
+
+/// The scale after this one (wrapping from 100% back to 50%).
+fn next_scale(scale: u8) -> u8 {
+    SCALES
+        .iter()
+        .copied()
+        .find(|&s| s > scale)
+        .unwrap_or(SCALES[0])
+}
+
+/// The text for a window size choice.
+fn window_label(i: u8) -> &'static str {
+    match i {
+        1 => "1280x720",
+        2 => "1600x900",
+        3 => "1920x1080",
+        4 => "2560x1440",
+        _ => "Auto",
     }
 }
 
@@ -320,13 +374,7 @@ impl GraphicsQuality {
                     "Near"
                 }
             }
-            VideoOption::Resolution if !cfg!(target_arch = "wasm32") => {
-                if self.sharp {
-                    "Sharp"
-                } else {
-                    "Fast"
-                }
-            }
+            VideoOption::Resolution if !cfg!(target_arch = "wasm32") => scale_label(self.scale),
             VideoOption::Resolution => {
                 let boot = BOOT_SHARP.get().copied().unwrap_or(self.sharp);
                 match (self.sharp, boot == self.sharp) {
@@ -345,6 +393,8 @@ impl GraphicsQuality {
             }
             VideoOption::VSync => on_off(self.vsync),
             VideoOption::Fullscreen => on_off(self.fullscreen),
+            VideoOption::WindowSize if cfg!(target_arch = "wasm32") => "N/A",
+            VideoOption::WindowSize => window_label(self.window),
         }
     }
 
@@ -369,10 +419,19 @@ impl GraphicsQuality {
             VideoOption::Bloom => self.bloom = !self.bloom && HDR_SUPPORTED,
             VideoOption::AntiAlias => self.antialias = !self.antialias,
             VideoOption::DrawDistance => self.far = !self.far,
-            VideoOption::Resolution => self.sharp = !self.sharp,
+            VideoOption::Resolution if cfg!(target_arch = "wasm32") => self.sharp = !self.sharp,
+            // 50% -> 60% ... -> 100% -> 50%.
+            VideoOption::Resolution => {
+                self.scale = next_scale(self.scale);
+                self.sharp = self.scale >= 100;
+            }
             VideoOption::Grass => self.dense = !self.dense,
             VideoOption::VSync => self.vsync = !self.vsync,
             VideoOption::Fullscreen => self.fullscreen = !self.fullscreen,
+            VideoOption::WindowSize if cfg!(target_arch = "wasm32") => {}
+            VideoOption::WindowSize => {
+                self.window = (self.window + 1) % WINDOW_SIZES.len() as u8;
+            }
         }
     }
 
@@ -393,6 +452,10 @@ impl GraphicsQuality {
         ]
         .iter()
         .map(|(k, v)| format!("{k}={}\n", u8::from(*v)))
+        .chain([
+            format!("scale={}\n", self.scale),
+            format!("window={}\n", self.window),
+        ])
         .collect()
     }
 
@@ -406,10 +469,29 @@ impl GraphicsQuality {
         }
         let mut q = base;
         let mut any = false;
+        let mut scale = None;
         for line in text.lines() {
             let Some((k, v)) = line.split_once('=') else {
                 continue;
             };
+            // The two numbers; everything else is a 0/1 flag.
+            match k.trim() {
+                "scale" => {
+                    scale = v.trim().parse::<u8>().ok().filter(|s| SCALES.contains(s));
+                    any = true;
+                    continue;
+                }
+                "window" => {
+                    if let Ok(w) = v.trim().parse::<u8>()
+                        && usize::from(w) < WINDOW_SIZES.len()
+                    {
+                        q.window = w;
+                    }
+                    any = true;
+                    continue;
+                }
+                _ => {}
+            }
             let v = v.trim() == "1";
             let field = match k.trim() {
                 "shadows" => &mut q.shadows,
@@ -428,6 +510,8 @@ impl GraphicsQuality {
             *field = v;
             any = true;
         }
+        // Files from before the render scale: Sharp was full, Fast was 70%.
+        q.scale = scale.unwrap_or(if q.sharp { 100 } else { LOW_SCALE });
         q.ssao &= SSAO_SUPPORTED;
         q.bloom &= HDR_SUPPORTED;
         any.then_some(q)
@@ -445,9 +529,11 @@ impl GraphicsQuality {
             msaa: false,
             far: false,
             sharp: false,
+            scale: LOW_SCALE,
             dense: false,
             vsync: true,
             fullscreen: false,
+            window: 0,
         };
         if cfg!(any(target_arch = "wasm32", target_os = "android"))
             || on_steam_deck()
@@ -621,7 +707,11 @@ fn save_quality(q: Res<GraphicsQuality>) {
 /// UI size, vsync and fullscreen. (The render resolution is index.html's
 /// job, see [`RESOLUTION_ADJUSTABLE`]: a scale factor override only changes
 /// how big the UI is, never how many pixels get drawn.)
-fn apply_window(q: Res<GraphicsQuality>, mut window: Query<&mut Window, With<PrimaryWindow>>) {
+fn apply_window(
+    q: Res<GraphicsQuality>,
+    mut window: Query<&mut Window, With<PrimaryWindow>>,
+    mut sized: Local<Option<(u8, bool)>>,
+) {
     let Ok(mut window) = window.single_mut() else {
         return;
     };
@@ -650,6 +740,18 @@ fn apply_window(q: Res<GraphicsQuality>, mut window: Query<&mut Window, With<Pri
     };
     if window.mode != mode {
         window.mode = mode;
+    }
+    // A window size, when the choice (or leaving fullscreen) changes it, so
+    // dragging the window's edge afterwards sticks until the next pick. Not
+    // in a browser: the canvas is the page's.
+    let key = (q.window, q.fullscreen);
+    if !cfg!(target_arch = "wasm32") && *sized != Some(key) {
+        *sized = Some(key);
+        if let (false, Some(&(w, h))) = (q.fullscreen, WINDOW_SIZES.get(usize::from(q.window)))
+            && w > 0
+        {
+            window.resolution.set(w as f32, h as f32);
+        }
     }
 }
 
@@ -774,31 +876,61 @@ mod tests {
 
     #[cfg(not(target_arch = "wasm32"))]
     #[test]
+    fn render_scale_steps_and_window_sizes_cycle_and_save() {
+        let mut q = Preset::High.apply(GraphicsQuality::platform_default());
+        assert_eq!(q.value(VideoOption::Resolution), "100%");
+        // 100% wraps to the lowest step, then up through every step.
+        q.cycle(VideoOption::Resolution);
+        assert_eq!(q.value(VideoOption::Resolution), "50%");
+        assert!(!q.sharp);
+        let mut seen = vec![q.scale];
+        for _ in 1..SCALES.len() {
+            q.cycle(VideoOption::Resolution);
+            seen.push(q.scale);
+        }
+        assert_eq!(seen, SCALES);
+        assert!(q.sharp);
+        // Low picks its own scale, and any scale reads as Custom.
+        assert_eq!(Preset::Low.apply(q).scale, LOW_SCALE);
+        q.cycle(VideoOption::Resolution);
+        assert_eq!(q.value(VideoOption::Preset), "Custom");
+        // The window size goes round the list, Auto first.
+        let mut q = GraphicsQuality::platform_default();
+        assert_eq!(q.value(VideoOption::WindowSize), "Auto");
+        for want in ["1280x720", "1600x900", "1920x1080", "2560x1440", "Auto"] {
+            q.cycle(VideoOption::WindowSize);
+            assert_eq!(q.value(VideoOption::WindowSize), want);
+        }
+        // Both save, and files from before them still load.
+        q.scale = 80;
+        q.window = 3;
+        assert_eq!(GraphicsQuality::from_text(&q.to_text()), Some(q));
+        let old = GraphicsQuality::from_text("sharp=1\nfullscreen=0\n");
+        assert_eq!(old.map(|o| (o.scale, o.window)), Some((100, 0)));
+        let old = GraphicsQuality::from_text("sharp=0\n");
+        assert_eq!(old.map(|o| o.scale), Some(LOW_SCALE));
+        // A junk number is ignored.
+        let junk = GraphicsQuality::from_text("sharp=1\nscale=75\nwindow=9\n");
+        assert_eq!(junk.map(|o| (o.scale, o.window)), Some((100, 0)));
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
     fn fast_renders_fewer_pixels_and_sharp_none_less() {
         let w = UVec2::new(1280, 800);
-        assert_eq!(render_scale::size(w, true, 0.7, 0.0), None);
-        assert_eq!(render_scale::size(w, false, 1.0, 0.0), None);
-        assert_eq!(
-            render_scale::size(w, false, 0.7, 0.0),
-            Some(UVec2::new(896, 560))
-        );
-        assert_eq!(
-            render_scale::size(UVec2::ZERO, false, 0.5, 0.0),
-            Some(UVec2::ONE)
-        );
+        assert_eq!(render_scale::size(w, 1.0, 0.0), None);
+        assert_eq!(render_scale::size(w, 0.7, 0.0), Some(UVec2::new(896, 560)));
+        assert_eq!(render_scale::size(UVec2::ZERO, 0.5, 0.0), Some(UVec2::ONE));
     }
 
     #[cfg(not(target_arch = "wasm32"))]
     #[test]
     fn big_windows_render_at_the_pixel_budget() {
         // A window under the budget is drawn straight to the screen.
-        assert_eq!(
-            render_scale::size(UVec2::new(1920, 1080), true, 0.7, 2.5),
-            None
-        );
+        assert_eq!(render_scale::size(UVec2::new(1920, 1080), 1.0, 2.5), None);
         // A Retina fullscreen is shrunk to the budget, same shape.
         let full = UVec2::new(3024, 1964);
-        let Some(got) = render_scale::size(full, true, 0.7, 2.5) else {
+        let Some(got) = render_scale::size(full, 1.0, 2.5) else {
             panic!("5.9 million pixels is over a 2.5 million budget");
         };
         let pixels = got.x as f32 * got.y as f32;
@@ -807,10 +939,10 @@ mod tests {
         assert!((shape(got) - shape(full)).abs() < 0.01);
         // Fast already under the budget keeps its own size; no cap at 0.
         assert_eq!(
-            render_scale::size(UVec2::new(1280, 800), false, 0.7, 2.5),
+            render_scale::size(UVec2::new(1280, 800), 0.7, 2.5),
             Some(UVec2::new(896, 560))
         );
-        assert_eq!(render_scale::size(full, true, 0.7, 0.0), None);
+        assert_eq!(render_scale::size(full, 1.0, 0.0), None);
     }
 
     #[test]
@@ -824,8 +956,6 @@ mod tests {
             panic!("no {path}")
         };
         assert!(TUNING.set_bytes(&bytes), "{path} doesn't parse");
-        let s = TUNING.get().fast_scale;
-        assert!(s > 0.0 && s <= 1.0);
         // The file says which quality it wants (a missing field would not parse).
         let text = String::from_utf8_lossy(&bytes);
         assert!(text.contains("ssao_quality") && text.contains("max_megapixels"));
@@ -938,20 +1068,16 @@ mod render_scale {
     /// The world's render size for a window this many physical pixels big,
     /// or `None` to draw straight to the window.
     ///
-    /// Fast shrinks each side by `scale`; then, Sharp or Fast, anything over
-    /// `max_megapixels` million pixels is shrunk to that many (0 = no cap).
+    /// Each side is shrunk to `scale` (`0..=1`, 1 = full size); then, whatever
+    /// the scale, anything over `max_megapixels` million pixels is shrunk to
+    /// that many (0 = no cap).
     /// A Retina screen has four times the pixels of its size in points, and
     /// the GPU's frame is mostly shading them.
-    pub(super) fn size(
-        window: UVec2,
-        sharp: bool,
-        scale: f32,
-        max_megapixels: f32,
-    ) -> Option<UVec2> {
-        let mut factor = if sharp || !(scale > 0.0 && scale < 1.0) {
-            1.0
-        } else {
+    pub(super) fn size(window: UVec2, scale: f32, max_megapixels: f32) -> Option<UVec2> {
+        let mut factor = if scale > 0.0 && scale < 1.0 {
             scale
+        } else {
+            1.0
         };
         let pixels = window.x as f32 * window.y as f32 * factor * factor;
         let budget = max_megapixels * 1.0e6;
@@ -984,8 +1110,7 @@ mod render_scale {
         let Ok(window) = window.single() else { return };
         let want = size(
             window.resolution.physical_size(),
-            q.sharp,
-            TUNING.get().fast_scale,
+            f32::from(q.scale) / 100.0,
             TUNING.get().max_megapixels,
         );
         let has_main = !main.is_empty();

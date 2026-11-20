@@ -14,7 +14,7 @@
     pieces: [
         (model: "fs_tile_closed.gltf", open: [], weight: 0.5),
         (model: "fs_tile_end.gltf", open: [N], weight: 0.5),
-        (model: "fs_tile_lockers.gltf", open: [N], weight: 0.7, hide: true),
+        (model: "fs_tile_lockers.gltf", open: [N], weight: 1.6, hide: true),
         (model: "fs_tile_straight.gltf", open: [N, S], weight: 3.2),
         (model: "fs_tile_corner.gltf", open: [N, E], weight: 3.0),
         (model: "fs_tile_tee.gltf", open: [N, E, S], weight: 1.4),
@@ -24,10 +24,12 @@
         // running along the `track` sides, which only meet other track sides.
         // A run of track always ends in tunnel ends, which have steps down; the
         // two ends are mirror images (the deck stays on the run's N side).
-        (model: "fs_tile_track.gltf", open: [E, W], track: [E, W], weight: 3.0),
-        (model: "fs_tile_track_entry.gltf", open: [N, E, W], track: [E, W], weight: 2.0),
-        (model: "fs_tile_track_end.gltf", open: [E], track: [E], weight: 1.0),
-        (model: "fs_tile_track_end_w.gltf", open: [W], track: [W], weight: 1.0),
+        (model: "fs_tile_track.gltf", open: [E, W], track: [E, W], weight: 2.0),
+        (model: "fs_tile_track_entry.gltf", open: [N, E, W], track: [E, W], weight: 3.5),
+        (model: "fs_tile_track_end.gltf", open: [E], track: [E], weight: 1.0,
+         mouth_open: "fs_tile_track_end_open.gltf"),
+        (model: "fs_tile_track_end_w.gltf", open: [W], track: [W], weight: 1.0,
+         mouth_open: "fs_tile_track_end_w_open.gltf"),
     ],
     // Depth looks (themes): from this level down (0 is the top) the plain corridor
     // pieces are drawn in another skin, each weirder than the last. The latest
@@ -85,6 +87,47 @@
             ("fs_tile_tee.gltf", "fs_tile_tee_hell.gltf"),
             ("fs_tile_cross.gltf", "fs_tile_cross_hell.gltf"),
         ]),
+    ],
+    // Train tunnels running on from the platforms' tunnel mouths (fulton.ron's
+    // `rails`; sources `fs-rails-*`, origin on the track bed): the straight
+    // (rails along x), the curve (N to E), the wall, and the buffer stop at the
+    // dead end. A tunnel end with one runs on is drawn with its `mouth_open`.
+    rails: (
+        straight: "fs_rails_straight.gltf",
+        curve: "fs_rails_curve.gltf",
+        wall: "fs_rails_wall.gltf",
+        buffer: "fs_buffer_stop.gltf",
+    ),
+    // Skins (sources `.modeler/prefabs/fs-skin-<skin>-*`): from level `from` down
+    // (the deepest reached wins), every corridor, room and gallery cell is the
+    // skin's floor (floor, ceiling, a tube light) plus one of its walls on each
+    // walled side, picked by weight. The plan is the same whatever the skin, so
+    // a new look is a new skin. `light` tints the cell lights.
+    skins: [
+        (name: "subway", from: 0,
+         floor: "fs_skin_subway_floor.gltf", column: "fs_skin_subway_column.gltf",
+         walls: [("fs_skin_subway_wall.gltf", 3.0), ("fs_skin_subway_wall_piers.gltf", 1.6),
+                 ("fs_skin_subway_wall_pipes.gltf", 1.0)]),
+        (name: "service", from: 6,
+         floor: "fs_skin_service_floor.gltf", column: "fs_skin_service_column.gltf",
+         walls: [("fs_skin_service_wall.gltf", 2.0), ("fs_skin_service_wall_pipes.gltf", 2.0),
+                 ("fs_skin_service_wall_piers.gltf", 1.0)]),
+        (name: "sewer", from: 12, light: Some((0.75, 1.0, 0.6)),
+         floor: "fs_skin_sewer_floor.gltf", column: "fs_skin_sewer_column.gltf",
+         walls: [("fs_skin_sewer_wall.gltf", 2.0), ("fs_skin_sewer_wall_pipes.gltf", 2.0),
+                 ("fs_skin_sewer_wall_piers.gltf", 1.2)]),
+        (name: "liminal", from: 20, light: Some((1.0, 0.95, 0.55)),
+         floor: "fs_skin_liminal_floor.gltf", column: "fs_skin_liminal_column.gltf",
+         walls: [("fs_skin_liminal_wall.gltf", 4.0), ("fs_skin_liminal_wall_piers.gltf", 1.0),
+                 ("fs_skin_liminal_wall_pipes.gltf", 0.5)]),
+        (name: "flesh", from: 28, light: Some((1.0, 0.45, 0.4)),
+         floor: "fs_skin_flesh_floor.gltf", column: "fs_skin_flesh_column.gltf",
+         walls: [("fs_skin_flesh_wall.gltf", 2.0), ("fs_skin_flesh_wall_piers.gltf", 1.5),
+                 ("fs_skin_flesh_wall_pipes.gltf", 1.5)]),
+        (name: "hell", from: 35, light: Some((1.0, 0.25, 0.1)),
+         floor: "fs_skin_hell_floor.gltf", column: "fs_skin_hell_column.gltf",
+         walls: [("fs_skin_hell_wall.gltf", 2.0), ("fs_skin_hell_wall_piers.gltf", 2.0),
+                 ("fs_skin_hell_wall_pipes.gltf", 1.0)]),
     ],
     // The stairs down: entered from N on its own level, it lands facing S on
     // the level below (that cell is the landing, drawn by this same model).

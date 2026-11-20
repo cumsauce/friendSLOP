@@ -1,0 +1,182 @@
+[
+ {
+  "type": "primitive",
+  "name": "wall",
+  "kind": "plane",
+  "size": [
+   6,
+   3.8
+  ],
+  "translation": [
+   0,
+   1.9,
+   -2.8
+  ],
+  "facing": "+z"
+ },
+ {
+  "type": "primitive",
+  "name": "band",
+  "kind": "box",
+  "size": [
+   6,
+   0.4,
+   0.04
+  ],
+  "translation": [
+   0,
+   2.6,
+   -2.78
+  ]
+ },
+ {
+  "type": "primitive",
+  "name": "skirt",
+  "kind": "box",
+  "size": [
+   6,
+   0.25,
+   0.05
+  ],
+  "translation": [
+   0,
+   0.125,
+   -2.775
+  ]
+ },
+ {
+  "type": "group",
+  "name": "trim",
+  "inputs": [
+   "band",
+   "skirt"
+  ]
+ },
+ {
+  "type": "hide_part",
+  "part": "band"
+ },
+ {
+  "type": "hide_part",
+  "part": "skirt"
+ },
+ {
+  "type": "material",
+  "name": "wall",
+  "pbr": "nyc-concrete"
+ },
+ {
+  "type": "material",
+  "name": "trim",
+  "pbr": "fs-galvanized"
+ },
+ {
+  "type": "primitive",
+  "name": "pier_l",
+  "kind": "box",
+  "size": [
+   0.5,
+   3.8,
+   0.22
+  ],
+  "translation": [
+   -2.4,
+   1.9,
+   -2.69
+  ],
+  "round": 0.02
+ },
+ {
+  "type": "primitive",
+  "name": "pier_r",
+  "kind": "box",
+  "size": [
+   0.5,
+   3.8,
+   0.22
+  ],
+  "translation": [
+   2.4,
+   1.9,
+   -2.69
+  ],
+  "round": 0.02
+ },
+ {
+  "type": "primitive",
+  "name": "vent",
+  "kind": "box",
+  "size": [
+   0.9,
+   0.35,
+   0.05
+  ],
+  "translation": [
+   0,
+   0.45,
+   -2.76
+  ]
+ },
+ {
+  "type": "primitive",
+  "name": "vent_dark",
+  "kind": "box",
+  "size": [
+   0.8,
+   0.25,
+   0.02
+  ],
+  "translation": [
+   0,
+   0.45,
+   -2.735
+  ]
+ },
+ {
+  "type": "group",
+  "name": "piers",
+  "inputs": [
+   "pier_l",
+   "pier_r"
+  ]
+ },
+ {
+  "type": "group",
+  "name": "grille",
+  "inputs": [
+   "vent"
+  ]
+ },
+ {
+  "type": "hide_part",
+  "part": "pier_l"
+ },
+ {
+  "type": "hide_part",
+  "part": "pier_r"
+ },
+ {
+  "type": "hide_part",
+  "part": "vent"
+ },
+ {
+  "type": "material",
+  "name": "piers",
+  "pbr": "fs-galvanized"
+ },
+ {
+  "type": "material",
+  "name": "grille",
+  "pbr": "fs-galvanized"
+ },
+ {
+  "type": "material",
+  "name": "vent_dark",
+  "base_color": [
+   0.03,
+   0.03,
+   0.03
+  ],
+  "flat": true
+ }
+]

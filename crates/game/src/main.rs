@@ -41,6 +41,10 @@ pub fn main() -> AppExit {
                 }),
                 ..default()
             })
+            .set(bevy::render::RenderPlugin {
+                render_creation: render_settings().into(),
+                ..default()
+            })
             .set(AssetPlugin {
                 file_path: {
                     // Data files (maps, tuning, writing) read from the same folder.
@@ -322,5 +326,28 @@ impl Plugin for MeshSlabsNeverGrow {
             s.slab_allocator_settings.large_threshold = 32 * 1024 * 1024;
             render.insert_resource(s);
         }
+    }
+}
+
+/// The GPU settings. On macOS, Bevy's GPU preprocessing writes past the end
+/// of a buffer when a shadow-casting light leaves the view (its shadow views
+/// keep stale unpacking jobs; Metal has no bounds checks): screen-sized
+/// blocks of garbage, meshes vanishing or swapping, worse under load and with
+/// lights coming and going, as in Fulton St (bevyengine/bevy#25595, fix in
+/// #26095, unreleased). Without the IMMEDIATES feature Bevy runs without GPU
+/// culling and multi-draw, which is where the bug is.
+fn render_settings() -> bevy::render::settings::WgpuSettings {
+    #[cfg(target_os = "macos")]
+    {
+        // (GPU culling needs the IMMEDIATES feature: without it Bevy keeps
+        // GPU preprocessing but drops culling and multi-draw, where the bug is.)
+        bevy::render::settings::WgpuSettings {
+            disabled_features: Some(bevy::render::settings::WgpuFeatures::IMMEDIATES),
+            ..default()
+        }
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        bevy::render::settings::WgpuSettings::default()
     }
 }

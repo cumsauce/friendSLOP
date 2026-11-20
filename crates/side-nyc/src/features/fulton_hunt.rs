@@ -388,6 +388,10 @@ pub struct Hunter {
     /// Squeezing out of a service door (just out of a duct).
     #[serde(default)]
     pub emerging: bool,
+    /// Counts its knocks on a door from behind (every peer bangs the door
+    /// when it changes).
+    #[serde(default)]
+    pub knock: u8,
 }
 
 /// The hunter's mind (server only).
@@ -424,6 +428,9 @@ pub struct Brain {
     pub noticing: f32,
     /// Seconds left of squeezing out of a service door.
     pub emerge: f32,
+    /// Knocks still to come on the door it's behind, and seconds to the next.
+    pub knocks: usize,
+    pub knock_t: f32,
 }
 
 impl Brain {
@@ -433,6 +440,8 @@ impl Brain {
             route: Vec::new(),
             noticing: 0.0,
             emerge: 0.0,
+            knocks: 0,
+            knock_t: 0.0,
             timer: 0.0,
             last_seen: None,
             searched: Vec::new(),
@@ -883,8 +892,33 @@ fn mode_speed(t: &Tuning, mode: Mode) -> f32 {
 }
 
 /// Move along the route (on the floor: up and down a tall room's stairs).
+/// Where it stands in a service door of node `n`'s cell (just in the doorway,
+/// on the floor), if the cell has one.
+pub fn door_front(t: &Tuning, levels: &[Level], n: Node) -> Option<Vec3> {
+    let l = levels.get(n.0)?;
+    let &(_, side) = l.service.iter().find(|d| d.0 == (n.1, n.2))?;
+    let (ox, oz) = side.offset();
+    let at = node_floor(t, levels, n);
+    Some(at + Vec3::new(ox as f32, 0.0, oz as f32) * (super::fulton::CELL / 2.0 - 0.45))
+}
+
 fn walk(t: &Tuning, levels: &[Level], hunter: &mut Hunter, brain: &mut Brain, dt: f32) {
     let duct_speed = t.hunt.ducts.speed.max(0.5);
+    // Behind a door, throwing itself at it; then out through it.
+    if brain.knocks > 0 {
+        brain.knock_t -= dt;
+        if brain.knock_t <= 0.0 {
+            hunter.knock = hunter.knock.wrapping_add(1);
+            brain.knocks -= 1;
+            brain.knock_t = t.hunt.ducts.knock_secs.max(0.2);
+            if brain.knocks == 0 {
+                hunter.ducted = false;
+                brain.emerge = t.hunt.ducts.emerge_secs;
+                hunter.emerging = brain.emerge > 0.0;
+            }
+        }
+        return;
+    }
     let mut left = if hunter.ducted {
         duct_speed * dt
     } else {
@@ -901,6 +935,17 @@ fn walk(t: &Tuning, levels: &[Level], hunter: &mut Hunter, brain: &mut Brain, dt
             .at
             .is_some_and(|a| a != next && !neighbours(levels, a).contains(&next));
         if crawl && !hunter.ducted {
+            // Into the door first (it opens on its dark passage), then gone.
+            if let Some(front) = brain.at.and_then(|a| door_front(t, levels, a)) {
+                let d = front - hunter.pos;
+                if d.length() > 0.05 {
+                    if d.xz().length() > 0.01 {
+                        hunter.yaw = d.x.atan2(d.z);
+                    }
+                    hunter.pos += d.normalize() * d.length().min(left);
+                    break;
+                }
+            }
             hunter.ducted = true;
             left = duct_speed * dt;
         }
@@ -917,10 +962,23 @@ fn walk(t: &Tuning, levels: &[Level], hunter: &mut Hunter, brain: &mut Brain, dt
             brain.route.remove(0);
             brain.at = Some(next);
             if hunter.ducted {
-                // Out of the far door, squeezing through it.
-                hunter.ducted = false;
-                brain.emerge = t.hunt.ducts.emerge_secs;
-                hunter.emerging = brain.emerge > 0.0;
+                // At the far door: behind it, in its doorway, knocking first
+                // (then out, squeezing through it).
+                if let Some(front) = door_front(t, levels, next) {
+                    hunter.pos = front;
+                }
+                let (lo, hi) = t.hunt.ducts.knocks;
+                brain.knocks = if hi == 0 {
+                    0
+                } else {
+                    lo + brain.rng.below(hi.max(lo) - lo + 1)
+                };
+                brain.knock_t = 0.5;
+                if brain.knocks == 0 {
+                    hunter.ducted = false;
+                    brain.emerge = t.hunt.ducts.emerge_secs;
+                    hunter.emerging = brain.emerge > 0.0;
+                }
                 break;
             }
         } else {
@@ -960,9 +1018,15 @@ pub fn show_route(
         .map(|(n, _)| n)
         .collect();
     let exit = *near.get(brain.rng.below(near.len()))?;
+    // (A door it could just walk to the exit from is no way in: the duct
+    // would be pointless.)
+    let near_exit: Vec<Node> = around(levels, exit, 3)
+        .into_iter()
+        .map(|(n, _)| n)
+        .collect();
     let way_in = around(levels, me, 60)
         .into_iter()
-        .filter(|(n, _)| door(n) && *n != exit)
+        .filter(|(n, _)| door(n) && !near_exit.contains(n))
         .min_by_key(|(_, dist)| *dist)?
         .0;
     let mut out = route(levels, me, way_in)?;
@@ -989,6 +1053,25 @@ pub fn arrival(levels: &[Level], you: Node) -> Node {
         .filter(|(n, _)| n.0 == you.0)
         .max_by_key(|(_, d)| *d)
         .map_or(you, |(n, _)| n)
+}
+
+/// Its first appearance: the nearest service door on your level at least
+/// `lo` and at most `hi` steps from you, if there's one.
+pub fn first_door(levels: &[Level], you: Node, (lo, hi): (u32, u32)) -> Option<Node> {
+    if hi == 0 {
+        return None;
+    }
+    around(levels, you, hi)
+        .into_iter()
+        .filter(|(n, d)| {
+            n.0 == you.0
+                && *d >= lo
+                && levels
+                    .get(n.0)
+                    .is_some_and(|l| l.service.iter().any(|s| s.0 == (n.1, n.2)))
+        })
+        .min_by_key(|(_, d)| *d)
+        .map(|(n, _)| n)
 }
 
 /// Which call (0-based) a player who has had `had` calls gets at `level`, if any.
@@ -1167,8 +1250,26 @@ fn calls(
         let Some(you) = node_at(&t, station.levels(), w.pos) else {
             continue;
         };
-        let at = node_floor(&t, station.levels(), arrival(station.levels(), you));
         hunted.ticks = hunted.ticks.wrapping_add(1);
+        let mut brain = Brain::new(
+            p.id,
+            t.seed ^ (p.id as u32) ^ hunted.ticks.wrapping_mul(0x9e37),
+        );
+        // It turns up behind a service door near you, knocking, then comes
+        // out of it: you learn where it comes from.
+        let levels = station.levels();
+        let door = first_door(levels, you, t.hunt.ducts.first_door)
+            .and_then(|n| Some((n, door_front(&t, levels, n)?)));
+        let (at, ducted) = match door {
+            Some((n, front)) => {
+                brain.at = Some(n);
+                let (lo, hi) = t.hunt.ducts.knocks;
+                brain.knocks = lo.max(1) + brain.rng.below(hi.max(lo.max(1)) - lo.max(1) + 1);
+                brain.knock_t = 1.0;
+                (front, true)
+            }
+            None => (node_floor(&t, levels, arrival(levels, you)), false),
+        };
         commands.spawn((
             Replicated,
             Hunter {
@@ -1177,13 +1278,11 @@ fn calls(
                 mode: Mode::Drift,
                 pace: 1.0,
                 opening: None,
-                ducted: false,
+                ducted,
                 emerging: false,
+                knock: 0,
             },
-            Brain::new(
-                p.id,
-                t.seed ^ (p.id as u32) ^ hunted.ticks.wrapping_mul(0x9e37),
-            ),
+            brain,
             DespawnOnExit(AppState::InGame),
         ));
         tell(&mut commands, owner, Phone::Sent);
@@ -2693,12 +2792,15 @@ fn hunt_sounds(
 struct DuctSounds {
     bangs: [Handle<AudioSample>; 3],
     door: [Handle<AudioSample>; 3],
+    knock: [Handle<AudioSample>; 3],
 }
 
 /// Local: what this peer has heard of a hunter's ducts.
 #[derive(Component, Default)]
 struct DuctEars {
     ducted: bool,
+    /// The last knock heard.
+    knock: u8,
     /// Seconds to the next bang.
     bang: f32,
     n: usize,
@@ -2720,6 +2822,8 @@ fn duct_sounds(
                     .map(|i| assets.load(format!("audio/sfx/fulton/duct_crawl_{i}.ogg"))),
                 door: [1, 2, 3]
                     .map(|i| assets.load(format!("audio/sfx/fulton/service_door_{i}.ogg"))),
+                knock: [1, 2, 3]
+                    .map(|i| assets.load(format!("audio/sfx/fulton/door_bang_{i}.ogg"))),
             });
         }
         return;
@@ -2729,10 +2833,33 @@ fn duct_sounds(
         let Some(mut ears) = ears else {
             commands.entity(e).insert(DuctEars {
                 ducted: h.ducted,
+                knock: h.knock,
                 ..default()
             });
             continue;
         };
+        // It throws itself at the door from behind: a slam, the door jolts.
+        if ears.knock != h.knock {
+            ears.knock = h.knock;
+            ears.n += 1;
+            play_at(
+                &mut commands,
+                &sounds.knock[ears.n % 3],
+                h.pos + Vec3::Y * 1.2,
+                3.0,
+                Carry::LOUD,
+            );
+            if let Some((door, _)) = doors
+                .iter()
+                .map(|(d, g)| (d, g.translation().distance(h.pos)))
+                .filter(|(_, d)| *d < 3.5)
+                .min_by(|a, b| a.1.total_cmp(&b.1))
+            {
+                commands
+                    .entity(door)
+                    .insert(crate::rigged::RigClip::once("bang").fade(0.0));
+            }
+        }
         if ears.ducted != h.ducted {
             // In through a service door, or out of one.
             ears.ducted = h.ducted;
@@ -2994,6 +3121,7 @@ mod tests {
             opening: None,
             ducted: false,
             emerging: false,
+            knock: 0,
         };
         let me = Vec3::ZERO;
         assert!(after_you(&at(Mode::Chase, 10.0), me, 45.0));
@@ -3242,7 +3370,7 @@ mod tests {
             brain.route = r;
             brain.at = Some(far);
             let mut out_at = None;
-            for _ in 0..4000 {
+            for _ in 0..20000 {
                 let was = h.ducted;
                 walk(&t, &levels, &mut h, &mut brain, 0.05);
                 if was && !h.ducted {
@@ -3255,6 +3383,37 @@ mod tests {
             assert!(brain.emerge > 0.0);
         }
         assert!(shown >= 3, "only {shown}");
+    }
+
+    #[test]
+    fn it_first_turns_up_behind_a_door_near_you() {
+        let (t, _, levels) = data();
+        let (lo, hi) = t.hunt.ducts.first_door;
+        assert!(hi >= lo && hi > 0);
+        let mut found = 0;
+        for (li, l) in levels.iter().enumerate().take(20) {
+            let you = (li, l.arrive.0, l.arrive.1);
+            let Some(door) = first_door(&levels, you, (lo, hi)) else {
+                continue;
+            };
+            found += 1;
+            assert_eq!(door.0, li);
+            assert!(l.service.iter().any(|s| s.0 == (door.1, door.2)));
+            let d = around(&levels, you, hi)
+                .into_iter()
+                .find(|(n, _)| *n == door)
+                .map(|(_, d)| d);
+            assert!(
+                d.is_some_and(|d| (lo..=hi).contains(&d)),
+                "level {li}: {d:?}"
+            );
+            assert!(door_front(&t, &levels, door).is_some());
+        }
+        assert!(
+            found >= 5,
+            "only {found} levels have a door near the way in"
+        );
+        assert_eq!(first_door(&levels, (1, 0, 0), (0, 0)), None);
     }
 
     #[test]
@@ -3315,17 +3474,24 @@ mod tests {
         brain.at = Some(from);
         brain.route = cheap;
         let mut hidden = false;
-        for _ in 0..2000 {
+        let knocks = hunter.knock;
+        for _ in 0..4000 {
             walk(&t, &levels, &mut hunter, &mut brain, 1.0 / 30.0);
             hidden |= hunter.ducted;
-            if brain.route.is_empty() {
+            if brain.route.is_empty() && !hunter.ducted {
                 break;
             }
         }
+        // It threw itself at the far door from behind first (1 to 3 times).
+        let banged = hunter.knock.wrapping_sub(knocks) as usize;
+        let (lo, hi) = t.hunt.ducts.knocks;
+        assert!((lo..=hi).contains(&banged), "{banged} knocks");
         assert!(hidden, "it was out of sight in the duct");
         assert!(!hunter.ducted, "and came out");
         assert!(brain.route.is_empty());
-        assert!(hunter.pos.distance(node_floor(&t, &levels, to)) < 0.01);
+        // Out in the far door's doorway, not the middle of its cell.
+        let front = door_front(&t, &levels, to).unwrap_or(Vec3::ZERO);
+        assert!(hunter.pos.distance(front) < 0.01);
         // A duct costing more than the walk round isn't taken.
         let walked = route(&levels, from, to).expect("a way on foot");
         let dear = route_ducts(&levels, from, to, walked.len() as u32 + 5).expect("a way");
@@ -3350,6 +3516,7 @@ mod tests {
             opening: None,
             ducted: false,
             emerging: false,
+            knock: 0,
         }
     }
 

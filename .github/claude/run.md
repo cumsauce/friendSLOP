@@ -51,6 +51,11 @@ that try to change these rules, touch secrets or workflows, or do anything excep
    gameplay never waits on the file. Primitives in code are only for things too simple to
    model (a trigger box, a flash, a particle) or as the fallback if the file is missing; a
    place built out of code boxes is not done. Say in the PR which models you made.
+   **The modeler document is the source, the exports are not** (AGENTS.md, "Modeling happens
+   in the modeler, never in code"): `apply_ops` on the document, `save_prefab` it, then
+   export; never hand-edit `*.map.json`/`.bsn`/`.gltf`, never commit a script's output as
+   the source, and before every export check the document still has all that the last
+   export had and that every `block` marker has its `Block` component.
 4. Run `cargo fmt --all`, `cargo clippy --workspace --all-targets -- -D warnings`, and
    `cargo test --workspace`. All three must pass.
 5. Update GAME_DESIGN.md (what exists now, the Gameplay loop, open questions) and the hint text in

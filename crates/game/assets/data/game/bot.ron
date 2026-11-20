@@ -117,6 +117,19 @@
             Spin(4.0),
             Wait(3.0),
         ],
+        // Fulton's concourse levels by teleport (default seed): level 7's
+        // curved gallery, 28's two-storey room from its balcony level, and
+        // 29 under it (the room's floor).
+        "fulton_concourse": [
+            Start("fulton_7"),
+            Spin(4.0),
+            Start("fulton_7_stairs"),
+            Spin(3.0),
+            Start("fulton_28"),
+            Spin(4.0),
+            Start("fulton_29"),
+            Spin(4.0),
+        ],
         // Stand on Fulton's first track level (level 3) through the 25 s
         // model listing of FRIENDSLOP_PERF=2.
         "fulton_line": [

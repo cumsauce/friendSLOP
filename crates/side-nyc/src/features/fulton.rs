@@ -76,10 +76,19 @@ use crate::features::stats::Stats;
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 use crate::rules::nyc::{CITY_Y, STATION_LEVEL_H, STATION_TOP_Y, in_station};
 
+mod graph;
+
+/// How far in from a cell's edge its walls' faces are (the tile kit's walls
+/// stand 2.8 m from a cell's middle).
+const WALL_FACE_IN: f32 = 0.2;
 /// Metres per cell (the tile kit's size).
 pub const CELL: f32 = 6.0;
 /// Floor to ceiling inside a level.
 const ROOM_H: f32 = 4.0;
+
+fn default_downs() -> (usize, usize) {
+    (1, 1)
+}
 
 /// Tuning and writing: `assets/data/side/fulton.ron` (read at run time).
 #[derive(Deserialize, Default, Debug, Clone)]
@@ -112,6 +121,11 @@ pub struct Tuning {
     pub depth: usize,
     /// The signed way across one level is at least this many cells long.
     pub min_path: u32,
+    /// Ways down per level (min, max): one is the signed main stairs, the
+    /// rest more stairs elsewhere in the core, each landing somewhere else
+    /// on the level below. (Never above a tunnel level or on the J's.)
+    #[serde(default = "default_downs")]
+    pub downs: (usize, usize),
     /// The layout's seed.
     pub seed: u32,
     /// Every this many levels (the 1st, the n+1th, ...; never the J's) the
@@ -523,6 +537,26 @@ pub struct Hunt {
     pub kill_secs: f32,
     /// How far in front of it (m) you're held while it kills you.
     pub kill_reach: f32,
+    /// Its service doors and the ducts behind them.
+    #[serde(default)]
+    pub ducts: Ducts,
+}
+
+/// The service doors on every level and the ducts that join them: a way
+/// round only the hunter takes (the vents in the walls).
+#[derive(Deserialize, Default, Debug, Clone)]
+pub struct Ducts {
+    /// Service doors per level (min, max), spread out over it.
+    pub doors: (usize, usize),
+    /// How fast it crawls through a duct (m/s).
+    pub speed: f32,
+    /// A duct counts as this many cells' walk when it picks a way round, so
+    /// it takes one only to save a long way.
+    pub cost: u32,
+    /// Seconds between the bangs and scrapes you hear while it's in one.
+    pub bang_secs: f32,
+    /// The service door's model (`assets/models/`).
+    pub model: String,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
@@ -710,6 +744,10 @@ pub struct RoomKit {
     /// A heap of rubble filling a corridor across (x), centred on the side.
     #[serde(default)]
     pub rubble: String,
+    /// A gallery curve's rounded outer wall, modelled round the 12 m tile's
+    /// middle (origin) through its SW quadrant, as the tunnel curve's.
+    #[serde(default)]
+    pub arc: String,
 }
 
 impl RoomKit {
@@ -759,6 +797,9 @@ pub enum Kind {
     /// A cell of a train tunnel tile (see [`Level::tunnel`]); open on every
     /// side inside its tile.
     Tunnel,
+    /// A cell of a gallery: a tunnel tile without the track (see
+    /// [`Level::galleries`]), walled like a room.
+    Gallery,
 }
 
 /// How many cells across a tunnel tile is.
@@ -848,6 +889,16 @@ pub struct Level {
     pub sink: f32,
     /// A tunnel level's tiles (the ring); empty on every other level.
     pub tunnel: Vec<TunnelTile>,
+    /// A concourse level's galleries' tiles (no track; cells `Kind::Gallery`).
+    pub galleries: Vec<TunnelTile>,
+    /// Doorways into the floor of the level above's two-storey room (its
+    /// sunken floor is this level's floor): the corridor cell here and its
+    /// side that opens into the room (whose cells here are `Kind::Under`).
+    pub from_above: Vec<(wfc::Cell, wfc::Side)>,
+    /// This level's two-storey room's doorways down there: its sunken cell
+    /// and the side with the doorway in its lower wall (from the level
+    /// below's [`Level::from_above`], once that is planned).
+    pub low_doors: Vec<(wfc::Cell, wfc::Side)>,
     /// What the level is (its type).
     pub kind: LevelKind,
     /// Its coarse layout (`None`: corridors and small rooms only).
@@ -862,6 +913,9 @@ pub struct Level {
     /// The footprint the level below will have: what sinks into it must
     /// leave it in one piece there too.
     pub below: Vec<(usize, usize)>,
+    /// Its service doors (staff only, the hunter's way into the ducts): the
+    /// cell and the walled side the door is in.
+    pub service: Vec<(wfc::Cell, wfc::Side)>,
     /// Where its cell (0, 0) is on the station's lattice of cells (whose
     /// cell (0, 0) has its north-west corner on `station_at`): levels of
     /// different sizes, all centred there, line up cell for cell.
@@ -886,6 +940,9 @@ impl Level {
             stairs: Vec::new(),
             sink: 0.0,
             tunnel: Vec::new(),
+            galleries: Vec::new(),
+            from_above: Vec::new(),
+            low_doors: Vec::new(),
             kind: LevelKind::Warren,
             coarse: None,
             room_meta: Vec::new(),
@@ -893,7 +950,30 @@ impl Level {
             run: STAIRS_RUN,
             origin: centred((w, h)),
             below: Vec::new(),
+            service: Vec::new(),
         }
+    }
+
+    /// Every way down: the stairs' cells and the side each is walked into from
+    /// (the main one, [`Level::goal`], among them).
+    pub fn downs(&self) -> Vec<(wfc::Cell, wfc::Side)> {
+        self.with_kind(Kind::Stairs)
+    }
+
+    /// Every way up: the landings' cells and the side each opens onto.
+    pub fn ups(&self) -> Vec<(wfc::Cell, wfc::Side)> {
+        self.with_kind(Kind::Landing)
+    }
+
+    fn with_kind(&self, kind: Kind) -> Vec<(wfc::Cell, wfc::Side)> {
+        (0..self.cells.len())
+            .filter(|&i| self.cells[i].kind == kind)
+            .filter_map(|i| {
+                let f = self.cells[i];
+                let s = wfc::Side::ALL.into_iter().find(|&s| f.mask & bit(s) != 0)?;
+                Some(((i % self.width, i / self.width), s))
+            })
+            .collect()
     }
 
     /// The core every level shares, empty (the tunnel levels' frame).
@@ -1210,6 +1290,8 @@ pub struct Layout {
     pub hall: HallAsk,
     #[serde(default)]
     pub atrium: AtriumAsk,
+    #[serde(default)]
+    pub concourse: graph::ConcourseAsk,
 }
 
 pub static LAYOUT: friendslop_data::Data<Layout> =
@@ -1227,6 +1309,9 @@ pub enum LevelKind {
     Hall,
     /// A hall whose floor drops a whole level.
     Atrium,
+    /// Rooms and curved galleries joined up by corridors, with loops
+    /// (planned as a graph: `fulton/graph.rs`).
+    Concourse,
 }
 
 /// One level type.
@@ -1562,6 +1647,10 @@ struct LevelPlan<'a> {
 struct LevelAsk<'a> {
     arrive: wfc::Cell,
     landing: Option<wfc::Side>,
+    /// More landings (from the level above's other stairs): cell, open side.
+    more: &'a [(wfc::Cell, wfc::Side)],
+    /// How many more stairs down besides the goal.
+    extra_downs: usize,
     last: bool,
     min_path: u32,
     /// Cells under the level above's track beds: solid, no way through.
@@ -1584,6 +1673,11 @@ struct LevelAsk<'a> {
     core: wfc::Room,
     /// The footprints the level below may have.
     below: &'a [(usize, usize)],
+    /// It may have a two-storey room (whose floor is the level below's).
+    two_storey: bool,
+    /// Doorways the level above's two-storey room wants down here: the cell
+    /// and its side towards the room.
+    low: &'a [(wfc::Cell, wfc::Side)],
 }
 
 /// A level's big rooms and their doors: up to `ask.max` rooms on cells
@@ -1634,7 +1728,7 @@ fn plan_coarse(
         })
     };
     let want = match p.kind {
-        LevelKind::Warren => None,
+        LevelKind::Warren | LevelKind::Concourse => None,
         LevelKind::Line => Some(Meta::Track),
         LevelKind::Hall => Some(Meta::Hall),
         LevelKind::Atrium => Some(Meta::Atrium),
@@ -1786,6 +1880,8 @@ fn plan_level(
     let LevelAsk {
         arrive,
         landing,
+        more,
+        extra_downs,
         last,
         min_path,
         under,
@@ -1846,7 +1942,11 @@ fn plan_level(
                 if ring_below {
                     inner_cell(w, h, c)
                 } else {
-                    warren(c) && core.contains(c) && !is_under(c) && c != arrive
+                    warren(c)
+                        && core.contains(c)
+                        && !is_under(c)
+                        && c != arrive
+                        && more.iter().all(|m| m.0 != c)
                 }
             })
             .collect();
@@ -1877,6 +1977,38 @@ fn plan_level(
             continue;
         }
         let entry = sides[rng.below(sides.len())];
+        // More ways down: other spots in the core, well apart from the
+        // goal, each other, the way in and the landings.
+        let mut downs: Vec<(wfc::Cell, wfc::Side)> = vec![(goal, entry)];
+        let apart = |a: wfc::Cell, b: wfc::Cell| a.0.abs_diff(b.0) + a.1.abs_diff(b.1) >= 3;
+        let mut extra = spots.clone();
+        for i in (1..extra.len()).rev() {
+            extra.swap(i, rng.below(i + 1));
+        }
+        for c in extra {
+            if downs.len() > extra_downs {
+                break;
+            }
+            if !downs.iter().all(|d| apart(d.0, c))
+                || !apart(arrive, c)
+                || !more.iter().all(|m| apart(m.0, c))
+            {
+                continue;
+            }
+            let ok: Vec<wfc::Side> = entries(w, h, c, false)
+                .into_iter()
+                .filter(|&s| wfc::neighbour(w, h, c, s).is_some_and(warren))
+                .filter(|&s| {
+                    wfc::neighbour(w, h, c, s.opposite()).is_some_and(|n| core.contains(n))
+                })
+                .collect();
+            if let Some(&s) = ok.first() {
+                downs.push((c, s));
+            }
+        }
+        let extras: Vec<(wfc::Cell, wfc::Side)> = downs[1..].to_vec();
+        let is_extra = |c: wfc::Cell| extras.iter().any(|d| d.0 == c);
+        let is_more = |c: wfc::Cell| more.iter().any(|m| m.0 == c);
         // Ask for the full length first, then settle for less.
         let need = if attempt < 140 { min_path } else { 1 };
         let manhattan = arrive.0.abs_diff(goal.0) + arrive.1.abs_diff(goal.1);
@@ -1890,6 +2022,20 @@ fn plan_level(
         });
         tiles.push(special(goal_kind, entry));
         let goal_tile = tiles.len() - 1;
+        let extra_tiles: Vec<(wfc::Cell, usize)> = extras
+            .iter()
+            .map(|&(c, s)| {
+                tiles.push(special(Kind::Stairs, s));
+                (c, tiles.len() - 1)
+            })
+            .collect();
+        let more_tiles: Vec<(wfc::Cell, usize)> = more
+            .iter()
+            .map(|&(c, s)| {
+                tiles.push(special(Kind::Landing, s));
+                (c, tiles.len() - 1)
+            })
+            .collect();
         tiles.push(special(Kind::Under, entry));
         let under_tile = tiles.len() - 1;
         tiles.push((
@@ -1953,12 +2099,22 @@ fn plan_level(
                     }
                 }
                 Meta::Hall | Meta::Atrium => {
+                    // (Never over a landing from the level above.)
+                    if cells.cells().any(|c| more.iter().any(|m| m.0 == c)) {
+                        stamped = false;
+                    }
                     let hall = plan.map_or((2, 4), |p| p.layout.hall.doors);
                     let (lo, hi) = (hall.0.max(1), hall.1.max(hall.0.max(1)));
                     let n = lo + rng.below(hi - lo + 1);
                     let doors = wfc::rooms::doors(rng, &cells, (w, h), n, |c, s| {
-                        wfc::neighbour(w, h, c, s)
-                            .is_some_and(|n| warren(n) && !is_under(n) && n != goal && n != arrive)
+                        wfc::neighbour(w, h, c, s).is_some_and(|n| {
+                            warren(n)
+                                && !is_under(n)
+                                && n != goal
+                                && n != arrive
+                                && !is_extra(n)
+                                && !is_more(n)
+                        })
                     });
                     if doors.is_empty() {
                         stamped = false;
@@ -1988,7 +2144,12 @@ fn plan_level(
                     let clear = wfc::Side::ALL
                         .into_iter()
                         .all(|s| wfc::neighbour(w, h, c, s).is_none_or(warren));
-                    !is_under(c) && warren(c) && clear && !near(arrive) && !near(goal)
+                    !is_under(c)
+                        && warren(c)
+                        && clear
+                        && !near(arrive)
+                        && !near(goal)
+                        && !extras.iter().chain(more).any(|d| near(d.0))
                 },
                 |c| is_under(c) || !warren(c),
             )
@@ -2088,6 +2249,10 @@ fn plan_level(
                     vec![t]
                 } else if c == goal {
                     vec![goal_tile]
+                } else if let Some(&(_, t)) = extra_tiles.iter().find(|e| e.0 == c) {
+                    vec![t]
+                } else if let Some(&(_, t)) = more_tiles.iter().find(|e| e.0 == c) {
+                    vec![t]
                 } else if is_under(c) {
                     vec![under_tile]
                 } else if c == arrive {
@@ -2122,6 +2287,13 @@ fn plan_level(
             below: ask.below.to_vec(),
             ..Level::empty(w, h)
         };
+        // Is cell `n` on the level below's footprint (where it lines up)?
+        let on_below = |l: &Level, n: wfc::Cell| {
+            ask.below.iter().all(|&size| {
+                let frame = Level::empty(size.0, size.1);
+                frame.local(l.lattice(n)).is_some()
+            })
+        };
         let solved = problem.solve_until(
             rng,
             if platforms {
@@ -2143,12 +2315,26 @@ fn plan_level(
                 });
                 // The landing below opens away from the stairs' entry: that
                 // cell can't be under a track bed.
-                let below_exit = wfc::neighbour(w, h, goal, entry.opposite())
-                    .is_some_and(|c| l.fill(c).track != 0);
+                // Nor boxed in by track beds (it needs a way on besides the stairs).
+                let below_exit = downs.iter().any(|&(g, e)| {
+                    wfc::neighbour(w, h, g, e.opposite()).is_none_or(|c| {
+                        l.fill(c).track != 0
+                            || wfc::Side::ALL.into_iter().all(|s| {
+                                wfc::neighbour(w, h, c, s).is_none_or(|n| {
+                                    n == g || l.fill(n).track != 0 || !on_below(&l, n)
+                                })
+                            })
+                    })
+                });
+                let all_ways = extras
+                    .iter()
+                    .chain(more)
+                    .all(|&(c, _)| d[c.1 * w + c.0].is_some());
                 tracks >= platform_cells
                     && tracks <= platform_max
                     && reached
                     && !below_exit
+                    && all_ways
                     && (tracks == 0 || leaves_room_below(&l))
                     && d[goal.1 * w + goal.0].is_some_and(|d| d >= need)
             },
@@ -2414,6 +2600,7 @@ fn fallback(w: usize, h: usize, ask: &LevelAsk) -> Level {
     let LevelAsk {
         arrive,
         landing,
+        more,
         last,
         under,
         core,
@@ -2425,10 +2612,17 @@ fn fallback(w: usize, h: usize, ask: &LevelAsk) -> Level {
     let exit_to = landing.and_then(|l| wfc::neighbour(w, h, arrive, l));
     let (goal, entry) = (0..w * h)
         .map(|i| (i % w, i / w))
-        .filter(|&c| c != arrive && Some(c) != exit_to && !is_under(c) && core.contains(c))
+        .filter(|&c| {
+            c != arrive
+                && Some(c) != exit_to
+                && !is_under(c)
+                && core.contains(c)
+                && more.iter().all(|m| m.0 != c)
+        })
         .filter_map(|c| {
             let s = entries(w, h, c, last).into_iter().find(|&s| {
-                wfc::neighbour(w, h, c, s).is_some_and(|n| n != arrive && !is_under(n))
+                wfc::neighbour(w, h, c, s)
+                    .is_some_and(|n| n != arrive && !is_under(n) && more.iter().all(|m| m.0 != n))
                     && (last
                         || wfc::neighbour(w, h, c, s.opposite()).is_some_and(|n| core.contains(n)))
             })?;
@@ -2443,6 +2637,8 @@ fn fallback(w: usize, h: usize, ask: &LevelAsk) -> Level {
                 s == entry
             } else if c == arrive {
                 landing.is_none_or(|l| s == l)
+            } else if let Some(&(_, l)) = more.iter().find(|m| m.0 == c) {
+                s == l
             } else {
                 true
             }
@@ -2465,6 +2661,8 @@ fn fallback(w: usize, h: usize, ask: &LevelAsk) -> Level {
             } else if c == arrive
                 && let Some(l) = landing
             {
+                special(Kind::Landing, l).1
+            } else if let Some(&(_, l)) = more.iter().find(|m| m.0 == c) {
                 special(Kind::Landing, l).1
             } else if is_under(c) {
                 special(Kind::Under, wfc::Side::North).1
@@ -2508,7 +2706,8 @@ fn shape_level(t: &Tuning, li: usize, l: &mut Level) {
     l.run = STAIRS_RUN;
     // An atrium's floor drops a whole level, down long stairs; on its level
     // nothing else is tall.
-    let atrium = l.kind == LevelKind::Atrium && l.room_meta.contains(&Meta::Atrium);
+    let atrium = matches!(l.kind, LevelKind::Atrium | LevelKind::Concourse)
+        && l.room_meta.contains(&Meta::Atrium);
     if atrium {
         let a = &LAYOUT.get().atrium;
         l.sink = a.drop.clamp(0.0, STATION_LEVEL_H);
@@ -2758,8 +2957,13 @@ pub struct StationPlan {
     /// Where the next level is arrived at (on the lattice).
     arrive: (i32, i32),
     landing: Option<wfc::Side>,
+    /// More landings on the next level (the last level's other stairs): lattice cell, open side.
+    more: Vec<((i32, i32), wfc::Side)>,
     /// Lattice cells under the last planned level's track beds and sunken floors.
     under: Vec<(i32, i32)>,
+    /// Doorways the last planned level's two-storey room wants on the next:
+    /// lattice cell and its side towards the room.
+    low: Vec<((i32, i32), wfc::Side)>,
     /// How far the last planned level's floor sinks into the next.
     above_drop: f32,
     /// The levels planned so far, top first.
@@ -2783,7 +2987,9 @@ impl StationPlan {
                 ((w / 2) as i32 + o.0, o.1)
             },
             landing: None,
+            more: Vec::new(),
             under: Vec::new(),
+            low: Vec::new(),
             above_drop: 0.0,
             levels: Vec::with_capacity(t.levels.max(1)),
             skip: 0,
@@ -2815,6 +3021,12 @@ impl StationPlan {
         levels.append(&mut next.levels);
         next.levels = levels;
         next.skip = self.skip;
+        for i in 1..next.levels.len() {
+            let (a, b) = next.levels.split_at_mut(i);
+            if let (Some(above), Some(below)) = (a.last_mut(), b.first()) {
+                link_low_doors(above, below);
+            }
+        }
         *self = next;
     }
 
@@ -2859,15 +3071,45 @@ impl StationPlan {
             }
         };
         let arrive = frame.local(self.arrive).unwrap_or((size.0 / 2, 0));
+        let more: Vec<(wfc::Cell, wfc::Side)> = self
+            .more
+            .iter()
+            .filter_map(|&(at, s)| Some((frame.local(at)?, s)))
+            .collect();
+        // More ways down, except where the next level can't take them (a
+        // tunnel ring's stairs must be in its hall) and on the J's level.
+        // (Platform levels must fit their track and tunnel rings their hall:
+        // they and the levels round them keep one way down.)
+        let busy = |k: usize| platform_level(t, k) || tunnel_level(t, k);
+        let extra_downs = if l + 1 >= self.total || near_ring || busy(l + 1) {
+            0
+        } else {
+            let (lo, hi) = (t.downs.0.max(1), t.downs.1.max(t.downs.0.max(1)));
+            lo + self.rng.below(hi - lo + 1) - 1
+        };
         let under: Vec<bool> = (0..size.0 * size.1)
             .map(|i| {
                 self.under
                     .contains(&frame.lattice((i % size.0, i / size.0)))
             })
             .collect();
+        // A two-storey room: a concourse over a concourse (whose floor it shares).
+        let two_storey = kind == LevelKind::Concourse
+            && !near_ring
+            && l + 2 < self.total
+            && level_kind(t, &layout, l + 1) == LevelKind::Concourse
+            && !busy(l + 1)
+            && dress_roll(t, [l, 0x2570, 0, 0]) < layout.concourse.two_storey;
+        let low: Vec<(wfc::Cell, wfc::Side)> = self
+            .low
+            .iter()
+            .filter_map(|&(at, s)| Some((frame.local(at)?, s)))
+            .collect();
         let ask = LevelAsk {
             arrive,
             landing: self.landing,
+            more: &more,
+            extra_downs,
             last: l + 1 == self.total,
             min_path: t.min_path,
             under: &under,
@@ -2883,46 +3125,129 @@ impl StationPlan {
             plan,
             core,
             below: &below,
+            two_storey,
+            low: &low,
         };
         let tunnel = if tunnel_level(t, l) {
             plan_tunnel(&mut self.rng, size, &ask, &self.vars)
         } else {
             None
         };
-        let level = if let Some(level) = tunnel {
+        // A concourse is planned as a graph (one way down if more don't
+        // fit); if nothing comes of it, the plain corridors.
+        let concourse = if tunnel.is_none() && kind == LevelKind::Concourse && plan.is_some() {
+            let c = &layout.concourse;
+            graph::plan(&mut self.rng, size, &ask, &self.vars, c).or_else(|| {
+                (ask.extra_downs > 0).then_some(())?;
+                let one = LevelAsk {
+                    extra_downs: 0,
+                    ..ask
+                };
+                graph::plan(&mut self.rng, size, &one, &self.vars, c)
+            })
+        } else {
+            None
+        };
+        let ask = if kind == LevelKind::Concourse {
+            LevelAsk { plan: None, ..ask }
+        } else {
+            ask
+        };
+        let level = if let Some(level) = tunnel.or(concourse) {
             level
         } else if self.vars.is_empty() {
             fallback(size.0, size.1, &ask)
         } else {
-            plan_level(&mut self.rng, size, &ask, &self.vars).unwrap_or_else(|| {
-                // Nothing came of the set piece: the plain corridors, the
-                // core's size (where the way in and the stairs are).
-                let at = ask.core.at;
-                let inner = |c: wfc::Cell| (c.0 - at.0, c.1 - at.1);
-                let under: Vec<bool> = (0..self.size.0 * self.size.1)
-                    .map(|i| {
-                        let c = (at.0 + i % self.size.0, at.1 + i / self.size.0);
-                        under[c.1 * size.0 + c.0]
-                    })
-                    .collect();
-                let plain = LevelAsk {
-                    arrive: inner(ask.arrive),
-                    under: &under,
-                    plan: None,
-                    core: wfc::Room {
-                        at: (0, 0),
-                        size: self.size,
-                    },
-                    ..ask
-                };
-                plan_level(&mut self.rng, self.size, &plain, &self.vars)
-                    .unwrap_or_else(|| fallback(self.size.0, self.size.1, &plain))
-            })
+            plan_level(&mut self.rng, size, &ask, &self.vars)
+                // Too much to fit: one way down (still taking the landings).
+                .or_else(|| {
+                    (ask.extra_downs > 0).then_some(())?;
+                    let one = LevelAsk {
+                        extra_downs: 0,
+                        ..ask
+                    };
+                    plan_level(&mut self.rng, size, &one, &self.vars)
+                })
+                // No set piece: plain corridors on the footprint the level
+                // above planned round (its landings open onto it).
+                .or_else(|| {
+                    (ask.plan.is_some() || ask.extra_downs > 0).then_some(())?;
+                    let plain = LevelAsk {
+                        plan: None,
+                        extra_downs: 0,
+                        ..ask
+                    };
+                    plan_level(&mut self.rng, size, &plain, &self.vars)
+                })
+                .unwrap_or_else(|| {
+                    // Nothing came of the set piece: the plain corridors, the
+                    // core's size (where the way in and the stairs are).
+                    let at = ask.core.at;
+                    let inner = |c: wfc::Cell| (c.0 - at.0, c.1 - at.1);
+                    let under: Vec<bool> = (0..self.size.0 * self.size.1)
+                        .map(|i| {
+                            let c = (at.0 + i % self.size.0, at.1 + i / self.size.0);
+                            under[c.1 * size.0 + c.0]
+                        })
+                        .collect();
+                    let more_inner: Vec<(wfc::Cell, wfc::Side)> =
+                        more.iter().map(|&(c, s)| (inner(c), s)).collect();
+                    let plain = LevelAsk {
+                        arrive: inner(ask.arrive),
+                        more: &more_inner,
+                        extra_downs: 0,
+                        under: &under,
+                        plan: None,
+                        core: wfc::Room {
+                            at: (0, 0),
+                            size: self.size,
+                        },
+                        ..ask
+                    };
+                    plan_level(&mut self.rng, self.size, &plain, &self.vars)
+                        .unwrap_or_else(|| fallback(self.size.0, self.size.1, &plain))
+                })
         };
         let mut level = level;
         level.above_drop = self.above_drop;
         level.below = below.clone();
         shape_level(t, l, &mut level);
+        level.service = service_doors(t, l, &level);
+        // Ground sunk into the level below (tall rooms, track beds) cramps
+        // it: an extra stairs whose landing would open onto that ground, or
+        // any when a lot of the core sinks, turns into the corridor's dead end.
+        let sunk_at: Vec<bool> = (0..level.cells.len())
+            .map(|i| level.sunk[i] || level.cells[i].track != 0)
+            .collect();
+        let sinks = |i: usize| sunk_at[i];
+        let core_at = level.local(centred(self.size)).unwrap_or((0, 0));
+        let core_sunk = (0..level.cells.len())
+            .filter(|&i| {
+                let (x, z) = (i % level.width, i / level.width);
+                level.sunk[i]
+                    && (core_at.0..core_at.0 + self.size.0).contains(&x)
+                    && (core_at.1..core_at.1 + self.size.1).contains(&z)
+            })
+            .count();
+        for (c, entry) in level.downs() {
+            if c == level.goal {
+                continue;
+            }
+            let w = level.width;
+            let exit_sinks = wfc::neighbour(w, level.depth, c, entry.opposite())
+                .is_none_or(|n| sinks(n.1 * w + n.0));
+            if core_sunk <= 4 && !exit_sinks {
+                continue;
+            }
+            let end = self
+                .vars
+                .iter()
+                .find(|v| v.0 == bit(entry) && v.1.track == 0)
+                .map(|v| v.1);
+            if let Some(f) = end {
+                level.cells[c.1 * w + c.0] = f;
+            }
+        }
         self.above_drop = if level.sunk.iter().any(|s| *s) {
             level.sink
         } else {
@@ -2930,10 +3255,24 @@ impl StationPlan {
         };
         self.arrive = level.lattice(level.goal);
         self.landing = Some(level.goal_entry.opposite());
+        self.more = level
+            .downs()
+            .into_iter()
+            .filter(|&(c, _)| c != level.goal)
+            .map(|(c, s)| (level.lattice(c), s.opposite()))
+            .collect();
         self.under = (0..level.cells.len())
             .filter(|&i| level.cells[i].track != 0 || level.sunk[i])
             .map(|i| level.lattice((i % level.width, i / level.width)))
             .collect();
+        self.low = if two_storey && level.sink >= STATION_LEVEL_H - 0.01 {
+            low_doorways(t, l, &level, &below)
+        } else {
+            Vec::new()
+        };
+        if let Some(above) = self.levels.last_mut() {
+            link_low_doors(above, &level);
+        }
         self.levels.push(level);
         self.levels.last()
     }
@@ -2942,6 +3281,71 @@ impl StationPlan {
     pub fn plan_to(&mut self, t: &Tuning, n: usize) {
         while self.count() < n && self.plan_next(t).is_some() {}
     }
+}
+
+/// Where a two-storey room's sunken floor gets doorways in its lower walls
+/// (on the level below, the cell outside and its side towards the room): up
+/// to two walled sides of its sunken cells, onto cells outside it that the
+/// level below has (and don't sink), as far apart as they come.
+fn low_doorways(
+    t: &Tuning,
+    li: usize,
+    l: &Level,
+    below: &[(usize, usize)],
+) -> Vec<((i32, i32), wfc::Side)> {
+    let (w, h) = (l.width, l.depth);
+    let mut options: Vec<((i32, i32), wfc::Side)> = Vec::new();
+    for i in 0..w * h {
+        let c = (i % w, i / w);
+        if !l.sunk[i] || !matches!(l.fill(c).kind, Kind::Room(_)) {
+            continue;
+        }
+        for s in wfc::Side::ALL {
+            let Some(n) = wfc::neighbour(w, h, c, s) else {
+                continue;
+            };
+            let at = l.lattice(n);
+            let on_below = below
+                .iter()
+                .all(|&size| Level::empty(size.0, size.1).local(at).is_some());
+            if l.fill(c).mask & bit(s) == 0
+                && l.fill(n).kind != l.fill(c).kind
+                && !l.sunk(n)
+                && l.fill(n).track == 0
+                && on_below
+            {
+                options.push((at, s.opposite()));
+            }
+        }
+    }
+    let mut out = Vec::new();
+    if let Some(&first) =
+        options.get((dress_roll(t, [li, 0x10d, 0, 0]) * options.len() as f32) as usize)
+    {
+        out.push(first);
+        if let Some(&far) = options
+            .iter()
+            .max_by_key(|o| o.0.0.abs_diff(first.0.0) + o.0.1.abs_diff(first.0.1))
+            && far.0 != first.0
+        {
+            out.push(far);
+        }
+    }
+    out
+}
+
+/// A level's two-storey room's doorways, from the level below's
+/// [`Level::from_above`] (the cell there, on the other side of the doorway).
+fn link_low_doors(above: &mut Level, below: &Level) {
+    above.low_doors = below
+        .from_above
+        .iter()
+        .filter_map(|&(c, s)| {
+            let n = wfc::neighbour(below.width, below.depth, c, s)?;
+            Some((above.local(below.lattice(n))?, s.opposite()))
+        })
+        .filter(|&(c, _)| above.sunk(c))
+        .collect();
 }
 
 /// The whole station: every level, top first. Pure and seeded.
@@ -3108,6 +3512,12 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
                 if f.mask & bit(s) != 0 {
                     continue;
                 }
+                // A doorway onto the level below: only the wall above it.
+                let low = if level.low_doors.contains(&(c, s)) {
+                    0.0
+                } else {
+                    low
+                };
                 let d = dir(s);
                 let tall = ROOM_H + low;
                 let size = if d.x != 0.0 {
@@ -3178,6 +3588,8 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
         .into_iter()
         .chain(tunnel_columns(t, li, level))
         .chain(pit_columns(t, li, level))
+        .chain(corridor_columns(t, li, level))
+        .chain(deck_columns(t, li, level))
     {
         let tall = column_height(li, at);
         out.push(Block {
@@ -3218,6 +3630,7 @@ pub fn tunnel_walls(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
     for tile in level
         .tunnel
         .iter()
+        .chain(&level.galleries)
         .filter(|p| p.piece == TunnelPiece::Curve)
     {
         let (mid, r) = (tunnel_centre(t, li, level, tile), tile.rotation());
@@ -3246,7 +3659,7 @@ pub fn tunnel_walls(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
 /// curve. None where they'd stand in the stairs or the landing.
 pub fn tunnel_columns(t: &Tuning, li: usize, level: &Level) -> Vec<Vec3> {
     let mut out = Vec::new();
-    for tile in &level.tunnel {
+    for tile in level.tunnel.iter().chain(&level.galleries) {
         let (mid, r) = (tunnel_centre(t, li, level, tile), tile.rotation());
         let local: Vec<Vec3> = match tile.piece {
             TunnelPiece::Straight => [-4.0, 0.0, 4.0]
@@ -3273,7 +3686,7 @@ pub fn tunnel_columns(t: &Tuning, li: usize, level: &Level) -> Vec<Vec3> {
                 .into_iter()
                 .all(|(dx, dz)| {
                     cell_of(t, level, at + Vec3::new(dx, 0.0, dz))
-                        .is_none_or(|c| level.fill(c).kind == Kind::Tunnel)
+                        .is_none_or(|c| matches!(level.fill(c).kind, Kind::Tunnel | Kind::Gallery))
                 });
             if clear {
                 out.push(at);
@@ -3306,6 +3719,99 @@ pub fn room_columns(t: &Tuning, li: usize, level: &Level) -> Vec<Vec3> {
         })
         .map(|c| cell_world(t, li, level, c) + Vec3::new(CELL / 2.0, 0.0, CELL / 2.0))
         .collect()
+}
+
+/// Where the corridors' columns stand (on the floor): every outside wall
+/// corner, where three walkable cells round a grid corner join up and the
+/// fourth is walled off from them. Worked out from the plan, so a column is
+/// always on the corner whatever the tiles around it are (the tile models
+/// used to carry their own, which missed straights and stood wrong next to
+/// rooms).
+pub fn corridor_columns(t: &Tuning, li: usize, level: &Level) -> Vec<Vec3> {
+    use wfc::Side::{East, South};
+    // Any cell you walk in (corridors, rooms, landings, stairs, platforms): the
+    // wall pieces stop short of an outside corner, so a column must close it
+    // whatever lies round it.
+    let corridor = |c: wfc::Cell| {
+        let f = level.fill(c);
+        f.mask != 0 && !matches!(f.kind, Kind::Under | Kind::Tunnel | Kind::Gallery)
+    };
+    let mut out = Vec::new();
+    for z in 0..level.depth.saturating_sub(1) {
+        for x in 0..level.width.saturating_sub(1) {
+            // The four cells round the corner at the SE of (x, z).
+            let (tl, tr, bl, br) = ((x, z), (x + 1, z), (x, z + 1), (x + 1, z + 1));
+            // Each quadrant, the two it borders across the corner's edges,
+            // and the edges (cell, side) between them.
+            let quads = [
+                (
+                    br,
+                    (tl, tr, bl),
+                    [(tl, East), (tl, South)],
+                    [(tr, South), (bl, East)],
+                ),
+                (
+                    bl,
+                    (tr, tl, br),
+                    [(tl, East), (tr, South)],
+                    [(tl, South), (bl, East)],
+                ),
+                (
+                    tr,
+                    (bl, tl, br),
+                    [(tl, South), (bl, East)],
+                    [(tl, East), (tr, South)],
+                ),
+                (
+                    tl,
+                    (br, tr, bl),
+                    [(tr, South), (bl, East)],
+                    [(tl, East), (tl, South)],
+                ),
+            ];
+            let outside = quads.iter().any(|&(_, (a, b, c), joined, walls)| {
+                [a, b, c].into_iter().all(corridor)
+                    && joined.iter().all(|&(cell, side)| level.open(cell, side))
+                    && walls.iter().all(|&(cell, side)| !level.open(cell, side))
+            });
+            if outside {
+                out.push(cell_world(t, li, level, tl) + Vec3::new(CELL / 2.0, 0.0, CELL / 2.0));
+            }
+        }
+    }
+    out
+}
+
+/// Where a tall room's deck corners need a post (on the sunken floor, up to
+/// the ceiling): every grid corner where the same room's deck and sunken
+/// floor meet other than along a straight edge. The faces under the deck stop
+/// short of each other there, and the empty space under the deck showed
+/// through the slot as the clear colour.
+pub fn deck_columns(t: &Tuning, li: usize, level: &Level) -> Vec<Vec3> {
+    let mut out = Vec::new();
+    for z in 0..level.depth.saturating_sub(1) {
+        for x in 0..level.width.saturating_sub(1) {
+            let quads = [(x, z), (x + 1, z), (x, z + 1), (x + 1, z + 1)];
+            let Kind::Room(r) = level.fill(quads[0]).kind else {
+                continue;
+            };
+            if quads.iter().any(|&c| level.fill(c).kind != Kind::Room(r)) {
+                continue;
+            }
+            let sunk: Vec<bool> = quads.iter().map(|&c| level.sunk(c)).collect();
+            let n = sunk.iter().filter(|&&s| s).count();
+            // A straight edge (two side by side) needs nothing; one, three
+            // or a diagonal pair is a corner.
+            let straight = n == 2 && (sunk[0] == sunk[1] || sunk[0] == sunk[2]);
+            if n == 0 || n == 4 || straight {
+                continue;
+            }
+            out.push(
+                cell_world(t, li, level, quads[0]) + Vec3::new(CELL / 2.0, -level.sink, CELL / 2.0),
+            );
+        }
+    }
+    out
 }
 
 /// A tall hall's columns (on its sunken floor): every inside corner where
@@ -3379,6 +3885,61 @@ pub fn broken_skin(m: &StandardMaterial, tint: f32) -> Option<StandardMaterial> 
 
 /// A number from 0 to 1 for this station, level, room, cell and slot (the
 /// rooms' dressing doesn't touch the plan's random numbers).
+/// Where a level's service doors go: on walled sides of corridor and room
+/// cells you can walk to (not the stairs, landings, platforms or a locker
+/// bank, nor a door side), spread out (each as far as can be from the ones
+/// before). Seeded by the station and level, never the plan's own numbers.
+pub fn service_doors(t: &Tuning, li: usize, level: &Level) -> Vec<(wfc::Cell, wfc::Side)> {
+    let d = &t.hunt.ducts;
+    if d.doors.1 == 0 || level.cells.is_empty() {
+        return Vec::new();
+    }
+    let reach = level.distances();
+    let set = TILES.get();
+    let mut spots: Vec<(wfc::Cell, wfc::Side)> = Vec::new();
+    for z in 0..level.depth {
+        for x in 0..level.width {
+            let c = (x, z);
+            let i = z * level.width + x;
+            let f = level.fill(c);
+            let ok = match f.kind {
+                Kind::Corridor(Some(p)) => !set.pieces.get(p as usize).is_some_and(|p| p.hide),
+                Kind::Room(_) => !level.sunk(c),
+                _ => false,
+            };
+            if !ok || f.track != 0 || reach[i].is_none() {
+                continue;
+            }
+            for s in wfc::Side::ALL {
+                if f.mask & bit(s) == 0 {
+                    spots.push((c, s));
+                }
+            }
+        }
+    }
+    if spots.is_empty() {
+        return Vec::new();
+    }
+    let (lo, hi) = (d.doors.0.min(d.doors.1), d.doors.1);
+    let n = lo + (dress_roll(t, [li, 0xd0c7, 0, 0]) * (hi - lo + 1) as f32) as usize;
+    let first = (dress_roll(t, [li, 0xd0c7, 1, 0]) * spots.len() as f32) as usize;
+    let mut out = vec![spots[first.min(spots.len() - 1)]];
+    let gap = |a: wfc::Cell, b: wfc::Cell| a.0.abs_diff(b.0) + a.1.abs_diff(b.1);
+    while out.len() < n.min(spots.len()) {
+        let Some(&next) = spots.iter().max_by_key(|s| {
+            out.iter().map(|o| gap(o.0, s.0)).min().unwrap_or(0) * 4
+                + (dress_roll(t, [li, 0xd0c7, s.0.0, s.0.1 * 4 + s.1.index()]) * 3.0) as usize
+        }) else {
+            break;
+        };
+        if out.iter().any(|o| o.0 == next.0) {
+            break;
+        }
+        out.push(next);
+    }
+    out
+}
+
 fn dress_roll(t: &Tuning, parts: [usize; 4]) -> f32 {
     let mut h = t.seed as u64 ^ 0x9e37_79b9_7f4a_7c15;
     for p in parts {
@@ -3843,7 +4404,10 @@ pub fn shapes(t: &Tuning, li: usize, level: &Level) -> Vec<Shape> {
                     let turn = side_turn(s);
                     let stretch = Vec3::new(1.0, drop, 1.0);
                     if f.mask & bit(s) == 0 {
-                        out.push(put(ShapePiece::Wall, floor, turn, Vec3::ONE, None));
+                        // (A doorway onto the level below leaves its lower wall out.)
+                        if !level.low_doors.contains(&(c, s)) {
+                            out.push(put(ShapePiece::Wall, floor, turn, Vec3::ONE, None));
+                        }
                         // The wall's top up to the ceiling, stopping short of
                         // it: its tiled top would lie flush in the floor of
                         // the level above and flicker there.
@@ -4062,12 +4626,61 @@ pub struct Sign {
 /// The signs along a level's way: one in every cell you walk through (none
 /// over the landing, where the stairs from above are the ceiling), facing
 /// you as you come, pointing on; and "down" at the top of the stairs.
+/// The signed ways on a level: the main way (`path`), then from each other
+/// landing the way to the nearest stairs down (cells already signed stop it).
+pub fn signed_ways(level: &Level) -> Vec<Vec<wfc::Cell>> {
+    let mut out = vec![level.path.clone()];
+    let downs = level.downs();
+    for (up, _) in level.ups().into_iter().filter(|u| u.0 != level.arrive) {
+        let d = wfc::distances(level.width, level.depth, up, |c, s| level.open(c, s));
+        let Some(&(goal, _)) = downs
+            .iter()
+            .filter(|g| d[g.0.1 * level.width + g.0.0].is_some())
+            .min_by_key(|g| d[g.0.1 * level.width + g.0.0])
+        else {
+            continue;
+        };
+        let way = path_to(
+            &Level {
+                arrive: up,
+                goal,
+                ..level.clone()
+            },
+            &d,
+        );
+        if !way.is_empty() {
+            out.push(way);
+        }
+    }
+    out
+}
+
 pub fn signs(t: &Tuning, li: usize, level: &Level) -> Vec<Sign> {
     let mut out = Vec::new();
-    let p = &level.path;
-    let landing = level.fill(level.arrive).kind == Kind::Landing;
+    let mut signed: HashSet<wfc::Cell> = HashSet::new();
+    for p in &signed_ways(level) {
+        signs_along(t, li, level, p, &mut signed, &mut out);
+    }
+    out
+}
+
+/// Signs along one way (see [`signs`]), not on cells already signed.
+fn signs_along(
+    t: &Tuning,
+    li: usize,
+    level: &Level,
+    p: &[wfc::Cell],
+    signed: &mut HashSet<wfc::Cell>,
+    out: &mut Vec<Sign>,
+) {
+    let landing = p
+        .first()
+        .is_some_and(|&c| level.fill(c).kind == Kind::Landing);
     for (i, &c) in p.iter().enumerate() {
         if i == 0 && landing {
+            continue;
+        }
+        if !signed.insert(c) {
             continue;
         }
         let at = cell_world(t, li, level, c);
@@ -4079,9 +4692,9 @@ pub fn signs(t: &Tuning, li: usize, level: &Level) -> Vec<Sign> {
         let Some(came) = came else { continue };
         // Its front faces back along the way you came.
         let yaw = (-came.x).atan2(-came.z);
-        if c == level.goal {
-            if level.fill(c).kind == Kind::Stairs {
-                let entry = dir(level.goal_entry);
+        if i + 1 == p.len() {
+            if let Some((_, side)) = level.downs().into_iter().find(|d| d.0 == c) {
+                let entry = dir(side);
                 out.push(Sign {
                     at: at + entry * (CELL / 2.0 - 1.0),
                     yaw,
@@ -4107,7 +4720,6 @@ pub fn signs(t: &Tuning, li: usize, level: &Level) -> Vec<Sign> {
         };
         out.push(Sign { at, yaw, kind });
     }
-    out
 }
 
 /// Where you arrive at the top of the station.
@@ -4258,7 +4870,9 @@ impl Station {
 /// and never fewer than `want`.
 pub fn levels_wanted(t: &Tuning, deepest: Option<usize>, want: usize) -> usize {
     let ahead = t.plan_ahead.max(1);
-    let by_body = deepest.map_or(ahead, |l| l + 1 + ahead);
+    // (One past the deepest built level: a two-storey room's walls depend on
+    // the level under it, so it's planned before the level above is built.)
+    let by_body = deepest.map_or(ahead + 1, |l| l + 2 + ahead);
     by_body.max(want).min(t.levels.max(1))
 }
 
@@ -4539,11 +5153,11 @@ fn level_ways(
 ) {
     use crate::features::doorway::Doorway;
     let level = &levels[li];
-    if level.fill(level.goal).kind == Kind::Stairs {
-        let side = dir(level.goal_entry);
+    for (down, entry) in level.downs() {
+        let side = dir(entry);
         let e = crate::area::doorway(
             commands,
-            cell_world(t, li, level, level.goal) + side * (CELL / 2.0 - 0.4),
+            cell_world(t, li, level, down) + side * (CELL / 2.0 - 0.4),
             crate::features::doorway::yaw_towards(-side.xz()),
             Doorway::new(
                 crate::features::doorway::Way::Down,
@@ -4680,7 +5294,7 @@ pub fn build_sim(mut commands: Commands, station: Option<Res<Station>>) {
 /// worked out once and kept.
 fn starts() -> Vec<(String, Vec3)> {
     static AT: std::sync::Mutex<Option<Vec3>> = std::sync::Mutex::new(None);
-    if bot_run() {
+    if bot_run() || god() {
         return bot_starts();
     }
     if let Ok(at) = AT.lock()
@@ -4707,6 +5321,14 @@ fn starts() -> Vec<(String, Vec3)> {
 pub fn bot_run() -> bool {
     static BOT: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
     *BOT.get_or_init(|| std::env::var("FRIENDSLOP_BOT").is_ok_and(|r| !r.is_empty()))
+}
+
+/// Testing (`FRIENDSLOP_GOD=1`): the hunter never catches anyone and every
+/// level has starts of its own (`FRIENDSLOP_START=fulton_3`), as for the bot,
+/// but you drive.
+pub fn god() -> bool {
+    static GOD: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *GOD.get_or_init(|| std::env::var("FRIENDSLOP_GOD").is_ok_and(|v| !v.is_empty() && v != "0"))
 }
 
 /// The bot's starts: `fulton` (the top), and on every level `fulton_<n>`
@@ -4942,7 +5564,7 @@ fn stream_levels(
                         .map(|p| set.themed(li, p.model.as_str())),
                     Kind::Stairs => Some(set.stairs.as_str()),
                     Kind::Platform => Some(set.platform.as_str()),
-                    Kind::Room(_) | Kind::Tunnel => Some(set.room.floor.as_str()),
+                    Kind::Room(_) | Kind::Tunnel | Kind::Gallery => Some(set.room.floor.as_str()),
                     Kind::Corridor(None) | Kind::Landing | Kind::Under => None,
                 };
                 let Some(file) = file else { continue };
@@ -4990,7 +5612,7 @@ fn stream_levels(
                     ));
                 }
                 // A room cell's walls: the wall piece turned onto each walled side.
-                if matches!(f.kind, Kind::Room(_)) && !set.room.wall.is_empty() {
+                if matches!(f.kind, Kind::Room(_) | Kind::Gallery) && !set.room.wall.is_empty() {
                     for side in wfc::Side::ALL {
                         if f.mask & bit(side) != 0 {
                             continue;
@@ -5036,6 +5658,22 @@ fn stream_levels(
                 ChildOf(root),
             ));
         }
+        // A gallery's curves: their rounded outer walls.
+        if !set.room.arc.is_empty() {
+            for tile in level
+                .galleries
+                .iter()
+                .filter(|g| g.piece == TunnelPiece::Curve)
+            {
+                commands.spawn((
+                    model(&assets, &set.room.arc),
+                    Merge,
+                    Transform::from_translation(tunnel_centre(&t, li, level, tile))
+                        .with_rotation(tile.rotation()),
+                    ChildOf(root),
+                ));
+            }
+        }
         // Tall rooms (sunken floors, decks, stairs, railings) and rubble.
         for sh in shapes(&t, li, level) {
             let file = set.room.file(sh.piece);
@@ -5072,6 +5710,8 @@ fn stream_levels(
                 .into_iter()
                 .chain(tunnel_columns(&t, li, level))
                 .chain(pit_columns(&t, li, level))
+                .chain(corridor_columns(&t, li, level))
+                .chain(deck_columns(&t, li, level))
             {
                 commands.spawn((
                     model(&assets, &set.room.column),
@@ -5081,6 +5721,24 @@ fn stream_levels(
                         column_height(li, at) / ROOM_H,
                         1.0,
                     )),
+                    ChildOf(root),
+                ));
+            }
+        }
+        // The service doors (the hunter's way into the ducts), flush on the
+        // wall face, not merged (they're a handful a level).
+        if !t.hunt.ducts.model.is_empty() {
+            for &(c, side) in &level.service {
+                let face = dir(side);
+                let at = cell_world(&t, li, level, c) + face * (CELL / 2.0 - WALL_FACE_IN);
+                commands.spawn((
+                    WorldAssetRoot(
+                        assets
+                            .load(GltfAssetLabel::Scene(0).from_asset(t.hunt.ducts.model.clone())),
+                    ),
+                    // Modelled facing +z with its back on the wall: turned to face in.
+                    Transform::from_translation(at)
+                        .with_rotation(Quat::from_rotation_y((-face.x).atan2(-face.z))),
                     ChildOf(root),
                 ));
             }
@@ -5647,7 +6305,8 @@ mod tests {
                 continue;
             }
             atriums += 1;
-            assert_eq!(l.kind, LevelKind::Atrium);
+            // (A concourse's two-storey room is one too.)
+            assert!(matches!(l.kind, LevelKind::Atrium | LevelKind::Concourse));
             assert!((l.sink - lay.atrium.drop).abs() < 1e-3, "level {li}");
             assert!((l.sink - STATION_LEVEL_H).abs() < 1e-3, "a whole level");
             let below = &levels[li + 1];
@@ -5693,6 +6352,263 @@ mod tests {
             );
         }
         assert!(atriums >= 1, "no atrium came out");
+    }
+
+    #[test]
+    fn levels_have_several_ways_down_that_all_land() {
+        let (t0, set) = data();
+        let mut several = 0;
+        let mut levels_seen = 0;
+        let (mut extras, mut pockets) = (0, 0);
+        for seed in 1..5 {
+            let t = Tuning { seed, ..t0.clone() };
+            let levels = generate(&t, &set);
+            for (li, l) in levels.iter().enumerate() {
+                let downs = l.downs();
+                levels_seen += 1;
+                if downs.len() >= 2 {
+                    several += 1;
+                }
+                assert!(downs.len() <= t.downs.1.max(1), "seed {seed} level {li}");
+                let Some(below) = levels.get(li + 1) else {
+                    continue;
+                };
+                let d = l.distances();
+                let reach = below.distances();
+                for (c, entry) in downs {
+                    // You can walk to it, and it lands on a landing below
+                    // that opens away from its entry and leads somewhere.
+                    assert!(
+                        d[c.1 * l.width + c.0].is_some(),
+                        "seed {seed} level {li} {c:?}"
+                    );
+                    let Some(b) = map_cell(l, below, c) else {
+                        panic!("seed {seed} level {li}: stairs {c:?} off the level below")
+                    };
+                    assert_eq!(
+                        below.fill(b).kind,
+                        Kind::Landing,
+                        "seed {seed} level {li} {c:?}"
+                    );
+                    assert_ne!(below.fill(b).mask & bit(entry.opposite()), 0);
+                    // The main stairs always lead on; an extra one may (rarely,
+                    // on a cramped fallback level) land in a pocket you walk
+                    // back up from.
+                    if reach[b.1 * below.width + b.0].is_none() {
+                        assert_ne!(c, l.goal, "seed {seed} level {li}: main landing cut off");
+                        pockets += 1;
+                    }
+                    extras += usize::from(c != l.goal);
+                }
+            }
+        }
+        // A good share of levels have more than one way down, and hardly
+        // any extra one is a dead end.
+        assert!(several * 4 >= levels_seen, "{several} of {levels_seen}");
+        assert!(
+            pockets * 20 <= extras,
+            "{pockets} of {extras} extra landings cut off"
+        );
+    }
+
+    /// How many loops a level's ways make: each room and each gallery counts
+    /// as one place, so only rings through the corridors count.
+    fn loops(l: &Level) -> usize {
+        let n = l.cells.len();
+        let mut up: Vec<usize> = (0..n).collect();
+        fn root(up: &mut [usize], mut i: usize) -> usize {
+            while up[i] != i {
+                up[i] = up[up[i]];
+                i = up[i];
+            }
+            i
+        }
+        let mut links = Vec::new();
+        for i in 0..n {
+            let c = (i % l.width, i / l.width);
+            for s in [wfc::Side::East, wfc::Side::South] {
+                if !l.open(c, s) {
+                    continue;
+                }
+                let Some(o) = wfc::neighbour(l.width, l.depth, c, s) else {
+                    continue;
+                };
+                let j = o.1 * l.width + o.0;
+                let (a, b) = (l.cells[i].kind, l.cells[j].kind);
+                let same = a == b && matches!(a, Kind::Room(_) | Kind::Gallery);
+                if same {
+                    let (ra, rb) = (root(&mut up, i), root(&mut up, j));
+                    up[ra] = rb;
+                } else {
+                    links.push((i, j));
+                }
+            }
+        }
+        let d = l.distances();
+        let places: HashSet<usize> = (0..n)
+            .filter(|&i| d[i].is_some())
+            .map(|i| root(&mut up, i))
+            .collect();
+        let joins: HashSet<(usize, usize)> = links
+            .into_iter()
+            .filter(|&(i, _)| d[i].is_some())
+            .map(|(i, j)| {
+                let (a, b) = (root(&mut up, i), root(&mut up, j));
+                (a.min(b), a.max(b))
+            })
+            .collect();
+        (joins.len() + 1).saturating_sub(places.len())
+    }
+
+    #[test]
+    fn concourses_have_galleries_and_loops() {
+        let (t0, set) = data();
+        let (mut seen, mut galleries, mut looped, mut downs, mut free) = (0, 0, 0, 0, 0);
+        for seed in 1..9 {
+            let t = Tuning { seed, ..t0.clone() };
+            for (li, l) in generate(&t, &set).iter().enumerate() {
+                if l.kind != LevelKind::Concourse {
+                    continue;
+                }
+                seen += 1;
+                galleries += usize::from(!l.galleries.is_empty());
+                looped += usize::from(loops(l) >= 1);
+                // (Over a platform or tunnel level there's one way down.)
+                let busy = |k: usize| platform_level(&t, k) || tunnel_level(&t, k);
+                if !busy(li + 1) {
+                    free += 1;
+                    downs += usize::from(l.downs().len() >= 2);
+                }
+                assert_eq!(l.path.first(), Some(&l.arrive), "seed {seed} level {li}");
+                assert_eq!(l.path.last(), Some(&l.goal), "seed {seed} level {li}");
+                // A gallery's cells are its own, open within its tiles.
+                for tile in &l.galleries {
+                    for dz in 0..TUNNEL_CELLS {
+                        for dx in 0..TUNNEL_CELLS {
+                            let c = (tile.at.0 + dx, tile.at.1 + dz);
+                            assert_eq!(l.fill(c).kind, Kind::Gallery, "seed {seed} level {li}");
+                            if dx == 0 {
+                                assert!(l.open(c, wfc::Side::East), "seed {seed} level {li}");
+                            }
+                            if dz == 0 {
+                                assert!(l.open(c, wfc::Side::South), "seed {seed} level {li}");
+                            }
+                        }
+                    }
+                }
+                // Every cell you can walk on is reachable from the way in.
+                let d = l.distances();
+                for (i, f) in l.cells.iter().enumerate() {
+                    if f.mask != 0 && f.kind != Kind::Under {
+                        assert!(d[i].is_some(), "seed {seed} level {li} cell {i}");
+                    }
+                }
+            }
+        }
+        assert!(seen >= 6, "only {seen} concourses");
+        assert!(
+            galleries * 3 >= seen * 2,
+            "{galleries} of {seen} have a gallery"
+        );
+        assert!(looped * 3 >= seen * 2, "{looped} of {seen} loop");
+        assert!(
+            downs * 3 >= free * 2,
+            "{downs} of {free} have several ways down"
+        );
+    }
+
+    #[test]
+    fn two_storey_rooms_share_a_floor_with_the_level_below() {
+        let (t0, set) = data();
+        let (mut rooms, mut joined) = (0, 0);
+        for seed in 1..9 {
+            let t = Tuning { seed, ..t0.clone() };
+            let levels = generate(&t, &set);
+            for (li, l) in levels.iter().enumerate() {
+                if l.kind != LevelKind::Concourse || !l.room_meta.contains(&Meta::Atrium) {
+                    continue;
+                }
+                if !l.sunk.iter().any(|s| *s) {
+                    continue;
+                }
+                rooms += 1;
+                assert!(
+                    (l.sink - STATION_LEVEL_H).abs() < 1e-3,
+                    "seed {seed} level {li}"
+                );
+                let below = &levels[li + 1];
+                joined += usize::from(!l.low_doors.is_empty());
+                assert_eq!(
+                    l.low_doors.len(),
+                    below.from_above.len(),
+                    "seed {seed} level {li}"
+                );
+                for &(c, s) in &below.from_above {
+                    let d = below.distances();
+                    assert!(
+                        d[c.1 * below.width + c.0].is_some(),
+                        "seed {seed} level {li}"
+                    );
+                    let n = wfc::neighbour(below.width, below.depth, c, s).unwrap_or(c);
+                    assert_eq!(below.fill(n).kind, Kind::Under);
+                    let pit = map_cell(below, l, n).unwrap_or((0, 0));
+                    assert!(l.sunk(pit), "seed {seed} level {li}");
+                    // Both floors are one height, and the hunter goes through.
+                    let (a, b) = (
+                        cell_world(&t, li, l, pit) - Vec3::Y * l.sink,
+                        cell_world(&t, li + 1, below, c),
+                    );
+                    assert!((a.y - b.y).abs() < 1e-3, "seed {seed} level {li}");
+                    let hunt = super::super::fulton_hunt::neighbours(&levels, (li + 1, c.0, c.1));
+                    assert!(hunt.contains(&(li, pit.0, pit.1)), "seed {seed} level {li}");
+                    // No collider fills the doorway's lower half.
+                    let door = (a + b) / 2.0 + Vec3::Y * 1.0;
+                    assert!(
+                        !colliders(&t, li, l)
+                            .iter()
+                            .chain(&colliders(&t, li + 1, below))
+                            .any(|k| {
+                                let p = k.rotation.inverse() * (door - k.centre);
+                                (p.abs() - k.size / 2.0).max_element() < 0.0
+                            }),
+                        "seed {seed} level {li}: the doorway is blocked"
+                    );
+                }
+            }
+        }
+        assert!(rooms >= 3, "only {rooms} two-storey rooms");
+        assert!(
+            joined * 2 >= rooms,
+            "{joined} of {rooms} open onto the level below"
+        );
+    }
+
+    #[test]
+    fn every_landing_is_signed_to_a_way_down() {
+        let (t, set) = data();
+        let levels = generate(&t, &set);
+        let mut extra = 0;
+        for (li, l) in levels.iter().enumerate() {
+            let ways = signed_ways(l);
+            for way in &ways[1..] {
+                extra += 1;
+                let (first, last) = (way[0], way[way.len() - 1]);
+                assert_eq!(l.fill(first).kind, Kind::Landing, "level {li}");
+                assert_eq!(l.fill(last).kind, Kind::Stairs, "level {li}");
+            }
+            let downs = signs(&t, li, l)
+                .iter()
+                .filter(|s| s.kind == SignKind::Down)
+                .count();
+            // A sign at every stairs a way ends at (each once).
+            let ends: HashSet<wfc::Cell> = ways
+                .iter()
+                .filter_map(|w| w.last().copied())
+                .filter(|&c| l.fill(c).kind == Kind::Stairs)
+                .collect();
+            assert_eq!(downs, ends.len(), "level {li}");
+        }
+        assert!(extra >= 5, "only {extra} more landings signed");
     }
 
     #[test]
@@ -5768,6 +6684,7 @@ mod tests {
             // A type counts when its set piece came out.
             let piece = match l.kind {
                 LevelKind::Warren => true,
+                LevelKind::Concourse => !l.galleries.is_empty(),
                 LevelKind::Line => l.coarse.is_some() && longest_track(l) > 0,
                 LevelKind::Hall => l.room_meta.contains(&Meta::Hall),
                 LevelKind::Atrium => l.room_meta.contains(&Meta::Atrium),
@@ -5813,7 +6730,7 @@ mod tests {
                 );
             }
         }
-        assert_eq!(kinds.len(), 4, "{kinds:?}");
+        assert_eq!(kinds.len(), 5, "{kinds:?}");
         assert!(track >= 8, "the longest line is {track} cells");
         assert!(room >= 12, "the biggest hall is {room} cells");
         assert!(
@@ -5904,12 +6821,43 @@ mod tests {
                         Kind::Room(_) => 'R',
                         Kind::Under => '_',
                         Kind::Tunnel => 'T',
+                        Kind::Gallery => 'G',
                         Kind::Corridor(None) if f.mask == 0 => '#',
                         _ if f.mask == 0 => ' ',
                         _ => '+',
                     }
                 });
             }
+            out.push('\n');
+        }
+        // Then how the cells join up (- and | where you can walk across).
+        for z in 0..l.depth {
+            let (mut top, mut bottom) = (String::from("  "), String::from("  "));
+            for x in 0..l.width {
+                let c = (x, z);
+                let ch = match l.fill(c).kind {
+                    _ if c == l.arrive => 'a',
+                    _ if c == l.goal => 'g',
+                    Kind::Stairs => 'd',
+                    Kind::Landing => 'u',
+                    Kind::Room(_) => 'R',
+                    Kind::Gallery => 'G',
+                    Kind::Tunnel => 'T',
+                    _ if l.fill(c).mask == 0 => '#',
+                    _ => '+',
+                };
+                top.push(ch);
+                top.push(if l.open(c, wfc::Side::East) { '-' } else { ' ' });
+                bottom.push(if l.open(c, wfc::Side::South) {
+                    '|'
+                } else {
+                    ' '
+                });
+                bottom.push(' ');
+            }
+            out.push_str(&top);
+            out.push('\n');
+            out.push_str(&bottom);
             out.push('\n');
         }
         out
@@ -6156,7 +7104,15 @@ mod tests {
             for z in 0..if l.tunnel.is_empty() { l.depth } else { 0 } {
                 for x in 0..l.width {
                     for s in wfc::Side::ALL {
+                        // (A doorway into the floor of a two-storey room above
+                        // opens onto ground solid on this level's plan.)
+                        if l.from_above.contains(&((x, z), s)) {
+                            continue;
+                        }
                         if let Some(n) = wfc::neighbour(l.width, l.depth, (x, z), s) {
+                            if l.from_above.contains(&(n, s.opposite())) {
+                                continue;
+                            }
                             assert_eq!(
                                 socket(&l.fill((x, z)), s),
                                 socket(&l.fill(n), s.opposite()),
@@ -6447,8 +7403,8 @@ mod tests {
             t.plan_ahead >= 2,
             "the level under you is built before you drop"
         );
-        assert_eq!(levels_wanted(&t, None, 0), t.plan_ahead);
-        assert_eq!(levels_wanted(&t, Some(5), 0), 6 + t.plan_ahead);
+        assert_eq!(levels_wanted(&t, None, 0), t.plan_ahead + 1);
+        assert_eq!(levels_wanted(&t, Some(5), 0), 7 + t.plan_ahead);
         assert_eq!(levels_wanted(&t, Some(1), 12), 12);
         assert_eq!(levels_wanted(&t, Some(t.levels - 1), 0), t.levels);
         let built = levels_built(&t, &[10], 40);
@@ -6799,16 +7755,19 @@ mod tests {
         let (t, set) = data();
         let levels = generate(&t, &set);
         let l = &levels[0];
-        let ramp = colliders(&t, 0, l)
-            .into_iter()
-            .find(|b| b.rotation != Quat::IDENTITY && b.size.z > CELL);
+        // The top is at the main stairs' entry edge (a level has several).
+        let entry = cell_world(&t, 0, l, l.goal) + dir(l.goal_entry) * (CELL / 2.0);
+        let top_of = |b: &Block| b.centre + b.rotation * Vec3::new(0.0, 0.15, -b.size.z / 2.0);
+        let ramp = colliders(&t, 0, l).into_iter().find(|b| {
+            b.rotation != Quat::IDENTITY
+                && b.size.z > CELL
+                && top_of(b).xz().distance(entry.xz()) < 0.01
+        });
         let Some(ramp) = ramp else { panic!("no ramp") };
-        let top = ramp.centre + ramp.rotation * Vec3::new(0.0, 0.15, -ramp.size.z / 2.0);
+        let top = top_of(&ramp);
         let bottom = ramp.centre + ramp.rotation * Vec3::new(0.0, 0.15, ramp.size.z / 2.0);
         assert!((top.y - level_floor(0)).abs() < 0.01, "{top}");
         assert!((bottom.y - level_floor(1)).abs() < 0.01, "{bottom}");
-        // The top is at the entry edge.
-        let entry = cell_world(&t, 0, l, l.goal) + dir(l.goal_entry) * (CELL / 2.0);
         assert!(top.xz().distance(entry.xz()) < 0.01);
     }
 

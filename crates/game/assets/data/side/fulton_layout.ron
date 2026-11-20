@@ -27,6 +27,10 @@
             metas: [(Track, 1.5), (Warren, 2.0), (Solid, 0.2)], sizes: [(12, 6)]),
         (kind: Atrium, weight: 1.2, from: 3, until: 99,
             metas: [(Atrium, 1.2), (Warren, 2.0)], sizes: [(8, 8)]),
+        // A concourse: rooms and long curved galleries joined up by
+        // corridors with loops in them (`concourse` below; no macro tiles).
+        (kind: Concourse, weight: 4.0, from: 0, until: 99,
+            metas: [], sizes: [(10, 10), (12, 10), (10, 8)]),
     ],
     // Faces of different coarse tiles that may meet (each face always meets
     // its own kind, merging them, except a track's side: two lines never
@@ -50,4 +54,30 @@
     // below solid under it), balconies at its doors and long stairs down
     // (`stair_run` m long; their slope stays walkable).
     atrium: (min: (2, 2), drop: 4.0, stair_run: 5.4),
+    // A concourse level (planned as a graph, not a maze): how many
+    // galleries (halls two cells, 12 m, wide, bending round rounded corners)
+    // and their shapes, a letter a 12 m tile (S straight on, C a quarter turn
+    // either way); how many rooms (sizes and doors from fulton.ron's rooms);
+    // extra corridors closing a loop between two places at least
+    // `loop_apart` steps apart along the corridors, at most `loop_len` cells
+    // long; dead ends off the corridors (up to `spur_len` cells: the lockers
+    // are in dead ends); how much a corridor wanders (noise on each cell's
+    // cost) and what a turn costs (in cells).
+    concourse: (
+        galleries: (1, 2),
+        shapes: ["SCS", "SCCS", "CS", "SSC", "SCSC", "CC"],
+        rooms: (1, 3),
+        loops: (1, 3),
+        loop_apart: 6,
+        loop_len: 8,
+        spurs: (1, 3),
+        spur_len: 2,
+        wander: 0.6,
+        turn: 0.8,
+        // The chance a concourse over another concourse has a two-storey
+        // room: the floor of its biggest room drops a whole level onto the
+        // floor of the one below, whose corridors come in through doorways
+        // down there; balconies at its doors up here, long stairs down.
+        two_storey: 0.7,
+    ),
 )

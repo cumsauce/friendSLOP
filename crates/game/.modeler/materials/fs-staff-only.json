@@ -1,0 +1,234 @@
+{
+  "name": "fs-staff-only",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        0.5,
+        0.16
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.25,
+        0.08
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "word",
+      "size": 0.055,
+      "text": "STAFF ONLY",
+      "type": "text"
+    },
+    {
+      "mode": "fill",
+      "name": "m",
+      "sdf": "word",
+      "type": "mask"
+    },
+    {
+      "center": [
+        0.25,
+        0.08
+      ],
+      "coords": "c",
+      "name": "border_sdf",
+      "round": 0.008,
+      "size": [
+        0.47,
+        0.13
+      ],
+      "type": "rect"
+    },
+    {
+      "mode": "stroke",
+      "name": "border",
+      "sdf": "border_sdf",
+      "type": "mask",
+      "width": 0.006
+    },
+    {
+      "name": "grime",
+      "octaves": 3,
+      "seed": 5,
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0.5,
+        1
+      ],
+      "input": "grime",
+      "name": "grime_k",
+      "to": [
+        0,
+        0.35
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "m",
+      "b": "border",
+      "name": "ink",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "#a8221a",
+      "b": "#ece4d4",
+      "c": "ink",
+      "name": "c0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "c0",
+      "b": "#3a2a20",
+      "name": "col",
+      "opacity": "grime_k",
+      "type": "blend"
+    },
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.55,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "fs-staff-only",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                0.5,
+                0.16
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.25,
+                0.08
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "word",
+              "size": 0.055,
+              "text": "STAFF ONLY",
+              "type": "text"
+            },
+            {
+              "mode": "fill",
+              "name": "m",
+              "sdf": "word",
+              "type": "mask"
+            },
+            {
+              "center": [
+                0.25,
+                0.08
+              ],
+              "coords": "c",
+              "name": "border_sdf",
+              "round": 0.008,
+              "size": [
+                0.47,
+                0.13
+              ],
+              "type": "rect"
+            },
+            {
+              "mode": "stroke",
+              "name": "border",
+              "sdf": "border_sdf",
+              "type": "mask",
+              "width": 0.006
+            },
+            {
+              "name": "grime",
+              "octaves": 3,
+              "seed": 5,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0.5,
+                1
+              ],
+              "input": "grime",
+              "name": "grime_k",
+              "to": [
+                0,
+                0.35
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "m",
+              "b": "border",
+              "name": "ink",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#a8221a",
+              "b": "#ece4d4",
+              "c": "ink",
+              "name": "c0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "c0",
+              "b": "#3a2a20",
+              "name": "col",
+              "opacity": "grime_k",
+              "type": "blend"
+            },
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.55,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+uv +c +word +m +border_sdf +border +grime +grime_k +ink +c0 +col +out"
+      }
+    ],
+    "current": 0
+  }
+}

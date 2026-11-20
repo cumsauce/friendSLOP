@@ -32,6 +32,10 @@
     depth: 6,
     // The signed way across one level is at least this many cells long.
     min_path: 7,
+    // Ways down per level (min, max): the signed main stairs plus more stairs
+    // elsewhere, each landing somewhere else on the level below (never above a
+    // tunnel level or on the J's).
+    downs: (2, 3),
     // Same seed, same station (on every peer).
     seed: 1170,
     // Subway platforms with empty tracks: every this many levels (from the
@@ -376,5 +380,20 @@
         // over this many seconds (you watch), then you wake up on the street.
         kill_reach: 0.95,
         kill_secs: 2.4,
+        // Its service doors (staff only) and the ducts behind them: only it
+        // goes through. Each level has between these many doors, spread out;
+        // the ducts join every door on a level and the nearest on the levels
+        // above and below. It crawls them at `speed` (m/s), out of sight; you
+        // hear it in the walls every `bang_secs`. Picking its way round, a
+        // duct counts as `cost` cells of walking, so it takes one to save a
+        // long way. It only uses them drifting and backing off, never on the
+        // chase, and turns up through a door.
+        ducts: (
+            doors: (2, 4),
+            speed: 5.0,
+            cost: 6,
+            bang_secs: 0.9,
+            model: "models/features/fs_service_door.gltf",
+        ),
     ),
 )

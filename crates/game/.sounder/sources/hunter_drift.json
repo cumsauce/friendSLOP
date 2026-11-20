@@ -1,0 +1,272 @@
+{
+  "name": "hc_drift",
+  "format_version": 1,
+  "kind": "oneshot",
+  "sample_rate": 48000,
+  "duration": 2.6,
+  "seed": 13,
+  "nodes": [
+    {
+      "type": "env",
+      "name": "breathenv",
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          0.8
+        ],
+        [
+          1,
+          0.1
+        ],
+        [
+          1.15,
+          0.05
+        ],
+        [
+          1.6,
+          1
+        ],
+        [
+          2.3,
+          0.3
+        ],
+        [
+          2.6,
+          0
+        ]
+      ]
+    },
+    {
+      "type": "glottis",
+      "name": "lung",
+      "f0": 62,
+      "tension": 0.15,
+      "breath": 0.9,
+      "roughness": 0.8,
+      "fry": 0.6,
+      "amp": "breathenv",
+      "seed": 6
+    },
+    {
+      "type": "tract",
+      "name": "throat",
+      "input": "lung",
+      "vowel": "o",
+      "vowel_to": "u",
+      "morph": "breathenv",
+      "scale": 0.55,
+      "growl": 0.5,
+      "frication": {
+        "freq": 1800,
+        "level": "breathenv"
+      },
+      "seed": 3
+    },
+    {
+      "type": "noise",
+      "name": "wet",
+      "color": "crackle",
+      "density": 90,
+      "seed": 7
+    },
+    {
+      "type": "filter",
+      "name": "wetbp",
+      "input": "wet",
+      "mode": "bp",
+      "freq": 1400,
+      "q": 1.2
+    },
+    {
+      "type": "gain",
+      "name": "wetg",
+      "input": "wetbp",
+      "gain": "breathenv"
+    },
+    {
+      "type": "env",
+      "name": "whistlepc",
+      "points": [
+        [
+          0,
+          1600
+        ],
+        [
+          1.2,
+          1900
+        ],
+        [
+          2.6,
+          1500
+        ]
+      ]
+    },
+    {
+      "type": "glottis",
+      "name": "whistle",
+      "f0": "whistlepc",
+      "tension": 1,
+      "breath": 0.3,
+      "roughness": 0.4,
+      "vibrato_cents": 50,
+      "vibrato_hz": 7,
+      "seed": 8
+    },
+    {
+      "type": "tract",
+      "name": "whmouth",
+      "input": "whistle",
+      "vowel": "i",
+      "scale": 1.6,
+      "seed": 4
+    },
+    {
+      "type": "env",
+      "name": "whenv",
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          1.2,
+          0
+        ],
+        [
+          1.6,
+          0.5
+        ],
+        [
+          2.2,
+          0.2
+        ],
+        [
+          2.6,
+          0
+        ]
+      ]
+    },
+    {
+      "type": "gain",
+      "name": "whg",
+      "input": "whmouth",
+      "gain": "whenv"
+    },
+    {
+      "type": "filter",
+      "name": "whhp",
+      "input": "whg",
+      "mode": "hp",
+      "freq": 900
+    },
+    {
+      "type": "osc",
+      "name": "sub",
+      "freq": 38
+    },
+    {
+      "type": "gain",
+      "name": "subg",
+      "input": "sub",
+      "gain": "breathenv"
+    },
+    {
+      "type": "mix",
+      "name": "lowmix",
+      "inputs": [
+        {
+          "input": "throat",
+          "gain": 1.2
+        },
+        {
+          "input": "subg",
+          "gain": 0.35
+        },
+        {
+          "input": "wetg",
+          "gain": 0.4
+        }
+      ]
+    },
+    {
+      "type": "gain",
+      "name": "low_lvl",
+      "input": "lowmix",
+      "gain": "$low"
+    },
+    {
+      "type": "gain",
+      "name": "hi_lvl",
+      "input": "whhp",
+      "gain": "=$hi * 2.5"
+    },
+    {
+      "type": "mix",
+      "name": "both",
+      "inputs": [
+        {
+          "input": "low_lvl",
+          "gain": 1
+        },
+        {
+          "input": "hi_lvl",
+          "gain": 1
+        }
+      ]
+    },
+    {
+      "type": "output",
+      "name": "out",
+      "input": "both",
+      "lufs": -20,
+      "fade_out": 0.1
+    }
+  ],
+  "params": {
+    "hi": 1.0,
+    "low": 1.0
+  },
+  "macros": [
+    {
+      "name": "shrill",
+      "value": 0.5,
+      "default": 0.5,
+      "doc": "how loud the whistle in the breath is",
+      "claim": [
+        "centroid",
+        1
+      ],
+      "game": false,
+      "map": [
+        {
+          "param": "hi",
+          "from": 0.2,
+          "to": 2.0
+        }
+      ]
+    },
+    {
+      "name": "heavy",
+      "value": 0.5,
+      "default": 0.5,
+      "doc": "how deep and big the breath is",
+      "claim": [
+        "centroid",
+        -1
+      ],
+      "game": false,
+      "map": [
+        {
+          "param": "low",
+          "from": 0.3,
+          "to": 2.0
+        }
+      ]
+    }
+  ],
+  "version": 2
+}

@@ -1426,6 +1426,7 @@ pub fn plugin(app: &mut App) {
                 move_hunters,
                 hunt_sounds,
                 duct_sounds,
+                shut_doors,
                 hide_ducted,
                 hunter_opens_lockers,
             )
@@ -2598,15 +2599,16 @@ fn duct_sounds(
     sounds: Option<Res<DuctSounds>>,
     mut commands: Commands,
     mut hunters: Query<(Entity, &Hunter, Option<&mut DuctEars>)>,
+    doors: Query<(Entity, &GlobalTransform), With<super::fulton::ServiceDoor>>,
 ) {
     use crate::spatial::{Carry, play_at};
     let Some(sounds) = sounds else {
         if let Some(assets) = assets {
             commands.insert_resource(DuctSounds {
                 bangs: [1, 2, 3]
-                    .map(|i| assets.load(format!("audio/sfx/fulton/fulton_clank_{i}.wav"))),
+                    .map(|i| assets.load(format!("audio/sfx/fulton/duct_crawl_{i}.ogg"))),
                 door: [1, 2, 3]
-                    .map(|i| assets.load(format!("audio/sfx/fulton/locker_open_{i}.ogg"))),
+                    .map(|i| assets.load(format!("audio/sfx/fulton/service_door_{i}.ogg"))),
             });
         }
         return;
@@ -2628,10 +2630,22 @@ fn duct_sounds(
                 &mut commands,
                 &sounds.door[ears.n % 3],
                 h.pos + Vec3::Y,
-                0.8,
+                2.5,
                 Carry::LOUD,
             );
             ears.bang = 0.4;
+            // The door it goes through swings open, and shut behind it.
+            if let Some((door, _)) = doors
+                .iter()
+                .map(|(d, g)| (d, g.translation().distance(h.pos)))
+                .filter(|(_, d)| *d < 3.5)
+                .min_by(|a, b| a.1.total_cmp(&b.1))
+            {
+                commands
+                    .entity(door)
+                    .insert(crate::rigged::RigClip::once("open").fade(0.0))
+                    .insert(DoorShut(1.2));
+            }
         }
         if !h.ducted {
             continue;
@@ -2648,6 +2662,22 @@ fn duct_sounds(
                 0.9,
                 Carry::LOUD,
             );
+        }
+    }
+}
+
+/// Local: a service door left open, and the seconds until it swings shut.
+#[derive(Component)]
+struct DoorShut(f32);
+
+fn shut_doors(time: Res<Time>, mut commands: Commands, mut doors: Query<(Entity, &mut DoorShut)>) {
+    for (e, mut left) in &mut doors {
+        left.0 -= time.delta_secs();
+        if left.0 <= 0.0 {
+            commands
+                .entity(e)
+                .remove::<DoorShut>()
+                .insert(crate::rigged::RigClip::once("close").fade(0.0));
         }
     }
 }

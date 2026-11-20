@@ -837,7 +837,7 @@ fn dress_duelists(
 ) {
     for (entity, d) in &new {
         let path = body_model(d.player);
-        commands.entity(entity).insert((
+        commands.entity(entity).try_insert((
             Transform::from_translation(d.pos),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),

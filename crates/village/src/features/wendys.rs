@@ -341,7 +341,7 @@ fn dress_burgers(
     for (entity, burger) in &new {
         commands
             .entity(entity)
-            .insert((
+            .try_insert((
                 Transform::from_translation(burger_spot(burger.slot)),
                 Clickable::at_height(0.1)
                     .radius(30.0)

@@ -319,7 +319,7 @@ fn dress_pets(
     new: Query<(Entity, &Pet), Added<friendslop_base::areas::Shown>>,
 ) {
     for (entity, pet) in &new {
-        commands.entity(entity).insert((
+        commands.entity(entity).try_insert((
             Transform::from_translation(crate::terrain::on_ground(pet.at)),
             Clickable::at_height(0.3).labelled("adopt"),
             Visibility::default(),

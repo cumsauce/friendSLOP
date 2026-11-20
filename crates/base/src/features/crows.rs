@@ -102,7 +102,7 @@ fn dress_crows(mut commands: Commands, new: Query<(Entity, &Crow), Added<crate::
                 ChildOf(entity),
             ))
             .id();
-        commands.entity(entity).insert((
+        commands.entity(entity).try_insert((
             Transform::from_translation(on_the_ground(crow_position(crow, 0.0))),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),

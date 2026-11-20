@@ -878,7 +878,7 @@ fn dress_graves(
     for (entity, grave) in &new {
         commands
             .entity(entity)
-            .insert((
+            .try_insert((
                 Transform::from_translation(grave.at),
                 Visibility::default(),
                 Clickable::at_height(0.6).labelled(BEG_LABEL),
@@ -932,7 +932,7 @@ fn dress_tome(
     for entity in &new {
         commands
             .entity(entity)
-            .insert((
+            .try_insert((
                 Transform::from_translation(lectern_top()),
                 Visibility::default(),
                 Clickable::at_height(0.1).labelled("take the Tome of Uncancelling"),

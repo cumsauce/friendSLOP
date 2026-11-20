@@ -90,7 +90,7 @@ pub const BEAR_MODEL: &str = "models/creatures/bear.gltf";
 /// makes it invisible: its wandering and growls don't depend on it.
 fn dress_bear(mut commands: Commands, new: Query<(Entity, &Bear), Added<crate::areas::Shown>>) {
     for (entity, bear) in &new {
-        commands.entity(entity).insert((
+        commands.entity(entity).try_insert((
             Transform::from_translation(crate::terrain::on_ground(bear_position(bear, 0.0).xz())),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),

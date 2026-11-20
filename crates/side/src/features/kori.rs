@@ -516,7 +516,7 @@ pub fn plugin(app: &mut App) {
 /// area loads: it's the machine's body).
 fn body(mut commands: Commands, new: Query<(Entity, &ClawMachine), Added<ClawMachine>>) {
     for (e, m) in &new {
-        commands.entity(e).insert((
+        commands.entity(e).try_insert((
             Transform::from_translation(m.at).with_rotation(Quat::from_rotation_y(m.yaw)),
             Visibility::default(),
             Clickable::at_height(1.0).labelled("play the Kori claw"),

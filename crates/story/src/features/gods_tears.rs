@@ -272,7 +272,7 @@ fn dress_tears(
         let TearKit { gem, halo, ring } = kit.clone();
         commands
             .entity(entity)
-            .insert((
+            .try_insert((
                 Transform::from_xyz(tear.at.x, tuning().fall_from, tear.at.y),
                 Clickable::at_height(0.3).labelled("use the tear"),
                 Visibility::default(),

@@ -214,7 +214,7 @@ fn dress_strays(
         }
         commands
             .entity(entity)
-            .insert((
+            .try_insert((
                 Transform::from_translation(stray.at).with_scale(Vec3::splat(0.3)),
                 Visibility::default(),
                 click,

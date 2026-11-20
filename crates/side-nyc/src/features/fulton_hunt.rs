@@ -2334,8 +2334,10 @@ fn face_killer(
     mut view: ResMut<crate::features::fps::FpsView>,
     me: Option<Res<LocalPlayer>>,
     walkers: Query<(&Player, &Walker)>,
-    hunters: Query<&Transform, (With<Hunter>, Without<crate::world::MainCamera>)>,
+    hunters: Query<(Entity, &Transform), (With<Hunter>, Without<crate::world::MainCamera>)>,
     mut camera: Query<&mut Transform, With<crate::world::MainCamera>>,
+    children: Query<&Children>,
+    bones: Query<(&Name, &GlobalTransform)>,
 ) {
     let dt = time.delta_secs();
     let Some(mut s) = seized else {
@@ -2360,13 +2362,25 @@ fn face_killer(
     else {
         return;
     };
-    let Some(hunter) = hunters.iter().min_by(|a, b| {
-        a.translation
+    let Some((hunter_e, hunter)) = hunters.iter().min_by(|a, b| {
+        a.1.translation
             .distance(s.at)
-            .total_cmp(&b.translation.distance(s.at))
+            .total_cmp(&b.1.translation.distance(s.at))
     }) else {
         return;
     };
+    // Its face as the kill clip has it: the rig's head bone (its eyes a
+    // little above the joint), else where the face roughly hangs.
+    let head = children
+        .iter_descendants(hunter_e)
+        .find_map(|d| {
+            bones
+                .get(d)
+                .ok()
+                .filter(|(n, _)| n.as_str() == "head")
+                .map(|(_, g)| g.transform_point(Vec3::Y * 0.12))
+        })
+        .unwrap_or_else(|| killer_face(hunter.translation, hunter.rotation));
     let Ok(mut cam) = camera.single_mut() else {
         return;
     };
@@ -2374,7 +2388,7 @@ fn face_killer(
     busy.0 = true;
     *holding = true;
     let eye = feet + Vec3::Y * crate::rules::EYE;
-    let (yaw, pitch) = look_angles(eye, killer_face(hunter.translation, hunter.rotation));
+    let (yaw, pitch) = look_angles(eye, head);
     let k = 1.0 - (-10.0 * dt).exp();
     view.yaw += angle_diff(view.yaw, yaw) * k;
     view.pitch += (pitch - view.pitch) * k;

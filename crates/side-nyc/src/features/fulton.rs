@@ -3699,6 +3699,10 @@ pub struct Block {
 /// The colliders of one level, from its plan.
 pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
     let mut out = Vec::new();
+    // Each walkable cell's floor height (its drop), merged into as few slabs
+    // as there can be after: a seam between two floor boxes is an edge a
+    // body running over it catches on and hops (avian's internal edges).
+    let mut floors: Vec<Option<f32>> = vec![None; level.width * level.depth];
     let set = TILES.get();
     let half = CELL / 2.0;
     for z in 0..level.depth {
@@ -3742,11 +3746,8 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
                     });
                 }
             } else if f.kind != Kind::Stairs {
-                let drop = level.drop(c);
-                out.push(flat(
-                    at - Vec3::Y * (0.1 + drop),
-                    Vec3::new(CELL, 0.2, CELL),
-                ));
+                // (Merged into big slabs below.)
+                floors[z * level.width + x] = Some(level.drop(c));
             }
             // A track cell's walls go on down past the bed, a sunken cell's
             // down to its floor.
@@ -3822,6 +3823,20 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
             }
         }
     }
+    for (at, size) in floor_slabs(level.width, level.depth, &floors) {
+        let mid = cell_world(t, li, level, at)
+            + Vec3::new(
+                (size.0 as f32 - 1.0) * CELL / 2.0,
+                0.0,
+                (size.1 as f32 - 1.0) * CELL / 2.0,
+            );
+        let drop = floors[at.1 * level.width + at.0].unwrap_or(0.0);
+        out.push(Block {
+            centre: mid - Vec3::Y * (0.1 + drop),
+            size: Vec3::new(CELL * size.0 as f32, 0.2, CELL * size.1 as f32),
+            rotation: Quat::IDENTITY,
+        });
+    }
     out.extend(
         room_dressing(t, li, level)
             .into_iter()
@@ -3844,6 +3859,40 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
             size: Vec3::new(COLUMN_SIZE, tall, COLUMN_SIZE),
             rotation: Quat::IDENTITY,
         });
+    }
+    out
+}
+
+/// Cells with a floor (`Some` drop), grouped into rectangles of one drop:
+/// each rectangle's top-left cell and size in cells. Greedy, row by row:
+/// as wide as it goes, then as deep as whole rows of that width go.
+pub fn floor_slabs(w: usize, h: usize, floors: &[Option<f32>]) -> Vec<(wfc::Cell, (usize, usize))> {
+    let mut used = vec![false; w * h];
+    let mut out = Vec::new();
+    let same = |i: usize, d: f32, used: &[bool]| {
+        !used[i] && floors[i].is_some_and(|e| (e - d).abs() < 1e-4)
+    };
+    for z in 0..h {
+        for x in 0..w {
+            let i = z * w + x;
+            let Some(d) = floors[i].filter(|_| !used[i]) else {
+                continue;
+            };
+            let mut wide = 1;
+            while x + wide < w && same(z * w + x + wide, d, &used) {
+                wide += 1;
+            }
+            let mut deep = 1;
+            while z + deep < h && (0..wide).all(|k| same((z + deep) * w + x + k, d, &used)) {
+                deep += 1;
+            }
+            for dz in 0..deep {
+                for dx in 0..wide {
+                    used[(z + dz) * w + x + dx] = true;
+                }
+            }
+            out.push(((x, z), (wide, deep)));
+        }
     }
     out
 }
@@ -7070,6 +7119,31 @@ mod tests {
         l.cells[1] = f(bit(West));
         l.cells[3] = f(bit(West));
         assert!(corridor_columns(&t, 1, &l).is_empty());
+    }
+
+    #[test]
+    fn floors_are_merged_into_few_slabs_covering_every_cell_once() {
+        // A 4x3 floor, one sunken cell in the middle, one cell with none.
+        let mut f = vec![Some(0.0); 12];
+        f[5] = Some(1.6);
+        f[11] = None;
+        let slabs = floor_slabs(4, 3, &f);
+        let mut covered = [0; 12];
+        for ((x, z), (w, d)) in &slabs {
+            for dz in 0..*d {
+                for dx in 0..*w {
+                    let i = (z + dz) * 4 + x + dx;
+                    covered[i] += 1;
+                    assert_eq!(f[i], f[z * 4 + x], "one height a slab");
+                }
+            }
+        }
+        for i in 0..12 {
+            assert_eq!(covered[i], usize::from(f[i].is_some()), "cell {i}");
+        }
+        assert!(slabs.len() <= 5, "{slabs:?}");
+        // A whole flat level is one slab.
+        assert_eq!(floor_slabs(6, 6, &[Some(0.0); 36]).len(), 1);
     }
 
     #[test]

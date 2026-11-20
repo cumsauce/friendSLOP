@@ -65,6 +65,7 @@ pub fn main() -> AppExit {
     .init_resource::<Churn>()
     .add_systems(Update, (churn, bench).chain().run_if(bench_enabled))
     .add_systems(Startup, cluster_room)
+    .add_plugins(MeshSlabsNeverGrow)
     .add_plugins(PipelineLog)
     .add_plugins(Pacing)
     .run()
@@ -301,5 +302,25 @@ fn cli_args(mut commands: MessageWriter<NetCommand>) {
             commands.write(NetCommand::Join(code.clone()));
         }
         _ => {}
+    }
+}
+
+/// Mesh slabs that never grow: when Bevy's mesh allocator grows a slab, the
+/// meshes it moves keep drawing from their old offsets (bevyengine/bevy#26456:
+/// stray triangles, floating and vanishing geometry, worst while levels stream
+/// in). Every slab is made at its full size, so nothing ever moves.
+struct MeshSlabsNeverGrow;
+
+impl Plugin for MeshSlabsNeverGrow {
+    fn build(&self, app: &mut App) {
+        if let Some(render) = app.get_sub_app_mut(bevy::render::RenderApp) {
+            let mut s = bevy::render::mesh::allocator::MeshAllocatorSettings::default();
+            // (64 MiB each; a full one gets a new one beside it, and a mesh
+            // over 32 MiB gets a buffer of its own.)
+            s.slab_allocator_settings.min_slab_size = 64 * 1024 * 1024;
+            s.slab_allocator_settings.max_slab_size = 64 * 1024 * 1024;
+            s.slab_allocator_settings.large_threshold = 32 * 1024 * 1024;
+            render.insert_resource(s);
+        }
     }
 }

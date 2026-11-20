@@ -249,7 +249,7 @@ fn dress(
             |p: &'static str| WorldAssetRoot(assets.load(GltfAssetLabel::Scene(0).from_asset(p)));
         commands
             .entity(e)
-            .insert((
+            .try_insert((
                 Transform::from_translation(toilet.at)
                     .with_rotation(Quat::from_rotation_y(toilet.yaw)),
                 Visibility::default(),

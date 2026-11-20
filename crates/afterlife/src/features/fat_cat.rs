@@ -767,7 +767,7 @@ fn dress_cats(
     new: Query<(Entity, &FatCat), Added<friendslop_base::areas::Shown>>,
 ) {
     for (entity, cat) in &new {
-        commands.entity(entity).insert((
+        commands.entity(entity).try_insert((
             Transform::from_translation(cat.pos)
                 .with_rotation(Quat::from_rotation_y(cat.yaw))
                 .with_scale(Vec3::splat(cat.size)),

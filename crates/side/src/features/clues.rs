@@ -182,7 +182,7 @@ fn dress(
         let yaw = scrap.piece as f32 * 1.9;
         commands
             .entity(entity)
-            .insert((
+            .try_insert((
                 Transform::from_xyz(scrap.at.x, ground + 0.02, scrap.at.y)
                     .with_rotation(Quat::from_rotation_y(yaw)),
                 Visibility::default(),

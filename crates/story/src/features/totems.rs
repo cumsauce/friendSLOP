@@ -409,7 +409,7 @@ fn dress_totems(
         });
         commands
             .entity(entity)
-            .insert((
+            .try_insert((
                 Transform::from_translation(crate::terrain::on_ground(totem.at)),
                 Clickable::at_height(0.5).labelled("take the totem"),
                 Visibility::default(),

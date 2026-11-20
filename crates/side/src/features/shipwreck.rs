@@ -469,7 +469,7 @@ fn dress_chest(
     for e in &new {
         commands
             .entity(e)
-            .insert((
+            .try_insert((
                 Transform::from_translation(chest_spot()),
                 Visibility::default(),
                 Clickable::at_height(0.4)

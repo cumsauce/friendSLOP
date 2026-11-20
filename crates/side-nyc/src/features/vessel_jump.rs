@@ -224,7 +224,7 @@ fn show_splats(
             perceptual_roughness: 0.25,
             ..default()
         });
-        commands.entity(e).insert((
+        commands.entity(e).try_insert((
             Transform::from_translation(splat.at + Vec3::Y * 0.02),
             Visibility::default(),
         ));

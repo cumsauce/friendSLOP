@@ -195,7 +195,7 @@ fn dress(
         let head = meshes.add(Sphere::new(0.2));
         commands
             .entity(entity)
-            .insert((
+            .try_insert((
                 Transform::from_xyz(w.at.x, ground, w.at.y)
                     .with_rotation(Quat::from_rotation_y(w.yaw)),
                 Visibility::default(),

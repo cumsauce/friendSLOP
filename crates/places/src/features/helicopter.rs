@@ -345,7 +345,7 @@ fn dress(
     for (entity, heli) in &new {
         commands
             .entity(entity)
-            .insert((
+            .try_insert((
                 Transform::from_translation(heli.pos),
                 Visibility::default(),
                 Shown(heli.shots),

@@ -77,7 +77,7 @@ fn dress_goat(
     new: Query<(Entity, &Goat), Added<friendslop_base::areas::Shown>>,
 ) {
     for (entity, goat) in &new {
-        commands.entity(entity).insert((
+        commands.entity(entity).try_insert((
             Transform::from_translation(crate::terrain::on_ground(goat.home)),
             Visibility::default(),
             DespawnOnExit(AppState::InGame),

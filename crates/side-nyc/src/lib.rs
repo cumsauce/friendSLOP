@@ -22,6 +22,7 @@ pub mod features {
     pub use friendslop_village::features::*;
     pub mod boba;
     pub mod fulton;
+    pub mod fulton_ambience;
     pub mod fulton_hunt;
     pub mod hats;
     pub mod high_places;
@@ -50,6 +51,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::fulton::TUNING,
         &features::fulton::TILES,
         &features::fulton::LAYOUT,
+        &features::fulton_ambience::TUNING,
         &features::fulton_hunt::WRITING,
         &features::wallet::TUNING,
         &features::trains::TUNING,

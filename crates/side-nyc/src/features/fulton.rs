@@ -435,6 +435,16 @@ pub struct Hunt {
     /// Its speed wandering and searching, and chasing (m/s; you walk 5, run 10.5).
     pub walk_speed: f32,
     pub chase_speed: f32,
+    /// Rubber band: while you can't see it and it's after you (chasing,
+    /// searching or drifting your way), it goes this many times its speed...
+    pub rubber_base: f32,
+    /// ...plus this much more for every second you've kept running (out of its
+    /// sight and yours)...
+    pub rubber_per_run_sec: f32,
+    /// ...up to this many times its speed in all.
+    pub rubber_max: f32,
+    /// How wide your own view is (degrees) for "you can't see it".
+    pub player_view_degrees: f32,
     /// What it sees: how far (m) and how wide a cone (degrees).
     pub view_range: f32,
     pub view_degrees: f32,
@@ -502,6 +512,17 @@ pub struct Hunt {
     pub music_chase_range: f32,
     /// ...and for this many seconds after it stops, the music stays tense.
     pub music_tense_secs: f32,
+    /// The hunter's rigged model (it needs the clips walk, run, roll, search
+    /// and kill; one without search / kill just holds its pose for those).
+    pub model: String,
+    /// Seconds it spends prising a locker open and peering in (its `search`
+    /// clip) before you're found or it moves on.
+    pub check_secs: f32,
+    /// Seconds its kill plays (the `kill` clip) before you're dragged back
+    /// up to the street.
+    pub kill_secs: f32,
+    /// How far in front of it (m) you're held while it kills you.
+    pub kill_reach: f32,
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =

@@ -176,6 +176,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(nyc_traffic::plugin);
         app.add_plugins(fulton::plugin);
         app.add_plugins(fulton_hunt::plugin);
+        app.add_plugins(fulton_ambience::plugin);
         app.add_plugins(clues::plugin);
         app.add_plugins(broadcast::plugin);
         app.add_plugins(surf::plugin);

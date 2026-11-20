@@ -1,0 +1,33 @@
+// Fulton St's ambience (crates/side-nyc/src/features/fulton_ambience.rs).
+// Edit and save: the running game picks it up within a second.
+// "Depth" runs from 0 on the top level to 1 on the J platform: the lower you
+// are, the more the lit hum gives way to the dark drone and the more the
+// noises turn from drips and trains to groans and breathing.
+(
+    // Level of the lit fluorescent hum at the top (it fades out with depth).
+    hum_volume: 0.9,
+    // Level of the dark sub drone at the bottom (it fades in with depth).
+    deep_volume: 0.7,
+    // Depth by which the hum has faded out completely.
+    hum_gone_at: 0.7,
+    // Depth where the drone starts to come in.
+    deep_from: 0.1,
+    // Extra drone (0..1 of its level) on a pitch-dark level, whose lights are
+    // off so its hum is silent.
+    dark_boost: 0.5,
+    // How fast the beds crossfade, per second.
+    fade: 0.6,
+    // Seconds between noises at the top and at the bottom (a little random).
+    gap_top: 8.0,
+    gap_bottom: 12.0,
+    // The noises: each has a weight at the top and at the bottom (a chance
+    // between them by depth), a volume, how far from you it's heard (m), and
+    // whether it carries far. Takes: audio/sfx/fulton/fulton_<id>_1..3.wav.
+    events: [
+        (id: "drip", top: 3.0, bottom: 1.0, volume: 0.8, near: 4.0, far: 14.0, loud: false),
+        (id: "train", top: 1.5, bottom: 0.4, volume: 0.6, near: 15.0, far: 35.0, loud: true),
+        (id: "clank", top: 1.0, bottom: 1.5, volume: 0.8, near: 6.0, far: 20.0, loud: false),
+        (id: "groan", top: 0.0, bottom: 2.0, volume: 0.7, near: 8.0, far: 22.0, loud: true),
+        (id: "breath", top: 0.0, bottom: 1.5, volume: 0.6, near: 3.0, far: 9.0, loud: false),
+    ],
+)

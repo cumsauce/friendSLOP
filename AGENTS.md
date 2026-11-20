@@ -28,6 +28,9 @@ If you're running in CI, also read `.github/claude/run.md`.
   equally permissive) with entries in `assets/CREDITS.md`. Prefer generating procedurally or
   keeping it tiny when an asset isn't really needed, and never let gameplay *depend* on asset
   files: they must degrade quietly if LFS data is missing.
+- **Sounds ship as Ogg Vorbis** (`.ogg`, the sounder's default `export` format), not WAV: about a
+  tenth of the size and they load the same way. Only use WAV when something needs raw samples
+  (an impulse response, a source a synth reads).
 - **Models come from the modeler** (every model in the game is made there now). Run it with `crates/game` as the project so editable sources land in
   `crates/game/.modeler/` (prefabs, procedural materials, the `friendslop` style) and
   `export_model("models/....gltf", optimize: "game")` writes into `assets/`, its textures as

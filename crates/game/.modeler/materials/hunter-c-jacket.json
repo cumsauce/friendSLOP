@@ -1,0 +1,1346 @@
+{
+  "name": "hunter-c-jacket",
+  "format_version": 1,
+  "domain": "object",
+  "tile": 1.0,
+  "resolution": 2048,
+  "nodes": [
+    {
+      "name": "pos",
+      "of": "position",
+      "type": "input"
+    },
+    {
+      "input": "pos",
+      "name": "p",
+      "type": "split"
+    },
+    {
+      "name": "weave",
+      "octaves": 1,
+      "seed": 2,
+      "size": 0.004,
+      "type": "noise"
+    },
+    {
+      "name": "hole_n",
+      "octaves": 3,
+      "seed": 17,
+      "size": 0.13,
+      "type": "noise"
+    },
+    {
+      "a": "hole_n",
+      "b": 0.69,
+      "c": 0.7,
+      "name": "hole",
+      "op": "smoothstep",
+      "type": "math"
+    },
+    {
+      "name": "fray_n",
+      "octaves": 2,
+      "seed": 19,
+      "size": 0.01,
+      "type": "noise"
+    },
+    {
+      "a": "fray_n",
+      "b": 0.06,
+      "name": "fray_off",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "hole_n",
+      "b": "fray_off",
+      "name": "hole_f",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "hole_f",
+      "b": 0.73,
+      "name": "cut",
+      "op": "step",
+      "type": "math"
+    },
+    {
+      "a": "cut",
+      "name": "opacity",
+      "op": "invert",
+      "type": "math"
+    },
+    {
+      "a": "hole_f",
+      "b": 0.58,
+      "c": 0.73,
+      "name": "rim",
+      "op": "smoothstep",
+      "type": "math"
+    },
+    {
+      "name": "stain_n",
+      "octaves": 4,
+      "seed": 23,
+      "size": 0.12,
+      "type": "noise"
+    },
+    {
+      "a": "stain_n",
+      "b": 0.5,
+      "c": 0.68,
+      "name": "stain",
+      "op": "smoothstep",
+      "type": "math"
+    },
+    {
+      "name": "blood_n",
+      "octaves": 4,
+      "seed": 29,
+      "size": 0.07,
+      "type": "noise"
+    },
+    {
+      "a": "blood_n",
+      "b": 0.64,
+      "c": 0.72,
+      "name": "blood",
+      "op": "smoothstep",
+      "type": "math"
+    },
+    {
+      "from": [
+        0.2,
+        2.4
+      ],
+      "input": "p.y",
+      "name": "low",
+      "to": [
+        1,
+        0
+      ],
+      "type": "remap"
+    },
+    {
+      "name": "grime_n",
+      "octaves": 3,
+      "seed": 31,
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "a": "low",
+      "b": "grime_n",
+      "name": "grime0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "grime0",
+      "b": 0.45,
+      "name": "grime",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "weave",
+      "name": "weave_k",
+      "to": [
+        0.9,
+        1.08
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "#3d0008",
+      "b": "weave_k",
+      "name": "base",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "base",
+      "b": "#1e140c",
+      "name": "c1",
+      "opacity": "grime",
+      "type": "blend"
+    },
+    {
+      "a": "stain",
+      "b": 0.3,
+      "name": "stain_k",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "c1",
+      "b": "#2a1810",
+      "name": "c2",
+      "opacity": "stain_k",
+      "type": "blend"
+    },
+    {
+      "a": "blood",
+      "b": 0.8,
+      "name": "blood_k",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "c2",
+      "b": "#1c0204",
+      "name": "c3",
+      "opacity": "blood_k",
+      "type": "blend"
+    },
+    {
+      "a": "rim",
+      "b": 0.95,
+      "name": "rim_k",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "c3",
+      "b": "#140d08",
+      "name": "col",
+      "opacity": "rim_k",
+      "type": "blend"
+    },
+    {
+      "a": 0.85,
+      "b": 0.45,
+      "c": "blood",
+      "name": "rough0",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "rough0",
+      "b": 0.95,
+      "c": "rim",
+      "name": "rough",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "weave",
+      "b": 0.0004,
+      "name": "h0",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "rim",
+      "b": -0.0012,
+      "name": "h1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "h0",
+      "b": "h1",
+      "name": "h",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "height": "h",
+      "name": "cloth",
+      "opacity": "opacity",
+      "roughness": "rough",
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 4,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "hunter-c-jacket",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 2048,
+          "nodes": [
+            {
+              "name": "pos",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "input": "pos",
+              "name": "p",
+              "type": "split"
+            },
+            {
+              "name": "weave",
+              "octaves": 1,
+              "seed": 2,
+              "size": 0.004,
+              "type": "noise"
+            },
+            {
+              "name": "hole_n",
+              "octaves": 3,
+              "seed": 17,
+              "size": 0.09,
+              "type": "noise"
+            },
+            {
+              "a": "hole_n",
+              "b": 0.69,
+              "c": 0.7,
+              "name": "hole",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "fray_n",
+              "octaves": 2,
+              "seed": 19,
+              "size": 0.01,
+              "type": "noise"
+            },
+            {
+              "a": "fray_n",
+              "b": 0.06,
+              "name": "fray_off",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hole_n",
+              "b": "fray_off",
+              "name": "hole_f",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "hole_f",
+              "b": 0.73,
+              "name": "cut",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "a": "cut",
+              "name": "opacity",
+              "op": "invert",
+              "type": "math"
+            },
+            {
+              "a": "hole_f",
+              "b": 0.6,
+              "c": 0.73,
+              "name": "rim",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "stain_n",
+              "octaves": 4,
+              "seed": 23,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "a": "stain_n",
+              "b": 0.5,
+              "c": 0.68,
+              "name": "stain",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "blood_n",
+              "octaves": 4,
+              "seed": 29,
+              "size": 0.07,
+              "type": "noise"
+            },
+            {
+              "a": "blood_n",
+              "b": 0.64,
+              "c": 0.72,
+              "name": "blood",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "from": [
+                0.2,
+                2.4
+              ],
+              "input": "p.y",
+              "name": "low",
+              "to": [
+                1,
+                0
+              ],
+              "type": "remap"
+            },
+            {
+              "name": "grime_n",
+              "octaves": 3,
+              "seed": 31,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "a": "low",
+              "b": "grime_n",
+              "name": "grime0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "grime0",
+              "b": 0.9,
+              "name": "grime",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "weave",
+              "name": "weave_k",
+              "to": [
+                0.9,
+                1.08
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "#4a0008",
+              "b": "weave_k",
+              "name": "base",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "base",
+              "b": "#2a2016",
+              "name": "c1",
+              "opacity": "grime",
+              "type": "blend"
+            },
+            {
+              "a": "stain",
+              "b": 0.7,
+              "name": "stain_k",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#3b3222",
+              "name": "c2",
+              "opacity": "stain_k",
+              "type": "blend"
+            },
+            {
+              "a": "blood",
+              "b": 0.8,
+              "name": "blood_k",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#1c0204",
+              "name": "c3",
+              "opacity": "blood_k",
+              "type": "blend"
+            },
+            {
+              "a": "rim",
+              "b": 0.95,
+              "name": "rim_k",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#140d08",
+              "name": "col",
+              "opacity": "rim_k",
+              "type": "blend"
+            },
+            {
+              "a": 0.85,
+              "b": 0.45,
+              "c": "blood",
+              "name": "rough0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "rough0",
+              "b": 0.95,
+              "c": "rim",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "weave",
+              "b": 0.0004,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "rim",
+              "b": -0.0012,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "cloth",
+              "opacity": "opacity",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+pos +p +weave +hole_n +hole +fray_n +fray_off +hole_f +cut +opacity +rim +stain_n +stain +blood_n +blood +low +grime_n +grime0 +grime +weave_k +base +c1 +stain_k +c2 +blood_k +c3 +rim_k +col +rough0 +rough +h0 +h1 +h +cloth"
+      },
+      {
+        "model": {
+          "name": "hunter-c-jacket",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 2048,
+          "nodes": [
+            {
+              "name": "pos",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "input": "pos",
+              "name": "p",
+              "type": "split"
+            },
+            {
+              "name": "weave",
+              "octaves": 1,
+              "seed": 2,
+              "size": 0.004,
+              "type": "noise"
+            },
+            {
+              "name": "hole_n",
+              "octaves": 3,
+              "seed": 17,
+              "size": 0.13,
+              "type": "noise"
+            },
+            {
+              "a": "hole_n",
+              "b": 0.69,
+              "c": 0.7,
+              "name": "hole",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "fray_n",
+              "octaves": 2,
+              "seed": 19,
+              "size": 0.01,
+              "type": "noise"
+            },
+            {
+              "a": "fray_n",
+              "b": 0.06,
+              "name": "fray_off",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hole_n",
+              "b": "fray_off",
+              "name": "hole_f",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "hole_f",
+              "b": 0.73,
+              "name": "cut",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "a": "cut",
+              "name": "opacity",
+              "op": "invert",
+              "type": "math"
+            },
+            {
+              "a": "hole_f",
+              "b": 0.58,
+              "c": 0.73,
+              "name": "rim",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "stain_n",
+              "octaves": 4,
+              "seed": 23,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "a": "stain_n",
+              "b": 0.5,
+              "c": 0.68,
+              "name": "stain",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "blood_n",
+              "octaves": 4,
+              "seed": 29,
+              "size": 0.07,
+              "type": "noise"
+            },
+            {
+              "a": "blood_n",
+              "b": 0.64,
+              "c": 0.72,
+              "name": "blood",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "from": [
+                0.2,
+                2.4
+              ],
+              "input": "p.y",
+              "name": "low",
+              "to": [
+                1,
+                0
+              ],
+              "type": "remap"
+            },
+            {
+              "name": "grime_n",
+              "octaves": 3,
+              "seed": 31,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "a": "low",
+              "b": "grime_n",
+              "name": "grime0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "grime0",
+              "b": 0.6,
+              "name": "grime",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "weave",
+              "name": "weave_k",
+              "to": [
+                0.9,
+                1.08
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "#2a0005",
+              "b": "weave_k",
+              "name": "base",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "base",
+              "b": "#2a2016",
+              "name": "c1",
+              "opacity": "grime",
+              "type": "blend"
+            },
+            {
+              "a": "stain",
+              "b": 0.45,
+              "name": "stain_k",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#2a2216",
+              "name": "c2",
+              "opacity": "stain_k",
+              "type": "blend"
+            },
+            {
+              "a": "blood",
+              "b": 0.8,
+              "name": "blood_k",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#1c0204",
+              "name": "c3",
+              "opacity": "blood_k",
+              "type": "blend"
+            },
+            {
+              "a": "rim",
+              "b": 0.95,
+              "name": "rim_k",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#140d08",
+              "name": "col",
+              "opacity": "rim_k",
+              "type": "blend"
+            },
+            {
+              "a": 0.85,
+              "b": 0.45,
+              "c": "blood",
+              "name": "rough0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "rough0",
+              "b": 0.95,
+              "c": "rim",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "weave",
+              "b": 0.0004,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "rim",
+              "b": -0.0012,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "cloth",
+              "opacity": "opacity",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "~base ~hole_n ~grime ~stain_k ~c2 ~rim"
+      },
+      {
+        "model": {
+          "name": "hunter-c-jacket",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 2048,
+          "nodes": [
+            {
+              "name": "pos",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "input": "pos",
+              "name": "p",
+              "type": "split"
+            },
+            {
+              "name": "weave",
+              "octaves": 1,
+              "seed": 2,
+              "size": 0.004,
+              "type": "noise"
+            },
+            {
+              "name": "hole_n",
+              "octaves": 3,
+              "seed": 17,
+              "size": 0.13,
+              "type": "noise"
+            },
+            {
+              "a": "hole_n",
+              "b": 0.69,
+              "c": 0.7,
+              "name": "hole",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "fray_n",
+              "octaves": 2,
+              "seed": 19,
+              "size": 0.01,
+              "type": "noise"
+            },
+            {
+              "a": "fray_n",
+              "b": 0.06,
+              "name": "fray_off",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hole_n",
+              "b": "fray_off",
+              "name": "hole_f",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "hole_f",
+              "b": 0.73,
+              "name": "cut",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "a": "cut",
+              "name": "opacity",
+              "op": "invert",
+              "type": "math"
+            },
+            {
+              "a": "hole_f",
+              "b": 0.58,
+              "c": 0.73,
+              "name": "rim",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "stain_n",
+              "octaves": 4,
+              "seed": 23,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "a": "stain_n",
+              "b": 0.5,
+              "c": 0.68,
+              "name": "stain",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "blood_n",
+              "octaves": 4,
+              "seed": 29,
+              "size": 0.07,
+              "type": "noise"
+            },
+            {
+              "a": "blood_n",
+              "b": 0.64,
+              "c": 0.72,
+              "name": "blood",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "from": [
+                0.2,
+                2.4
+              ],
+              "input": "p.y",
+              "name": "low",
+              "to": [
+                1,
+                0
+              ],
+              "type": "remap"
+            },
+            {
+              "name": "grime_n",
+              "octaves": 3,
+              "seed": 31,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "a": "low",
+              "b": "grime_n",
+              "name": "grime0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "grime0",
+              "b": 0.6,
+              "name": "grime",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "weave",
+              "name": "weave_k",
+              "to": [
+                0.9,
+                1.08
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "#1a0002",
+              "b": "weave_k",
+              "name": "base",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "base",
+              "b": "#2a2016",
+              "name": "c1",
+              "opacity": "grime",
+              "type": "blend"
+            },
+            {
+              "a": "stain",
+              "b": 0.45,
+              "name": "stain_k",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#2a2216",
+              "name": "c2",
+              "opacity": "stain_k",
+              "type": "blend"
+            },
+            {
+              "a": "blood",
+              "b": 0.8,
+              "name": "blood_k",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#1c0204",
+              "name": "c3",
+              "opacity": "blood_k",
+              "type": "blend"
+            },
+            {
+              "a": "rim",
+              "b": 0.95,
+              "name": "rim_k",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#140d08",
+              "name": "col",
+              "opacity": "rim_k",
+              "type": "blend"
+            },
+            {
+              "a": 0.85,
+              "b": 0.45,
+              "c": "blood",
+              "name": "rough0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "rough0",
+              "b": 0.95,
+              "c": "rim",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "weave",
+              "b": 0.0004,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "rim",
+              "b": -0.0012,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "cloth",
+              "opacity": "opacity",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 3
+        },
+        "parent": 1,
+        "children": [
+          3
+        ],
+        "label": "~base"
+      },
+      {
+        "model": {
+          "name": "hunter-c-jacket",
+          "format_version": 1,
+          "domain": "object",
+          "tile": 1.0,
+          "resolution": 2048,
+          "nodes": [
+            {
+              "name": "pos",
+              "of": "position",
+              "type": "input"
+            },
+            {
+              "input": "pos",
+              "name": "p",
+              "type": "split"
+            },
+            {
+              "name": "weave",
+              "octaves": 1,
+              "seed": 2,
+              "size": 0.004,
+              "type": "noise"
+            },
+            {
+              "name": "hole_n",
+              "octaves": 3,
+              "seed": 17,
+              "size": 0.13,
+              "type": "noise"
+            },
+            {
+              "a": "hole_n",
+              "b": 0.69,
+              "c": 0.7,
+              "name": "hole",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "fray_n",
+              "octaves": 2,
+              "seed": 19,
+              "size": 0.01,
+              "type": "noise"
+            },
+            {
+              "a": "fray_n",
+              "b": 0.06,
+              "name": "fray_off",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "hole_n",
+              "b": "fray_off",
+              "name": "hole_f",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "hole_f",
+              "b": 0.73,
+              "name": "cut",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "a": "cut",
+              "name": "opacity",
+              "op": "invert",
+              "type": "math"
+            },
+            {
+              "a": "hole_f",
+              "b": 0.58,
+              "c": 0.73,
+              "name": "rim",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "stain_n",
+              "octaves": 4,
+              "seed": 23,
+              "size": 0.12,
+              "type": "noise"
+            },
+            {
+              "a": "stain_n",
+              "b": 0.5,
+              "c": 0.68,
+              "name": "stain",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "name": "blood_n",
+              "octaves": 4,
+              "seed": 29,
+              "size": 0.07,
+              "type": "noise"
+            },
+            {
+              "a": "blood_n",
+              "b": 0.64,
+              "c": 0.72,
+              "name": "blood",
+              "op": "smoothstep",
+              "type": "math"
+            },
+            {
+              "from": [
+                0.2,
+                2.4
+              ],
+              "input": "p.y",
+              "name": "low",
+              "to": [
+                1,
+                0
+              ],
+              "type": "remap"
+            },
+            {
+              "name": "grime_n",
+              "octaves": 3,
+              "seed": 31,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "a": "low",
+              "b": "grime_n",
+              "name": "grime0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "grime0",
+              "b": 0.45,
+              "name": "grime",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "weave",
+              "name": "weave_k",
+              "to": [
+                0.9,
+                1.08
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "#3d0008",
+              "b": "weave_k",
+              "name": "base",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "base",
+              "b": "#1e140c",
+              "name": "c1",
+              "opacity": "grime",
+              "type": "blend"
+            },
+            {
+              "a": "stain",
+              "b": 0.3,
+              "name": "stain_k",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c1",
+              "b": "#2a1810",
+              "name": "c2",
+              "opacity": "stain_k",
+              "type": "blend"
+            },
+            {
+              "a": "blood",
+              "b": 0.8,
+              "name": "blood_k",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c2",
+              "b": "#1c0204",
+              "name": "c3",
+              "opacity": "blood_k",
+              "type": "blend"
+            },
+            {
+              "a": "rim",
+              "b": 0.95,
+              "name": "rim_k",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "c3",
+              "b": "#140d08",
+              "name": "col",
+              "opacity": "rim_k",
+              "type": "blend"
+            },
+            {
+              "a": 0.85,
+              "b": 0.45,
+              "c": "blood",
+              "name": "rough0",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "rough0",
+              "b": 0.95,
+              "c": "rim",
+              "name": "rough",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "weave",
+              "b": 0.0004,
+              "name": "h0",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "rim",
+              "b": -0.0012,
+              "name": "h1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "h0",
+              "b": "h1",
+              "name": "h",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "height": "h",
+              "name": "cloth",
+              "opacity": "opacity",
+              "roughness": "rough",
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 4
+        },
+        "parent": 2,
+        "children": [],
+        "label": "~base ~grime ~stain_k ~c1 ~c2"
+      }
+    ],
+    "current": 3
+  }
+}

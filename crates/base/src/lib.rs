@@ -19,6 +19,7 @@ pub mod assets;
 pub mod graphics;
 pub mod hud;
 pub mod input;
+pub mod live_synth;
 pub mod music;
 pub mod nav;
 pub mod night_lights;

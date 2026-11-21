@@ -34,6 +34,9 @@
         (id: "music_box_2", name: "The quarry's music box", district: "ruins", area: "commune", place: Spot("quarry", (14.0, -4.0)), reach: Round(25.0)),
         // Places that already stood apart.
         (id: "fan_museum", name: "The Ceiling Fan Museum", district: "north east", area: "fan_museum", place: Spot("fan_museum", (0.0, 0.0)), reach: Round(45.0)),
+        // The Michael Jackson Experience theatre: in through the brownstone
+        // next to the surf one. Its lobby spot is the map's.
+        (id: "michael_theater", name: "The Michael Jackson Experience", district: "new york", area: "michael_theater", place: At(220.0, -33.0), reach: Box(23.0, 25.0)),
         (id: "wendys", name: "Wendy's", district: "road east", area: "commune", place: Spot("wendys", (0.0, 0.0)), reach: Round(35.0)),
         (id: "warehouse", name: "The abandoned warehouse", district: "south", area: "commune", place: Spot("warehouse", (0.0, 0.0)), reach: Round(40.0)),
         (id: "lake", name: "The lake", district: "lake", area: "commune", place: Spot("lake", (0.0, 0.0)), reach: Round(30.0)),
@@ -41,5 +44,17 @@
         // New York: the city floor (x -90..90, z 116..330) and 25 m round it;
         // Penn Station, Fulton St and Miami are stacked over and under it.
         (id: "nyc", name: "New York City", district: "new york", area: "nyc", place: At(0.0, 223.0), reach: Box(115.0, 132.0)),
+        // New York's points of interest, for the M map's labels (poi_*:
+        // map-only pins, no mechanic asks for them).
+        (id: "poi_surf", name: "The surf brownstone", district: "new york", area: "nyc", place: At(23.6, 239.0), reach: Round(12.0)),
+        (id: "poi_michael_theater", name: "The Michael Jackson Experience", district: "new york", area: "nyc", place: At(23.6, 246.5), reach: Round(12.0)),
+        (id: "poi_gong_chaw", name: "Gong Chaw boba", district: "new york", area: "nyc", place: At(26.0, 262.0), reach: Round(10.0)),
+        (id: "poi_kung_fu_tee", name: "Kung Fu Tee boba", district: "new york", area: "nyc", place: At(26.0, 276.0), reach: Round(10.0)),
+        (id: "poi_tiger_sugah", name: "Tiger Sugah boba", district: "new york", area: "nyc", place: At(26.0, 290.0), reach: Round(10.0)),
+        (id: "poi_penn", name: "Penn Station", district: "new york", area: "nyc", place: At(-42.0, 281.0), reach: Round(20.0)),
+        (id: "poi_oculus", name: "The Oculus", district: "new york", area: "nyc", place: At(-55.0, 230.0), reach: Round(15.0)),
+        (id: "poi_wtc", name: "One World Trade Center", district: "new york", area: "nyc", place: At(57.0, 297.5), reach: Round(15.0)),
+        (id: "poi_vessel", name: "The vessel", district: "new york", area: "nyc", place: At(-62.0, 172.5), reach: Round(12.0)),
+        (id: "poi_pizza", name: "The pizza place", district: "new york", area: "nyc", place: At(-25.0, 177.0), reach: Round(10.0)),
     ],
 )

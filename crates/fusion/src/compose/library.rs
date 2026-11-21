@@ -438,7 +438,41 @@ pub struct Kimes {
 #[serde(default)]
 pub struct Theme {
     pub key: u8,
-    pub bars: Vec<Vec<(u8, u8, u8)>>,
+    pub bars: Vec<Vec<ThemeNote>>,
+}
+
+/// One written note of a theme: `(step, len, midi)`, or with an optional
+/// velocity `0..1` last, `(step, len, midi, vel)`. A theme is played
+/// literally: no chord snapping, no octave moves.
+#[derive(Deserialize, Clone, Copy)]
+#[serde(untagged)]
+pub enum ThemeNote {
+    Plain(u8, u8, u8),
+    Vel(u8, u8, u8, f32),
+}
+
+impl ThemeNote {
+    pub(crate) fn step(&self) -> u8 {
+        match *self {
+            ThemeNote::Plain(s, _, _) | ThemeNote::Vel(s, _, _, _) => s,
+        }
+    }
+    pub(crate) fn len(&self) -> u8 {
+        match *self {
+            ThemeNote::Plain(_, l, _) | ThemeNote::Vel(_, l, _, _) => l,
+        }
+    }
+    pub(crate) fn note(&self) -> u8 {
+        match *self {
+            ThemeNote::Plain(_, _, n) | ThemeNote::Vel(_, _, n, _) => n,
+        }
+    }
+    pub(crate) fn vel(&self) -> Option<f32> {
+        match *self {
+            ThemeNote::Plain(_, _, _) => None,
+            ThemeNote::Vel(_, _, _, v) => Some(v.clamp(0.05, 1.0)),
+        }
+    }
 }
 
 // --- Feel -------------------------------------------------------------------
@@ -712,7 +746,7 @@ mod tests {
         }
         for (n, t) in &lib.themes {
             for b in &t.bars {
-                in_bar(n, &mut b.iter().map(|x| x.0));
+                in_bar(n, &mut b.iter().map(|x| x.step()));
             }
         }
     }

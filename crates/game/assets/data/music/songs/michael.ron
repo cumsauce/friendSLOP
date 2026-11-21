@@ -1,0 +1,22 @@
+#![enable(implicit_some)]
+// Michael: song 1 (its own song). See moods.ron for what the fields mean.
+// The Michael experience theatre's number, built from the friend's MIDI: C
+// minor at 120. The bass is the static pedal riff played as a literal theme
+// (michael_bass), the verse and chorus vocals are the friend's lines written
+// out (michael_verse / michael_chorus), and the band around them is EPiano
+// comping, a pad, and brass stabs on the hook.
+(
+    mood: "Michael",
+    bpm: 120.0, swing: 0.0, key: 0,
+    a: "MICHAEL_A", b: "MICHAEL_B", hook: "MICHAEL_HOOK",
+    intensity: 0.7, odd: 0.0, modulate: 0.0, kime: 0.0,
+    parts: [
+        (play: Drums(groove: "Michael")),
+        (play: Melody(style: "fusion", theme: "michael_bass"), inst: SlapBass, bus: "bass"),
+        (play: Chords(comp: "Michael"), inst: EPiano, sections: [A, B]),
+        (play: Melody(style: "fusion", theme: "michael_verse"), inst: Choir, sections: [A, B]),
+        (play: Melody(style: "fusion", theme: "michael_chorus"), inst: Lead, sections: [Hook]),
+        (play: Horns(style: "fusion", stabs: true), inst: PolyBrass, sections: [Hook]),
+        (play: Pad(), inst: Pad),
+    ],
+)

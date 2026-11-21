@@ -94,6 +94,14 @@
             ambient: Some(45.0),
             fog: Some((color: (0.11, 0.12, 0.1), start: 6.0, end: 34.0)),
         ),
+        // The Michael Jackson Experience (areas.ron's `look`): no sky, a dark
+        // warm house lit by its own stage spots, sconces and chandelier.
+        "theater": (
+            priority: 2,
+            sun: Some(0.0),
+            ambient: Some(120.0),
+            fog: Some((color: (0.03, 0.015, 0.012), start: 30.0, end: 90.0)),
+        ),
         // The endless hallway (infinite.rs).
         "infinite": (
             priority: 2,

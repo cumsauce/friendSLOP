@@ -1,0 +1,32 @@
+[2m2026-11-20T16:18:11.648649Z[0m [32m INFO[0m [2mbevy_diagnostic::system_information_diagnostics_plugin::internal[0m[2m:[0m SystemInfo { os: "macOS 26.5.1 Tahoe", kernel: "25.5.0", cpu: "Apple M3 Pro", core_count: "12", memory: "18.0 GiB" }
+[2m2026-11-20T16:18:11.649641Z[0m [32m INFO[0m [2mbevy_app::terminal_ctrl_c_handler[0m[2m:[0m Skipping installing `Ctrl+C` handler as one was already installed. Please call `TerminalCtrlCHandlerPlugin::gracefully_exit` in your own `Ctrl+C` handler if you want Bevy to gracefully exit on `Ctrl+C`.
+2026-11-20 11:18:11.791 friendslop[33088:112754276] Metal API Validation Enabled
+2026-11-20 11:18:11.791 friendslop[33088:112754276] Metal GPU Validation Enabled
+[2m2026-11-20T16:18:11.847612Z[0m [32m INFO[0m [2mbevy_render::renderer[0m[2m:[0m AdapterInfo { name: "Apple M3 Pro", vendor: 0, device: 0, device_type: IntegratedGpu, device_pci_bus_id: "", driver: "", driver_info: "", backend: Metal, subgroup_min_size: 4, subgroup_max_size: 64, transient_saves_memory: Some(true), limit_bucket: None }
+[2m2026-11-20T16:18:11.947600Z[0m [32m INFO[0m [2mbevy_pbr::cluster[0m[2m:[0m GPU clustering is supported on this device.
+[2m2026-11-20T16:18:11.947654Z[0m [32m INFO[0m [2mbevy_render::batching::gpu_preprocessing[0m[2m:[0m GPU preprocessing is fully supported on this device.
+[2m2026-11-20T16:18:12.165314Z[0m [32m INFO[0m [2mbevy_winit::system[0m[2m:[0m Creating new window friendSLOP (67v0)
+[2m2026-11-20T16:18:12.542740Z[0m [32m INFO[0m [2mfirewheel_cpal[0m[2m:[0m Attempting to start CPAL audio stream...
+[2m2026-11-20T16:18:12.616802Z[0m [32m INFO[0m [2mfirewheel_cpal[0m[2m:[0m Starting output audio stream with device "Some(DeviceId(CoreAudio, "BuiltInSpeakerDevice"))" with configuration StreamConfig { channels: 2, sample_rate: 44100, buffer_size: Fixed(1024) } (native sample format: F32)
+[2m2026-11-20T16:18:12.656982Z[0m [32m INFO[0m [2msymphonia_format_riff::common[0m[2m:[0m ignoring unknown chunk: tag=FLLR, len=4044.
+[2m2026-11-20T16:18:12.703948Z[0m [32m INFO[0m [2mbevy_framepace[0m[2m:[0m Frametime limit changed to: 8.368201ms
+[2m2026-11-20T16:18:12.711642Z[0m [32m INFO[0m [2mbevy_replicon_iroh::server[0m[2m:[0m iroh server listening [3mendpoint_id[0m[2m=[0mad5a1c121b [3maddr[0m[2m=[0m0.0.0.0:0
+[2m2026-11-20T16:18:12.711684Z[0m [32m INFO[0m [2mfriendslop::net[0m[2m:[0m hosting, join code: ad5a1c121b700b91e12b39d30e480136042200d28de165bb51497441859f9579
+[2m2026-11-20T16:18:12.830299Z[0m [32m INFO[0m [2mfriendslop_story::features::save[0m[2m:[0m continuing the saved campaign: chapter 1
+[2m2026-11-20T16:18:13.143110Z[0m [32m INFO[0m [2mfriendslop::bot[0m[2m:[0m bot: route fulton_line (2 steps)
+[2m2026-11-20T16:18:15.715654Z[0m [32m INFO[0m [1mendpoint[0m[1m{[0m[3mid[0m[2m=[0mad5a1c121b[1m}[0m[2m:[0m[1mrelay-actor[0m[2m:[0m [2miroh::socket::transports::relay::actor[0m[2m:[0m home is now relay https://use1-1.relay.n0.iroh.link./, was None
+[2m2026-11-20T16:18:15.963532Z[0m [32m INFO[0m [2mfriendslop_village::features::villagers[0m[2m:[0m building the villagers' navmesh…
+[2m2026-11-20T16:18:18.378223Z[0m [32m INFO[0m [2mfriendslop_village::features::villagers[0m[2m:[0m villager navmesh ready: 4370 vertices, built in 2.4s
+[2m2026-11-20T16:18:27.968143Z[0m [32m INFO[0m [2mfriendslop::bot[0m[2m:[0m bot: start fulton_3
+[2m2026-11-20T16:18:29.204757Z[0m [32m INFO[0m [2mfriendslop::bot[0m[2m:[0m bot: spin 40s
+[2m2026-11-20T16:18:30.057631Z[0m [32m INFO[0m [2mfriendslop_base::nav[0m[2m:[0m nav: building nyc's navmesh
+[2m2026-11-20T16:18:31.918088Z[0m [32m INFO[0m [2mfriendslop_base::nav[0m[2m:[0m nav: nyc's navmesh ready: 11660 vertices in 1.9s
+[2m2026-11-20T16:19:09.071319Z[0m [32m INFO[0m [2mfriendslop::bot[0m[2m:[0m bot summary: route fulton_line in 53 s | median 41.6 p95 98.7 worst 5372 ms | hitches 860
+[2m2026-11-20T16:19:09.071397Z[0m [32m INFO[0m [2mfriendslop::bot[0m[2m:[0m bot step: start fulton_3                   median  94.1 p95 108.3 worst  138 ms | hitches 130
+[2m2026-11-20T16:19:09.071527Z[0m [32m INFO[0m [2mfriendslop::bot[0m[2m:[0m bot step: spin 40s                         median  40.2 p95  53.8 worst 5372 ms | hitches 730
+[2m2026-11-20T16:19:09.072107Z[0m [32m INFO[0m [2mfriendslop::bot[0m[2m:[0m bot worst: 5372 ms at [43, -26, 289] in nyc during spin 40s
+[2m2026-11-20T16:19:09.072132Z[0m [32m INFO[0m [2mfriendslop::bot[0m[2m:[0m bot worst: 3785 ms at [43, -26, 289] in nyc during spin 40s
+[2m2026-11-20T16:19:09.072138Z[0m [32m INFO[0m [2mfriendslop::bot[0m[2m:[0m bot worst: 963 ms at [43, -23, 289] in nyc during spin 40s
+[2m2026-11-20T16:19:09.072141Z[0m [32m INFO[0m [2mfriendslop::bot[0m[2m:[0m bot worst: 236 ms at [43, -26, 289] in nyc during spin 40s
+[2m2026-11-20T16:19:09.072145Z[0m [32m INFO[0m [2mfriendslop::bot[0m[2m:[0m bot worst: 221 ms at [43, -26, 289] in nyc during spin 40s
+[2m2026-11-20T16:19:09.113449Z[0m [33m WARN[0m [2mbevy_winit::state[0m[2m:[0m Skipped event Destroyed for unknown winit Window Id WindowId(53674672768)

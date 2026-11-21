@@ -38,5 +38,10 @@
         // `fan_museum` spot at (62, -56)): the museum, its west annex and the parking lot.
         (id: "fan_museum", name: "The Ceiling Fan Museum", bounds: ((10.0, -84.0), (84.0, -40.0)), map: Some("maps/fan_museum.bsn"), load: 4.0, unload: 4.0, heights: Some((-100.0, -78.0))),
         (id: "nyc", name: "New York City", bounds: ((-90.0, 116.0), (90.0, 330.0)), map: Some("maps/nyc.bsn"), load: 40.0, unload: 20.0),
+        // The Michael Jackson Experience theatre (#the theatre behind the
+        // brownstone, crates/side-nyc/src/features/michael.rs): in through
+        // the brownstone's door two up from the surf one. It hangs under the
+        // city east of the commune (past its loading reach), its map at (220, -60, -40).
+        (id: "michael_theater", name: "The Michael Jackson Experience", bounds: ((198.0, -56.0), (242.0, -16.0)), map: Some("maps/michael.bsn"), load: 4.0, unload: 4.0, heights: Some((-62.0, -42.0)), unbounded: true, look: Some("theater")),
     ],
 )

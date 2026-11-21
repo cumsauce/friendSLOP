@@ -84,6 +84,11 @@ pub struct Area {
     /// when their priority is higher.
     #[serde(default)]
     pub look: Option<String>,
+    /// The world's soft wall (how far out you can walk on the commune map)
+    /// doesn't hold a body here: for a place stacked far outside the map so
+    /// the commune stays unloaded (the Michael Jackson Experience).
+    #[serde(default)]
+    pub unbounded: bool,
 }
 
 impl Area {
@@ -137,6 +142,12 @@ pub fn area_at(p: Vec3) -> Option<String> {
     let mut holding: Vec<&Area> = list.areas.iter().filter(|a| a.holds(p)).collect();
     holding.sort_by_key(|a| a.heights.is_none());
     holding.first().map(|a| a.id.clone())
+}
+
+/// Is `p` in an area the world's soft wall doesn't hold (`unbounded`)?
+pub fn unbounded_at(p: Vec3) -> bool {
+    let list = areas();
+    list.areas.iter().any(|a| a.unbounded && a.holds(p))
 }
 
 /// The area nearest `p`: the one holding it (a stacked one first, like
@@ -1092,6 +1103,7 @@ mod tests {
             unload: 10.0,
             heights: None,
             look: None,
+            unbounded: false,
         }
     }
 

@@ -1045,6 +1045,8 @@ mod tests {
             "adrift",
             "fulton",
             "fulton_chase",
+            "fulton_creepy",
+            "michael_theater",
             "fulton_tense",
             "miami",
             "factory_town",

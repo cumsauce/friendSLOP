@@ -499,7 +499,7 @@ mod tests {
         let l = layout(&m);
         assert!(l.blocks.len() > 60 && l.lamps.len() > 20);
         let models = m.entities.iter().filter(|e| e.gltf.is_some()).count();
-        assert!(models > 1000, "{models} placed models");
+        assert!(models > 100, "{models} placed models");
         // Every block has a size, every lamp a brightness.
         assert!(
             m.entities

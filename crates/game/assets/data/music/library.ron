@@ -210,6 +210,20 @@
             hat: "xoxoxoxoxoxoxOxo",
             soft: 1.0, lay: 50, fill: Rolls,
         ),
+        // The Michael theatre: four on the floor under straight 8ths hats,
+        // an open hat pushing the "e" of 3, a clap with the last backbeat,
+        // and cowbell with congas answering (from the friend's MIDI).
+        "Michael": (
+            kick: ["x...x...x...x...", "x...x...x...x..o"],
+            snare: "....x.......x...",
+            hat: "x.x.x.x.x.xOx.x.",
+            extra: [
+                (Clap, 39, ["............o..."]),
+                (Cowbell, 56, ["..o.o..........."]),
+                (Conga, 62, ["...o..o.oo......"]),
+            ],
+            soft: 1.0, lay: 0, fill: Rolls,
+        ),
         "Laid": (
             kick: ["x.......x.x.....", "x.......x...o..."],
             snare: "....x.......x..g",
@@ -481,6 +495,13 @@
             [(2, 2, false), (6, 1, false), (8, 3, false), (14, 2, true)],
             [(0, 1, false), (3, 2, false), (7, 1, false), (10, 2, false), (14, 2, true)],
             [(0, 2, false), (4, 1, false), (7, 3, false), (11, 1, false), (12, 2, false)],
+        ]),
+        // The Michael theatre: the synth comping straight off the friend's
+        // MIDI — staccato 16ths on every off-beat slot, resting on the beats.
+        "Michael": (writer: Block, spread: 8, rhythms: [
+            [(2, 2, false), (3, 2, false), (4, 2, false), (6, 2, false), (7, 2, false),
+             (8, 2, false), (10, 2, false), (11, 2, false), (12, 2, false), (13, 2, false),
+             (15, 2, true)],
         ]),
         "Laid": (writer: Block, spread: 90, rhythms: [
             [(0, 6, false), (7, 1, false), (10, 6, false)],
@@ -767,6 +788,27 @@
             [(2, 2, 69), (4, 2, 72), (6, 4, 75), (10, 2, 73), (12, 4, 72)],
             [(0, 3, 73), (3, 3, 77), (6, 2, 80), (8, 4, 77)],
             [(0, 2, 75), (2, 2, 78), (4, 2, 80), (6, 2, 78), (8, 2, 77), (10, 2, 75), (12, 4, 70)],
+        ]),
+        // The Michael theatre, from the friend's MIDI (C minor at 120). The
+        // bass is the static pedal riff (Bb C Eb F C .. C .. C, identical
+        // every bar under the changing chords); the verse voice is the
+        // "C - Eb - G, then a held F" call; the chorus is the C5 - Bb / Bb -
+        // A - G descent over the turn.
+        "michael_bass": (key: 0, bars: [
+            [(0, 2, 34, 0.82), (2, 2, 36, 0.64), (4, 2, 39, 0.67), (6, 2, 41, 0.80),
+             (8, 2, 36, 0.77), (11, 3, 24, 0.96), (15, 1, 36, 0.69)],
+        ]),
+        "michael_verse": (key: 0, bars: [
+            [(2, 1, 60), (4, 1, 63), (6, 2, 67), (8, 8, 65)],
+            [],
+            [(2, 1, 60), (4, 1, 63), (6, 2, 67), (8, 8, 65)],
+            [],
+        ]),
+        "michael_chorus": (key: 0, bars: [
+            [(0, 3, 72), (3, 12, 70)],
+            [(0, 3, 70), (4, 2, 69), (8, 8, 67)],
+            [(0, 3, 72), (3, 12, 70)],
+            [(0, 3, 70), (4, 2, 69), (8, 8, 67)],
         ]),
     },
     feels: {

@@ -96,6 +96,7 @@ pub fn plugin(app: &mut App) {
     if !app.is_plugin_added::<bevy_seedling::SeedlingCorePlugin>() {
         return;
     }
+    crate::live_synth::install(app);
     app.insert_resource(Audible)
         .add_systems(Startup, spawn_buses)
         .add_systems(First, track_rate)

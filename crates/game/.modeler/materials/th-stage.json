@@ -1,0 +1,96 @@
+{
+  "name": "th-stage",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "base_color": "col",
+      "name": "out",
+      "roughness": 0.55,
+      "type": "output"
+    },
+    {
+      "name": "grain",
+      "octaves": 3,
+      "seed": 40,
+      "size": 0.05,
+      "type": "noise"
+    },
+    {
+      "input": "grain",
+      "name": "col",
+      "stops": [
+        [
+          0,
+          "#4a2e18"
+        ],
+        [
+          0.5,
+          "#5d3a20"
+        ],
+        [
+          1,
+          "#6d4527"
+        ]
+      ],
+      "type": "ramp"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "th-stage",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "base_color": "col",
+              "name": "out",
+              "roughness": 0.55,
+              "type": "output"
+            },
+            {
+              "name": "grain",
+              "octaves": 3,
+              "seed": 40,
+              "size": 0.05,
+              "type": "noise"
+            },
+            {
+              "input": "grain",
+              "name": "col",
+              "stops": [
+                [
+                  0,
+                  "#4a2e18"
+                ],
+                [
+                  0.5,
+                  "#5d3a20"
+                ],
+                [
+                  1,
+                  "#6d4527"
+                ]
+              ],
+              "type": "ramp"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+out +grain +col"
+      }
+    ],
+    "current": 0
+  }
+}

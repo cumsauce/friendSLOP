@@ -1,0 +1,176 @@
+{
+  "name": "th-cushion",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "base_color": "mix",
+      "name": "out",
+      "roughness": "r",
+      "type": "output"
+    },
+    {
+      "name": "vel",
+      "octaves": 4,
+      "seed": 31,
+      "size": 0.06,
+      "type": "noise"
+    },
+    {
+      "name": "quilt",
+      "seed": 7,
+      "size": 0.3,
+      "type": "worley"
+    },
+    {
+      "input": "vel",
+      "name": "base",
+      "stops": [
+        [
+          0,
+          "#6e1420"
+        ],
+        [
+          0.6,
+          "#8c1a28"
+        ],
+        [
+          1,
+          "#a62334"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "base",
+      "b": "#4a0a14",
+      "c": "qline",
+      "name": "mix",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "from": [
+        0.42,
+        0.5
+      ],
+      "input": "quilt",
+      "name": "qline",
+      "to": [
+        0.25,
+        0
+      ],
+      "type": "remap"
+    },
+    {
+      "from": [
+        0.35,
+        0.55
+      ],
+      "input": "vel",
+      "name": "r",
+      "to": [
+        0.75,
+        0.9
+      ],
+      "type": "remap"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "th-cushion",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "base_color": "mix",
+              "name": "out",
+              "roughness": "r",
+              "type": "output"
+            },
+            {
+              "name": "vel",
+              "octaves": 4,
+              "seed": 31,
+              "size": 0.06,
+              "type": "noise"
+            },
+            {
+              "name": "quilt",
+              "seed": 7,
+              "size": 0.3,
+              "type": "worley"
+            },
+            {
+              "input": "vel",
+              "name": "base",
+              "stops": [
+                [
+                  0,
+                  "#6e1420"
+                ],
+                [
+                  0.6,
+                  "#8c1a28"
+                ],
+                [
+                  1,
+                  "#a62334"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "base",
+              "b": "#4a0a14",
+              "c": "qline",
+              "name": "mix",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "from": [
+                0.42,
+                0.5
+              ],
+              "input": "quilt",
+              "name": "qline",
+              "to": [
+                0.25,
+                0
+              ],
+              "type": "remap"
+            },
+            {
+              "from": [
+                0.35,
+                0.55
+              ],
+              "input": "vel",
+              "name": "r",
+              "to": [
+                0.75,
+                0.9
+              ],
+              "type": "remap"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+out +vel +quilt +base +mix +qline +r"
+      }
+    ],
+    "current": 0
+  }
+}

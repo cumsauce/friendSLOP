@@ -22,6 +22,10 @@ pub(super) struct Motif {
 pub(super) struct Line {
     pub(super) n: usize,
     pub(super) notes: [(u8, u8, u8); 20],
+    /// Velocities, 0 = the usual dynamics (the shape's arc, on-beat weight).
+    pub(super) vel: [f32; 20],
+    /// Written literally (a theme): no chord snapping, no octave moves.
+    pub(super) literal: bool,
 }
 
 impl Line {
@@ -29,12 +33,20 @@ impl Line {
         Self {
             n: 0,
             notes: [(0, 0, 0); 20],
+            vel: [0.0; 20],
+            literal: false,
         }
     }
     pub(super) fn push(&mut self, step: u8, len: u8, note: u8) {
         if self.n < self.notes.len() {
             self.notes[self.n] = (step, len, note);
             self.n += 1;
+        }
+    }
+    pub(super) fn push_v(&mut self, step: u8, len: u8, note: u8, vel: f32) {
+        if self.n < self.notes.len() {
+            self.vel[self.n] = vel;
+            self.push(step, len, note);
         }
     }
 }
@@ -376,15 +388,46 @@ impl Composer {
         else {
             return;
         };
-        let Some(inst) = self.lead_inst() else {
-            return;
+        // This part's own player and register (the band lead's, unless the
+        // part says otherwise), so a song can put its vocal on another voice.
+        let trade = self.plan.kind == Section::Solo && (self.plan.bar / 2) % 2 == 1;
+        let traded = if trade {
+            ls.trade.get(&part.inst).copied()
+        } else {
+            None
         };
-        let (lo, hi) = (self.lead_lo, self.lead_hi);
+        let inst = traded.unwrap_or(part.inst);
+        let (lo, hi) = part.register;
         let i = self.intensity;
         let kind = self.plan.kind;
         let pb = self.plan.bar;
         let phrase = pb % 4;
         let last = self.last_note;
+        // A named theme plays literally in every section the part plays: no
+        // chord snapping, no octave moves, velocities as written.
+        if theme.is_some_and(|t| !t.bars.is_empty())
+            && !matches!(
+                kind,
+                Section::Intro | Section::Breakdown | Section::Still | Section::Victory
+            )
+        {
+            let t = theme.expect("theme checked above");
+            let mut l = Line::new();
+            l.literal = true;
+            // Transpose the theme's key into the song's.
+            let shift = (self.plan.key + 12 - t.key % 12) % 12;
+            let shift = if shift > 6 {
+                shift as i32 - 12
+            } else {
+                shift as i32
+            };
+            for note in &t.bars[pb as usize % t.bars.len()] {
+                let n = (note.note() as i32 + shift).clamp(0, 127) as u8;
+                l.push_v(note.step(), note.len(), n, note.vel().unwrap_or(0.0));
+            }
+            self.emit_line(bar, inst, ls, l, false);
+            return;
+        }
         let line = match kind {
             Section::Intro | Section::Breakdown | Section::Still => return,
             Section::Victory => {
@@ -394,26 +437,6 @@ impl Composer {
                 let nine = fold(ch.root_from(72) + 2, lo, hi);
                 l.push(0, 2, ch.nearest_strong(nine.saturating_sub(2)));
                 l.push(2, (self.full - 2) as u8, ch.nearest_strong(nine));
-                l
-            }
-            Section::Hook if theme.is_some_and(|t| !t.bars.is_empty()) => {
-                let Some(t) = theme else {
-                    return;
-                };
-                let mut l = Line::new();
-                let shift = (self.plan.key + 12 - t.key % 12) % 12;
-                let shift = if shift > 6 {
-                    shift as i32 - 12
-                } else {
-                    shift as i32
-                };
-                if pb == 7 && i > 0.4 {
-                    self.pent_run(&mut l, false);
-                } else {
-                    for &(st, ln, n) in &t.bars[pb as usize % t.bars.len()] {
-                        l.push(st, ln, (n as i32 + shift).clamp(0, 127) as u8);
-                    }
-                }
                 l
             }
             Section::Solo => {
@@ -519,7 +542,7 @@ impl Composer {
                 }
             }
         };
-        let themed = kind == Section::Hook && theme.is_some_and(|t| !t.bars.is_empty());
+        let themed = theme.is_some_and(|t| !t.bars.is_empty());
         self.emit_line(bar, inst, ls, line, !themed);
     }
 }
@@ -661,6 +684,34 @@ impl Composer {
         let (lead_lo, lead_hi) = (self.lead_lo, self.lead_hi);
         let n = line.n;
         if n == 0 {
+            return;
+        }
+        // A theme plays exactly as written: the notes are the friend's, not
+        // the composer's to second-guess.
+        if line.literal {
+            let i = self.intensity;
+            self.frag = Line::new();
+            self.sung = true;
+            for k in 0..n {
+                let (st, ln, note) = line.notes[k];
+                self.frag.push(st, ln, note);
+                self.lead_end = self.lead_end.max(st as u32 + ln as u32);
+                let written = if line.vel[k] > 0.0 { line.vel[k] } else { 0.8 };
+                let vel = written * (0.8 + 0.3 * i);
+                let at = self.at(st as u32);
+                let len = self.len(ln as f32);
+                Self::push(
+                    bar,
+                    Ev {
+                        at,
+                        inst,
+                        note,
+                        vel,
+                        len,
+                        glide: false,
+                    },
+                );
+            }
             return;
         }
         line.notes[..n].sort_by_key(|x| x.0);

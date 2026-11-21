@@ -51,6 +51,11 @@ Andrew calls, gets angry, and sends something after you that crawls the ducts be
 $100; going down may drop your wallet somewhere in the station: find it (and strangers'
 wallets), or press I for an insurance drone that keeps 70%. B brags: coins fall out for others. Or step into the
 brownstone with the neon SURF sign: a surf map, a 3.7 km seven-stage course of bending ramps between sky towers to a timed finish.
+Two doors up, the brownstone with THE MICHAEL JACKSON EXPERIENCE bulb marquee: walk in through the
+ticketing lobby and the house wraps a huge stage in three arcs of seats under a vaulted ceiling —
+Michael stands centre stage working through his dance moves (groove, spin, kick, lean) while the
+theatre's own 80s pop number plays (C minor, 120, the syncopated pedal-bass riff and the vocal lines
+written out note for note).
 The streets and stations have tweakers screaming at nobody, preachers telling you you're
 going to hell, and bucket drummers (thickest on the PATH platform and round Fulton St).
 Step in front of a cab and you're punted and ragdoll for a couple of seconds before getting up.

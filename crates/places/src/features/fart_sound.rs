@@ -27,7 +27,7 @@ use serde::{Deserialize, Serialize};
 use crate::AppState;
 use crate::features::bear::wav_bytes;
 use crate::features::fart::Farted;
-use crate::features::synth_audio::play_synth;
+
 use crate::player::{LocalPlayer, Player, PlayerOwner};
 
 /// How a player's farts sound.
@@ -136,8 +136,9 @@ fn play_fart(
     let seed = farted.player as u32;
     let make = move || wav_bytes(&fart_samples(&tone, fullness, seed, RATE), RATE);
     if me.is_some_and(|m| m.0 == farted.player) {
-        // Your own, right where you are.
-        play_synth(&mut commands, make);
+        // Your own, right where you are: made live in the audio graph.
+        let e = play_live(&mut commands, tone, fullness, seed);
+        commands.entity(e).insert(DespawnOnExit(AppState::InGame));
     } else {
         // Someone else's: heard from where they let it go.
         let at = Vec3::new(
@@ -220,72 +221,197 @@ fn show_tone(
     }
 }
 
-/// Synthesize one fart. `fullness` (0..1) is how much gas there was; `seed`
-/// varies the turbulence so no two players' farts are identical.
-pub fn fart_samples(tone: &FartTone, fullness: f32, seed: u32, rate: u32) -> Vec<f32> {
-    let tone = tone.clamped();
-    let fullness = fullness.clamp(0.1, 1.0);
-    let secs = tone.length * (0.4 + 0.6 * fullness);
-    let n = (secs * rate as f32) as usize;
-    let dt = 1.0 / rate as f32;
-    let wet = tone.timbre;
+/// One fart being made a sample at a time: the lip valve described at the top
+/// of this file. Iterating a `FartVoice` gives the raw sound (before the final
+/// polish); `fart_samples` renders it all at once, the audio graph's live node
+/// ([`play_live`]) pulls it as the speakers want it.
+pub struct FartVoice {
+    tone: FartTone,
+    rate: u32,
+    n: usize,
+    i: usize,
+    dt: f32,
+    wet: f32,
+    mu: f32,
+    x: f32,
+    v: f32,
+    pressure: f32,
+    rng: u32,
+    sputter: f32,
+    last_flow: f32,
+    g: f32,
+    q: f32,
+    ic1: f32,
+    ic2: f32,
+}
 
-    // Lips: van der Pol oscillator x'' - mu*w*(p - x^2)*x' + w^2*x = 0.
-    let mu = 0.6 + 1.2 * wet;
-    let (mut x, mut v) = (0.05f32, 0.0f32);
-    // Reservoir pressure, normalised so 1 = a full, firm push.
-    let mut pressure = 0.6 + 0.6 * fullness;
-    let mut rng = seed.wrapping_mul(0x9E37_79B9) | 1;
-    let mut noise = || {
-        rng ^= rng << 13;
-        rng ^= rng >> 17;
-        rng ^= rng << 5;
-        (rng as f32 / u32::MAX as f32) * 2.0 - 1.0
-    };
-    let mut sputter = 0.0f32;
-    let mut last_flow = 0.0f32;
-    // Cheek resonance: a two-pole bandpass-ish lowpass.
-    let cutoff = 1800.0 - 1300.0 * wet;
-    let g = (std::f32::consts::PI * cutoff * dt).tan();
-    let q = 0.9;
-    let (mut ic1, mut ic2) = (0.0f32, 0.0f32);
-    let mut out = Vec::with_capacity(n);
-    for i in 0..n {
-        let p = i as f32 / n.max(1) as f32;
+impl FartVoice {
+    /// `fullness` (0..1) is how much gas there was; `seed` varies the
+    /// turbulence so no two players' farts are identical.
+    pub fn new(tone: &FartTone, fullness: f32, seed: u32, rate: u32) -> Self {
+        let tone = tone.clamped();
+        let fullness = fullness.clamp(0.1, 1.0);
+        let secs = tone.length * (0.4 + 0.6 * fullness);
+        let dt = 1.0 / rate as f32;
+        let wet = tone.timbre;
+        // Cheek resonance: a two-pole bandpass-ish lowpass.
+        let cutoff = 1800.0 - 1300.0 * wet;
+        Self {
+            tone,
+            rate,
+            n: (secs * rate as f32) as usize,
+            i: 0,
+            dt,
+            wet,
+            // Lips: van der Pol oscillator x'' - mu*w*(p - x^2)*x' + w^2*x = 0.
+            mu: 0.6 + 1.2 * wet,
+            x: 0.05,
+            v: 0.0,
+            // Reservoir pressure, normalised so 1 = a full, firm push.
+            pressure: 0.6 + 0.6 * fullness,
+            rng: seed.wrapping_mul(0x9E37_79B9) | 1,
+            sputter: 0.0,
+            last_flow: 0.0,
+            g: (std::f32::consts::PI * cutoff * dt).tan(),
+            q: 0.9,
+            ic1: 0.0,
+            ic2: 0.0,
+        }
+    }
+
+    /// How many samples the fart lasts.
+    pub fn len(&self) -> usize {
+        self.n
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.n == 0
+    }
+
+    fn noise(&mut self) -> f32 {
+        self.rng ^= self.rng << 13;
+        self.rng ^= self.rng >> 17;
+        self.rng ^= self.rng << 5;
+        (self.rng as f32 / u32::MAX as f32) * 2.0 - 1.0
+    }
+}
+
+/// The raw sound, a sample at a time, until the gas is gone.
+impl Iterator for FartVoice {
+    type Item = f32;
+
+    fn next(&mut self) -> Option<f32> {
+        if self.i >= self.n {
+            return None;
+        }
+        let (tone, dt, wet, rate) = (self.tone, self.dt, self.wet, self.rate);
+        let p = self.i as f32 / self.n.max(1) as f32;
         // Abdomen: squeeze in quickly, then the push gives out.
         let push = (p * 12.0).min(1.0) * (1.0 - p).powf(0.6);
         // Wet farts sputter: the pressure stutters randomly.
-        sputter = sputter * 0.995 + noise() * 0.004 * wet;
-        let drive = (pressure * push + sputter).max(0.0);
+        self.sputter = self.sputter * 0.995 + self.noise() * 0.004 * wet;
+        let drive = (self.pressure * push + self.sputter).max(0.0);
         // Pitch sags as pressure drops, and wobbles a little.
         let w = std::f32::consts::TAU
             * tone.pitch
             * (0.75 + 0.25 * drive.sqrt())
-            * (1.0 + 0.02 * (i as f32 * dt * 7.0).sin());
-        let a = mu * w * (drive - x * x) * v - w * w * x;
-        v += a * dt;
-        x += v * dt;
+            * (1.0 + 0.02 * (self.i as f32 * dt * 7.0).sin());
+        let a = self.mu * w * (drive - self.x * self.x) * self.v - w * w * self.x;
+        self.v += a * dt;
+        self.x += self.v * dt;
         // Flow through the opening (only while open), Bernoulli: ~ area * sqrt(p).
-        let open = x.max(0.0);
+        let open = self.x.max(0.0);
         let flow = open * drive.sqrt();
-        pressure = (pressure - flow * dt * 0.15).max(0.0);
+        self.pressure = (self.pressure - flow * dt * 0.15).max(0.0);
         // Turbulence riding on the flow.
-        let turb = noise() * flow * (0.3 + 1.6 * wet);
+        let turb = self.noise() * flow * (0.3 + 1.6 * wet);
         // Radiation: the far field hears the change in flow.
-        let radiated = (flow - last_flow) * rate as f32 / (tone.pitch * 4.0) + turb;
-        last_flow = flow;
+        let radiated = (flow - self.last_flow) * rate as f32 / (tone.pitch * 4.0) + turb;
+        self.last_flow = flow;
         // State-variable lowpass for the cheeks.
-        let v3 = radiated - ic2;
-        let v1 = (ic1 + g * v3) / (1.0 + g * (g + 1.0 / q));
-        let v2 = ic2 + g * v1;
-        ic1 = 2.0 * v1 - ic1;
-        ic2 = 2.0 * v2 - ic2;
+        let (g, q) = (self.g, self.q);
+        let v3 = radiated - self.ic2;
+        let v1 = (self.ic1 + g * v3) / (1.0 + g * (g + 1.0 / q));
+        let v2 = self.ic2 + g * v1;
+        self.ic1 = 2.0 * v1 - self.ic1;
+        self.ic2 = 2.0 * v2 - self.ic2;
         let fade = ((1.0 - p) * 30.0).min(1.0);
-        out.push((v2 * 0.8 * fade).tanh() * 0.9);
+        self.i += 1;
+        Some((v2 * 0.8 * fade).tanh() * 0.9)
     }
+}
+
+/// Synthesize one fart all at once (other players' farts, and the tests).
+pub fn fart_samples(tone: &FartTone, fullness: f32, seed: u32, rate: u32) -> Vec<f32> {
+    let mut voice = FartVoice::new(tone, fullness, seed, rate);
+    let mut out = Vec::with_capacity(voice.len());
+    out.extend(&mut voice);
     // Smooth off the fizz and normalise so quiet tones are still audible.
     crate::features::synth_audio::master(&mut out, rate, 7000.0, 0.75);
     out
+}
+
+/// The final polish of `master`, one sample at a time for a live fart: remove
+/// DC, a gentle two-pole low-pass at 7 kHz, 4 ms fades and a fixed gain (there
+/// is no peak to normalise to before the sound has been made).
+struct LivePolish {
+    a: f32,
+    lp1: f32,
+    lp2: f32,
+    dc_x: f32,
+    dc_y: f32,
+    fade: usize,
+    i: usize,
+    n: usize,
+}
+
+/// Raw farts peak near this before the polish; the gain brings them to the
+/// level `master` would (0.75).
+const LIVE_GAIN: f32 = 0.8;
+
+impl LivePolish {
+    fn new(rate: u32, n: usize) -> Self {
+        Self {
+            a: 1.0 - (-std::f32::consts::TAU * 7000.0 / rate as f32).exp(),
+            lp1: 0.0,
+            lp2: 0.0,
+            dc_x: 0.0,
+            dc_y: 0.0,
+            fade: ((0.004 * rate as f32) as usize).min(n / 2),
+            i: 0,
+            n,
+        }
+    }
+
+    fn process(&mut self, s: f32) -> f32 {
+        self.dc_y = s - self.dc_x + 0.995 * self.dc_y;
+        self.dc_x = s;
+        self.lp1 += self.a * (self.dc_y - self.lp1);
+        self.lp2 += self.a * (self.lp1 - self.lp2);
+        let mut out = self.lp2 * LIVE_GAIN;
+        let (i, n, fade) = (self.i, self.n, self.fade);
+        if fade > 0 {
+            if i < fade {
+                out *= i as f32 / fade as f32;
+            }
+            if n - 1 - i.min(n - 1) < fade {
+                out *= (n - 1 - i.min(n - 1)) as f32 / fade as f32;
+            }
+        }
+        self.i += 1;
+        out
+    }
+}
+
+/// Play a fart on the audio thread: the lip valve runs live in a graph node,
+/// a sample at a time, at the graph's own sample rate. Nothing is rendered
+/// ahead or loaded.
+pub fn play_live(commands: &mut Commands, tone: FartTone, fullness: f32, seed: u32) -> Entity {
+    friendslop_base::live_synth::play(commands, 1.0, move |rate| {
+        let mut voice = FartVoice::new(&tone, fullness, seed, rate);
+        let mut polish = LivePolish::new(rate, voice.len());
+        Box::new(move || voice.next().map(|s| polish.process(s)))
+    })
 }
 
 #[cfg(test)]
@@ -338,6 +464,49 @@ mod tests {
         let low = freq(&fart_samples(&tone(60.0, 2.0, 0.0), 1.0, 1, RATE));
         let high = freq(&fart_samples(&tone(240.0, 2.0, 0.0), 1.0, 1, RATE));
         assert!(high > low * 2.0, "low {low} Hz, high {high} Hz");
+    }
+
+    #[test]
+    fn the_live_voice_is_the_same_fart_and_about_as_loud() {
+        let t = tone(90.0, 1.0, 0.4);
+        let whole = fart_samples(&t, 1.0, 7, RATE);
+        let mut voice = FartVoice::new(&t, 1.0, 7, RATE);
+        let mut polish = LivePolish::new(RATE, voice.len());
+        let live: Vec<f32> =
+            std::iter::from_fn(|| voice.next().map(|s| polish.process(s))).collect();
+        assert_eq!(live.len(), whole.len());
+        assert!(live.iter().all(|x| x.is_finite()));
+        let peak = |v: &[f32]| v.iter().fold(0.0f32, |m, x| m.max(x.abs()));
+        let (a, b) = (peak(&live), peak(&whole));
+        assert!(
+            a > 0.4 && a < 1.2 && (a / b) > 0.5 && (a / b) < 1.6,
+            "live {a}, whole {b}"
+        );
+        // The same shape: the loud part is in the same place.
+        let loudest = |v: &[f32]| {
+            v.iter()
+                .enumerate()
+                .fold(
+                    (0, 0.0f32),
+                    |m, (i, x)| if x.abs() > m.1 { (i, x.abs()) } else { m },
+                )
+                .0
+        };
+        let gap = loudest(&live).abs_diff(loudest(&whole));
+        assert!(gap < RATE as usize / 4, "loudest samples {gap} apart");
+        // Every tone is audible and none clips, with no peak to normalise to.
+        for t in [0.0, 0.5, 1.0] {
+            for pitch in [30.0, 90.0, 400.0] {
+                let tone = tone(pitch, 1.0, t);
+                let mut voice = FartVoice::new(&tone, 1.0, 1, RATE);
+                let mut polish = LivePolish::new(RATE, voice.len());
+                let peak = std::iter::from_fn(|| voice.next().map(|s| polish.process(s)))
+                    .fold(0.0f32, |m, x| m.max(x.abs()));
+                assert!(peak > 0.25 && peak <= 1.0, "peak {peak} at {pitch} Hz, {t}");
+            }
+        }
+        // Fades at both ends so it doesn't click.
+        assert!(live[0].abs() < 0.05 && live[live.len() - 1].abs() < 0.05);
     }
 
     #[test]

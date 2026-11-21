@@ -205,6 +205,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(kori::plugin);
         app.add_plugins(lily_garden::plugin);
         app.add_plugins(jokah::plugin);
+        app.add_plugins(michael::plugin);
         app.add_plugins(achievements::plugin);
         app.add_plugins(wastes::plugin);
         app.add_plugins(fan_museum::plugin);

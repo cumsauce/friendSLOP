@@ -265,7 +265,7 @@ pub fn step(
     let mut next = pos + flat;
     if let Some(kept) = crate::rules::nyc::keep_in_city(pos, next) {
         next = kept; // New York City has its own edges (#283)
-    } else if !crate::rules::surf::unbounded(pos) {
+    } else if !crate::rules::surf::unbounded(pos) && !friendslop_base::areas::unbounded_at(pos) {
         // The soft wall, open to the north when the wastes are (#391).
         let kept = friendslop_world::wastes::keep_in(Vec2::new(next.x, next.z), EDGE);
         (next.x, next.z) = (kept.x, kept.y);
@@ -397,7 +397,9 @@ pub fn kcc_moved_walkers(
         let mut pos = w.feet;
         if let Some(kept) = crate::rules::nyc::keep_in_city(walker.pos, pos) {
             pos = kept;
-        } else if !crate::rules::surf::unbounded(walker.pos) {
+        } else if !crate::rules::surf::unbounded(walker.pos)
+            && !friendslop_base::areas::unbounded_at(walker.pos)
+        {
             let kept = friendslop_world::wastes::keep_in(Vec2::new(pos.x, pos.z), EDGE);
             (pos.x, pos.z) = (kept.x, kept.y);
         }

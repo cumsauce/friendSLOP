@@ -1,0 +1,128 @@
+{
+  "name": "th-dance",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "base_color": "mixer",
+      "metallic": 0.55,
+      "name": "out",
+      "roughness": 0.22,
+      "type": "output"
+    },
+    {
+      "name": "g",
+      "octaves": 4,
+      "seed": 9,
+      "size": 0.6,
+      "type": "noise"
+    },
+    {
+      "name": "sp",
+      "octaves": 2,
+      "seed": 3,
+      "size": 0.03,
+      "type": "noise"
+    },
+    {
+      "input": "g",
+      "name": "base",
+      "stops": [
+        [
+          0,
+          "#12121a"
+        ],
+        [
+          0.5,
+          "#1e1e2c"
+        ],
+        [
+          1,
+          "#2c2c40"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "a": "base",
+      "b": "#9aa2b8",
+      "c": "sp",
+      "name": "mixer",
+      "op": "mix",
+      "type": "math"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "th-dance",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "base_color": "mixer",
+              "metallic": 0.55,
+              "name": "out",
+              "roughness": 0.22,
+              "type": "output"
+            },
+            {
+              "name": "g",
+              "octaves": 4,
+              "seed": 9,
+              "size": 0.6,
+              "type": "noise"
+            },
+            {
+              "name": "sp",
+              "octaves": 2,
+              "seed": 3,
+              "size": 0.03,
+              "type": "noise"
+            },
+            {
+              "input": "g",
+              "name": "base",
+              "stops": [
+                [
+                  0,
+                  "#12121a"
+                ],
+                [
+                  0.5,
+                  "#1e1e2c"
+                ],
+                [
+                  1,
+                  "#2c2c40"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "a": "base",
+              "b": "#9aa2b8",
+              "c": "sp",
+              "name": "mixer",
+              "op": "mix",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+out +g +sp +base +mixer"
+      }
+    ],
+    "current": 0
+  }
+}

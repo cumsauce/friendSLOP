@@ -160,6 +160,12 @@
         "BOOM_A": [(0, Min7Aeo, 8), (5, Min7, 8)],
         "BOOM_B": [(3, Maj7, 8), (10, Dom7, 4), (0, Min7Aeo, 4)],
         "BOOM_HOOK": [(8, Maj7Lyd, 8), (10, Dom7, 8)],
+        // The Michael experience theatre, from the friend's MIDI: C minor at
+        // 120. The vamp is Cm7 into two bars of F and two of Eb; the turn is
+        // Fm7 - Bb9 - Cm11 - F9; the outro vamps C and G.
+        "MICHAEL_A": [(0, Min7, 8), (5, Maj69, 8), (3, Maj7, 8)],
+        "MICHAEL_B": [(5, Min7, 4), (10, Dom9, 4), (0, Min11, 4), (5, Dom9, 4)],
+        "MICHAEL_HOOK": [(0, Power, 8), (7, Power, 8)],
         // New York, house: i - bVII - bVI - bVII, a bar each.
         "BUSTLE_A": [(0, Min7Aeo, 4), (10, MajMix, 4), (8, Maj7Lyd, 4), (10, MajMix, 4)],
         "BUSTLE_B": [(5, Min7, 8), (8, Maj7Lyd, 4), (10, MajMix, 4)],
@@ -385,6 +391,14 @@
             instant: true,
         ),
         (
+            // The Michael experience theatre: crisp 80s pop, wide, a touch of
+            // tape sheen. Stage reverb a little wet.
+            name: "Michael",
+            tone: (warmth: -0.15, width: 1.3, wow: 0.05, lay_back_ms: 0.0, loose_ms: 0.0),
+            level_db: 1.0,
+            wet: 1.1,
+        ),
+        (
             // Fulton St station (the hunter): nothing after you. Drones, a lone ill-tuned tone,
             // no beat. Wet and cold.
             name: "FultonAmbient",
@@ -443,6 +457,7 @@
         (when: Signal("boba", Gt, 0.0), mood: "Boba"),
         (when: Signal("penn_njt", Gt, 0.0), mood: "PennNjt", intensity: "0.75"),
         (when: Signal("penn_lirr", Gt, 0.0), mood: "PennLirr", intensity: "0.3"),
+        (when: Signal("michael_theater", Gt, 0.0), mood: "Michael", intensity: "0.8"),
         (when: Signal("nyc", Gt, 0.0), mood: "Nyc"),
         (when: Signal("heaven", Gt, 0.0), mood: "Abuela"),
         (when: Signal("sky", Gt, 0.0), mood: "Sky"),

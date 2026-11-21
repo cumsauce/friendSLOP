@@ -155,6 +155,9 @@ pub struct Wall {
     pub centre: Vec3,
     pub size: Vec3,
     pub yaw: f32,
+    /// A ramp (a `Wedge` marker: stoop steps), low at -z rising to the full
+    /// height at +z, instead of a solid box.
+    pub wedge: bool,
 }
 
 /// What the game needs from the city map.
@@ -191,11 +194,12 @@ pub fn city(map: &friendslop_world::places::MapFile) -> City {
     let walls = map
         .entities
         .iter()
-        .filter(|e| e.has("Block"))
+        .filter(|e| e.has("Block") || e.has("Wedge"))
         .map(|e| Wall {
             centre: Vec3::from_array(e.translation),
             size: e.size.map_or(Vec3::ONE, Vec3::from_array),
             yaw: e.yaw.to_radians(),
+            wedge: e.has("Wedge"),
         })
         .collect();
     let empty = Room {
@@ -279,7 +283,7 @@ pub fn edge_colliders() -> Vec<(Transform, avian3d::prelude::Collider)> {
     .collect()
 }
 
-/// The map's boxes as colliders. A flat slab lying on the street (a
+/// The map's boxes (and wedge ramps) as colliders. A flat slab lying on the street (a
 /// sidewalk) is split around the holes in the street like the floor, or it
 /// would cover the stairs down.
 pub fn wall_colliders(walls: &[Wall]) -> Vec<(Transform, avian3d::prelude::Collider)> {
@@ -303,9 +307,23 @@ pub fn wall_colliders(walls: &[Wall]) -> Vec<(Transform, avian3d::prelude::Colli
             ));
             continue;
         }
+        let collider = if w.wedge {
+            let (hx, hy, hz) = (w.size.x / 2.0, w.size.y / 2.0, w.size.z / 2.0);
+            avian3d::prelude::Collider::convex_hull(&[
+                Vec3::new(-hx, -hy, -hz),
+                Vec3::new(hx, -hy, -hz),
+                Vec3::new(-hx, -hy, hz),
+                Vec3::new(hx, -hy, hz),
+                Vec3::new(-hx, hy, hz),
+                Vec3::new(hx, hy, hz),
+            ])
+        } else {
+            None
+        }
+        .unwrap_or_else(|| avian3d::prelude::Collider::cuboid(w.size.x, w.size.y, w.size.z));
         out.push((
             Transform::from_translation(w.centre).with_rotation(Quat::from_rotation_y(w.yaw)),
-            avian3d::prelude::Collider::cuboid(w.size.x, w.size.y, w.size.z),
+            collider,
         ));
     }
     out
@@ -354,7 +372,14 @@ fn cull_city(
     }
 }
 
+/// `FRIENDSLOP_START=nyc`: where you arrive in the city.
+fn starts() -> Vec<(String, Vec3)> {
+    let at = v2(tuning().arrival);
+    vec![("nyc".into(), Vec3::new(at.x, CITY_Y, at.y))]
+}
+
 pub fn plugin(app: &mut App) {
+    crate::features::start::provide(starts);
     app.add_systems(Update, music_signals.in_set(crate::music::MusicSignalSet));
     crate::area::on_show(app, build_city);
     app.add_systems(
@@ -630,6 +655,24 @@ mod tests {
                 .all(|g| g.starts_with("models/prefabs/nyc-") || g.starts_with("maps/nyc")),
             "{models:?}"
         );
+    }
+
+    #[test]
+    fn the_brownstone_stoops_are_ramps_up_to_a_landing() {
+        let walls = city(&map()).walls;
+        let ramps: Vec<_> = walls.iter().filter(|w| w.wedge).collect();
+        assert!(ramps.len() >= 2, "the surf and theatre stoops are ramps");
+        for r in ramps {
+            // Rises toward the building (+x) to the landing's height.
+            let up = Quat::from_rotation_y(r.yaw) * Vec3::Z;
+            assert!(up.x > 0.9, "{r:?} rises toward the door");
+            let landing = walls.iter().any(|w| {
+                !w.wedge
+                    && (w.centre.z - r.centre.z).abs() < 0.1
+                    && (w.centre.y + w.size.y / 2.0 - (r.centre.y + r.size.y / 2.0)).abs() < 0.01
+            });
+            assert!(landing, "{r:?} tops out at a landing");
+        }
     }
 
     #[test]

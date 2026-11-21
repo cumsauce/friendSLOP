@@ -1,0 +1,1132 @@
+{
+  "name": "th-marquee",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 10.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "metallic": 0.1,
+      "name": "out",
+      "roughness": 0.5,
+      "type": "output"
+    },
+    {
+      "name": "uv",
+      "of": "uv",
+      "type": "input"
+    },
+    {
+      "coords": "uv",
+      "name": "c",
+      "scale": [
+        1,
+        1
+      ],
+      "type": "transform"
+    },
+    {
+      "center": [
+        0.5,
+        0.5
+      ],
+      "coords": "c",
+      "name": "bo",
+      "size": [
+        0.97,
+        0.9
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.5,
+        0.5
+      ],
+      "coords": "c",
+      "name": "bi",
+      "size": [
+        0.95,
+        0.86
+      ],
+      "type": "rect"
+    },
+    {
+      "name": "mbo",
+      "sdf": "bo",
+      "type": "mask"
+    },
+    {
+      "name": "mbi",
+      "sdf": "bi",
+      "type": "mask"
+    },
+    {
+      "a": "mbo",
+      "b": "mbi",
+      "name": "border",
+      "op": "sub",
+      "type": "math"
+    },
+    {
+      "center": [
+        0.5,
+        0.38
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t1",
+      "size": 0.12,
+      "text": "THE MICHAEL JACKSON",
+      "type": "text"
+    },
+    {
+      "center": [
+        0.5,
+        0.72
+      ],
+      "coords": "c",
+      "font": "bold",
+      "name": "t2",
+      "size": 0.15,
+      "text": "EXPERIENCE",
+      "type": "text"
+    },
+    {
+      "a": "t1",
+      "b": "t2",
+      "name": "ink",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mt",
+      "sdf": "ink",
+      "type": "mask"
+    },
+    {
+      "a": "border",
+      "b": "mt",
+      "name": "gold",
+      "op": "max",
+      "type": "math"
+    },
+    {
+      "a": "#141210",
+      "b": "#ffd76e",
+      "c": "gold",
+      "name": "col",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "#000000",
+      "b": "#ffb830",
+      "c": "mt",
+      "name": "em",
+      "op": "mix",
+      "type": "math"
+    }
+  ],
+  "params": {},
+  "version": 7,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "th-marquee",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0.1,
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            },
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                6,
+                1.4
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                3,
+                0.7
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                5.8,
+                1.28
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                3,
+                0.7
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                5.6,
+                1.08
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                3,
+                0.55
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.42,
+              "text": "THE MICHAEL",
+              "type": "text"
+            },
+            {
+              "center": [
+                3,
+                1.02
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t2",
+              "size": 0.3,
+              "text": "EXPERIENCE",
+              "type": "text"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "ink",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "ink",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#141210",
+              "b": "#ffd76e",
+              "c": "gold",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#000000",
+              "b": "#ffb830",
+              "c": "mt",
+              "name": "em",
+              "op": "mix",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+out +uv +c +bo +bi +mbo +mbi +border +t1 +t2 +ink +mt +gold +col +em"
+      },
+      {
+        "model": {
+          "name": "th-marquee",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0.1,
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            },
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                6,
+                1.4
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                3,
+                0.7
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                5.8,
+                1.28
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                3,
+                0.7
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                5.6,
+                1.08
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                3,
+                0.98
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.34,
+              "text": "THE MICHAEL JACKSON",
+              "type": "text"
+            },
+            {
+              "center": [
+                3,
+                0.5
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t2",
+              "size": 0.4,
+              "text": "EXPERIENCE",
+              "type": "text"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "ink",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "ink",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#141210",
+              "b": "#ffd76e",
+              "c": "gold",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#000000",
+              "b": "#ffb830",
+              "c": "mt",
+              "name": "em",
+              "op": "mix",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "~t1 ~t2"
+      },
+      {
+        "model": {
+          "name": "th-marquee",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0.1,
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            },
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                10,
+                1.5
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                5,
+                0.75
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                9.7,
+                1.36
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                5,
+                0.75
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                9.5,
+                1.16
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                5,
+                0.98
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.34,
+              "text": "THE MICHAEL JACKSON",
+              "type": "text"
+            },
+            {
+              "center": [
+                5,
+                0.5
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t2",
+              "size": 0.4,
+              "text": "EXPERIENCE",
+              "type": "text"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "ink",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "ink",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#141210",
+              "b": "#ffd76e",
+              "c": "gold",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#000000",
+              "b": "#ffb830",
+              "c": "mt",
+              "name": "em",
+              "op": "mix",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 3
+        },
+        "parent": 1,
+        "children": [
+          3
+        ],
+        "label": "~c ~bo ~bi ~t1 ~t2"
+      },
+      {
+        "model": {
+          "name": "th-marquee",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 10.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0.1,
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            },
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                10,
+                1.5
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                5,
+                0.75
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                9.7,
+                1.36
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                5,
+                0.75
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                9.5,
+                1.16
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                5,
+                0.98
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.34,
+              "text": "THE MICHAEL JACKSON",
+              "type": "text"
+            },
+            {
+              "center": [
+                5,
+                0.5
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t2",
+              "size": 0.4,
+              "text": "EXPERIENCE",
+              "type": "text"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "ink",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "ink",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#141210",
+              "b": "#ffd76e",
+              "c": "gold",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#000000",
+              "b": "#ffb830",
+              "c": "mt",
+              "name": "em",
+              "op": "mix",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 4
+        },
+        "parent": 2,
+        "children": [
+          4
+        ],
+        "label": "material settings"
+      },
+      {
+        "model": {
+          "name": "th-marquee",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 10.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0.1,
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            },
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                10,
+                1.5
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                5,
+                0.75
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                9.7,
+                1.36
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                5,
+                0.75
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                9.5,
+                1.16
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                5,
+                0.5
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.34,
+              "text": "THE MICHAEL JACKSON",
+              "type": "text"
+            },
+            {
+              "center": [
+                5,
+                0.98
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t2",
+              "size": 0.4,
+              "text": "EXPERIENCE",
+              "type": "text"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "ink",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "ink",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#141210",
+              "b": "#ffd76e",
+              "c": "gold",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#000000",
+              "b": "#ffb830",
+              "c": "mt",
+              "name": "em",
+              "op": "mix",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 5
+        },
+        "parent": 3,
+        "children": [
+          5
+        ],
+        "label": "~t1 ~t2"
+      },
+      {
+        "model": {
+          "name": "th-marquee",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 10.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0.1,
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            },
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1,
+                1
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                5,
+                0.75
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                9.7,
+                1.36
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                5,
+                0.75
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                9.5,
+                1.16
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                5,
+                0.55
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.34,
+              "text": "THE MICHAEL JACKSON",
+              "type": "text"
+            },
+            {
+              "center": [
+                5,
+                1.08
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t2",
+              "size": 0.4,
+              "text": "EXPERIENCE",
+              "type": "text"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "ink",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "ink",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#141210",
+              "b": "#ffd76e",
+              "c": "gold",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#000000",
+              "b": "#ffb830",
+              "c": "mt",
+              "name": "em",
+              "op": "mix",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 6
+        },
+        "parent": 4,
+        "children": [
+          6
+        ],
+        "label": "~c ~t1 ~t2"
+      },
+      {
+        "model": {
+          "name": "th-marquee",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 10.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "metallic": 0.1,
+              "name": "out",
+              "roughness": 0.5,
+              "type": "output"
+            },
+            {
+              "name": "uv",
+              "of": "uv",
+              "type": "input"
+            },
+            {
+              "coords": "uv",
+              "name": "c",
+              "scale": [
+                1,
+                1
+              ],
+              "type": "transform"
+            },
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "coords": "c",
+              "name": "bo",
+              "size": [
+                0.97,
+                0.9
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "coords": "c",
+              "name": "bi",
+              "size": [
+                0.95,
+                0.86
+              ],
+              "type": "rect"
+            },
+            {
+              "name": "mbo",
+              "sdf": "bo",
+              "type": "mask"
+            },
+            {
+              "name": "mbi",
+              "sdf": "bi",
+              "type": "mask"
+            },
+            {
+              "a": "mbo",
+              "b": "mbi",
+              "name": "border",
+              "op": "sub",
+              "type": "math"
+            },
+            {
+              "center": [
+                0.5,
+                0.38
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t1",
+              "size": 0.12,
+              "text": "THE MICHAEL JACKSON",
+              "type": "text"
+            },
+            {
+              "center": [
+                0.5,
+                0.72
+              ],
+              "coords": "c",
+              "font": "bold",
+              "name": "t2",
+              "size": 0.15,
+              "text": "EXPERIENCE",
+              "type": "text"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "ink",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mt",
+              "sdf": "ink",
+              "type": "mask"
+            },
+            {
+              "a": "border",
+              "b": "mt",
+              "name": "gold",
+              "op": "max",
+              "type": "math"
+            },
+            {
+              "a": "#141210",
+              "b": "#ffd76e",
+              "c": "gold",
+              "name": "col",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "#000000",
+              "b": "#ffb830",
+              "c": "mt",
+              "name": "em",
+              "op": "mix",
+              "type": "math"
+            }
+          ],
+          "params": {},
+          "version": 7
+        },
+        "parent": 5,
+        "children": [],
+        "label": "~bo ~bi ~t1 ~t2"
+      }
+    ],
+    "current": 6
+  }
+}

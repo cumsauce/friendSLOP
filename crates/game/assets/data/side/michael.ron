@@ -1,0 +1,50 @@
+// The Michael Jackson Experience theatre (#the theatre behind the
+// brownstone, crates/side-nyc/src/features/michael.rs). Edit and save: the
+// running game picks it up within a second.
+(
+    // The brownstone's front door at the top of its stoop (x, z): walk into
+    // it and you're in the theatre's lobby. Two doors up from the surf
+    // brownstone (kit_brownstone_36 on the avenue's east side).
+    door: (23.6, 246.5),
+    // How close (metres) to the door takes you in.
+    door_reach: 1.8,
+    // Where you come back out: the sidewalk in front of the stoop (x, z).
+    street: (18.0, 245.5),
+    // Where the theatre hangs (its map origin, x, y, z): under the city,
+    // east of the commune (out of its loading reach), bigger on the inside than the brownstone.
+    theater_at: (220.0, -60.0, -40.0),
+    // Seconds of each dance move before he switches to the next
+    // (dance_groove -> dance_spin -> dance_kick -> dance_lean -> ...).
+    seconds_per_move: 8.0,
+    // Fart in the theatre and Michael hollers one of his voice lines
+    // (jokah.ron `clips`) from the stage: how loud (1 = as recorded).
+    fart_line_volume: 4.0,
+    // Seconds he takes to react before he hollers it.
+    fart_line_delay: 0.9,
+    // The stage lights: the truss rig's `rig_spot_*` spot lights (authored
+    // in the michael-theater document) sweep, change colour and pulse; the
+    // warm washes (`spot_pink`, `spot_blue`, `spot_stage`) pulse and sway.
+    stage: (
+        // How many rig spots cast shadows (the first ones). 0 = none.
+        // Off anyway when the shadows setting is off.
+        shadow_lights: 4,
+        // Seconds for a beam to sweep a full loop, and how far (m) it wanders
+        // from the stage across (x) and along (z) the house.
+        sweep_secs: 6.0,
+        sweep_x: 6.0,
+        sweep_z: 3.0,
+        // Seconds for a rig light to go round the whole colour wheel.
+        hue_secs: 10.0,
+        // Rig colour: saturation and lightness, 0..1.
+        saturation: 1.0,
+        lightness: 0.6,
+        // Seconds per brightness pulse, and how deep (0.5 = +-50%).
+        pulse_secs: 1.8,
+        pulse_depth: 0.35,
+        // How far (m) the warm washes sway about their aim.
+        wash_sway: 1.5,
+        // Multiplier on the authored brightness: the game's lamps are 100k+
+        // lumens (the fan museum's 120k), the theatre's were authored at 4-8k.
+        intensity_scale: 300.0,
+    ),
+)

@@ -1,0 +1,96 @@
+{
+  "name": "th-curtain",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "base_color": "shade",
+      "name": "out",
+      "roughness": 0.9,
+      "type": "output"
+    },
+    {
+      "name": "folds",
+      "octaves": 2,
+      "seed": 5,
+      "size": 0.35,
+      "type": "noise"
+    },
+    {
+      "input": "folds",
+      "name": "shade",
+      "stops": [
+        [
+          0,
+          "#4a0a14"
+        ],
+        [
+          0.5,
+          "#8c1a28"
+        ],
+        [
+          1,
+          "#a62334"
+        ]
+      ],
+      "type": "ramp"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "th-curtain",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "base_color": "shade",
+              "name": "out",
+              "roughness": 0.9,
+              "type": "output"
+            },
+            {
+              "name": "folds",
+              "octaves": 2,
+              "seed": 5,
+              "size": 0.35,
+              "type": "noise"
+            },
+            {
+              "input": "folds",
+              "name": "shade",
+              "stops": [
+                [
+                  0,
+                  "#4a0a14"
+                ],
+                [
+                  0.5,
+                  "#8c1a28"
+                ],
+                [
+                  1,
+                  "#a62334"
+                ]
+              ],
+              "type": "ramp"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+out +folds +shade"
+      }
+    ],
+    "current": 0
+  }
+}

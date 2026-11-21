@@ -366,14 +366,10 @@ fn day_night(
             }
         }
     }
-    // Somewhere with its own haze the screen clears to that haze, not the
-    // sky: a crack between pieces of a dark place (Fulton St) shows dark,
-    // not a flash of sky.
-    let clear = if lights.indoor_fog {
-        ClearColorConfig::Custom(lights.fog_color)
-    } else {
-        ClearColorConfig::Default
-    };
+    // The screen always clears to black: the sky is a model, so what shows
+    // through a crack in an interior (or past the world's edge) is black,
+    // never a flash of sky.
+    let clear = ClearColorConfig::Custom(Color::BLACK);
     for mut cam in &mut cameras {
         let same = match (&cam.clear_color, &clear) {
             (ClearColorConfig::Custom(a), ClearColorConfig::Custom(b)) => a == b,

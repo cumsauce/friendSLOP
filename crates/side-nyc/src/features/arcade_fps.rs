@@ -100,6 +100,9 @@ pub struct Gun {
     pub kick_deg: f32,
     pub kick_settle: f32,
     pub range: f32,
+    /// When (s into the reload) the mag drops out, the new one goes in and the bolt is charged: the
+    /// `fps-ak47` reload clip's events, where the sounds play.
+    pub reload_cues: (f32, f32, f32),
 }
 
 /// The bots.
@@ -546,8 +549,9 @@ struct Me {
     health: f32,
     mag: u32,
     reserve: u32,
-    /// Seconds left of a reload, if reloading.
+    /// Seconds left of a reload, if reloading, and how many of its sounds have played.
     reload: Option<f32>,
+    cue: u8,
     /// Seconds until the next shot may leave.
     cool: f32,
     /// Seconds until you are back, while dead.
@@ -907,6 +911,7 @@ fn lifecycle(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     time: Res<Time>,
+    assets: Option<Res<AssetServer>>,
     props: Query<Entity, With<MatchProp>>,
     sight: Sight,
     mut view: ResMut<FpsView>,
@@ -937,6 +942,7 @@ fn lifecycle(
                     mag: t.gun.mag,
                     reserve: t.gun.reserve,
                     reload: None,
+                    cue: 0,
                     cool: 0.0,
                     dead: None,
                     flash: 0.0,
@@ -1031,6 +1037,15 @@ fn lifecycle(
                     .id();
                 commands.entity(camera).add_child(gun);
             }
+            if let Some(assets) = &assets {
+                let load = |n: &str| assets.load(format!("audio/sfx/{n}.ogg"));
+                commands.insert_resource(FragSounds {
+                    shot: load("fps_rifle_shot"),
+                    mag_out: load("fps_mag_out"),
+                    mag_in: load("fps_mag_in"),
+                    bolt: load("fps_bolt"),
+                });
+            }
             view.first_person = true;
             busy.0 = false;
             m.0 = Some(run);
@@ -1063,10 +1078,7 @@ fn player_play(
     mut gun: Query<&mut Viewmodel>,
     mut clips: Query<&mut crate::rigged::RigClip, With<Viewmodel>>,
     sight: Sight,
-    (mut audio, mut shot): (
-        Option<ResMut<Assets<crate::sound::AudioSample>>>,
-        Local<Option<Handle<crate::sound::AudioSample>>>,
-    ),
+    sounds: Option<Res<FragSounds>>,
     toast: Option<ResMut<crate::hud::Toast>>,
 ) {
     let Some(me_id) = me else { return };
@@ -1180,6 +1192,22 @@ fn player_play(
     // Reload.
     if let Some(left) = run.me.reload.as_mut() {
         *left -= dt;
+        let done = t.gun.reload_secs - *left;
+        let cues = t.gun.reload_cues;
+        if let Some(sounds) = &sounds {
+            let (due, which) = match run.me.cue {
+                0 => (cues.0, &sounds.mag_out),
+                1 => (cues.1, &sounds.mag_in),
+                2 => (cues.2, &sounds.bolt),
+                _ => (f32::INFINITY, &sounds.bolt),
+            };
+            if done >= due {
+                crate::assets::play_sfx(&mut commands, which, 0.7);
+                run.me.cue += 1;
+            }
+        } else if done >= cues.2 {
+            run.me.cue = 3;
+        }
         if *left <= 0.0 {
             let need = t.gun.mag - run.me.mag;
             let take = need.min(run.me.reserve);
@@ -1193,6 +1221,7 @@ fn player_play(
         && run.me.reserve > 0
     {
         run.me.reload = Some(t.gun.reload_secs);
+        run.me.cue = 0;
         if let Ok(mut clip) = clips.single_mut() {
             clip.set_if_neq(crate::rigged::RigClip::once("reload").fade(0.05));
         }
@@ -1211,6 +1240,7 @@ fn player_play(
             run.me.cool = 0.3;
             if run.reserve_left() {
                 run.me.reload = Some(t.gun.reload_secs);
+                run.me.cue = 0;
                 if let Ok(mut clip) = clips.single_mut() {
                     clip.set_if_neq(crate::rigged::RigClip::once("reload").fade(0.05));
                 }
@@ -1259,8 +1289,8 @@ fn player_play(
             if let Ok(mut g) = gun.single_mut() {
                 g.clip_left = t.view.fire_secs;
             }
-            if let Some(sound) = shot_sound(&mut audio, &mut shot) {
-                crate::assets::play_sfx(&mut commands, &sound, 0.8);
+            if let Some(sounds) = &sounds {
+                crate::assets::play_sfx(&mut commands, &sounds.shot, 0.8);
             }
         }
     }
@@ -1288,10 +1318,7 @@ fn bots_play(
     )>,
     sight: Sight,
     sfx: Option<Res<crate::assets::Sfx>>,
-    (mut audio, mut shot): (
-        Option<ResMut<Assets<crate::sound::AudioSample>>>,
-        Local<Option<Handle<crate::sound::AudioSample>>>,
-    ),
+    sounds: Option<Res<FragSounds>>,
     mut busy: ResMut<HandsBusy>,
 ) {
     let Some(me_id) = me else { return };
@@ -1504,10 +1531,10 @@ fn bots_play(
                     dmg_to_bots.push((id, dmg, bot.id));
                 }
             }
-            if let Some(sound) = shot_sound(&mut audio, &mut shot) {
+            if let Some(sounds) = &sounds {
                 crate::spatial::play_at(
                     &mut commands,
-                    &sound,
+                    &sounds.shot,
                     tf.translation + Vec3::Y,
                     0.7,
                     crate::spatial::Carry::LOUD,
@@ -1562,20 +1589,14 @@ fn bots_play(
     }
 }
 
-/// The rifle's crack, made in code (a sharp crack and a low boom), so the
-/// machine never depends on a sample file or its sample rate.
-fn shot_sound(
-    audio: &mut Option<ResMut<Assets<crate::sound::AudioSample>>>,
-    slot: &mut Option<Handle<crate::sound::AudioSample>>,
-) -> Option<Handle<crate::sound::AudioSample>> {
-    if slot.is_none() {
-        let audio = audio.as_mut()?;
-        const RATE: u32 = 22_050;
-        *slot = Some(audio.add(crate::sound::wav_or_silence(
-            &crate::features::bear::wav_bytes(&crate::features::helicopter::gunshot(RATE), RATE),
-        )));
-    }
-    slot.clone()
+/// The machine's sounds (made with the sounder: `fps_rifle_shot`,
+/// `fps_mag_out`, `fps_mag_in`, `fps_bolt`).
+#[derive(Resource, Clone)]
+struct FragSounds {
+    shot: Handle<crate::sound::AudioSample>,
+    mag_out: Handle<crate::sound::AudioSample>,
+    mag_in: Handle<crate::sound::AudioSample>,
+    bolt: Handle<crate::sound::AudioSample>,
 }
 
 /// Turn `yaw` toward `want` by at most `step` radians.
@@ -1980,6 +2001,7 @@ mod tests {
             .init_asset::<Mesh>()
             .init_asset::<StandardMaterial>()
             .init_asset::<bevy::world_serialization::WorldAsset>()
+            .init_asset::<crate::sound::AudioSample>()
             .insert_resource(TimeUpdateStrategy::ManualDuration(
                 std::time::Duration::from_micros(16_667),
             ))

@@ -16,6 +16,7 @@ pub mod voice_chat {
 pub mod android_pad;
 pub mod areas;
 pub mod assets;
+pub mod clock;
 pub mod graphics;
 pub mod hud;
 pub mod input;
@@ -80,12 +81,16 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &rules::surf::TUNING,
         &rules::surf::COURSE,
         &rules::kori::EARNINGS,
+        &rules::quests::QUESTS,
+        &rules::quests::GIVERS,
+        &rules::quests::DIALOGUE,
         &textures::GLASS,
         &night_lights::NIGHT_LIGHTS,
         &place::LOOKS,
         &graphics::TUNING,
         &input::BINDINGS,
         &sites::SITES,
+        &clock::DAY_NIGHT,
         &areas::AREAS,
         &areas::BUDGET,
         &spatial::TUNING,

@@ -168,6 +168,11 @@ pub fn arrow_yaw(from: Vec2, to: Vec2) -> f32 {
 }
 
 pub fn protocol(app: &mut App) {
+    // The garden's quest giver stands at its gate.
+    crate::rules::quests::provide_anchor("lily_garden", || {
+        let g = garden_at(&tuning());
+        Vec3::new(g.x, crate::terrain::height_at(g.x, g.y), g.y)
+    });
     app.replicate::<LilyStory>()
         .add_client_event::<TalkToLily>(Channel::Ordered)
         .add_server_event::<LilyNews>(Channel::Ordered)
@@ -216,6 +221,9 @@ fn on_talk(
         Talk::Deliver(n) => {
             story.delivered += 1;
             story.carrier = None;
+            if story.delivered as usize >= t.letters.len() {
+                commands.trigger(crate::rules::quests::QuestSignal::new("lily_letters"));
+            }
             if let Some(l) = t.letters.get(n) {
                 commands.server_trigger(ToClients {
                     targets: SendTargets::All,

@@ -2,8 +2,8 @@
 //! and cheese: "simulate a full 6-player playthrough of the game. Use it to fix
 //! game design and make the rules cohesive. Keep every idea").
 //!
-//! A host and five clients play all five chapters through the real network
-//! protocol: six little bots walk to things (their bodies are placed, as in
+//! A host and five clients do every quest through the real network
+//! protocol: they walk up to each giver and say yes (`TalkChoice`), then six little bots walk to things (their bodies are placed, as in
 //! the other headless tests, since there's no physics here) and send exactly
 //! the requests a player's clicks and keys send. On the way they also do the
 //! things that aren't on the checklist (farting, the lex pile, Abuela, spells),
@@ -11,7 +11,9 @@
 //! landlord's clock all run as in the game, on a simulated clock.
 //!
 //! Run it with `cargo test -p friendslop --test playthrough -- --nocapture`
-//! to read the play log, with game minutes for every chapter.
+//! to read the play log, with game minutes for every quest. The New York
+//! quests are told their signals directly (their places have their own
+//! headless tests: `tests/it/quests.rs`).
 
 use std::time::Duration;
 
@@ -22,7 +24,6 @@ use bevy_replicon::prelude::*;
 use bevy_replicon::test_app::ServerTestAppExt;
 use friendslop::ProtocolPlugin;
 use friendslop::features::abuela::{Abuela, VisitAbuela, chair_at};
-use friendslop::features::campaign::{CHAPTERS, Campaign, Task, heaven_tiers};
 use friendslop::features::duel::{AnswerDuel, ChallengeDuel, DuelShoot, Duelist};
 use friendslop::features::fart::{Fart, Gas, npc_spots};
 use friendslop::features::fps::Walker;
@@ -36,6 +37,9 @@ use friendslop::features::objective::{Objective, RequestRestart};
 use friendslop::features::organ_currency::OrganPurse;
 use friendslop::features::pets::{AdoptPet, Pet, PetLure};
 use friendslop::features::punishment::{AttackMode, Strikes};
+use friendslop::features::quests::{
+    GIVERS, QUESTS, QuestLog, QuestSignal, QuestState, TalkChoice, tier,
+};
 use friendslop::features::sesbian_lex::{SesbianLex, SesbianLexToggle};
 use friendslop::features::smoking::{Stash, TakeEgg, VisitPaul, egg_spot, paul_spot};
 use friendslop::features::stats::Stats;
@@ -170,8 +174,8 @@ impl Sim {
         v
     }
 
-    fn campaign(&mut self) -> Campaign {
-        self.one::<Campaign>()
+    fn log(&mut self) -> QuestLog {
+        self.one::<QuestLog>()
     }
 
     fn frozen(&mut self) -> bool {
@@ -208,19 +212,107 @@ impl Sim {
         }
     }
 
+    /// How far the quest for `task` has got: (count, need) on its step, or
+    /// (need, need) once it's done.
     fn task_progress(&mut self, task: Task) -> Option<(u32, u32)> {
-        let c = self.campaign();
-        let i = c.current().tasks.iter().position(|&t| t == task)?;
-        Some((c.got(i), task.need()))
+        let book = QUESTS.get();
+        let log = self.log();
+        let q = book.get(task.quest())?;
+        let need = q.steps.last().map_or(1, |s| s.need);
+        if log.is_done(&q.id) {
+            return Some((need, need));
+        }
+        log.at_step(&book, &q.id).map(|(s, n)| (n, s.need))
     }
 
     fn task_done(&mut self, task: Task) -> bool {
-        let c = self.campaign();
-        c.current()
-            .tasks
-            .iter()
-            .position(|&t| t == task)
-            .is_none_or(|i| c.task_done(i))
+        let book = QUESTS.get();
+        self.log().counts_done(&book, task.quest())
+    }
+
+    /// Player 1 walks up to quest `id`'s giver and says yes. A giver who's
+    /// only out at night gets a night (the shared clock is set back).
+    fn take_on(&mut self, id: &str) {
+        let book = QUESTS.get();
+        let Some(q) = book.get(id).cloned() else {
+            panic!("no quest {id}");
+        };
+        let Some(g) = GIVERS.get().get(&q.giver).cloned() else {
+            panic!("no giver {}", q.giver);
+        };
+        self.wait_thaw();
+        let night = g.hours.map(|_| {
+            let day = friendslop::atmosphere::DAY_NIGHT.get();
+            let now = friendslop::settings::since_epoch().as_secs_f64();
+            let back = friendslop::atmosphere::elapsed_for(0.97, day.day_minutes, day.start_hour);
+            self.server
+                .world_mut()
+                .spawn((friendslop::atmosphere::DayStart(now - back), Replicated))
+                .id()
+        });
+        let at = g.place.at();
+        self.walk(1, at + Vec3::new(1.0, 0.0, 0.0));
+        self.run(0.6);
+        self.send(
+            1,
+            TalkChoice {
+                giver: q.giver.clone(),
+                quest: id.to_string(),
+                variant: None,
+            },
+        );
+        self.run(1.0);
+        if let Some(e) = night {
+            self.server.world_mut().despawn(e);
+        }
+        assert!(
+            self.log().is_active(id),
+            "{} gave {id}\n{}",
+            q.giver,
+            self.log.join("\n")
+        );
+        self.say(format!(
+            "player 1 takes on \"{}\" from {}",
+            q.title, q.giver
+        ));
+    }
+
+    /// Tell the quests something happened (a place with its own tests).
+    fn signal(&mut self, key: &str) {
+        self.server.world_mut().trigger(QuestSignal::new(key));
+        self.run(0.4);
+    }
+}
+
+/// The old checklist's jobs, and the quests they are now.
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Task {
+    Pack,
+    Mushroom(u32),
+    Halt(u32),
+    Tears(u32),
+    HideSeek(u32),
+    Duel(u32),
+    Abuela,
+    Burgers(u32),
+    Paul(u32),
+    Jegg(u32),
+}
+
+impl Task {
+    fn quest(self) -> &'static str {
+        match self {
+            Task::Pack => "pack",
+            Task::Mushroom(_) => "mushroom",
+            Task::Halt(_) => "halt",
+            Task::Tears(_) => "tears",
+            Task::HideSeek(_) => "hide_seek",
+            Task::Duel(_) => "duels",
+            Task::Abuela => "abuela",
+            Task::Burgers(_) => "burgers",
+            Task::Paul(_) => "paul",
+            Task::Jegg(_) => "jegg",
+        }
     }
 }
 
@@ -509,6 +601,7 @@ fn duels(sim: &mut Sim, n: u32) {
 
 fn landlord(sim: &mut Sim) {
     let start = sim.t;
+    let virtue_before = sim.per_player::<Morality>();
     let organs: u32 = sim
         .per_player::<OrganPurse>()
         .iter()
@@ -541,6 +634,19 @@ fn landlord(sim: &mut Sim) {
         },
         |s| s.one::<Tenancy>().act == Act3::Won,
     );
+    // Harming the landlord is always virtuous (#43): the group comes out
+    // better than it went in, and nobody worse.
+    let virtue_after = sim.per_player::<Morality>();
+    let sum = |v: &[(u64, Morality)]| v.iter().map(|(_, m)| m.0 as i64).sum::<i64>();
+    assert!(sum(&virtue_after) > sum(&virtue_before), "{virtue_after:?}");
+    for ((id, b), (_, a)) in virtue_before.iter().zip(&virtue_after) {
+        assert!(
+            a.0 >= b.0,
+            "player {id} harmed the landlord: {} -> {}",
+            b.0,
+            a.0
+        );
+    }
     let t = sim.one::<Tenancy>();
     let act1 = paid_until.unwrap_or(sim.t) - start;
     sim.say(format!(
@@ -774,49 +880,57 @@ fn side_quests(sim: &mut Sim, chapter: usize) {
     sim.walk_xz(visitor, Vec2::ZERO);
 }
 
-fn play_chapter(sim: &mut Sim) {
-    let c = sim.campaign();
-    let ch = c.current();
-    sim.say(format!("=== CHAPTER {}: {} ===", c.chapter + 1, ch.name));
+/// The need of quest `id`'s last step.
+fn need(id: &str) -> u32 {
+    QUESTS
+        .get()
+        .get(id)
+        .and_then(|q| q.steps.last().map(|s| s.need))
+        .unwrap_or(1)
+}
+
+/// Take quest `id` on and do it.
+fn play_quest(sim: &mut Sim, id: &str) {
     let start = sim.t;
-    side_quests(sim, c.chapter);
-    for &task in &ch.tasks {
-        match task {
-            Task::Pack => pack(sim),
-            Task::Mushroom(n) => mushrooms(sim, n),
-            Task::VaultDoor => open_vault(sim, 2),
-            Task::FireTotem => fire_totem(sim, 4),
-            Task::Halt(n) => halt(sim, n),
-            Task::Tears(n) => tears(sim, n),
-            Task::HideSeek(n) => hide_and_seek(sim, n),
-            Task::Duel(n) => duels(sim, n),
-            Task::Landlord => landlord(sim),
-            Task::Abuela => abuela(sim),
-            Task::Burgers(n) => burgers(sim, n),
-            Task::Paul(n) => paul(sim, n),
-            Task::Jegg(n) => jegg(sim, n),
+    sim.take_on(id);
+    match id {
+        "pack" => pack(sim),
+        "mushroom" => mushrooms(sim, need(id)),
+        "vault" => open_vault(sim, 2),
+        "fire_totem" => fire_totem(sim, 4),
+        "halt" => halt(sim, need(id)),
+        "tears" => tears(sim, need(id)),
+        "hide_seek" => hide_and_seek(sim, need(id)),
+        "duels" => duels(sim, need(id)),
+        "landlord" => landlord(sim),
+        "abuela" => abuela(sim),
+        "burgers" => burgers(sim, need(id)),
+        "paul" => paul(sim, need(id)),
+        "jegg" => jegg(sim, need(id)),
+        "michael" => {
+            sim.signal("michael_watched");
+            sim.signal("michael_toot");
         }
-        assert!(
-            sim.task_done(task),
-            "{task:?} should be ticked\n{}",
-            sim.log.join("\n")
-        );
+        "andrew" => sim.signal("andrew_date:second_date"),
+        "factory_bump" => {
+            sim.signal("factory_in");
+            sim.signal("factory_bump");
+        }
+        "wallet" => sim.signal("wallet_back"),
+        "ice_cream" => sim.signal("ice_cream_fixed"),
+        "lily" => sim.signal("lily_letters"),
+        other => panic!("the bots don't know how to do {other}"),
     }
     sim.run(1.0);
-    assert!(sim.one::<Objective>().over, "the chapter is over");
-    let c = sim.campaign();
-    let morality: Vec<String> = sim
-        .per_player::<Morality>()
-        .iter()
-        .map(|(id, m)| format!("p{id} {:+}", m.0))
-        .collect();
+    assert!(
+        sim.log().is_done(id),
+        "{id} should be done\n{}",
+        sim.log.join("\n")
+    );
+    let (done, total) = tier(&sim.log());
     sim.say(format!(
-        "chapter {} done in {:.1} min, Heaven Pass tier {}/{}; morality {}",
-        c.chapter + 1,
-        (sim.t - start) / 60.0,
-        c.tier(),
-        heaven_tiers(),
-        morality.join(" ")
+        "\"{id}\" done in {:.1} min, Heaven Pass {done}/{total}",
+        (sim.t - start) / 60.0
     ));
 }
 
@@ -826,40 +940,55 @@ fn six_friends_free_the_commune_and_get_into_heaven() {
     assert_eq!(sim.all::<Player>().len(), PLAYERS as usize);
     let stats_at_start = sim.per_player::<Stats>();
 
-    for chapter in 0..CHAPTERS.get().len() {
-        assert_eq!(sim.campaign().chapter, chapter);
-        play_chapter(&mut sim);
-        if chapter + 1 < CHAPTERS.get().len() {
-            // The tears rained only once (#43): the ones used stay used.
-            let left = sim.all::<GodsTear>().len();
-            sim.until(
-                "press Enter for the next chapter",
-                60.0,
-                |s| s.send(5, RequestRestart),
-                |s| s.campaign().chapter == chapter + 1,
-            );
-            sim.run(1.0);
-            assert_eq!(
-                sim.all::<GodsTear>().len(),
-                left,
-                "no new tears fall between chapters"
-            );
+    // Everyone starts with no quests and some people asking.
+    assert_eq!(sim.log().done_count(&QUESTS.get()), 0);
+    for round in 0..3 {
+        side_quests(&mut sim, round);
+    }
+    // Do whatever's on offer until nothing is (quests unlock as others finish).
+    for _ in 0..QUESTS.get().quests.len() {
+        let book = QUESTS.get();
+        let log = sim.log();
+        let offered: Vec<String> = book
+            .quests
+            .iter()
+            .filter(|q| log.state(&q.id) == QuestState::Available)
+            .map(|q| q.id.clone())
+            .collect();
+        if offered.is_empty() {
+            break;
+        }
+        for id in offered {
+            play_quest(&mut sim, &id);
         }
     }
 
     // The finale: the Commune is free and everyone got into heaven.
-    let c = sim.campaign();
-    assert!(c.finale(), "chapter five ends the campaign");
-    assert_eq!(c.tier(), heaven_tiers(), "the Heaven Pass is maxed out");
+    let book = QUESTS.get();
+    let log = sim.log();
+    assert!(log.finale(&book), "every quest done ends the campaign");
+    sim.run(1.0);
+    assert!(sim.one::<Objective>().over, "the round is over");
+    assert_eq!(
+        tier(&log).0,
+        book.quests.len(),
+        "the Heaven Pass is maxed out"
+    );
+    let coins: Vec<u32> = sim
+        .per_player::<friendslop::rules::kori::KoriCoins>()
+        .iter()
+        .map(|(_, k)| k.0)
+        .collect();
+    assert!(
+        coins.iter().all(|&c| c >= book.quests.len() as u32),
+        "every quest paid everyone a KoriCoin: {coins:?}"
+    );
     assert_eq!(
         sim.per_player::<Stats>(),
         stats_at_start,
         "stats are rolled when you join, and stay yours all campaign"
     );
-    assert!(
-        sim.per_player::<Morality>().iter().all(|(_, m)| m.0 > 0),
-        "everyone harmed the landlord a lot: always virtuous (#43)"
-    );
+
     sim.say("THE COMMUNE IS FREE. Everyone gets into heaven.");
 
     // Enter starts a brand-new campaign: a fresh world, tears and all.
@@ -867,7 +996,7 @@ fn six_friends_free_the_commune_and_get_into_heaven() {
         "start again",
         60.0,
         |s| s.send(0, RequestRestart),
-        |s| s.campaign().chapter == 0,
+        |s| s.log().done_count(&QUESTS.get()) == 0,
     );
     sim.run(1.0);
     assert_eq!(

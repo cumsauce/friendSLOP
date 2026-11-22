@@ -1,18 +1,18 @@
-//! Headless: finishing the chapter (beating the landlord and the rest of the
-//! checklist) ends the round, and a restart resets it.
+//! Headless: finishing every quest (beating the landlord is one) ends the
+//! round, and a restart starts a new campaign.
 
 use bevy::prelude::*;
 use bevy::state::app::StatesPlugin;
 use bevy_replicon::prelude::*;
 use bevy_replicon::test_app::ServerTestAppExt;
 use friendslop::ProtocolPlugin;
-use friendslop::features::campaign::Campaign;
 use friendslop::features::gods_tears::{GodsTear, Transformation};
 use friendslop::features::halt::Halt;
 use friendslop::features::landlord::{Act3, Tenancy};
 use friendslop::features::morality::Morality;
 use friendslop::features::objective::{Objective, RequestRestart};
 use friendslop::features::organ_currency::{OrganPurse, starting_purse};
+use friendslop::features::quests::{QUESTS, QuestLog, QuestState};
 use friendslop::player::Player;
 
 fn peer() -> App {
@@ -80,9 +80,11 @@ fn defeating_the_landlord_then_restarting_resets_the_round() {
         for mut t in world.query::<&mut Transformation>().iter_mut(world) {
             t.0 = 4;
         }
-        // The rest of the chapter's checklist (#75).
-        for mut c in world.query::<&mut Campaign>().iter_mut(world) {
-            c.observe(|t| t.need());
+        // Every other quest, too.
+        for mut l in world.query::<&mut QuestLog>().iter_mut(world) {
+            for s in l.quests.values_mut() {
+                *s = QuestState::Done;
+            }
         }
     }
     exchange(&mut server, &mut client, 3);
@@ -112,14 +114,14 @@ fn defeating_the_landlord_then_restarting_resets_the_round() {
     let halt: Vec<Halt> = world.query::<&Halt>().iter(world).copied().collect();
     assert_eq!(halt.len(), 1);
     assert_eq!((halt[0].escape, halt[0].escapes), (0, 0));
-    // The tears rained only once (#43): a new chapter doesn't bring them back,
-    // and what they did to you (and your conscience) carries over. Only a new
-    // campaign, after the finale, is a new world (#135).
+    // After the finale it's a new campaign: a new world (#135). The tears
+    // fall again, what they did to you and your conscience start over, and
+    // the quests are all on offer again.
     let tears = world.query::<&GodsTear>().iter(world).count();
     assert_eq!(
         tears,
-        friendslop::features::gods_tears::tuning().total_tears as usize - 5,
-        "used tears stay used"
+        friendslop::features::gods_tears::tuning().total_tears as usize,
+        "the tears fall again"
     );
     let players = world.query::<&Player>().iter(world).count();
     assert_eq!(players, 2);
@@ -129,21 +131,14 @@ fn defeating_the_landlord_then_restarting_resets_the_round() {
             .iter(world)
             .all(|p| *p == starting_purse())
     );
-    assert!(world.query::<&Morality>().iter(world).all(|m| m.0 == 42));
+    assert!(world.query::<&Morality>().iter(world).all(|m| m.0 == 0));
     assert!(
         world
             .query::<&Transformation>()
             .iter(world)
-            .all(|t| t.0 == 4)
+            .all(|t| t.0 == 0)
     );
-}
-
-#[test]
-fn restart_is_ignored_mid_round() {
-    let (mut server, mut client) = (peer(), peer());
-    server.connect_client(&mut client);
-    exchange(&mut server, &mut client, 3);
-    client.world_mut().client_trigger(RequestRestart);
-    exchange(&mut server, &mut client, 3);
-    assert_eq!(objective(&mut client).round, 1);
+    let logs: Vec<QuestLog> = world.query::<&QuestLog>().iter(world).cloned().collect();
+    assert_eq!(logs.len(), 1);
+    assert_eq!(logs[0].done_count(&QUESTS.get()), 0, "a fresh quest log");
 }

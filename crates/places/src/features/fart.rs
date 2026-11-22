@@ -185,6 +185,14 @@ fn let_rip(
     release(&mut commands, player.id, &mut gas, at, &npcs, radius);
 }
 
+/// Server only: `player` farted at `at` (the server's own copy of [`Farted`],
+/// for features that judge it: Michael's quest).
+#[derive(Event, Clone, Copy, Debug, PartialEq)]
+pub struct Tooted {
+    pub player: u64,
+    pub at: Vec2,
+}
+
 /// Server: let `player`'s gas go at `at`, judged by the NPCs at `npcs`, and tell everyone.
 fn release(
     commands: &mut Commands,
@@ -196,6 +204,8 @@ fn release(
 ) {
     let pressure = gas.0;
     gas.0 = 0;
+    commands.trigger(Tooted { player, at });
+    commands.trigger(crate::rules::quests::QuestSignal::new("toot"));
     commands.server_trigger(ToClients {
         targets: SendTargets::All,
         message: Farted {

@@ -19,6 +19,7 @@ pub use friendslop_base::ui::*;
 pub mod annotations;
 pub mod chapter;
 pub mod danger;
+pub mod dialogue;
 pub mod feed;
 pub mod journal;
 pub mod kit;
@@ -118,7 +119,7 @@ pub fn plugin(app: &mut App) {
             prompt::plugin,
             journal::plugin,
             map::plugin,
-            chapter::plugin,
+            (chapter::plugin, dialogue::plugin),
             settings_panel::plugin,
             menu_back::plugin,
             pause::plugin,

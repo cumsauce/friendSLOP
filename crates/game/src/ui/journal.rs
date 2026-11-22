@@ -252,7 +252,7 @@ fn keys(
 ) {
     let tab_held = keys.pressed(KeyCode::Tab);
     // Esc goes to the chapter intro first when it's up.
-    let esc = keys.just_pressed(KeyCode::Escape) && !overlay.intro;
+    let esc = keys.just_pressed(KeyCode::Escape) && !overlay.intro && !overlay.talk;
     let (kept, tab) = keys_to_journal(
         journal.kept,
         journal.tab,

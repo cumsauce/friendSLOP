@@ -26,6 +26,7 @@ pub mod house_odds;
 pub mod kori;
 pub mod morality;
 pub mod nyc;
+pub mod quests;
 pub mod skills;
 pub mod stats;
 pub mod surf;

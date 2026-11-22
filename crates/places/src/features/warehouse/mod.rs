@@ -261,6 +261,8 @@ struct MonsterBrain {
 }
 
 pub fn protocol(app: &mut App) {
+    // Jegg gives a quest too (the marker floats over him).
+    crate::rules::quests::provide_anchor("jegg", jegg_at);
     claim_ground();
     app.replicate::<Warehouse>()
         .replicate::<SoulPiece>()

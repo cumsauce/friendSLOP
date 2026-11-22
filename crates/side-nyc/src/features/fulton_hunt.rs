@@ -1118,12 +1118,12 @@ const SHUT_BEHIND: f32 = CLIMB_WAIT + CLIMB_SECS + 0.05;
 /// Server: a player climbing into (`into`) or out of a locker, moved from
 /// `from` to `to`; `t` counts up from 0. Pinned (`Hiding`) all the way.
 #[derive(Component, Debug)]
-struct Climbing {
-    from: Vec3,
-    to: Vec3,
-    t: f32,
+pub(super) struct Climbing {
+    pub(super) from: Vec3,
+    pub(super) to: Vec3,
+    pub(super) t: f32,
     /// The hiding spot when climbing in (you're hidden once you're there).
-    into: Option<Vec3>,
+    pub(super) into: Option<Vec3>,
 }
 
 /// Where a climb that started `t` seconds ago has got to: waits for the door,
@@ -1158,7 +1158,7 @@ pub fn in_bank(spot: Vec3, middle: Vec3) -> bool {
 /// Server: a player a hunter has hold of while its kill plays. Pinned
 /// (`Hiding`) until it's over.
 #[derive(Component, Debug)]
-struct Held;
+pub(super) struct Held;
 
 /// Where the victim is held while a hunter at `hunter` kills them: `reach`
 /// in front of it, on its floor, towards where they were. Also the yaw the
@@ -1179,12 +1179,12 @@ pub fn hold_at(hunter: Vec3, victim: Vec3, reach: f32) -> (Vec3, f32, f32) {
 
 /// Server: who's had which calls, who's sent for, who's hiding.
 #[derive(Resource, Default)]
-struct Hunted {
-    calls: HashMap<u64, usize>,
+pub(super) struct Hunted {
+    pub(super) calls: HashMap<u64, usize>,
     /// Seconds until the hunter arrives for this player.
-    coming: HashMap<u64, f32>,
-    hiding: HashMap<u64, Vec3>,
-    ticks: u32,
+    pub(super) coming: HashMap<u64, f32>,
+    pub(super) hiding: HashMap<u64, Vec3>,
+    pub(super) ticks: u32,
 }
 
 pub fn protocol(app: &mut App) {
@@ -1195,7 +1195,7 @@ pub fn protocol(app: &mut App) {
         .init_resource::<Hunted>()
         .add_systems(
             Update,
-            (calls, hunt, climb)
+            (calls, hunt)
                 .chain()
                 // The ears follow the sounds the noise system gathered.
                 .after(crate::features::noise::NoiseSet)
@@ -1203,6 +1203,14 @@ pub fn protocol(app: &mut App) {
                 // The phones and the hunters are under New York (#412).
                 .run_if(crate::sites::awake("nyc"))
                 .run_if(resource_exists::<Station>),
+        )
+        // The climb into a locker is shared with the carved station.
+        .add_systems(
+            Update,
+            climb
+                .after(hunt)
+                .run_if(in_state(ServerState::Running))
+                .run_if(super::fulton_carved::awake_either()),
         );
 }
 
@@ -1210,7 +1218,7 @@ fn client_of(owner: &PlayerOwner) -> ClientId {
     owner.0.map_or(ClientId::Server, ClientId::Client)
 }
 
-fn tell(commands: &mut Commands, owner: &PlayerOwner, what: Phone) {
+pub(super) fn tell(commands: &mut Commands, owner: &PlayerOwner, what: Phone) {
     commands.server_trigger(ToClients {
         targets: SendTargets::Single(client_of(owner)),
         message: what,
@@ -1381,6 +1389,7 @@ fn hunt(
                 );
                 commands.entity(pe).remove::<(Hiding, Held)>();
                 tell(&mut commands, owner, Phone::Caught);
+                commands.trigger(crate::rules::quests::QuestSignal::new("fulton_caught"));
             }
             if brain.victim == Some(brain.target) {
                 commands.entity(e).despawn();
@@ -1473,6 +1482,10 @@ fn hide(
     };
     if climbing || held {
         return; // already climbing in or out, or it has you
+    }
+    // The carved station has its own lockers (`fulton_carved_hunt`).
+    if super::fulton_carved::inside(w.pos) {
+        return;
     }
     let t = tuning();
     if let Some(spot) = hunted.hiding.remove(&p.id) {
@@ -1632,7 +1645,7 @@ pub fn plugin(app: &mut App) {
                 hunter_opens_lockers,
             )
                 .run_if(in_state(AppState::InGame))
-                .run_if(crate::sites::here("nyc")),
+                .run_if(super::fulton_carved::here_either()),
         )
         // Runs everywhere in the game so a kill that ends off the site (you
         // wake up on the street) still hands your eyes back.
@@ -1943,17 +1956,18 @@ fn set_text<F: bevy::ecs::query::QueryFilter>(q: &mut Query<&mut Text, F>, s: &s
 
 /// A locker you can click to climb into.
 #[derive(Component)]
-struct Locker;
+pub(super) struct Locker;
 
 /// A locker's door (the rigged model), which swings open and shut.
 #[derive(Component)]
-struct LockerDoor {
-    /// Which of the bank's doors (index into `LOCKER_DOORS_X`).
-    index: usize,
+pub(super) struct LockerDoor {
+    /// Which of the bank's doors (index into `LOCKER_DOORS_X`); in the
+    /// carved map, which locker marker.
+    pub(super) index: usize,
 }
 
 /// How far in front of the locker's middle its door face is (m).
-const LOCKER_FACE: f32 = 0.31;
+pub(super) const LOCKER_FACE: f32 = 0.31;
 /// Seconds an opened door stays open after you climb out.
 const CLOSE_AFTER: f32 = 2.5;
 

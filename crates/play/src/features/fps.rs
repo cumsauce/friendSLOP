@@ -630,7 +630,8 @@ fn walk_controls(
         view.yaw = w.yaw;
         view.synced = true;
     }
-    let grab = view.first_person && !view.released;
+    // A talk wants the pointer for its choices.
+    let grab = view.first_person && !view.released && !overlay.as_ref().is_some_and(|o| o.talk);
     let want = if grab {
         CursorGrabMode::Locked
     } else {

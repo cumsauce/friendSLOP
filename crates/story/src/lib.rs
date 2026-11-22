@@ -1,4 +1,4 @@
-//! friendSLOP game layer: The campaign and the features that tie the game together.
+//! friendSLOP game layer: The quests and the features that tie the game together.
 //!
 //! See "Crates" in AGENTS.md. Modules keep their old `crate::` paths:
 //! the shared modules below are re-exported from the crates under this one.
@@ -17,7 +17,6 @@ pub mod features {
     pub use friendslop_play::features::*;
     pub use friendslop_village::features::*;
     pub mod abuela;
-    pub mod campaign;
     pub mod gamble;
     pub mod gods_tears;
     pub mod halt;
@@ -25,6 +24,8 @@ pub mod features {
     pub mod mushroom;
     pub mod objective;
     pub mod pets;
+    pub mod quest_givers;
+    pub mod quests;
     pub mod save;
     pub mod totems;
 }
@@ -39,7 +40,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::landlord::TUNING,
         &features::mushroom::TUNING,
         &features::pets::TUNING,
-        &features::campaign::CHAPTERS,
         &features::abuela::LINES,
     ]
 }

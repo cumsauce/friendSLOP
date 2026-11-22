@@ -5,6 +5,7 @@
 //! ([`places`]). No game code (see "Crates" in AGENTS.md).
 
 pub mod buildings;
+pub mod collision;
 pub mod footprints;
 pub mod holes;
 pub mod landmarks;

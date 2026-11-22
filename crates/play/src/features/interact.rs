@@ -411,7 +411,7 @@ fn click(
         return;
     }
     // Clicks on the open journal or settings are for them, not the world.
-    if overlay.is_some_and(|o| o.journal || o.settings) {
+    if overlay.is_some_and(|o| o.journal || o.settings || o.talk) {
         return;
     }
     let Some(me) = me else { return };

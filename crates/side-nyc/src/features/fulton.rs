@@ -3563,11 +3563,15 @@ fn dress_terminals(t: &Tuning, set: &TileSet, li: usize, level: &mut Level) {
     else {
         return;
     };
-    let plain_end = |i: u8| {
-        set.pieces
-            .get(i as usize)
-            .is_some_and(|p| p.open.len() == 1 && p.track.is_empty() && !p.hide && !p.terminal)
+    let dead_end = |i: u8, lockers: bool| {
+        set.pieces.get(i as usize).is_some_and(|p| {
+            p.open.len() == 1 && p.track.is_empty() && !p.terminal && (p.hide == lockers)
+        })
     };
+    // Every dead end that could take one: plain ones, and the lockers ones
+    // as a last resort.
+    let mut plain = Vec::new();
+    let mut lockers = Vec::new();
     for z in 0..level.depth {
         for x in 0..level.width {
             let i = z * level.width + x;
@@ -3577,17 +3581,37 @@ fn dress_terminals(t: &Tuning, set: &TileSet, li: usize, level: &mut Level) {
             };
             let c = (x, z);
             if f.track != 0
-                || !plain_end(p)
                 || c == level.arrive
                 || c == level.goal
                 || level.rubble[i] != 0
                 || level.squeeze[i] != 0
                 || level.stairs[i] != 0
                 || level.sunk[i]
-                || dress_roll(t, [li, x, z, 0x7e12]) >= chance
             {
                 continue;
             }
+            if dead_end(p, false) {
+                plain.push(i);
+            } else if dead_end(p, true) {
+                lockers.push(i);
+            }
+        }
+    }
+    let mut placed = 0;
+    for &i in &plain {
+        let (x, z) = (i % level.width, i / level.width);
+        if dress_roll(t, [li, x, z, 0x7e12]) < chance {
+            level.cells[i].kind = Kind::Corridor(Some(term));
+            placed += 1;
+        }
+    }
+    // Every level has at least one, so Andrew is never far (his quest sends
+    // you looking): a dead end picked from the seed.
+    if placed == 0 {
+        let pool = if plain.is_empty() { &lockers } else { &plain };
+        if !pool.is_empty() {
+            let pick = (dress_roll(t, [li, 0, 0, 0x7e13]) * pool.len() as f32) as usize;
+            let i = pool[pick.min(pool.len() - 1)];
             level.cells[i].kind = Kind::Corridor(Some(term));
         }
     }
@@ -5377,6 +5401,8 @@ pub struct LeaveStation {
 pub fn protocol(app: &mut App) {
     // The entrance's stairs go down through a real hole in the street.
     friendslop_world::holes::provide(holes);
+    // Quest givers wait on the sidewalk by the entrance.
+    crate::rules::quests::provide_anchor("fulton_street", || street_at(&tuning()));
     app.add_client_event::<LeaveStation>(Channel::Ordered)
         .add_observer(leave)
         .init_resource::<Rewarded>()
@@ -5414,11 +5440,30 @@ fn put(
 }
 
 /// Server: walk into the entrance and you're on the station's top level.
-fn go_down(station: Res<Station>, mut bodies: Query<Body>) {
+fn go_down(
+    station: Res<Station>,
+    mut bodies: Query<Body>,
+    mut cover: MessageWriter<friendslop_base::areas::Cover>,
+) {
     let t = tuning();
+    // The carved map (fulton_carved.ron `enabled`) or the generated station.
+    let carved = super::fulton_carved::enabled()
+        .then(super::fulton_carved::arrival)
+        .flatten();
     for (_, mut walker, input, kcc) in &mut bodies {
         if entering(&t, walker.pos) {
-            put(start_at(&t, station.levels()), &mut walker, input, kcc);
+            if let Some((to, yaw)) = carved {
+                cover.write(friendslop_base::areas::Cover);
+                teleport(
+                    &mut walker,
+                    input.map(|i| i.into_inner()),
+                    kcc.map(|k| k.into_inner()),
+                    to + Vec3::Y * 0.05,
+                    yaw,
+                );
+            } else {
+                put(start_at(&t, station.levels()), &mut walker, input, kcc);
+            }
         }
     }
 }

@@ -568,10 +568,6 @@ pub const GLOBALS: &[(&str, &str)] = &[
     ("crates/play/src/features/stats.rs", "replicated stats"),
     ("crates/play/src/features/fate.rs", "replicated fate"),
     (
-        "crates/story/src/features/campaign.rs",
-        "replicated campaign",
-    ),
-    (
         "crates/story/src/features/objective.rs",
         "replicated objective",
     ),

@@ -1121,6 +1121,7 @@ fn challenge_keys(
     players: Query<&Player>,
     duelists: Query<(), With<Duelist>>,
     mut view: ResMut<DuelView>,
+    busy: Option<Res<crate::features::fps::HandsBusy>>,
 ) {
     crate::input::switch(&mut ctx, "duel_invite", view.challenged_by.is_some());
     if let Some(from) = view.challenged_by {
@@ -1138,6 +1139,10 @@ fn challenge_keys(
     }
     if !duelists.is_empty() {
         view.challenged_by = None;
+        return;
+    }
+    // Number keys are someone else's while your hands are busy (a talk, a date).
+    if busy.is_some_and(|b| b.0) {
         return;
     }
     let others = others(me.as_deref(), &players);

@@ -78,6 +78,8 @@
         (id: "fps", binds: [("West", "fps_reload"), ("East", "arcade_quit")], prompt: ["fps_reload", "arcade_quit"]),
         (id: "asleep", binds: [("South", "sleep")], prompt: ["sleep"]),
         (id: "surf", binds: [("West", "surf_reset")], prompt: ["surf_reset"]),
+        // Talking to a quest giver: the pad's A says the focused reply.
+        (id: "dialogue", binds: [("East", "back")], prompt: ["back"]),
     ],
     // The action wheel (hold RB): pages of up to 8, clockwise from the top.
     // LB flips the page while it's open.

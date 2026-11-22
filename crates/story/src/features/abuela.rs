@@ -96,6 +96,8 @@ pub struct AbuelaSays {
 }
 
 pub fn protocol(app: &mut App) {
+    // Abuela gives a quest too (the marker floats over her chair).
+    crate::rules::quests::provide_anchor("abuela", chair_at);
     app.replicate::<Abuela>()
         .add_client_event::<VisitAbuela>(Channel::Ordered)
         .add_server_event::<AbuelaSays>(Channel::Ordered)

@@ -176,8 +176,15 @@ pub fn protocol(app: &mut App) {
         .add_observer(reset_tenancy)
         .add_client_event::<BotherLandlord>(Channel::Ordered)
         .add_observer(bother_landlord)
+        .add_observer(fresh_tenancy)
         .add_systems(OnEnter(ServerState::Running), raise_the_rent)
-        .add_systems(Update, tick_tenancy.run_if(in_state(ServerState::Running)));
+        // He's only after you while his quest is on the list.
+        .add_systems(
+            Update,
+            tick_tenancy
+                .run_if(in_state(ServerState::Running))
+                .run_if(crate::rules::quests::active("landlord")),
+        );
 }
 
 /// The inciting incident.
@@ -214,8 +221,17 @@ fn bother_landlord(
     players: Query<(Entity, &PlayerOwner)>,
     walkers: Query<(&PlayerOwner, &Walker)>,
     mut purses: Query<&mut OrganPurse>,
+    log: Query<&crate::rules::quests::QuestLog>,
 ) {
     if is_frozen(&still) {
+        return;
+    }
+    if log.iter().next().is_some_and(|l| !l.is_active("landlord")) {
+        crate::features::interact::deny(
+            &mut commands,
+            ev.client_id,
+            "He's not interested in you. Yet. (The organiser at parliament has a plan.)",
+        );
         return;
     }
     if !in_reach(&mut commands, ev.client_id, &walkers, landlord_at()) {
@@ -347,9 +363,12 @@ fn show_tenancy(
     tenancy: Query<&Tenancy>,
     mut text: Query<(&mut Text, &mut crate::hud::Calm), With<TenancyText>>,
     mut body: Query<(&mut Transform, &mut RigClip), With<LandlordBody>>,
+    log: Query<&crate::rules::quests::QuestLog>,
 ) {
     let Ok(t) = tenancy.single() else { return };
-    let want = describe(t);
+    // The rent line is only up while his quest is on your list.
+    let on = log.iter().next().is_none_or(|l| l.is_active("landlord"));
+    let want = if on { describe(t) } else { String::new() };
     // Quiet: up near the landlord, while the raise is close or in the boss
     // fight, and for a moment when the rent or what's paid changes (not every
     // tick of the countdown).
@@ -412,6 +431,16 @@ fn click_landlord(
         return;
     }
     commands.client_trigger(BotherLandlord);
+}
+
+/// His quest was just taken on: a fresh tenancy, from the first raise.
+fn fresh_tenancy(ev: On<crate::rules::quests::QuestStarted>, mut tenancy: Query<&mut Tenancy>) {
+    if ev.0 != "landlord" {
+        return;
+    }
+    for mut t in &mut tenancy {
+        *t = Tenancy::default();
+    }
 }
 
 /// New round: back to right after the inciting incident.

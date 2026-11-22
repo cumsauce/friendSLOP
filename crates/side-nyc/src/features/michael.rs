@@ -150,8 +150,70 @@ pub fn in_theater(at: Vec3) -> bool {
 
 pub fn protocol(app: &mut App) {
     // The theatre has no messages of its own: walking in and out is the
-    // server's job, like Penn's doors.
-    let _ = app;
+    // server's job, like Penn's doors. Its quest (impress Michael) is told
+    // who watched the show and who tooted in the house.
+    app.add_observer(toot_for_michael).add_systems(
+        Update,
+        watch_the_show
+            .run_if(in_state(ServerState::Running))
+            .run_if(crate::sites::awake("michael_theater")),
+    );
+    crate::rules::quests::provide_anchor("michael_street", street_at);
+    crate::rules::quests::provide_anchor("michael_lobby", lobby_at);
+}
+
+/// Is a body with feet at `feet` in the house (world)?
+pub fn in_house(feet: Vec3) -> bool {
+    let at = theater_at();
+    in_theater(feet - at) && (feet.y - at.y).abs() < 12.0
+}
+
+/// Seconds of the show someone has to watch before it counts.
+pub const WATCH_SECS: f32 = 30.0;
+
+/// Server: everyone in the house is watching Michael; after [`WATCH_SECS`]
+/// they've seen the show (`michael_watched`).
+fn watch_the_show(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut watched: Local<bevy::platform::collections::HashMap<u64, f32>>,
+    walkers: Query<(&crate::player::Player, &crate::features::fps::Walker)>,
+) {
+    let dt = time.delta_secs();
+    for (p, w) in &walkers {
+        let secs = watched.entry(p.id).or_default();
+        if !in_house(w.pos) {
+            *secs = 0.0;
+            continue;
+        }
+        let before = *secs;
+        *secs += dt;
+        if before < WATCH_SECS && *secs >= WATCH_SECS {
+            commands.trigger(crate::rules::quests::QuestSignal::new("michael_watched"));
+        }
+    }
+}
+
+/// Server: a toot in the house is for Michael (`michael_toot`), and one with
+/// nobody else near is a discreet one (`michael_toot_alone`).
+fn toot_for_michael(
+    ev: On<crate::features::fart::Tooted>,
+    mut commands: Commands,
+    walkers: Query<(&crate::player::Player, &crate::features::fps::Walker)>,
+) {
+    let Some((_, me)) = walkers.iter().find(|(p, _)| p.id == ev.player) else {
+        return;
+    };
+    if !in_house(me.pos) {
+        return;
+    }
+    commands.trigger(crate::rules::quests::QuestSignal::new("michael_toot"));
+    let alone = walkers
+        .iter()
+        .all(|(p, w)| p.id == ev.player || w.pos.distance(me.pos) > 6.0);
+    if alone {
+        commands.trigger(crate::rules::quests::QuestSignal::new("michael_toot_alone"));
+    }
 }
 
 // ------------------------------------------------------------------ build

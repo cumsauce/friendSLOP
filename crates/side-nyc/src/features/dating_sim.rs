@@ -2,16 +2,18 @@
 //!
 //! Click a computer terminal in the Fulton St station to go on a date with Andrew. It is a tiny visual novel: he says
 //! something, you pick a reply (1-4), your answers add up to an affection
-//! score, and the score decides how the date ends. Purely local: nothing is
-//! sent to anyone. Esc walks away. The script is
+//! score, and the score decides how the date ends. The date itself is local;
+//! only how it ended goes to the server ([`DateEnded`]), for Andrew's quest
+//! (`andrew_date:<ending>`, e.g. `andrew_date:second_date`). Esc walks away. The script is
 //! `assets/data/side/dating_sim.ron`; the rules are pure functions
 //! ([`Date::choose`], [`ending`]) so they are tested without a window.
 
 use std::collections::BTreeMap;
 
 use bevy::prelude::*;
+use bevy_replicon::prelude::*;
 use friendslop_base::areas::AreaApp as _;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::AppState;
 use crate::features::fps::HandsBusy;
@@ -124,6 +126,38 @@ pub fn render(script: &Script, date: &Date) -> String {
     out
 }
 
+/// Client -> server: my date with Andrew ended with `ending` (its title).
+#[derive(Event, Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub struct DateEnded {
+    pub ending: String,
+}
+
+/// The quest signal for an ending: `andrew_date:wall_husband`.
+pub fn ending_signal(title: &str) -> String {
+    let slug: String = title
+        .trim()
+        .to_lowercase()
+        .chars()
+        .map(|c| if c.is_alphanumeric() { c } else { '_' })
+        .collect();
+    format!("andrew_date:{slug}")
+}
+
+pub fn protocol(app: &mut App) {
+    app.add_client_event::<DateEnded>(Channel::Ordered)
+        .add_observer(date_ended);
+}
+
+/// Server: tell the quests how a date ended (only endings the script has).
+fn date_ended(ev: On<FromClient<DateEnded>>, mut commands: Commands) {
+    let script = SCRIPT.get();
+    if script.endings.iter().any(|e| e.title == ev.message.ending) {
+        commands.trigger(crate::rules::quests::QuestSignal::new(ending_signal(
+            &ev.message.ending,
+        )));
+    }
+}
+
 /// Local: a terminal was clicked; start a date.
 #[derive(Event)]
 pub struct StartDate;
@@ -173,6 +207,7 @@ const NUMBERS: [KeyCode; 4] = [
 ];
 
 fn date_play(
+    mut commands: Commands,
     keys: Res<ButtonInput<KeyCode>>,
     mut dating: ResMut<Dating>,
     mut busy: ResMut<HandsBusy>,
@@ -189,6 +224,13 @@ fn date_play(
             }
         } else if let Some(i) = NUMBERS.iter().position(|k| keys.just_pressed(*k)) {
             date.choose(&script, i);
+            if date.over(&script)
+                && let Some(e) = ending(&script, date.affection)
+            {
+                commands.client_trigger(DateEnded {
+                    ending: e.title.clone(),
+                });
+            }
         }
     }
     let want = dating

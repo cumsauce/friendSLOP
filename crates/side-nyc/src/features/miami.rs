@@ -208,7 +208,32 @@ pub fn protocol(app: &mut App) {
     app.add_client_event::<TakeK>(Channel::Ordered)
         .add_server_event::<KHole>(Channel::Ordered)
         .add_observer(take_k)
-        .add_systems(Update, catch_fallers.run_if(in_state(ServerState::Running)));
+        .add_systems(
+            Update,
+            (catch_fallers, through_the_door).run_if(in_state(ServerState::Running)),
+        );
+    crate::rules::quests::provide_anchor("factory_door", factory_door);
+}
+
+/// Just outside Factory Town's front (world): where the queue is.
+pub fn factory_door() -> Vec3 {
+    ground() + Vec3::new(VENUE.x, 0.0, VENUE.y + VENUE_HALF.y + 3.0)
+}
+
+/// Server: someone walked into Factory Town (`factory_in`).
+fn through_the_door(
+    mut commands: Commands,
+    mut inside: Local<bevy::platform::collections::HashSet<Entity>>,
+    walkers: Query<(Entity, &Walker), With<PlayerOwner>>,
+) {
+    for (e, w) in &walkers {
+        let now = in_venue(w.pos);
+        if now && inside.insert(e) {
+            commands.trigger(crate::rules::quests::QuestSignal::new("factory_in"));
+        } else if !now {
+            inside.remove(&e);
+        }
+    }
 }
 
 fn take_k(
@@ -220,6 +245,7 @@ fn take_k(
     if !in_reach(&mut commands, take.client_id, &walkers, d) {
         return;
     }
+    commands.trigger(crate::rules::quests::QuestSignal::new("factory_bump"));
     commands.server_trigger(ToClients {
         targets: SendTargets::Single(take.client_id),
         message: KHole {

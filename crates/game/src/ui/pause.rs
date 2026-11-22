@@ -125,7 +125,7 @@ fn esc(
     match esc_action(
         settings_up,
         pause.iter().any(|n| n.display != Display::None),
-        overlay.journal || overlay.map || overlay.intro,
+        overlay.journal || overlay.map || overlay.intro || overlay.talk,
     ) {
         EscAction::CloseSettings => {
             for mut n in &mut settings {

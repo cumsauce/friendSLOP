@@ -287,6 +287,7 @@ pub fn plugin(app: &mut App) {
                 aim.after(crate::place::PlaceSet),
                 pins,
                 labels,
+                quest_pins,
             )
                 .chain()
                 .in_set(MapSet)
@@ -422,7 +423,8 @@ fn keys(
     mut map: ResMut<MapView>,
 ) {
     let journal_up = journal.kept || keys.pressed(KeyCode::Tab);
-    let esc = keys.just_pressed(KeyCode::Escape) && !overlay.intro && !overlay.settings;
+    let esc =
+        keys.just_pressed(KeyCode::Escape) && !overlay.intro && !overlay.settings && !overlay.talk;
     let open = keys_to_map(map.open, actions.just_pressed(MAP), esc, journal_up);
     if map.open != open {
         map.open = open;
@@ -450,13 +452,18 @@ fn aim(
     looks: Res<crate::place::PlaceLooks>,
     ambient: Option<Res<GlobalAmbientLight>>,
     mut frames: Local<u32>,
+    ready: Option<Res<crate::loading::WorldReady>>,
     mut cams: Query<(&mut Camera, &mut Transform, &mut Projection, &mut Exposure), With<MapCamera>>,
     mut title: Query<&mut Text, With<Title>>,
 ) {
     let Ok((mut cam, mut tf, mut proj, mut exposure)) = cams.single_mut() else {
         return;
     };
-    if !map.open {
+    // Behind the loading curtain the map shoots anyway: its first picture
+    // compiles a pipeline for every material it sees (synchronously on
+    // macOS), which made the first M press hang. Done here, nobody sees it.
+    let warming = ready.is_some_and(|r| !r.ready);
+    if !map.open && !warming {
         if cam.is_active {
             cam.is_active = false;
         }
@@ -685,9 +692,125 @@ fn labels(
     }
 }
 
+/// A quest giver's pin on the map: "!" (something for you) or "?" (theirs
+/// is on your list).
+#[derive(Component)]
+struct QuestPin {
+    giver: String,
+    offer: bool,
+}
+
+/// Where a quest pin sits on the picture (0..1): where the giver is, or held
+/// at the edge pointing their way when they're off it, so every quest giver
+/// in the area is always pointed out.
+pub fn quest_pin_at(view: Rect, at: Vec2) -> Vec2 {
+    on_map(view, at).clamp(Vec2::splat(0.04), Vec2::new(0.93, 0.95))
+}
+
+/// Every quest giver in the area who has something for you (and is out
+/// now), as a "!" or "?" pin.
+#[allow(clippy::type_complexity)]
+fn quest_pins(
+    mut commands: Commands,
+    map: Res<MapView>,
+    sheet: Query<Entity, With<Sheet>>,
+    log: Query<&crate::features::quests::QuestLog>,
+    day: Query<&crate::atmosphere::DayStart>,
+    mut pins: Query<(Entity, &QuestPin, &mut Node)>,
+) {
+    use crate::features::quests::{GIVERS, Mark, QUESTS, mark};
+    let want: Vec<(String, bool, Vec2)> = match (map.open, log.iter().next()) {
+        (true, Some(l)) => {
+            let book = QUESTS.get();
+            let hour = crate::atmosphere::hour_now(day.iter().next());
+            GIVERS
+                .get()
+                .givers
+                .iter()
+                .filter(|g| map.area.as_deref() == Some(g.area.as_str()) && g.out_at(hour))
+                .filter_map(|g| match mark(&book, l, &g.id) {
+                    Mark::Offer => Some((g.id.clone(), true, g.place.at().xz())),
+                    Mark::Busy => Some((g.id.clone(), false, g.place.at().xz())),
+                    Mark::None => None,
+                })
+                .collect()
+        }
+        _ => Vec::new(),
+    };
+    let side = 580.0;
+    let d = 30.0;
+    for (e, p, mut n) in &mut pins {
+        let Some((_, _, at)) = want
+            .iter()
+            .find(|(id, offer, _)| *id == p.giver && *offer == p.offer)
+        else {
+            commands.entity(e).despawn();
+            continue;
+        };
+        let uv = quest_pin_at(map.view, *at);
+        let (l, t) = (
+            Val::Px(uv.x * side - d / 2.0),
+            Val::Px(uv.y * side - d / 2.0),
+        );
+        if n.left != l || n.top != t {
+            n.left = l;
+            n.top = t;
+        }
+    }
+    let Ok(s) = sheet.single() else { return };
+    for (id, offer, at) in &want {
+        if pins
+            .iter()
+            .any(|(_, p, _)| p.giver == *id && p.offer == *offer)
+        {
+            continue;
+        }
+        let uv = quest_pin_at(map.view, *at);
+        let fill = if *offer {
+            Color::srgb(1.0, 0.82, 0.15)
+        } else {
+            Color::srgb(0.45, 0.8, 1.0)
+        };
+        commands.entity(s).with_child((
+            QuestPin {
+                giver: id.clone(),
+                offer: *offer,
+            },
+            Node {
+                position_type: PositionType::Absolute,
+                left: Val::Px(uv.x * side - d / 2.0),
+                top: Val::Px(uv.y * side - d / 2.0),
+                width: px_val(d),
+                height: px_val(d),
+                border: UiRect::all(px_val(3.0)),
+                border_radius: BorderRadius::all(px_val(d)),
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                ..default()
+            },
+            BackgroundColor(fill),
+            BorderColor::all(INK),
+            GlobalZIndex(31),
+            children![(
+                Text::new(if *offer { "!" } else { "?" }),
+                head(size::H2, INK),
+            )],
+        ));
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn quest_pins_off_the_picture_wait_at_its_edge() {
+        let view = Rect::new(0.0, 0.0, 100.0, 100.0);
+        let inside = quest_pin_at(view, Vec2::new(50.0, 50.0));
+        assert!((inside - Vec2::splat(0.5)).length() < 0.01);
+        let far = quest_pin_at(view, Vec2::new(900.0, -900.0));
+        assert!(far.x > 0.9 && far.y < 0.05, "{far}");
+    }
 
     #[test]
     fn m_toggles_esc_and_the_journal_close() {

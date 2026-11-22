@@ -1,0 +1,523 @@
+// What quest givers say (crates/story/src/features/quest_givers.rs). One
+// entry per giver (quest_givers.ron): their name, what they say when they've
+// nothing for you (idle), and per quest they give:
+//   start   the scene the offer opens on
+//   scenes  each: (line, choices: [(text, next: Some("<scene>"), effect)])
+//           effect: Accept(None) takes the quest on, Accept(Some("<variant>"))
+//           takes it on the variant's way (quests.ron); a choice without
+//           `next` ends the talk; a scene without choices is the last word
+//   busy    while it's on your list
+//   done    once it's done
+//   failed  after it failed (the offer follows)
+// "{fart}" and other {action} names become the key on your device.
+// Edit and save: the running game picks it up within a second.
+(
+    givers: {
+        // ---------------------------------------------------- New York
+        "superfan": (
+            name: "Tito, the Superfan",
+            idle: "I've seen the show four hundred times. Tonight is four hundred and one.",
+            quests: {
+                "michael": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "Have you SEEN the Michael Jackson Experience? Through the brownstone, down the stairs. He dances every night. Nobody impresses him. Nobody.",
+                            choices: [
+                                (text: "How do I impress him?", next: Some("how")),
+                                (text: "Not a fan.", next: Some("not")),
+                            ],
+                        ),
+                        "how": (
+                            line: "Watch the whole thing first. Respect the art. Then... add something to the show. A toot. Michael LIVES for a toot from the house.",
+                            choices: [
+                                (text: "I'll toot loud and proud.", effect: Accept(None), next: Some("loud")),
+                                (text: "I'll be discreet. Nobody near me.", effect: Accept(Some("discreet")), next: Some("quiet")),
+                                (text: "I'm not tooting for a man.", next: Some("not")),
+                            ],
+                        ),
+                        "loud": (line: "YES. Let the whole house hear it. He'll holler, I promise you he'll holler."),
+                        "quiet": (line: "A connoisseur. A toot with nobody near is a toot for him alone. He'll know. He'll pay you double in love."),
+                        "not": (line: "Then you'll never know true showbusiness."),
+                    },
+                    busy: "Have you tooted yet? Don't come back until you've tooted.",
+                    done: "Michael hasn't stopped talking about it. Neither have I.",
+                    failed: "",
+                ),
+            },
+        ),
+        "roommate": (
+            name: "Andrew's Roommate",
+            idle: "He's still texting me about you. Please make it stop.",
+            quests: {
+                "andrew": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "Andrew's been sitting at the computer terminals down in Fulton St all week. He wants a date. Thing is, something lives down there. It takes people.",
+                            choices: [
+                                (text: "I'll date him. What's the catch?", next: Some("catch")),
+                                (text: "Something lives down there?", next: Some("monster")),
+                                (text: "Andrew who?", next: Some("who")),
+                            ],
+                        ),
+                        "monster": (
+                            line: "If your phone rings down there, hide. If it finds you, you wake up on the street and the date's off. Don't make me tell him you got eaten.",
+                            choices: [
+                                (text: "Okay. What's the catch with Andrew?", next: Some("catch")),
+                                (text: "Nope.", next: None),
+                            ],
+                        ),
+                        "who": (line: "Exactly. That's the problem. Come back if you want to change that."),
+                        "catch": (
+                            line: "No catch. Just get a second date out of him and don't get caught. Or... go all the way. He's been talking about sharing a wall with someone.",
+                            choices: [
+                                (text: "A second date. Keep it casual.", effect: Accept(None), next: Some("casual")),
+                                (text: "I'm going for Wall Husband.", effect: Accept(Some("husband")), next: Some("husband")),
+                                (text: "Let me think about it.", next: None),
+                            ],
+                        ),
+                        "casual": (line: "Great. Be normal. Like soup normal."),
+                        "husband": (line: "Oh no. Oh, he's going to cry. Only the full move-in counts, you know that, right?"),
+                    },
+                    busy: "Terminals, Fulton St, down the stairs. If the phone rings: hide.",
+                    done: "He moved his whole wall closer to yours. Or texted 'hi'. Either way, he's happy.",
+                    failed: "It got you, didn't it. He waited at the terminal for an hour.",
+                ),
+            },
+        ),
+        "raver": (
+            name: "Dee, out front",
+            idle: "Factory Town, baby. It never closes. It just gets worse.",
+            quests: {
+                "factory_bump": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "You look like you need a night out. Factory Town's up on the Miami island. Get in, find the guy by the bar, get a bump.",
+                            choices: [
+                                (text: "Tell them I'm with the DJ.", effect: Accept(None), next: Some("dj")),
+                                (text: "I'll just pay the door.", effect: Accept(None), next: Some("pay")),
+                                (text: "I'm going to bed.", next: Some("bed")),
+                            ],
+                        ),
+                        "dj": (line: "Nobody's with the DJ. Everyone says they're with the DJ. Go on."),
+                        "pay": (line: "Paying the door. Respect. Nobody does that anymore."),
+                        "bed": (line: "Bed is for people who aren't out yet. I'm here till four."),
+                    },
+                    busy: "Inside, by the bar. You'll know him. He's the one saying 'uh oh'.",
+                    done: "You did a bump. Uh oh. Welcome to Factory Town.",
+                    failed: "",
+                ),
+            },
+        ),
+        "commuter": (
+            name: "Exhausted Commuter",
+            idle: "Third wallet this month. The station keeps them. I think it eats them.",
+            quests: {
+                "wallet": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "Fulton St eats wallets. You go down and your wallet just... isn't yours anymore. The only cure is finding it again yourself.",
+                            choices: [
+                                (text: "I'll go lose mine and get it back.", effect: Accept(None), next: Some("go")),
+                                (text: "I'll keep mine, thanks.", next: None),
+                            ],
+                        ),
+                        "go": (line: "Look on the top few levels. And don't brag about your cash down there. Coins fall out."),
+                    },
+                    busy: "Found it yet? It's somewhere on the top levels. It always is.",
+                    done: "You got it back? You're a better commuter than me.",
+                    failed: "",
+                ),
+            },
+        ),
+        "ice_cream_kid": (
+            name: "Kid with a Cone",
+            idle: "Best ice cream in New York. When it works.",
+            quests: {
+                "ice_cream": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "The ice cream machine is OUT OF ORDER again. Its parts are in the shops round here. Somebody has to fix it. I am eight.",
+                            choices: [
+                                (text: "I'll fix it.", effect: Accept(None), next: Some("yes")),
+                                (text: "It's always broken. That's the point.", next: None),
+                            ],
+                        ),
+                        "yes": (line: "Click the machine to see what's missing. Then go get it."),
+                    },
+                    busy: "Is it fixed? It's not fixed. I can see it's not fixed.",
+                    done: "IT WORKS. I've had nine cones. I feel incredible.",
+                    failed: "",
+                ),
+            },
+        ),
+        // ---------------------------------------------------- the commune
+        "organiser": (
+            name: "Rosa, the Organiser",
+            idle: "Solidarity. Also, has anyone seen my lanyard?",
+            quests: {
+                "landlord": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "You've helped people round here. Now help all of us. The landlord's raising the rent again. I have a plan: three acts.",
+                            choices: [
+                                (text: "Three acts?", next: Some("plan")),
+                                (text: "Let's evict the landlord.", effect: Accept(None), next: Some("go")),
+                            ],
+                        ),
+                        "plan": (
+                            line: "One: keep up with the rent until he snaps. Two: take it back, heist by heist. Three: beat him. Once he knows we're coming, the raises start.",
+                            choices: [
+                                (text: "I'm in.", effect: Accept(None), next: Some("go")),
+                                (text: "Not yet.", next: None),
+                            ],
+                        ),
+                        "go": (line: "He's by his house. Click him to pay. Don't let the rent get away from you."),
+                    },
+                    busy: "Keep at him. The rent's on the board up top.",
+                    done: "He's gone. The Commune is ours. Mostly ours. The goat has opinions.",
+                    failed: "",
+                ),
+            },
+        ),
+        "cashier": (
+            name: "Wendy's Cashier",
+            idle: "Welcome to Wendy's. The meat is human. Have a nice day.",
+            quests: {
+                "burgers": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "We overcooked. Like, a lot. Corporate says the burgers have to go before inspection. Take some. Please.",
+                            choices: [
+                                (text: "What's in them?", next: Some("meat")),
+                                (text: "I'll take three.", effect: Accept(None), next: Some("ok")),
+                            ],
+                        ),
+                        "meat": (
+                            line: "People. It's on the sign. Nobody reads the sign.",
+                            choices: [
+                                (text: "Fine. Three.", effect: Accept(None), next: Some("ok")),
+                                (text: "I'm going to be sick.", next: None),
+                            ],
+                        ),
+                        "ok": (line: "They're on the counter. Don't tell the inspector."),
+                    },
+                    busy: "Counter. Burgers. Go.",
+                    done: "We passed inspection. The inspector had two.",
+                    failed: "",
+                ),
+            },
+        ),
+        "dog_walker": (
+            name: "Pat, Who Walks Dogs",
+            idle: "Every stray deserves a pack.",
+            quests: {
+                "pack": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "The strays at the picnic corner keep looking at me. I can't take any more. Can your lot adopt one each and leash them into one big pack?",
+                            choices: [
+                                (text: "One big pack. Got it.", effect: Accept(None), next: Some("ok")),
+                                (text: "I'm a cat person.", next: Some("cat")),
+                            ],
+                        ),
+                        "ok": (line: "Keep them close together. A pack is a pack."),
+                        "cat": (line: "So is everyone, until a dog chooses them."),
+                    },
+                    busy: "All of them, one pack. Close together.",
+                    done: "Look at them. A family. I'm not crying.",
+                    failed: "",
+                ),
+            },
+        ),
+        "forager": (
+            name: "The Forager",
+            idle: "The forest provides. Mostly hallucinations.",
+            quests: {
+                "mushroom": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "The voice mushrooms are up in the clearing. Eat a few. Your voice does things. Science needs this.",
+                            choices: [
+                                (text: "For science.", effect: Accept(None), next: Some("ok")),
+                                (text: "Is this safe?", next: Some("safe")),
+                            ],
+                        ),
+                        "safe": (
+                            line: "Nothing in this forest is safe. There's a bear. Eat the mushrooms.",
+                            choices: [
+                                (text: "...Fine.", effect: Accept(None), next: Some("ok")),
+                                (text: "No.", next: None),
+                            ],
+                        ),
+                        "ok": (line: "Three should do it. Report back in whatever voice you end up with."),
+                    },
+                    busy: "Eat. The. Mushrooms.",
+                    done: "Your voice is fascinating now. Never change. Or do. Eat more.",
+                    failed: "",
+                ),
+            },
+        ),
+        "hermit": (
+            name: "The Vault Hermit",
+            idle: "I've waited by this vault for eleven years. You get used to it.",
+            quests: {
+                "vault": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "The vault opens for a totem. The Wind totem's on the hilltop, west. The Frost totem's on the lake shore. Bring one to its door.",
+                            choices: [
+                                (text: "I'll fetch one.", effect: Accept(None), next: Some("ok")),
+                                (text: "What's in the vault?", next: Some("what")),
+                            ],
+                        ),
+                        "what": (
+                            line: "Fire. The Fire totem. But that's for after.",
+                            choices: [
+                                (text: "I'll open it.", effect: Accept(None), next: Some("ok")),
+                                (text: "Later.", next: None),
+                            ],
+                        ),
+                        "ok": (line: "Eleven years. Don't rush on my account."),
+                    },
+                    busy: "A totem. Its door. You know what to do.",
+                    done: "It's open. I don't know what to do with myself now.",
+                    failed: "",
+                ),
+                "fire_totem": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "The vault's open. The Fire totem's inside. Somebody should hold it. Not me. I've been through enough.",
+                            choices: [
+                                (text: "I'll take it out.", effect: Accept(None), next: Some("ok")),
+                                (text: "Maybe it's safer in there.", next: None),
+                            ],
+                        ),
+                        "ok": (line: "Careful. It's warm."),
+                    },
+                    busy: "The Fire totem. In the vault. Pick it up.",
+                    done: "Eleven years and it was that easy. Wonderful. Great.",
+                    failed: "",
+                ),
+            },
+        ),
+        "preacher": (
+            name: "The Lectern Preacher",
+            idle: "The Tome of Uncancelling forgives all. Mostly.",
+            quests: {
+                "tears": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "God wept once, and the tears lie where they fell. They'll never fall again. Use them, child, before the world forgets them.",
+                            choices: [
+                                (text: "I'll use them.", effect: Accept(None), next: Some("ok")),
+                                (text: "What do they do?", next: Some("what")),
+                            ],
+                        ),
+                        "what": (
+                            line: "Whatever god wanted. It's different every time. That's faith.",
+                            choices: [
+                                (text: "Faith it is.", effect: Accept(None), next: Some("ok")),
+                                (text: "I'll pass.", next: None),
+                            ],
+                        ),
+                        "ok": (line: "Go. Be blessed. Be weird about it."),
+                    },
+                    busy: "The tears await your hands.",
+                    done: "You are blessed. Or cursed. The Tome is unclear.",
+                    failed: "",
+                ),
+            },
+        ),
+        "arena_kid": (
+            name: "Arena Kid",
+            idle: "When I grow up I'm gonna be a duel.",
+            quests: {
+                "hide_seek": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "Nobody plays hide and seek with me. You've got friends. Play a real game. Two!",
+                            choices: [
+                                (text: "Two games. Deal.", effect: Accept(None), next: Some("ok")),
+                                (text: "I'm too old for this.", next: Some("old")),
+                            ],
+                        ),
+                        "ok": (line: "Count to a hundred. Out loud. I'll know."),
+                        "old": (line: "That's what old people say right before they hide REALLY well."),
+                    },
+                    busy: "Did you play yet? Two games!",
+                    done: "Best. Games. Ever. Now... duels?",
+                    failed: "",
+                ),
+                "duels": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "Okay okay okay. Now I want to see a DUEL. To the end. Three of them.",
+                            choices: [
+                                (text: "Three duels, coming up.", effect: Accept(None), next: Some("ok")),
+                                (text: "Violence isn't the answer.", next: Some("no")),
+                            ],
+                        ),
+                        "ok": (line: "Pick someone and challenge them. I'll watch from right here."),
+                        "no": (line: "It's not violence, it's a DUEL. There's rules."),
+                    },
+                    busy: "Duel! Duel! Duel!",
+                    done: "You're my hero. Can I have your hat?",
+                    failed: "",
+                ),
+            },
+        ),
+        "gardener": (
+            name: "The Gardener",
+            idle: "Lilies need water and patience. People need letters.",
+            quests: {
+                "lily": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "Marigold and Juniper stand at either end of my garden, writing letters they'll never send. Would you carry them across?",
+                            choices: [
+                                (text: "I'll be the postie.", effect: Accept(None), next: Some("ok")),
+                                (text: "Why don't they just talk?", next: Some("why")),
+                            ],
+                        ),
+                        "why": (
+                            line: "Because then it wouldn't be a garden, it'd be a conversation. Will you help?",
+                            choices: [
+                                (text: "Yes.", effect: Accept(None), next: Some("ok")),
+                                (text: "Not today.", next: None),
+                            ],
+                        ),
+                        "ok": (line: "Take whoever's writing's letter to the other. Every one of them."),
+                    },
+                    busy: "More letters? There are always more letters.",
+                    done: "They're on the bench. Holding hands. I'm going to pretend to weed for a while.",
+                    failed: "",
+                ),
+            },
+        ),
+        "night_owl": (
+            name: "The Night Owl",
+            idle: "Hoo. It's late. Hoo.",
+            quests: {
+                "halt": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "I only come out at night. Do you know why? HALT. They grab you in the day. Show me you can break out. Twice.",
+                            choices: [
+                                (text: "I'll break out of HALT.", effect: Accept(None), next: Some("ok")),
+                                (text: "That sounds like a bad time.", next: Some("bad")),
+                            ],
+                        ),
+                        "ok": (line: "Get caught. Pry your way out. Do it again. Then come see the moon with me."),
+                        "bad": (line: "All the best times are."),
+                    },
+                    busy: "Have you escaped? Twice? Hoo.",
+                    done: "Free as an owl. Hoo hoo.",
+                    failed: "",
+                ),
+            },
+        ),
+        // ---------------------------------------------------- already there
+        "abuela": (
+            name: "Abuela",
+            idle: "Ven, siéntate conmigo. (Come, sit with me.)",
+            quests: {
+                "abuela": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "Mijo, you never visit. Come up and sit with me a while. Just once. ¿Ya comiste?",
+                            choices: [
+                                (text: "I'll come sit with you, Abuela.", effect: Accept(None), next: Some("ok")),
+                                (text: "I already ate.", next: Some("ate")),
+                            ],
+                        ),
+                        "ate": (
+                            line: "Mentira. You're too thin. Sit. I'll feed you.",
+                            choices: [
+                                (text: "Okay, Abuela.", effect: Accept(None), next: Some("ok")),
+                            ],
+                        ),
+                        "ok": (line: "Talk to me again, mi amor. Just once more."),
+                    },
+                    busy: "Talk to me, mijo. Sit.",
+                    done: "Siempre te estoy cuidando. (I'm always watching over you.)",
+                    failed: "",
+                ),
+            },
+        ),
+        "paul": (
+            name: "Sewer Paul",
+            idle: "Down here, everybody's somebody's egg.",
+            quests: {
+                "paul": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "Crow eggs. From the windmill. Bring me a couple and I'll keep you in cigs. Business.",
+                            choices: [
+                                (text: "Two eggs, coming up.", effect: Accept(None), next: Some("ok")),
+                                (text: "Why crow eggs?", next: Some("why")),
+                            ],
+                        ),
+                        "why": (
+                            line: "Don't ask Paul why. Paul doesn't ask you why you're in a sewer.",
+                            choices: [
+                                (text: "Fair. Two eggs.", effect: Accept(None), next: Some("ok")),
+                                (text: "I'm leaving.", next: None),
+                            ],
+                        ),
+                        "ok": (line: "Crows don't like it. Crows don't have to like it."),
+                    },
+                    busy: "Eggs. Crows. Windmill. Paul waits.",
+                    done: "Pleasure doing business. Mind the rats.",
+                    failed: "",
+                ),
+            },
+        ),
+        "jegg": (
+            name: "Jegg",
+            idle: "The warehouse remembers.",
+            quests: {
+                "jegg": (
+                    start: "hi",
+                    scenes: {
+                        "hi": (
+                            line: "There are soul pieces in the warehouse. I need them. Don't ask whose souls. Bring me five.",
+                            choices: [
+                                (text: "Five soul pieces.", effect: Accept(None), next: Some("ok")),
+                                (text: "Whose souls?", next: Some("whose")),
+                            ],
+                        ),
+                        "whose": (
+                            line: "I said don't ask.",
+                            choices: [
+                                (text: "...Five soul pieces.", effect: Accept(None), next: Some("ok")),
+                                (text: "I'm out.", next: None),
+                            ],
+                        ),
+                        "ok": (line: "Vote to go in at the door. Get out before it gets you."),
+                    },
+                    busy: "More pieces. The warehouse has more.",
+                    done: "Whole again. Thank you. Don't look at it.",
+                    failed: "",
+                ),
+            },
+        ),
+    },
+)

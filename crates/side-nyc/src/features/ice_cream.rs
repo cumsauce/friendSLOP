@@ -136,6 +136,12 @@ pub struct MachineNews {
 }
 
 pub fn protocol(app: &mut App) {
+    // The kid who wants it fixed waits beside it.
+    crate::rules::quests::provide_anchor("ice_cream_machine", || {
+        super::high_places::wtc(&super::nyc::MAP.get())
+            .map(|foot| machine_at(foot, &tuning()))
+            .unwrap_or_default()
+    });
     app.replicate::<Machine>()
         .add_client_event::<TakePart>(Channel::Ordered)
         .add_client_event::<UseMachine>(Channel::Ordered)
@@ -225,6 +231,7 @@ fn use_machine(
         }
         Click::Fix => {
             m.fixed = true;
+            commands.trigger(crate::rules::quests::QuestSignal::new("ice_cream_fixed"));
             let name = me.map_or("someone".to_string(), |id| format!("player {id}"));
             tell(&mut commands, None, t.fixed_line.replace("{who}", &name));
         }

@@ -25,6 +25,8 @@ pub mod features {
     pub mod dating_sim;
     pub mod fulton;
     pub mod fulton_ambience;
+    pub mod fulton_carved;
+    pub mod fulton_carved_hunt;
     pub mod fulton_hunt;
     pub mod hats;
     pub mod high_places;
@@ -53,6 +55,9 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::nyc::MAP,
         &features::nyc_traffic::TUNING,
         &features::fulton::TUNING,
+        &features::fulton_carved::TUNING,
+        &features::fulton_carved::MAP,
+        &features::fulton_carved::COLLISION,
         &features::fulton::TILES,
         &features::fulton::LAYOUT,
         &features::fulton_ambience::TUNING,

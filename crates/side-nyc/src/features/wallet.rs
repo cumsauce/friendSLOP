@@ -403,6 +403,9 @@ fn pick_up(
                 cash.lost = 0;
             }
         }
+        if wallet.owner == Some(finder) {
+            commands.trigger(crate::rules::quests::QuestSignal::new("wallet_back"));
+        }
         let line = if wallet.owner == Some(finder) {
             &t.found_line
         } else {

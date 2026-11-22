@@ -1,0 +1,43 @@
+// Quest givers (crates/story/src/features/quest_givers.rs): where the people
+// with a marker over their head stand. What they say is
+// data/text/quest_dialogue.ron; the quests are quests.ron.
+// Edit and save: the running game picks it up within a second.
+//
+// Each giver:
+//   id            what quests.ron and the dialogue call them
+//   site          the site (data/base/sites.ron) they're at: the journal says where
+//   place         Spot("<commune map spot>", (dx, dz)) on the ground, or
+//                 Anchor("<named place>", (dx, dy, dz)) for places a feature
+//                 names (michael_street, michael_lobby, fulton_street,
+//                 factory_door, ice_cream_machine, lily_garden, abuela, paul, jegg)
+//   yaw           which way they face (degrees)
+//   area          the area (data/base/areas.ron) they're drawn in
+//   hours         Some((from, to)): only out then (0..24, may wrap midnight)
+//   look          the seed for their body's look
+//   body          false: a character who's already there; only the marker
+//   marker_height how high the marker floats over their feet (m)
+(
+    givers: [
+        // New York.
+        (id: "superfan", site: "poi_michael_theater", place: Anchor("michael_street", (1.6, 0.0, 1.2)), yaw: 200.0, area: "nyc", look: 7101),
+        (id: "roommate", site: "nyc", place: Anchor("fulton_street", (4.0, 0.0, 1.5)), yaw: 90.0, area: "nyc", look: 7102),
+        (id: "raver", site: "nyc", place: Anchor("factory_door", (3.0, 0.0, 0.0)), yaw: 180.0, area: "nyc", hours: Some((21.0, 4.0)), look: 7103),
+        (id: "commuter", site: "nyc", place: Anchor("fulton_street", (-4.0, 0.0, 1.5)), yaw: 270.0, area: "nyc", look: 7104),
+        (id: "ice_cream_kid", site: "poi_wtc", place: Anchor("ice_cream_machine", (1.4, 0.0, 1.4)), yaw: 225.0, area: "nyc", look: 7105),
+        // The commune.
+        (id: "organiser", site: "parliament", place: Spot("parliament", (4.0, 3.0)), yaw: 30.0, area: "commune", look: 7201),
+        (id: "cashier", site: "wendys", place: Spot("wendys", (-5.0, 6.0)), yaw: 0.0, area: "commune", look: 7202),
+        (id: "dog_walker", site: "pets", place: Spot("picnic", (-4.0, 3.0)), yaw: 120.0, area: "commune", look: 7203),
+        (id: "forager", site: "bear", place: Spot("forest_clearing", (-4.0, -3.0)), yaw: 60.0, area: "commune", look: 7204),
+        (id: "hermit", site: "vault", place: Spot("vault", (5.0, 4.0)), yaw: 300.0, area: "commune", look: 7205),
+        (id: "preacher", site: "lectern", place: Spot("lectern", (2.5, 2.0)), yaw: 180.0, area: "commune", look: 7206),
+        (id: "arena_kid", site: "arena", place: Spot("arena", (0.0, 14.0)), yaw: 180.0, area: "commune", look: 7207),
+        (id: "gardener", site: "goat", place: Anchor("lily_garden", (0.0, 0.0, -7.0)), yaw: 0.0, area: "commune", look: 7208),
+        // Out only at night, on the lake shore.
+        (id: "night_owl", site: "lake", place: Spot("lake", (8.0, 12.0)), yaw: 200.0, area: "commune", hours: Some((20.0, 5.0)), look: 7209),
+        // Characters who're already there: only the marker.
+        (id: "abuela", site: "", place: Anchor("abuela", (0.0, 0.0, 0.0)), area: "commune", body: false, marker_height: 2.2),
+        (id: "paul", site: "", place: Anchor("paul", (0.0, 0.0, 0.0)), area: "commune", body: false, marker_height: 2.3),
+        (id: "jegg", site: "warehouse", place: Anchor("jegg", (0.0, 0.0, 0.0)), area: "commune", body: false, marker_height: 2.4),
+    ],
+)

@@ -197,6 +197,8 @@ pub fn egg_spot(nest: u32) -> Vec3 {
 }
 
 pub fn protocol(app: &mut App) {
+    // Sewer Paul gives a quest too (the marker floats over him).
+    crate::rules::quests::provide_anchor("paul", paul_spot);
     app.replicate::<Stash>()
         .replicate::<Smoking>()
         .replicate::<CrowEgg>()

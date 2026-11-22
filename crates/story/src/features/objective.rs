@@ -1,11 +1,9 @@
 //! The goal loop: one "Objective" line, a round-end summary, and restart.
 //!
-//! The landlord storyline (#11) is the spine of the shared goal, and since #75
-//! each round is one chapter of the campaign (`campaign.rs`). The server mirrors
-//! the `Tenancy` act and progress into a replicated `Objective`. When the
-//! chapter's checklist is done (which always includes beating the landlord)
-//! the round is over: everyone sees a summary and anyone can press Enter to
-//! start the next chapter.
+//! The shared goal is the quest log (`quests.rs`): when every quest is done
+//! (beating the landlord is one of them) the round is over, everyone sees a
+//! summary and anyone can press Enter to start a new campaign. The server
+//! still mirrors the `Tenancy` act and progress into a replicated `Objective`.
 //!
 //! Restarting triggers a server-side [`RoundReset`] event. Each feature that
 //! has per-round state observes it and resets itself (landlord, HALT, gods
@@ -17,9 +15,9 @@ use bevy_replicon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::AppState;
-use crate::features::campaign::{CHAPTERS, Campaign, ending};
 use crate::features::halt::Halt;
 use crate::features::landlord::{Act3, Tenancy};
+use crate::features::quests::{QUESTS, QuestLog, ending};
 pub use crate::rules::campaign::*;
 
 /// Server -> everyone: where the shared goal stands.
@@ -30,7 +28,7 @@ pub struct Objective {
     pub act: Act3,
     /// 0..=100 through the current act.
     pub progress: u8,
-    /// The chapter is done and the round is waiting for a restart.
+    /// Every quest is done and the round is waiting for a restart.
     pub over: bool,
 }
 
@@ -77,15 +75,15 @@ pub fn act_progress(t: &Tenancy) -> u8 {
 
 fn track_objective(
     tenancy: Query<&Tenancy>,
-    campaign: Query<&Campaign>,
+    log: Query<&QuestLog>,
     mut objective: Query<&mut Objective>,
 ) {
     let (Ok(t), Ok(mut o)) = (tenancy.single(), objective.single_mut()) else {
         return;
     };
-    // Without a campaign (tests that leave it out), beating the landlord ends it.
-    let over = match campaign.single() {
-        Ok(c) => c.complete(),
+    // Without a quest log (tests that leave it out), beating the landlord ends it.
+    let over = match log.single() {
+        Ok(l) => l.finale(&QUESTS.get()),
         Err(_) => t.act == Act3::Won,
     };
     let next = Objective {
@@ -152,7 +150,7 @@ struct RoundSummary;
 
 fn spawn_objective_ui(mut commands: Commands) {
     // The goal (#75: "make it really obvious") is the HUD's quest card now
-    // (`ui::quest`): chapter, jobs, Heaven Pass and the next thing to do.
+    // (`ui::quest`): the quest you're on, the Heaven Pass and what's next.
     commands.spawn((
         Text::new(""),
         TextFont::from_font_size(22.0),
@@ -165,7 +163,7 @@ fn spawn_objective_ui(mut commands: Commands) {
 
 fn show_objective(
     objective: Query<&Objective>,
-    campaign: Query<&Campaign>,
+    log: Query<&QuestLog>,
     halt: Query<&Halt>,
     tenancy: Query<&Tenancy>,
     mut summary: Query<(&mut Text, &mut Visibility), With<RoundSummary>>,
@@ -193,22 +191,8 @@ fn show_objective(
         "Final rent demanded: {rent}\n\
          Times you broke out of HALT: {escapes}"
     );
-    let text = match campaign.single() {
-        Ok(c) if c.finale() => format!("{}\n\n{stats}", ending()),
-        Ok(c) => {
-            let all = CHAPTERS.get();
-            let Some(next) = all.get((c.chapter + 1) % all.len().max(1)) else {
-                return;
-            };
-            format!(
-                "CHAPTER {} COMPLETE: {}!\n{stats}\n\n\
-                 Press [Enter] to start Chapter {}: {}",
-                c.chapter + 1,
-                c.current().name,
-                c.chapter + 2,
-                next.name
-            )
-        }
+    let text = match log.single() {
+        Ok(_) => format!("{}\n\n{stats}", ending()),
         Err(_) => format!(
             "Round {} over: the landlord is defeated!\n{stats}\n\n\
              Press [Enter] to start a new round",

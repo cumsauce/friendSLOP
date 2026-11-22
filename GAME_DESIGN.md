@@ -20,17 +20,19 @@ posts this section every few landed ideas (#153). Keep it under ~1800 characters
 
 **Same Wi-Fi?** Host, and friends on your network see a "Join <you>'s commune" button.
 
-**The goal:** free the Commune from your landlord and get into heaven, over 5 chapters.
-
-**Each chapter:** a checklist (top-left) of jobs in new places:
-1 *Moving In*: leash the strays (picnic corner), eat the mushroom, climb the sky islands to Abuela in heaven.
-2 *Rent Day*: open a vault door, break out of HALT, hide and seek, grab burgers at Wendy's.
-3 *The Heist*: carry out the Fire totem, use gods tears, a duel, trade a crow egg (crows: by the windmill) to Sewer
-Paul in the tunnels. 4 *General Strike*: all of it at once, plus 2 soul pieces from the
-warehouse for Jegg. 5 *The Eviction*: make Jegg whole (5 pieces) and the rest, one last time.
-Each chapter ends with the landlord: pay rent in organs, pickpocket him, then a boss fight.
-Each ticked job is a Heaven Pass tier; chapter 5 opens heaven. The host's game saves the
-chapter and its ticks, so hosting again (even after an update) carries on where you left off.
+**The goal:** help everyone who asks, free the Commune and get into heaven. People all over
+the world have a **!** over their head: click them to talk, pick what you say, and they give
+the party a quest (one shared list, top-left; the journal's list on Tab). 19 quests: impress
+Michael (watch the show, then toot), date Andrew in Fulton St without the monster catching you
+(caught = failed, ask again), get a bump in Factory Town (the raver's only out at night), Wendy's
+burgers, Sewer Paul's eggs, Jegg's soul pieces, the strays, mushrooms, the vault and Fire totem,
+HALT (the Night Owl, after dark), gods tears, hide and seek and duels (waived solo), Abuela,
+the ice cream machine, Lily's letters, your lost wallet. Some choices change a quest (go for
+Wall Husband, toot discreetly) and pay more. After 3 quests the organiser at parliament asks
+you to take on the landlord: only then does he raise the rent (rent card shows while it's on),
+then heists, then a boss fight. Every quest done pays everyone a KoriCoin™ and is a Heaven Pass
+tier; all done opens heaven, Enter starts over. The host's game saves the quest log.
+Thin: quests don't lead into each other much, and there's no reason to redo one.
 
 **Always going on:** the Stillness freezes everything for 75 s every 16 minutes. Fart near an
 NPC and get caught 4 times: villagers chase you and float you. Villagers fart and blame you.
@@ -271,6 +273,15 @@ free, and organ dollars only buy boba, joints and hats so far (and Wendy's butch
   generated corridors; follow the J Brooklyn signs to the J train for +3 Pelf once. Needs ground
   holes (`friendslop_world::holes`). `data/side/fulton.ron`, `fulton_tiles.ron`
   (`features/fulton.rs`).
+- **Carved Fulton St** (hand-made, modeler doc `fulton-carved`, `maps/fulton.bsn`). The street
+  entrance now leads into this map (its own area deep under the world) instead of the generated
+  station; flip `enabled` in `data/side/fulton_carved.ron` to get the old one back. Terminals
+  start the Andrew date; the exit gate returns you to the street. Andrew calls on a timer while
+  you're down there (`call_secs`); the third call sends the monster out of the nearest
+  `hunter_spawn` door. It walks the map's navmesh, stares, chases, rolls, then searches the
+  lockers near where it lost you; the `hide` markers are lockers you can climb into. Lamps are
+  scaled up (`lamp_gain`), only the nearest ones in view shine (`max_lamps`), and a soft glow
+  follows you (`features/fulton_carved.rs`, `fulton_carved_hunt.rs`).
 - **Fulton St level types** (doomy: set pieces, not a tileset jumble). Each level is planned
   coarse first: it gets a type (Warren: corridors and small rooms; Hall: one big tall hall
   with columns; Atrium: a hall whose floor drops a whole level, balconies at its doors, long
@@ -494,18 +505,20 @@ free, and organ dollars only buy boba, joints and hats so far (and Wendy's butch
   Press G to pry at the seams: it fills the shared escape bar but angers HALT, whose wrath
   also rises alone and ends in a hate monologue that claws back progress. A full bar makes it
   reboot the world and drag everyone back in. It teases you with your user name, OS and clock.
-- **The goal: free the Commune** (#75). One goal, "Free the Commune from your landlord and get
-  into heaven", in gold at the top, with the chapter checklist top-left and a title card per
-  chapter. Five chapters (Moving In, Rent Day, The Heist, General Strike, The Eviction), each
-  ending in beating the landlord again plus jobs using other mechanics, more each chapter. Ticks
-  never untick; tear jobs count the whole campaign (#135); each chapter resets the landlord,
-  HALT, pets, totems and doors. Hide and seek and duels are waived when alone. Enter starts the
-  next chapter; after chapter 5 there's an ending, then it restarts. Every ticked task is a tier
-  on the **Heaven Pass** (29 tiers). `campaign.rs`.
-- **One map, one story** (#165). Each chapter sends the group to one side trip (sky islands,
-  Wendy's, Sewer Paul's tunnels, the warehouse and Jegg), explained on its title card.
-  `campaign.rs`.
-- **Simulated 6-player playthrough** (#135). `tests/it/playthrough.rs` plays all five chapters
+- **Quests** (replacing the chapters, asked for by the host in chat). The goal is still "free
+  the Commune and get into heaven" (#75), but progress is now 19 quests from people round the
+  world (`data/story/quests.ron`, `quest_givers.ron`, `data/text/quest_dialogue.ron`). Each giver
+  has a modeler-made marker over their head (`!` something to give, `?` yours is on the list),
+  some keep hours (the raver 21-04, the Night Owl 20-05, from the shared day clock). Clicking a
+  giver opens a dialogue card with choices; a yes puts the quest on the party's one shared log
+  (anyone can take it, anyone can finish it). Choices can pick a variant with other steps and a
+  bigger reward. Features report what happened with quest signals; fails (Andrew: caught by the
+  Fulton monster) put a quest back on offer. The landlord is one quest (after 3 others): his
+  rent raises and the rent card only run while it's on. Every quest done pays everyone a
+  KoriCoin™ (strangers' Fulton wallets hold KoriCoins much less often now: 3%) and is a Heaven
+  Pass tier; all done is the ending, then a new campaign. Hide and seek and duels are waived
+  alone. `rules/quests.rs`, `story/.../quests.rs`, `quest_givers.rs`, `ui/dialogue.rs`.
+- **Simulated 6-player playthrough** (#135). `tests/it/playthrough.rs` plays every quest
   with a host and five friends through real network requests, and fixed rule gaps it found
   (rent moves Act I, shared landlord stash, villagers can catch farts).
 - **East village district**. Enterable houses, a watchtower, a barn with a loft, and a market
@@ -585,7 +598,7 @@ free, and organ dollars only buy boba, joints and hats so far (and Wendy's butch
   totems moved out of the centre, which is now the story hub. `data/base/sites.ron`, `sites.rs`.
 - **Pointless achievements** (#378). Eleven local toasts for walking, standing, spinning and
   playing time. Nothing is saved or rewarded. `data/side/achievements.ron`.
-- **Saves** (#424). The host saves the campaign (chapter, ticked jobs, round) and loads it when
+- **Saves** (#424). The host saves the quest log (and round) and loads it when
   hosting again; everything else restarts. `features/save.rs`.
 - **Android** (#354). `nix develop .#android -c scripts/build-android.sh` builds an APK on the
   Low preset with web touch controls. `crates/android`. Open: no clipboard, mic permission set by

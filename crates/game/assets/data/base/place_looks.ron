@@ -10,6 +10,9 @@
 //            reflection dims with it.
 //   fog:     the haze: colour (sRGB 0..1), and where it starts and is
 //            thickest (m). Outside it's the sky's horizon colour.
+//   exposure: stops brighter the camera exposes (an eye used to the dark),
+//            so a place's own lamps read at the brightness they were placed
+//            with. Outside it's 0; auto exposure (graphics.ron) adapts on top.
 (
     looks: {
         // The surf course (areas.ron's `look`): always a bright clear day up
@@ -50,6 +53,17 @@
             sun: Some(0.0),
             ambient: Some(3.0),
             fog: Some((color: (0.012, 0.014, 0.016), start: 6.0, end: 30.0)),
+        ),
+        // The carved Fulton St (fulton_carved.rs): a lit, grimy station, its
+        // dark corners dim rather than black, the haze far enough off to see down a hall.
+        "fulton_carved": (
+            priority: 2,
+            sun: Some(0.0),
+            ambient: Some(3.5),
+            fog: Some((color: (0.04, 0.042, 0.045), start: 14.0, end: 60.0)),
+            // An eye used to the dark: 4.3 stops brighter than outdoors, so the
+            // map's own lamps (a few hundred lumens each) read as they were placed.
+            exposure: Some(4.3),
         ),
         // Fulton St's top two levels: a working station, lit and clean (priority
         // over "fulton").

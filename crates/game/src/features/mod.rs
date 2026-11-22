@@ -41,7 +41,6 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(interact::protocol);
         app.add_plugins(hide_and_seek::protocol);
         app.add_plugins(villagers::protocol);
-        app.add_plugins(campaign::protocol);
         app.add_plugins(romance::protocol);
         app.add_plugins(climb::protocol);
         app.add_plugins(crate::people::protocol);
@@ -102,6 +101,9 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(fan_museum::protocol);
         app.add_plugins(stamina::protocol);
         app.add_plugins(arcade_fps::protocol);
+        app.add_plugins(quests::protocol);
+        app.add_plugins(dating_sim::protocol);
+        app.add_plugins(michael::protocol);
     }
 }
 
@@ -141,7 +143,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(interact::plugin);
         app.add_plugins(hide_and_seek::plugin);
         app.add_plugins(villagers::plugin);
-        app.add_plugins(campaign::plugin);
+        app.add_plugins((quests::plugin, quest_givers::plugin));
         app.add_plugins(romance::plugin);
         app.add_plugins(climb::plugin);
         app.add_plugins(stamina::plugin);
@@ -178,6 +180,8 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(fulton::plugin);
         app.add_plugins(fulton_hunt::plugin);
         app.add_plugins(fulton_ambience::plugin);
+        app.add_plugins(fulton_carved::plugin);
+        app.add_plugins(fulton_carved_hunt::plugin);
         app.add_plugins(clues::plugin);
         app.add_plugins(broadcast::plugin);
         app.add_plugins(surf::plugin);

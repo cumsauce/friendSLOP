@@ -1,12 +1,13 @@
-//! QuestCard, top-left (24, 24, 390x136): chapter N/5, its title, jobs done,
-//! the Heaven Pass tier and the next thing to do, all from one [`Campaign`].
+//! QuestCard, top-left (24, 24, 390x136): how many quests are on your list,
+//! the one you're following, the Heaven Pass (quests done) and its next
+//! step, all from the one shared [`QuestLog`].
 
 use bevy::prelude::*;
 
 use super::pause::PausePanel;
 use super::{HudRoot, at, body, head};
 use crate::AppState;
-use crate::features::campaign::{CHAPTERS, Campaign, heaven_tiers, next_line};
+use crate::features::quests::{QUESTS, QuestLog, Tracking, followed, next_line, tier, title};
 use crate::theme::kit::{CARD_100, CARD_300, CARD_500, EDGE, INK, SLOP_400, TAPE_200, size};
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Debug)]
@@ -20,11 +21,11 @@ enum Line {
 #[derive(Component)]
 struct QuestCard;
 
-/// The fill of the jobs-done meter under the title.
+/// The fill of the Heaven Pass meter under the title.
 #[derive(Component)]
 struct JobsFill;
 
-/// The whole jobs meter (hidden while the card is folded).
+/// The whole meter (hidden while the card is folded).
 #[derive(Component)]
 struct JobsBar;
 
@@ -41,7 +42,8 @@ pub fn plugin(app: &mut App) {
 }
 
 /// Full card or just the "now:" line: the whole card shows for a moment when
-/// the chapter, jobs or tier change (`hud::calm_alpha`), then folds to one line.
+/// the quest you follow, its step or the tier change (`hud::calm_alpha`), then
+/// folds to one line.
 pub fn full_card(age: f32, t: &crate::hud::Tuning) -> bool {
     crate::hud::calm_alpha(age, false, false, t) > 0.0
 }
@@ -51,19 +53,20 @@ fn shape(full: bool) -> (f32, f32) {
     if full { (156.0, 106.0) } else { (52.0, 8.0) }
 }
 
-/// The four lines for a campaign state.
-pub fn lines(c: &Campaign) -> [String; 4] {
+/// The four lines for the log, following `tracking`.
+pub fn lines(log: &QuestLog, tracking: Option<&str>) -> [String; 4] {
+    let book = QUESTS.get();
+    let on = log.active(&book).len();
+    let (done, total) = tier(log);
     [
-        format!("CHAPTER {} / {}", c.chapter + 1, CHAPTERS.get().len()),
-        c.current().name.to_string(),
-        format!(
-            "Jobs {}/{}   •   Heaven Pass {}/{}",
-            c.done_count(),
-            c.current().tasks.len(),
-            c.tier(),
-            heaven_tiers()
-        ),
-        format!("»  {}", next_line(c)),
+        match on {
+            0 => "NO QUESTS YET".to_string(),
+            1 => "QUEST".to_string(),
+            n => format!("QUEST  ·  {n} on your list"),
+        },
+        followed(log, tracking).map_or_else(|| "Ask around".to_string(), |id| title(&id)),
+        format!("Heaven Pass {done}/{total}   •   quests done"),
+        format!("»  {}", next_line(log, tracking)),
     ]
 }
 
@@ -156,7 +159,8 @@ fn update(
     all: Res<crate::hud::ShowAll>,
     mut seen: Local<crate::hud::Recent>,
     mut last: Local<f32>,
-    campaign: Query<&Campaign>,
+    log: Query<&QuestLog>,
+    tracking: Res<Tracking>,
     pause: Query<&Node, With<PausePanel>>,
     mut card: Query<(&mut Visibility, &mut Node), (With<QuestCard>, Without<PausePanel>)>,
     mut texts: Query<
@@ -182,7 +186,7 @@ fn update(
     let Ok((mut vis, mut card_node)) = card.single_mut() else {
         return;
     };
-    let Ok(c) = campaign.single() else {
+    let Ok(c) = log.single() else {
         vis.set_if_neq(Visibility::Hidden);
         return;
     };
@@ -193,15 +197,13 @@ fn update(
     } else {
         Visibility::Inherited
     });
-    let [chapter, title, progress, next] = lines(c);
+    let [chapter, title, progress, next] = lines(c, tracking.0.as_deref());
     // `hud_tick` runs this a few times a second: count real time between runs.
     let now = time.elapsed_secs();
     let dt = (now - *last).max(0.0);
     *last = now;
-    let age = seen.tick(
-        crate::hud::key_of((c.chapter, c.done_count(), c.tier())),
-        dt,
-    );
+    let (done, total) = tier(c);
+    let age = seen.tick(crate::hud::key_of((&title, &next, done)), dt);
     let full = all.0 || full_card(age, &crate::hud::tuning());
     let (h, next_top) = shape(full);
     if card_node.height != px(h) {
@@ -213,7 +215,7 @@ fn update(
             node.display = d;
         }
     }
-    let share = c.done_count() as f32 / c.current().tasks.len().max(1) as f32;
+    let share = done as f32 / total.max(1) as f32;
     for mut node in &mut fill {
         let w = percent(share.clamp(0.0, 1.0) * 100.0);
         if node.width != w {
@@ -249,13 +251,21 @@ mod tests {
     use super::*;
 
     #[test]
-    fn counts_come_from_one_campaign() {
-        let c = Campaign::default();
-        let [chapter, _, progress, next] = lines(&c);
-        assert_eq!(chapter, "CHAPTER 1 / 5");
-        assert!(progress.starts_with("Jobs 0/"), "{progress}");
-        assert!(progress.ends_with(&format!("Heaven Pass 0/{}", heaven_tiers())));
+    fn counts_come_from_one_log() {
+        let book = QUESTS.get();
+        let mut log = QuestLog::fresh(&book);
+        let [head, _, progress, next] = lines(&log, None);
+        assert_eq!(head, "NO QUESTS YET");
+        assert!(progress.starts_with(&format!("Heaven Pass 0/{}", book.quests.len())));
         assert!(next.contains("now: "));
+        let first = book
+            .quests
+            .iter()
+            .find(|q| log.accept(&book, &q.id, None))
+            .map(|q| q.title.clone())
+            .unwrap_or_default();
+        let [head, title, _, _] = lines(&log, None);
+        assert_eq!((head.as_str(), title), ("QUEST", first));
     }
 
     #[test]

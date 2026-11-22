@@ -175,6 +175,11 @@ pub struct Look {
     /// The haze: its colour (sRGB) and where it starts and ends (m).
     #[serde(default)]
     pub fog: Option<Fog>,
+    /// Stops brighter the camera exposes here (an eye used to the dark): a
+    /// place lit by its own lamps sets it so they read at their real
+    /// brightness. 0 or missing: the outdoor exposure.
+    #[serde(default)]
+    pub exposure: Option<f32>,
 }
 
 #[derive(serde::Deserialize, Default, Debug, Clone, Copy, PartialEq)]
@@ -197,6 +202,8 @@ pub struct Light {
     pub fog_end: f32,
     /// True when a place's haze replaced the sky's (no sun glow in it).
     pub indoor_fog: bool,
+    /// Stops brighter than the outdoor exposure.
+    pub exposure: f32,
 }
 
 /// The winning look among the places you're in: highest priority, ties to
@@ -238,6 +245,9 @@ pub fn blend(outdoor: Light, look: Option<&Look>) -> Light {
         l.fog_end = f.end;
         l.indoor_fog = true;
     }
+    if let Some(stops) = look.exposure {
+        l.exposure = stops;
+    }
     l
 }
 
@@ -273,6 +283,7 @@ mod tests {
                 start: 2.0,
                 end: 20.0,
             }),
+            exposure: None,
         };
         looks.insert("hall".to_owned(), dark(1, 30.0));
         looks.insert("station".to_owned(), dark(2, 45.0));
@@ -288,7 +299,18 @@ mod tests {
             fog_start: 60.0,
             fog_end: 230.0,
             indoor_fog: false,
+            exposure: 0.0,
         }
+    }
+
+    #[test]
+    fn a_look_sets_the_exposure_and_leaving_drops_it() {
+        let lit = Look {
+            exposure: Some(4.0),
+            ..Default::default()
+        };
+        assert_eq!(blend(outdoor(), Some(&lit)).exposure, 4.0);
+        assert_eq!(blend(outdoor(), None).exposure, 0.0);
     }
 
     #[test]

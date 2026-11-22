@@ -1,0 +1,237 @@
+// Quests (crates/base/src/rules/quests.rs, story/src/features/quests.rs):
+// people round the world give them (quest_givers.ron), what they say is
+// data/text/quest_dialogue.ron. Finishing every quest gets everyone into heaven.
+// Edit and save: the running game picks it up within a second.
+//
+// Each quest: its id, title, giver, a one-line summary for the journal, and
+//   requires:       quests that have to be done first
+//   requires_count: how many other quests have to be done first
+//   steps:          what to do, in order: (text, signals: [..], need: n)
+//                   a step counts any of its signals, `need` times
+//   fails_on:       signals that fail it (talk to the giver to try again)
+//   enables:        flags on while it's active (features ask quests::enabled)
+//   reward:         KoriCoins™ each when it's done, instead of reward_kori
+//   needs_friends:  waived while you play alone
+//   variants:       other ways to do it, picked in the dialogue
+//                   (id, steps: Some([..]) instead of the steps, reward)
+//
+// Signals the game sends: mushroom, duel, hide_seek, pack, vault_open,
+// fire_totem, halt_escape, tear, jegg_delivery, abuela_visit, burger,
+// paul_stash, landlord:raise, landlord:heist, landlord:crime, landlord:boss,
+// landlord:won, toot, michael_watched, michael_toot, michael_toot_alone,
+// factory_in, factory_bump, fulton_caught, andrew_date:<ending>
+// (wall_husband, second_date, friends, soup), wallet_back,
+// ice_cream_fixed, lily_letters.
+(
+    // KoriCoins™ every player gets when a quest is done.
+    reward_kori: 1,
+    quests: [
+        // ---- New York: the friends' three.
+        (
+            id: "michael",
+            title: "Impress Michael",
+            giver: "superfan",
+            summary: "Watch the Michael Jackson Experience, then add a toot of your own to the show.",
+            steps: [
+                (text: "Watch Michael's show (stay in the house for 30 s)", signals: ["michael_watched"]),
+                (text: "Toot in the theatre ({fart}) while he's dancing", signals: ["michael_toot"]),
+            ],
+            variants: [
+                // Discreet: only a toot with nobody else near counts, and pays more.
+                (
+                    id: "discreet",
+                    steps: Some([
+                        (text: "Watch Michael's show (stay in the house for 30 s)", signals: ["michael_watched"]),
+                        (text: "Toot in the theatre ({fart}) with nobody near you", signals: ["michael_toot_alone"]),
+                    ]),
+                    reward: Some(2),
+                ),
+            ],
+        ),
+        (
+            id: "andrew",
+            title: "Date Andrew",
+            giver: "roommate",
+            summary: "Romance Andrew at the Fulton St computer terminals without the Fulton monster getting you.",
+            steps: [
+                (text: "Go down into Fulton St and date Andrew at a terminal: a Second Date or better", signals: ["andrew_date:second_date", "andrew_date:wall_husband"]),
+            ],
+            fails_on: ["fulton_caught"],
+            variants: [
+                // Wall Husband or nothing.
+                (
+                    id: "husband",
+                    steps: Some([
+                        (text: "Date Andrew at a Fulton St terminal until he moves in (Wall Husband)", signals: ["andrew_date:wall_husband"]),
+                    ]),
+                    reward: Some(2),
+                ),
+            ],
+        ),
+        (
+            id: "factory_bump",
+            title: "A Bump in Factory Town",
+            giver: "raver",
+            summary: "Get into Factory Town, the club on the Miami island over New York, and get a bump.",
+            steps: [
+                (text: "Get into Factory Town", signals: ["factory_in"]),
+                (text: "Buy a bump from the guy by the bar", signals: ["factory_bump"]),
+            ],
+        ),
+        // ---- The commune: the old checklist, now people asking.
+        (
+            id: "landlord",
+            title: "Free the Commune",
+            giver: "organiser",
+            summary: "The landlord keeps raising the rent. Keep up, then take it back, then take him down.",
+            requires_count: 3,
+            steps: [
+                (text: "Keep up with the rent until he snaps (pay him by clicking him)", signals: ["landlord:crime"]),
+                (text: "Take it back: rob him (click him)", signals: ["landlord:boss"]),
+                (text: "Beat the landlord in the boss fight", signals: ["landlord:won"]),
+            ],
+            enables: ["rent"],
+            reward: Some(3),
+        ),
+        (
+            id: "abuela",
+            title: "Visit Abuela",
+            giver: "abuela",
+            summary: "Climb the sky islands (south-east) to heaven and sit with Abuela.",
+            steps: [
+                (text: "Climb the sky islands and talk to Abuela", signals: ["abuela_visit"]),
+            ],
+        ),
+        (
+            id: "burgers",
+            title: "Wendy's Run",
+            giver: "cashier",
+            summary: "The cashier at Wendy's has a backlog of human meat burgers. Take some off her hands.",
+            steps: [
+                (text: "Grab human meat burgers at Wendy's", signals: ["burger"], need: 3),
+            ],
+        ),
+        (
+            id: "paul",
+            title: "Sewer Paul's Stash",
+            giver: "paul",
+            summary: "Trade crow eggs (the crows are by the windmill) to Sewer Paul down the manhole east.",
+            steps: [
+                (text: "Bring Sewer Paul a crow egg (from the windmill)", signals: ["paul_stash"], need: 2),
+            ],
+        ),
+        (
+            id: "jegg",
+            title: "Soul Pieces",
+            giver: "jegg",
+            summary: "Jegg needs soul pieces from inside the abandoned warehouse.",
+            steps: [
+                (text: "Bring soul pieces out of the warehouse to Jegg", signals: ["jegg_delivery"], need: 5),
+            ],
+        ),
+        (
+            id: "pack",
+            title: "A Pack of Your Own",
+            giver: "dog_walker",
+            summary: "The strays at the picnic corner need homes: adopt them and leash them into one pack.",
+            steps: [
+                (text: "Adopt the strays (one each) and leash them into one pack", signals: ["pack"]),
+            ],
+        ),
+        (
+            id: "mushroom",
+            title: "Forage",
+            giver: "forager",
+            summary: "The woodcutter's clearing grows voice mushrooms. Eat some and see what happens.",
+            steps: [
+                (text: "Eat voice mushrooms", signals: ["mushroom"], need: 3),
+            ],
+        ),
+        (
+            id: "vault",
+            title: "The Vault",
+            giver: "hermit",
+            summary: "Open a vault door: bring it the Wind totem (the hilltop, west) or the Frost totem (the lake shore).",
+            steps: [
+                (text: "Bring a totem (hilltop or lake shore) to its vault door", signals: ["vault_open"]),
+            ],
+        ),
+        (
+            id: "fire_totem",
+            title: "The Fire Totem",
+            giver: "hermit",
+            summary: "With the vault open, the Fire totem is in reach.",
+            requires: ["vault"],
+            steps: [
+                (text: "Take the Fire totem out of the vault", signals: ["fire_totem"]),
+            ],
+        ),
+        (
+            id: "halt",
+            title: "HALT!",
+            giver: "night_owl",
+            summary: "The Night Owl wants to see you break out of HALT. Only out after dark.",
+            steps: [
+                (text: "Get caught by HALT, then break out ({pry})", signals: ["halt_escape"], need: 2),
+            ],
+        ),
+        (
+            id: "tears",
+            title: "God's Tears",
+            giver: "preacher",
+            summary: "The tears of god fell once and never again. Use them before they're gone.",
+            steps: [
+                (text: "Use gods tears", signals: ["tear"], need: 5),
+            ],
+        ),
+        (
+            id: "hide_seek",
+            title: "Hide and Seek",
+            giver: "arena_kid",
+            summary: "The kid by the arena wants a proper game of hide and seek.",
+            steps: [
+                (text: "Play a round of hide and seek ({hide_seek})", signals: ["hide_seek"], need: 2),
+            ],
+            needs_friends: true,
+        ),
+        (
+            id: "duels",
+            title: "Duels",
+            giver: "arena_kid",
+            summary: "The kid wants to see a duel fought to the end.",
+            requires: ["hide_seek"],
+            steps: [
+                (text: "Fight duels ({duel_any} to challenge)", signals: ["duel"], need: 3),
+            ],
+            needs_friends: true,
+        ),
+        // ---- New ones.
+        (
+            id: "ice_cream",
+            title: "Fix the Ice Cream Machine",
+            giver: "ice_cream_kid",
+            summary: "The ice cream machine at High Places is broken again. Find its parts and fix it.",
+            steps: [
+                (text: "Find the machine's parts round High Places and fix it", signals: ["ice_cream_fixed"]),
+            ],
+        ),
+        (
+            id: "lily",
+            title: "Lily's Letters",
+            giver: "gardener",
+            summary: "Marigold and Juniper are too shy to talk. Carry their letters across the Lily Garden.",
+            steps: [
+                (text: "Carry every letter between Marigold and Juniper", signals: ["lily_letters"]),
+            ],
+        ),
+        (
+            id: "wallet",
+            title: "The Lost Wallet",
+            giver: "commuter",
+            summary: "Fulton St eats wallets. Lose yours on the way down and get it back.",
+            steps: [
+                (text: "Lose your wallet in Fulton St and find it again", signals: ["wallet_back"]),
+            ],
+        ),
+    ],
+)

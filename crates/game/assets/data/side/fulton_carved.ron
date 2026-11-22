@@ -1,0 +1,29 @@
+// The carved Fulton St (the modeler document `fulton-carved`, exported to
+// maps/fulton.bsn; crates/side-nyc/src/features/fulton_carved.rs).
+// Edit and save: the running game re-reads it within a second.
+(
+    // true: Fulton's street entrance leads into the carved map.
+    // false: it leads to the old generated station (still built, still there).
+    enabled: true,
+    // Where the map's own origin (its `fulton_entrance` spawn marker) sits in
+    // the world: deep under empty ground, past every other area's reach (x, y, z).
+    origin: (700.0, -300.0, 340.0),
+    // Walk this close (m) to the exit gate and you are back on the street.
+    exit_reach: 1.6,
+    // Lamps (the map's 100+ point lights) only shine this far (m) from the camera.
+    lamp_reach: 40.0,
+    // The lamps shine as bright as the map has them (the area's look, "fulton_carved"
+    // in data/base/place_looks.ron, sets the exposure); their reach is scaled by this.
+    lamp_range_gain: 1.4,
+    // A soft glow that goes with you, so no corner is pitch black (lumens, reach m).
+    follow_lumens: 80.0,
+    follow_range: 9.0,
+    // At most this many lamps shine at once (the nearest the camera can see).
+    max_lamps: 24,
+    // Seconds in the map when Andrew calls (the last call sends the monster).
+    call_secs: [25.0, 70.0, 120.0],
+    // The monster comes out of the nearest door at least this far (m) from you.
+    min_spawn_dist: 25.0,
+    // It searches lockers this close (m) to where it lost you.
+    search_reach: 30.0,
+)

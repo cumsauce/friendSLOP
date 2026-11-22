@@ -187,11 +187,13 @@ pub mod ui {
         pub intro: bool,
         /// The settings notebook, opened with Esc in game (#317).
         pub settings: bool,
+        /// Talking to someone (a quest giver's dialogue card).
+        pub talk: bool,
     }
 
     impl Overlay {
         pub fn any(self) -> bool {
-            self.journal || self.map || self.intro || self.settings
+            self.journal || self.map || self.intro || self.settings || self.talk
         }
     }
 

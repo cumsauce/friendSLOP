@@ -1,4 +1,4 @@
-//! Wonderland, the arcade off stage left of the Michael Jackson Experience:
+//! Neverland, the arcade off stage left of the Michael Jackson Experience:
 //! its Skee-Ball lanes and dartboards are playable.
 //!
 //! The machines are modeler markers on the theatre map (`Arcade`:
@@ -22,7 +22,7 @@
 //!   and doubles, the bull and the outer bull ([`board_hit`]).
 //!
 //! The numbers (speeds, sway, the lane's profile, the board's radii and
-//! sector order) are in `data/side/wonderland.ron`.
+//! sector order) are in `data/side/neverland.ron`.
 
 use bevy::input::mouse::AccumulatedMouseMotion;
 use bevy::prelude::*;
@@ -36,7 +36,7 @@ use crate::features::interact::{Clickable, Clicked};
 
 // ------------------------------------------------------------------ tuning
 
-/// `data/side/wonderland.ron` (read at run time).
+/// `data/side/neverland.ron` (read at run time).
 #[derive(Deserialize, Default, Debug, Clone)]
 pub struct Tuning {
     pub skeeball: SkeeTuning,
@@ -136,7 +136,7 @@ pub struct Radii {
 }
 
 pub static TUNING: friendslop_data::Data<Tuning> =
-    friendslop_data::Data::ron("data/side/wonderland.ron");
+    friendslop_data::Data::ron("data/side/neverland.ron");
 
 pub fn tuning() -> std::sync::Arc<Tuning> {
     TUNING.get()
@@ -1208,22 +1208,22 @@ fn stop(mut playing: ResMut<Playing>, mut busy: ResMut<HandsBusy>) {
     busy.0 = false;
 }
 
-/// `FRIENDSLOP_START=wonderland` (just inside the door), `wonderland_skeeball`
-/// (behind the first lane) and `wonderland_darts` (at the first oche).
+/// `FRIENDSLOP_START=neverland` (just inside the door), `neverland_skeeball`
+/// (behind the first lane) and `neverland_darts` (at the first oche).
 fn starts() -> Vec<(String, Vec3)> {
     let (lanes, boards) = machines();
     let mut out = vec![(
-        "wonderland".to_string(),
+        "neverland".to_string(),
         theater_at() + Vec3::new(26.8, -1.75, -11.0),
     )];
     if let Some(l) = lanes.first() {
         out.push((
-            "wonderland_skeeball".into(),
+            "neverland_skeeball".into(),
             Vec3::new(l.start.x, l.start.y - 0.5, l.start.z) - l.forward * 0.9,
         ));
     }
     if let Some(b) = boards.first() {
-        out.push(("wonderland_darts".into(), b.oche + Vec3::Y * 0.05));
+        out.push(("neverland_darts".into(), b.oche + Vec3::Y * 0.05));
     }
     out
 }

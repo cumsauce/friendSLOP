@@ -229,7 +229,7 @@ pub struct Pad {
     pub finish: bool,
 }
 
-/// A Wonderland arcade machine marker (the theatre's Skee-Ball lanes and
+/// A Neverland arcade machine marker (the theatre's Skee-Ball lanes and
 /// dartboards; the game reads them from the map file). `game` is `skeeball`
 /// (a lane's ball start, `id` = lane), `skeeball_hole` (that lane's hole
 /// worth `points`, `radius` metres wide), `dartboard` (the board's centre,

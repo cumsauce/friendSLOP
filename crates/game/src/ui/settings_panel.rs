@@ -212,16 +212,20 @@ enum Volume {
     /// The gamepad's stick deadzone and look speed (#361).
     Deadzone,
     Look,
+    /// Mouse look speed (the tigers drift it, #472).
+    Mouse,
 }
 
-/// Width of the two gamepad sliders, side by side on the Controls page.
+/// Width of a help column on the Controls page.
 const PAD_SLIDER_W: f32 = 300.0;
+/// Width of the three look sliders, side by side on the Controls page.
+const FEEL_SLIDER_W: f32 = 210.0;
 
 impl Volume {
     fn width(self) -> f32 {
         match self {
             Volume::Master | Volume::Voice => SLIDER_W,
-            Volume::Deadzone | Volume::Look => PAD_SLIDER_W,
+            Volume::Deadzone | Volume::Look | Volume::Mouse => FEEL_SLIDER_W,
         }
     }
 
@@ -232,7 +236,7 @@ impl Volume {
             // 0.05 apart up to 0.4.
             Volume::Deadzone => 8.0,
             // 0.25 apart from 0.25 to 3 (1x is a step).
-            Volume::Look => 11.0,
+            Volume::Look | Volume::Mouse => 11.0,
         }
     }
 
@@ -244,6 +248,9 @@ impl Volume {
             Volume::Deadzone => p.deadzone / PadSettings::MAX_DEADZONE,
             Volume::Look => {
                 (p.look - PadSettings::LOOK_MIN) / (PadSettings::LOOK_MAX - PadSettings::LOOK_MIN)
+            }
+            Volume::Mouse => {
+                (p.mouse - PadSettings::LOOK_MIN) / (PadSettings::LOOK_MAX - PadSettings::LOOK_MIN)
             }
         }
     }
@@ -261,6 +268,10 @@ impl Volume {
                 &mut p.look,
                 lerp(PadSettings::LOOK_MIN, PadSettings::LOOK_MAX),
             ),
+            Volume::Mouse => (
+                &mut p.mouse,
+                lerp(PadSettings::LOOK_MIN, PadSettings::LOOK_MAX),
+            ),
         };
         if (*field - want).abs() > 1e-4 {
             *field = want;
@@ -271,6 +282,7 @@ impl Volume {
     fn shown(self, s: &Settings, p: &PadSettings) -> String {
         match self {
             Volume::Look => format!("{:.2}x", p.look),
+            Volume::Mouse => format!("{:.2}x", p.mouse),
             Volume::Deadzone => format!("{}%", (p.deadzone * 100.0).round() as i32),
             v => format!("{}%", (v.frac(s, p) * 100.0).round() as i32),
         }
@@ -533,15 +545,16 @@ fn notebook(p: &mut ChildSpawnerCommands, check: &Handle<Image>) {
         .observe(|_: On<PointerClick>, mut pad: ResMut<PadSettings>| {
             pad.labels = next_labels(pad.labels);
         });
-        // The gamepad's feel (#361), side by side.
+        // The gamepad's feel (#361) and the mouse's (#472), side by side.
         for (v, name, x) in [
             (Volume::Deadzone, "Stick deadzone", 18.0),
-            (Volume::Look, "Stick look speed", 370.0),
+            (Volume::Look, "Stick look", 252.0),
+            (Volume::Mouse, "Mouse look", 486.0),
         ] {
             c.spawn(label(name, 17.0, TEXT, x, 52.0, B));
             c.spawn((
                 Part::Pct(v),
-                label("", 17.0, ACCENT, x + PAD_SLIDER_W - 54.0, 52.0, B),
+                label("", 17.0, ACCENT, x + FEEL_SLIDER_W - 54.0, 52.0, B),
             ));
             slider(c, v, x - B, 82.0 - B);
         }

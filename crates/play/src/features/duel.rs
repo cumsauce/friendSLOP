@@ -1165,6 +1165,7 @@ fn fight_controls(
     duelists: Query<&Duelist>,
     mut cursor: Query<&mut CursorOptions, With<PrimaryWindow>>,
     mut view: ResMut<DuelView>,
+    mouse_look: Option<Res<crate::controls::MouseLook>>,
 ) {
     let Some(d) = my_duelist(me.as_deref(), &duelists) else {
         view.last_sent = None;
@@ -1182,7 +1183,7 @@ fn fight_controls(
         c.grab_mode = CursorGrabMode::Locked;
         c.visible = false;
     }
-    let sens = super::fps::tuning().look_sensitivity;
+    let sens = super::fps::tuning().look_sensitivity * mouse_look.map_or(1.0, |m| m.0);
     view.yaw -= motion.delta.x * sens;
     view.pitch = (view.pitch - motion.delta.y * sens).clamp(-1.5, 1.5);
     let mut stick = Vec2::ZERO;

@@ -529,6 +529,10 @@ free, and organ dollars only buy boba, joints and hats so far (and Wendy's butch
 - **Steam Deck / gamepad-only play** (#361). Pad-navigable menus with a focus ring, a hex keypad
   for join codes, and stick deadzone sliders. `ui/pad_nav.rs`. Open: not tried on a real Deck;
   the creator and fault panels aren't pad-navigable.
+- **Tigers** (#472, not actual tigers). Settings > Controls has a "Mouse look" speed slider.
+  Each time you change it and go back to the game, your mouse look starts slowly sliding up or
+  down (a coin flip, about 10% a minute, stops at 0.2x or 5x) until you change it again.
+  `tigers.rs`, `data/game/tigers.ron`.
 - **Video settings** (#106, #132, #393). Settings > Video has Low/Medium/High presets plus
   per-option toggles (shadows, ambient occlusion, bloom, anti-aliasing, draw distance, resolution,
   VSync, fullscreen), saved locally. Low is the default in the browser and on Steam Deck, and
@@ -687,6 +691,7 @@ free, and organ dollars only buy boba, joints and hats so far (and Wendy's butch
 - #377: The Jokah, laughing Michael Jackson impersonator walking Wendy's to J station; Fulton St loop.
 - catherine (#382): KoriCoins™ from farts and poop buy claw machine figures; hold one for speed.
 - catherine (#459): a fully built claw machine game with physics, like Yakuza 0; one in every boba store and subway station.
+- bben (#472): "tigers": mouse look speed drifts up or down after each time you adjust it. No actual tigers.
 
 ## Open questions
 

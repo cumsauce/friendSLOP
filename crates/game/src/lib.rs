@@ -44,6 +44,7 @@ pub mod bot;
 pub mod perf;
 pub mod scenery;
 pub mod screenshot;
+pub mod tigers;
 pub use friendslop_art::theme;
 pub use friendslop_base::night_lights;
 pub use friendslop_base::place;
@@ -135,6 +136,7 @@ impl Plugin for GamePlugin {
         app.add_plugins((
             input::plugin,
             controls::plugin,
+            tigers::plugin,
             graphics::plugin,
             surfaces::plugin,
             fault::plugin,
@@ -168,6 +170,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
     files.push(&ui::map::TUNING);
     files.push(&lod::TREES);
     files.push(&controls::PAD);
+    files.push(&tigers::TUNING);
     files.push(&bot::ROUTES);
     files.push(&ui::annotations::LINES);
     files

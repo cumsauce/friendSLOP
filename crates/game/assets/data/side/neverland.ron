@@ -1,0 +1,87 @@
+// Neverland, the arcade off stage left of the Michael Jackson Experience
+// (crates/side-nyc/src/features/neverland.rs): the Skee-Ball lanes and the
+// dartboards. Edit and save: the running game picks it up within a second.
+(
+    skeeball: (
+        // Balls a game, and the ball's radius (m).
+        balls: 9,
+        ball_radius: 0.032,
+        // Roll speed (m/s) at no charge and at full charge. The ramp needs
+        // about 3 to get over; harder reaches higher holes: the 100s need a
+        // near-full throw (and lining up over to the corner).
+        speed_min: 3.0,
+        speed_max: 5.6,
+        // Seconds for the charge meter to fill (it swings back down).
+        charge_secs: 2.0,
+        // How far (m) either side of the middle the ball may be lined up, per
+        // pixel of mouse, and per second of a walk key.
+        aim_limit: 0.24,
+        aim_per_px: 0.0008,
+        aim_key_speed: 0.35,
+        gravity: 9.81,
+        // Speed (m/s) a ball loses each second just rolling.
+        roll_drag: 0.15,
+        // The lane's side profile from the ball's start (the marker):
+        // (metres toward the board, height): the flat lane, then the launch
+        // ramp up to its lip.
+        profile: [(-0.1, -0.02), (1.9, -0.02), (2.6, 0.2)],
+        lip: 2.6,
+        // The slanted board, bottom and top (metres toward the board, height).
+        board: ((2.9, 0.08), (3.57, 0.93)),
+        // How much of its speed's height the ball keeps landing on the board:
+        // how far up the board a throw reaches (energy x speed^2 / 2g / slope).
+        board_energy: 0.6,
+        // How far (m along the board) from where the ball tops out a hole
+        // still takes it, and how far (m across) from the hole's line.
+        reach_tolerance: 0.03,
+        aim_tolerance: 0.1,
+        // Rolled back past this (m) and it's home again.
+        return_x: -0.3,
+        // Seconds of the flight onto the board, of dropping into a hole, and
+        // of the slide back down after a miss; how high (m) the flight arcs.
+        flight_secs: 0.35,
+        sink_secs: 0.4,
+        slide_secs: 0.7,
+        flight_arc: 0.12,
+        // Your eye while you play, from the start marker: metres along the
+        // lane, height; and what it looks at (metres along, height).
+        eye: (-0.7, 0.75, 0.0),
+        look: (3.0, 0.7),
+        // Seconds between one ball ending and the next being ready.
+        rest_secs: 0.6,
+    ),
+    darts: (
+        // 501, out on a double, three darts a visit.
+        start: 501,
+        per_visit: 3,
+        // How far (m) your hand wanders on the board, and while holding your
+        // breath; seconds of breath, and how fast it comes back.
+        sway: 0.05,
+        steady_sway: 0.012,
+        breath_secs: 3.0,
+        breath_regain: 0.5,
+        // How far (degrees) you can look from the board; radians per pixel.
+        look_limit_deg: 14.0,
+        rad_per_px: 0.0009,
+        // The release scatters a dart this far (m) whatever the hand did.
+        release_scatter: 0.012,
+        // Seconds a dart flies, and the arc's height (m).
+        flight_secs: 0.18,
+        flight_arc: 0.12,
+        // Your eye over the oche (m).
+        eye_height: 1.6,
+        // Seconds the darts stay in the board after a visit.
+        clear_secs: 1.4,
+        // The board's rings, metres from the bull (regulation).
+        radii: (
+            bull: 0.0064,
+            outer_bull: 0.0159,
+            treble_in: 0.099,
+            treble_out: 0.107,
+            double_in: 0.162,
+            double_out: 0.170,
+        ),
+        // The numbers round the board, clockwise from the top.
+        sector_order: [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5],
+    ),
+)

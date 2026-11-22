@@ -1,0 +1,328 @@
+{
+  "name": "wl-carpet",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "base",
+      "type": "color",
+      "value": "#16113a"
+    },
+    {
+      "name": "n",
+      "octaves": 3,
+      "seed": 3,
+      "size": 0.02,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "floor",
+      "stops": [
+        [
+          0,
+          "#120e32"
+        ],
+        [
+          1,
+          "#1d1650"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "name": "tg",
+      "size": [
+        0.5,
+        0.5
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "name": "xf",
+      "offset": [
+        0.25,
+        0.25
+      ],
+      "type": "transform"
+    },
+    {
+      "coords": "xf",
+      "name": "tg2",
+      "size": [
+        0.5,
+        0.5
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "id": "tg.id",
+      "name": "r1",
+      "type": "random"
+    },
+    {
+      "id": "tg2.id",
+      "name": "r2",
+      "type": "random"
+    },
+    {
+      "input": "r1",
+      "name": "pal1",
+      "stops": [
+        [
+          0,
+          "#ff3ea5"
+        ],
+        [
+          0.33,
+          "#27e1ff"
+        ],
+        [
+          0.66,
+          "#ffe14a"
+        ],
+        [
+          1,
+          "#7dff6a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "input": "r2",
+      "name": "pal2",
+      "stops": [
+        [
+          0,
+          "#27e1ff"
+        ],
+        [
+          0.5,
+          "#ff3ea5"
+        ],
+        [
+          1,
+          "#ffe14a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "coords": "tg.local",
+      "inner": 0.045,
+      "name": "st",
+      "points": 5,
+      "radius": 0.1,
+      "type": "star"
+    },
+    {
+      "name": "m1",
+      "sdf": "st",
+      "type": "mask"
+    },
+    {
+      "coords": "tg2.local",
+      "name": "ci",
+      "radius": 0.035,
+      "type": "circle"
+    },
+    {
+      "name": "m2",
+      "sdf": "ci",
+      "type": "mask"
+    },
+    {
+      "a": "floor",
+      "b": "pal1",
+      "name": "c1",
+      "opacity": "m1",
+      "type": "blend"
+    },
+    {
+      "a": "c1",
+      "b": "pal2",
+      "name": "c2",
+      "opacity": "m2",
+      "type": "blend"
+    },
+    {
+      "base_color": "c2",
+      "name": "o",
+      "roughness": 0.95,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "wl-carpet",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "base",
+              "type": "color",
+              "value": "#16113a"
+            },
+            {
+              "name": "n",
+              "octaves": 3,
+              "seed": 3,
+              "size": 0.02,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "floor",
+              "stops": [
+                [
+                  0,
+                  "#120e32"
+                ],
+                [
+                  1,
+                  "#1d1650"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "name": "tg",
+              "size": [
+                0.5,
+                0.5
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "name": "xf",
+              "offset": [
+                0.25,
+                0.25
+              ],
+              "type": "transform"
+            },
+            {
+              "coords": "xf",
+              "name": "tg2",
+              "size": [
+                0.5,
+                0.5
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "id": "tg.id",
+              "name": "r1",
+              "type": "random"
+            },
+            {
+              "id": "tg2.id",
+              "name": "r2",
+              "type": "random"
+            },
+            {
+              "input": "r1",
+              "name": "pal1",
+              "stops": [
+                [
+                  0,
+                  "#ff3ea5"
+                ],
+                [
+                  0.33,
+                  "#27e1ff"
+                ],
+                [
+                  0.66,
+                  "#ffe14a"
+                ],
+                [
+                  1,
+                  "#7dff6a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "input": "r2",
+              "name": "pal2",
+              "stops": [
+                [
+                  0,
+                  "#27e1ff"
+                ],
+                [
+                  0.5,
+                  "#ff3ea5"
+                ],
+                [
+                  1,
+                  "#ffe14a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "coords": "tg.local",
+              "inner": 0.045,
+              "name": "st",
+              "points": 5,
+              "radius": 0.1,
+              "type": "star"
+            },
+            {
+              "name": "m1",
+              "sdf": "st",
+              "type": "mask"
+            },
+            {
+              "coords": "tg2.local",
+              "name": "ci",
+              "radius": 0.035,
+              "type": "circle"
+            },
+            {
+              "name": "m2",
+              "sdf": "ci",
+              "type": "mask"
+            },
+            {
+              "a": "floor",
+              "b": "pal1",
+              "name": "c1",
+              "opacity": "m1",
+              "type": "blend"
+            },
+            {
+              "a": "c1",
+              "b": "pal2",
+              "name": "c2",
+              "opacity": "m2",
+              "type": "blend"
+            },
+            {
+              "base_color": "c2",
+              "name": "o",
+              "roughness": 0.95,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+base +n +floor +tg +xf +tg2 +r1 +r2 +pal1 +pal2 +st +m1 +ci +m2 +c1 +c2 +o"
+      }
+    ],
+    "current": 0
+  }
+}

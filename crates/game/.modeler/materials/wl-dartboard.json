@@ -1,0 +1,1528 @@
+{
+  "name": "wl-dartboard",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 0.5,
+  "resolution": 1024,
+  "nodes": [
+    {
+      "center": [
+        0.25,
+        0.25
+      ],
+      "name": "p",
+      "type": "polar"
+    },
+    {
+      "input": "p",
+      "name": "ps",
+      "type": "split"
+    },
+    {
+      "a": "ps.x",
+      "b": 10,
+      "name": "ph",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "ph",
+      "b": 0.5,
+      "name": "phs",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "phs",
+      "name": "f",
+      "op": "fract",
+      "type": "math"
+    },
+    {
+      "a": 0.5,
+      "b": "f",
+      "name": "par",
+      "op": "step",
+      "type": "math"
+    },
+    {
+      "a": "ps.y",
+      "b": 0,
+      "name": "r",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "name": "cream",
+      "type": "color",
+      "value": "#ead9b0"
+    },
+    {
+      "name": "blk",
+      "type": "color",
+      "value": "#121212"
+    },
+    {
+      "name": "red",
+      "type": "color",
+      "value": "#cf2424"
+    },
+    {
+      "name": "grn",
+      "type": "color",
+      "value": "#1c8a3c"
+    },
+    {
+      "a": "cream",
+      "b": "blk",
+      "c": "par",
+      "name": "single",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "grn",
+      "b": "red",
+      "c": "par",
+      "name": "ringc",
+      "op": "mix",
+      "type": "math"
+    },
+    {
+      "a": "r",
+      "b": 0.162,
+      "name": "d1",
+      "op": "step",
+      "type": "math"
+    },
+    {
+      "a": 0.17,
+      "b": "r",
+      "name": "d2",
+      "op": "step",
+      "type": "math"
+    },
+    {
+      "a": "d1",
+      "b": "d2",
+      "name": "dbl",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "r",
+      "b": 0.099,
+      "name": "t1",
+      "op": "step",
+      "type": "math"
+    },
+    {
+      "a": 0.107,
+      "b": "r",
+      "name": "t2",
+      "op": "step",
+      "type": "math"
+    },
+    {
+      "a": "t1",
+      "b": "t2",
+      "name": "tre",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "dbl",
+      "b": "tre",
+      "name": "ring",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "a": "r",
+      "b": 0.17,
+      "name": "outer",
+      "op": "step",
+      "type": "math"
+    },
+    {
+      "a": 0.0159,
+      "b": "r",
+      "name": "ob",
+      "op": "step",
+      "type": "math"
+    },
+    {
+      "a": 0.0064,
+      "b": "r",
+      "name": "bb",
+      "op": "step",
+      "type": "math"
+    },
+    {
+      "a": "single",
+      "b": "ringc",
+      "name": "b1",
+      "opacity": "ring",
+      "type": "blend"
+    },
+    {
+      "a": "b1",
+      "b": "blk",
+      "name": "b2",
+      "opacity": "outer",
+      "type": "blend"
+    },
+    {
+      "a": "b2",
+      "b": "grn",
+      "name": "b3",
+      "opacity": "ob",
+      "type": "blend"
+    },
+    {
+      "a": "b3",
+      "b": "red",
+      "name": "b4",
+      "opacity": "bb",
+      "type": "blend"
+    },
+    {
+      "angle": 0,
+      "center": [
+        0.25,
+        0.05249999999999999
+      ],
+      "font": "bold",
+      "name": "tx0",
+      "size": 0.026,
+      "text": "20",
+      "type": "text"
+    },
+    {
+      "angle": -18,
+      "center": [
+        0.3110308563890521,
+        0.06216633803170718
+      ],
+      "font": "bold",
+      "name": "tx1",
+      "size": 0.026,
+      "text": "1",
+      "type": "text"
+    },
+    {
+      "a": "tx0",
+      "b": "tx1",
+      "name": "u1",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -36,
+      "center": [
+        0.3660875873277635,
+        0.09021914361094788
+      ],
+      "font": "bold",
+      "name": "tx2",
+      "size": 0.026,
+      "text": "18",
+      "type": "text"
+    },
+    {
+      "a": "u1",
+      "b": "tx2",
+      "name": "u2",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -54,
+      "center": [
+        0.40978085638905215,
+        0.13391241267223655
+      ],
+      "font": "bold",
+      "name": "tx3",
+      "size": 0.026,
+      "text": "4",
+      "type": "text"
+    },
+    {
+      "a": "u2",
+      "b": "tx3",
+      "name": "u3",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -72,
+      "center": [
+        0.4378336619682928,
+        0.18896914361094788
+      ],
+      "font": "bold",
+      "name": "tx4",
+      "size": 0.026,
+      "text": "13",
+      "type": "text"
+    },
+    {
+      "a": "u3",
+      "b": "tx4",
+      "name": "u4",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -90,
+      "center": [
+        0.4475,
+        0.25
+      ],
+      "font": "bold",
+      "name": "tx5",
+      "size": 0.026,
+      "text": "6",
+      "type": "text"
+    },
+    {
+      "a": "u4",
+      "b": "tx5",
+      "name": "u5",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -108,
+      "center": [
+        0.4378336619682929,
+        0.3110308563890521
+      ],
+      "font": "bold",
+      "name": "tx6",
+      "size": 0.026,
+      "text": "10",
+      "type": "text"
+    },
+    {
+      "a": "u5",
+      "b": "tx6",
+      "name": "u6",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -126,
+      "center": [
+        0.40978085638905215,
+        0.3660875873277634
+      ],
+      "font": "bold",
+      "name": "tx7",
+      "size": 0.026,
+      "text": "15",
+      "type": "text"
+    },
+    {
+      "a": "u6",
+      "b": "tx7",
+      "name": "u7",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -144,
+      "center": [
+        0.3660875873277635,
+        0.4097808563890521
+      ],
+      "font": "bold",
+      "name": "tx8",
+      "size": 0.026,
+      "text": "2",
+      "type": "text"
+    },
+    {
+      "a": "u7",
+      "b": "tx8",
+      "name": "u8",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -162,
+      "center": [
+        0.31103085638905215,
+        0.4378336619682928
+      ],
+      "font": "bold",
+      "name": "tx9",
+      "size": 0.026,
+      "text": "17",
+      "type": "text"
+    },
+    {
+      "a": "u8",
+      "b": "tx9",
+      "name": "u9",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -180,
+      "center": [
+        0.25,
+        0.4475
+      ],
+      "font": "bold",
+      "name": "tx10",
+      "size": 0.026,
+      "text": "3",
+      "type": "text"
+    },
+    {
+      "a": "u9",
+      "b": "tx10",
+      "name": "u10",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -198,
+      "center": [
+        0.1889691436109479,
+        0.4378336619682929
+      ],
+      "font": "bold",
+      "name": "tx11",
+      "size": 0.026,
+      "text": "19",
+      "type": "text"
+    },
+    {
+      "a": "u10",
+      "b": "tx11",
+      "name": "u11",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -216,
+      "center": [
+        0.13391241267223658,
+        0.40978085638905215
+      ],
+      "font": "bold",
+      "name": "tx12",
+      "size": 0.026,
+      "text": "7",
+      "type": "text"
+    },
+    {
+      "a": "u11",
+      "b": "tx12",
+      "name": "u12",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -234,
+      "center": [
+        0.0902191436109479,
+        0.3660875873277635
+      ],
+      "font": "bold",
+      "name": "tx13",
+      "size": 0.026,
+      "text": "16",
+      "type": "text"
+    },
+    {
+      "a": "u12",
+      "b": "tx13",
+      "name": "u13",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -252,
+      "center": [
+        0.06216633803170718,
+        0.31103085638905215
+      ],
+      "font": "bold",
+      "name": "tx14",
+      "size": 0.026,
+      "text": "8",
+      "type": "text"
+    },
+    {
+      "a": "u13",
+      "b": "tx14",
+      "name": "u14",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -270,
+      "center": [
+        0.05249999999999999,
+        0.25000000000000006
+      ],
+      "font": "bold",
+      "name": "tx15",
+      "size": 0.026,
+      "text": "11",
+      "type": "text"
+    },
+    {
+      "a": "u14",
+      "b": "tx15",
+      "name": "u15",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -288,
+      "center": [
+        0.06216633803170715,
+        0.1889691436109479
+      ],
+      "font": "bold",
+      "name": "tx16",
+      "size": 0.026,
+      "text": "14",
+      "type": "text"
+    },
+    {
+      "a": "u15",
+      "b": "tx16",
+      "name": "u16",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -306,
+      "center": [
+        0.09021914361094784,
+        0.13391241267223658
+      ],
+      "font": "bold",
+      "name": "tx17",
+      "size": 0.026,
+      "text": "9",
+      "type": "text"
+    },
+    {
+      "a": "u16",
+      "b": "tx17",
+      "name": "u17",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -324,
+      "center": [
+        0.13391241267223652,
+        0.0902191436109479
+      ],
+      "font": "bold",
+      "name": "tx18",
+      "size": 0.026,
+      "text": "12",
+      "type": "text"
+    },
+    {
+      "a": "u17",
+      "b": "tx18",
+      "name": "u18",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "angle": -342,
+      "center": [
+        0.18896914361094783,
+        0.06216633803170718
+      ],
+      "font": "bold",
+      "name": "tx19",
+      "size": 0.026,
+      "text": "5",
+      "type": "text"
+    },
+    {
+      "a": "u18",
+      "b": "tx19",
+      "name": "u19",
+      "op": "union",
+      "type": "sdf_op"
+    },
+    {
+      "name": "mtxt",
+      "sdf": "u19",
+      "softness": 0.0006,
+      "type": "mask"
+    },
+    {
+      "name": "wht",
+      "type": "color",
+      "value": "#f4f0e6"
+    },
+    {
+      "a": "b4",
+      "b": "wht",
+      "name": "b5",
+      "opacity": "mtxt",
+      "type": "blend"
+    },
+    {
+      "center": [
+        0.25,
+        0.25
+      ],
+      "name": "w0",
+      "radius": 0.0064,
+      "type": "circle"
+    },
+    {
+      "mode": "stroke",
+      "name": "mw0",
+      "sdf": "w0",
+      "type": "mask",
+      "width": 0.0011
+    },
+    {
+      "center": [
+        0.25,
+        0.25
+      ],
+      "name": "w1",
+      "radius": 0.0159,
+      "type": "circle"
+    },
+    {
+      "mode": "stroke",
+      "name": "mw1",
+      "sdf": "w1",
+      "type": "mask",
+      "width": 0.0011
+    },
+    {
+      "center": [
+        0.25,
+        0.25
+      ],
+      "name": "w2",
+      "radius": 0.099,
+      "type": "circle"
+    },
+    {
+      "mode": "stroke",
+      "name": "mw2",
+      "sdf": "w2",
+      "type": "mask",
+      "width": 0.0011
+    },
+    {
+      "center": [
+        0.25,
+        0.25
+      ],
+      "name": "w3",
+      "radius": 0.107,
+      "type": "circle"
+    },
+    {
+      "mode": "stroke",
+      "name": "mw3",
+      "sdf": "w3",
+      "type": "mask",
+      "width": 0.0011
+    },
+    {
+      "center": [
+        0.25,
+        0.25
+      ],
+      "name": "w4",
+      "radius": 0.162,
+      "type": "circle"
+    },
+    {
+      "mode": "stroke",
+      "name": "mw4",
+      "sdf": "w4",
+      "type": "mask",
+      "width": 0.0011
+    },
+    {
+      "center": [
+        0.25,
+        0.25
+      ],
+      "name": "w5",
+      "radius": 0.17,
+      "type": "circle"
+    },
+    {
+      "mode": "stroke",
+      "name": "mw5",
+      "sdf": "w5",
+      "type": "mask",
+      "width": 0.0011
+    },
+    {
+      "name": "silver",
+      "type": "color",
+      "value": "#c9ced6"
+    },
+    {
+      "a": "b5",
+      "b": "silver",
+      "name": "bw0",
+      "opacity": "mw0",
+      "type": "blend"
+    },
+    {
+      "a": "bw0",
+      "b": "silver",
+      "name": "bw1",
+      "opacity": "mw1",
+      "type": "blend"
+    },
+    {
+      "a": "bw1",
+      "b": "silver",
+      "name": "bw2",
+      "opacity": "mw2",
+      "type": "blend"
+    },
+    {
+      "a": "bw2",
+      "b": "silver",
+      "name": "bw3",
+      "opacity": "mw3",
+      "type": "blend"
+    },
+    {
+      "a": "bw3",
+      "b": "silver",
+      "name": "bw4",
+      "opacity": "mw4",
+      "type": "blend"
+    },
+    {
+      "a": "bw4",
+      "b": "silver",
+      "name": "bw5",
+      "opacity": "mw5",
+      "type": "blend"
+    },
+    {
+      "name": "fib",
+      "octaves": 2,
+      "seed": 2,
+      "size": 0.004,
+      "type": "noise"
+    },
+    {
+      "from": [
+        0,
+        1
+      ],
+      "input": "fib",
+      "name": "fibr",
+      "to": [
+        0.82,
+        1.0
+      ],
+      "type": "remap"
+    },
+    {
+      "a": "bw5",
+      "b": "fibr",
+      "name": "final",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "final",
+      "name": "o",
+      "roughness": 0.95,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "wl-dartboard",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 0.5,
+          "resolution": 1024,
+          "nodes": [
+            {
+              "center": [
+                0.25,
+                0.25
+              ],
+              "name": "p",
+              "type": "polar"
+            },
+            {
+              "input": "p",
+              "name": "ps",
+              "type": "split"
+            },
+            {
+              "a": "ps.x",
+              "b": 10,
+              "name": "ph",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "ph",
+              "b": 0.5,
+              "name": "phs",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "phs",
+              "name": "f",
+              "op": "fract",
+              "type": "math"
+            },
+            {
+              "a": 0.5,
+              "b": "f",
+              "name": "par",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "a": "ps.y",
+              "b": 0,
+              "name": "r",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "name": "cream",
+              "type": "color",
+              "value": "#ead9b0"
+            },
+            {
+              "name": "blk",
+              "type": "color",
+              "value": "#121212"
+            },
+            {
+              "name": "red",
+              "type": "color",
+              "value": "#cf2424"
+            },
+            {
+              "name": "grn",
+              "type": "color",
+              "value": "#1c8a3c"
+            },
+            {
+              "a": "cream",
+              "b": "blk",
+              "c": "par",
+              "name": "single",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "grn",
+              "b": "red",
+              "c": "par",
+              "name": "ringc",
+              "op": "mix",
+              "type": "math"
+            },
+            {
+              "a": "r",
+              "b": 0.162,
+              "name": "d1",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "a": 0.17,
+              "b": "r",
+              "name": "d2",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "a": "d1",
+              "b": "d2",
+              "name": "dbl",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "r",
+              "b": 0.099,
+              "name": "t1",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "a": 0.107,
+              "b": "r",
+              "name": "t2",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "a": "t1",
+              "b": "t2",
+              "name": "tre",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "dbl",
+              "b": "tre",
+              "name": "ring",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "a": "r",
+              "b": 0.17,
+              "name": "outer",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "a": 0.0159,
+              "b": "r",
+              "name": "ob",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "a": 0.0064,
+              "b": "r",
+              "name": "bb",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "a": "single",
+              "b": "ringc",
+              "name": "b1",
+              "opacity": "ring",
+              "type": "blend"
+            },
+            {
+              "a": "b1",
+              "b": "blk",
+              "name": "b2",
+              "opacity": "outer",
+              "type": "blend"
+            },
+            {
+              "a": "b2",
+              "b": "grn",
+              "name": "b3",
+              "opacity": "ob",
+              "type": "blend"
+            },
+            {
+              "a": "b3",
+              "b": "red",
+              "name": "b4",
+              "opacity": "bb",
+              "type": "blend"
+            },
+            {
+              "angle": 0,
+              "center": [
+                0.25,
+                0.05249999999999999
+              ],
+              "font": "bold",
+              "name": "tx0",
+              "size": 0.026,
+              "text": "20",
+              "type": "text"
+            },
+            {
+              "angle": -18,
+              "center": [
+                0.3110308563890521,
+                0.06216633803170718
+              ],
+              "font": "bold",
+              "name": "tx1",
+              "size": 0.026,
+              "text": "1",
+              "type": "text"
+            },
+            {
+              "a": "tx0",
+              "b": "tx1",
+              "name": "u1",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -36,
+              "center": [
+                0.3660875873277635,
+                0.09021914361094788
+              ],
+              "font": "bold",
+              "name": "tx2",
+              "size": 0.026,
+              "text": "18",
+              "type": "text"
+            },
+            {
+              "a": "u1",
+              "b": "tx2",
+              "name": "u2",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -54,
+              "center": [
+                0.40978085638905215,
+                0.13391241267223655
+              ],
+              "font": "bold",
+              "name": "tx3",
+              "size": 0.026,
+              "text": "4",
+              "type": "text"
+            },
+            {
+              "a": "u2",
+              "b": "tx3",
+              "name": "u3",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -72,
+              "center": [
+                0.4378336619682928,
+                0.18896914361094788
+              ],
+              "font": "bold",
+              "name": "tx4",
+              "size": 0.026,
+              "text": "13",
+              "type": "text"
+            },
+            {
+              "a": "u3",
+              "b": "tx4",
+              "name": "u4",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -90,
+              "center": [
+                0.4475,
+                0.25
+              ],
+              "font": "bold",
+              "name": "tx5",
+              "size": 0.026,
+              "text": "6",
+              "type": "text"
+            },
+            {
+              "a": "u4",
+              "b": "tx5",
+              "name": "u5",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -108,
+              "center": [
+                0.4378336619682929,
+                0.3110308563890521
+              ],
+              "font": "bold",
+              "name": "tx6",
+              "size": 0.026,
+              "text": "10",
+              "type": "text"
+            },
+            {
+              "a": "u5",
+              "b": "tx6",
+              "name": "u6",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -126,
+              "center": [
+                0.40978085638905215,
+                0.3660875873277634
+              ],
+              "font": "bold",
+              "name": "tx7",
+              "size": 0.026,
+              "text": "15",
+              "type": "text"
+            },
+            {
+              "a": "u6",
+              "b": "tx7",
+              "name": "u7",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -144,
+              "center": [
+                0.3660875873277635,
+                0.4097808563890521
+              ],
+              "font": "bold",
+              "name": "tx8",
+              "size": 0.026,
+              "text": "2",
+              "type": "text"
+            },
+            {
+              "a": "u7",
+              "b": "tx8",
+              "name": "u8",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -162,
+              "center": [
+                0.31103085638905215,
+                0.4378336619682928
+              ],
+              "font": "bold",
+              "name": "tx9",
+              "size": 0.026,
+              "text": "17",
+              "type": "text"
+            },
+            {
+              "a": "u8",
+              "b": "tx9",
+              "name": "u9",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -180,
+              "center": [
+                0.25,
+                0.4475
+              ],
+              "font": "bold",
+              "name": "tx10",
+              "size": 0.026,
+              "text": "3",
+              "type": "text"
+            },
+            {
+              "a": "u9",
+              "b": "tx10",
+              "name": "u10",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -198,
+              "center": [
+                0.1889691436109479,
+                0.4378336619682929
+              ],
+              "font": "bold",
+              "name": "tx11",
+              "size": 0.026,
+              "text": "19",
+              "type": "text"
+            },
+            {
+              "a": "u10",
+              "b": "tx11",
+              "name": "u11",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -216,
+              "center": [
+                0.13391241267223658,
+                0.40978085638905215
+              ],
+              "font": "bold",
+              "name": "tx12",
+              "size": 0.026,
+              "text": "7",
+              "type": "text"
+            },
+            {
+              "a": "u11",
+              "b": "tx12",
+              "name": "u12",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -234,
+              "center": [
+                0.0902191436109479,
+                0.3660875873277635
+              ],
+              "font": "bold",
+              "name": "tx13",
+              "size": 0.026,
+              "text": "16",
+              "type": "text"
+            },
+            {
+              "a": "u12",
+              "b": "tx13",
+              "name": "u13",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -252,
+              "center": [
+                0.06216633803170718,
+                0.31103085638905215
+              ],
+              "font": "bold",
+              "name": "tx14",
+              "size": 0.026,
+              "text": "8",
+              "type": "text"
+            },
+            {
+              "a": "u13",
+              "b": "tx14",
+              "name": "u14",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -270,
+              "center": [
+                0.05249999999999999,
+                0.25000000000000006
+              ],
+              "font": "bold",
+              "name": "tx15",
+              "size": 0.026,
+              "text": "11",
+              "type": "text"
+            },
+            {
+              "a": "u14",
+              "b": "tx15",
+              "name": "u15",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -288,
+              "center": [
+                0.06216633803170715,
+                0.1889691436109479
+              ],
+              "font": "bold",
+              "name": "tx16",
+              "size": 0.026,
+              "text": "14",
+              "type": "text"
+            },
+            {
+              "a": "u15",
+              "b": "tx16",
+              "name": "u16",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -306,
+              "center": [
+                0.09021914361094784,
+                0.13391241267223658
+              ],
+              "font": "bold",
+              "name": "tx17",
+              "size": 0.026,
+              "text": "9",
+              "type": "text"
+            },
+            {
+              "a": "u16",
+              "b": "tx17",
+              "name": "u17",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -324,
+              "center": [
+                0.13391241267223652,
+                0.0902191436109479
+              ],
+              "font": "bold",
+              "name": "tx18",
+              "size": 0.026,
+              "text": "12",
+              "type": "text"
+            },
+            {
+              "a": "u17",
+              "b": "tx18",
+              "name": "u18",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "angle": -342,
+              "center": [
+                0.18896914361094783,
+                0.06216633803170718
+              ],
+              "font": "bold",
+              "name": "tx19",
+              "size": 0.026,
+              "text": "5",
+              "type": "text"
+            },
+            {
+              "a": "u18",
+              "b": "tx19",
+              "name": "u19",
+              "op": "union",
+              "type": "sdf_op"
+            },
+            {
+              "name": "mtxt",
+              "sdf": "u19",
+              "softness": 0.0006,
+              "type": "mask"
+            },
+            {
+              "name": "wht",
+              "type": "color",
+              "value": "#f4f0e6"
+            },
+            {
+              "a": "b4",
+              "b": "wht",
+              "name": "b5",
+              "opacity": "mtxt",
+              "type": "blend"
+            },
+            {
+              "center": [
+                0.25,
+                0.25
+              ],
+              "name": "w0",
+              "radius": 0.0064,
+              "type": "circle"
+            },
+            {
+              "mode": "stroke",
+              "name": "mw0",
+              "sdf": "w0",
+              "type": "mask",
+              "width": 0.0011
+            },
+            {
+              "center": [
+                0.25,
+                0.25
+              ],
+              "name": "w1",
+              "radius": 0.0159,
+              "type": "circle"
+            },
+            {
+              "mode": "stroke",
+              "name": "mw1",
+              "sdf": "w1",
+              "type": "mask",
+              "width": 0.0011
+            },
+            {
+              "center": [
+                0.25,
+                0.25
+              ],
+              "name": "w2",
+              "radius": 0.099,
+              "type": "circle"
+            },
+            {
+              "mode": "stroke",
+              "name": "mw2",
+              "sdf": "w2",
+              "type": "mask",
+              "width": 0.0011
+            },
+            {
+              "center": [
+                0.25,
+                0.25
+              ],
+              "name": "w3",
+              "radius": 0.107,
+              "type": "circle"
+            },
+            {
+              "mode": "stroke",
+              "name": "mw3",
+              "sdf": "w3",
+              "type": "mask",
+              "width": 0.0011
+            },
+            {
+              "center": [
+                0.25,
+                0.25
+              ],
+              "name": "w4",
+              "radius": 0.162,
+              "type": "circle"
+            },
+            {
+              "mode": "stroke",
+              "name": "mw4",
+              "sdf": "w4",
+              "type": "mask",
+              "width": 0.0011
+            },
+            {
+              "center": [
+                0.25,
+                0.25
+              ],
+              "name": "w5",
+              "radius": 0.17,
+              "type": "circle"
+            },
+            {
+              "mode": "stroke",
+              "name": "mw5",
+              "sdf": "w5",
+              "type": "mask",
+              "width": 0.0011
+            },
+            {
+              "name": "silver",
+              "type": "color",
+              "value": "#c9ced6"
+            },
+            {
+              "a": "b5",
+              "b": "silver",
+              "name": "bw0",
+              "opacity": "mw0",
+              "type": "blend"
+            },
+            {
+              "a": "bw0",
+              "b": "silver",
+              "name": "bw1",
+              "opacity": "mw1",
+              "type": "blend"
+            },
+            {
+              "a": "bw1",
+              "b": "silver",
+              "name": "bw2",
+              "opacity": "mw2",
+              "type": "blend"
+            },
+            {
+              "a": "bw2",
+              "b": "silver",
+              "name": "bw3",
+              "opacity": "mw3",
+              "type": "blend"
+            },
+            {
+              "a": "bw3",
+              "b": "silver",
+              "name": "bw4",
+              "opacity": "mw4",
+              "type": "blend"
+            },
+            {
+              "a": "bw4",
+              "b": "silver",
+              "name": "bw5",
+              "opacity": "mw5",
+              "type": "blend"
+            },
+            {
+              "name": "fib",
+              "octaves": 2,
+              "seed": 2,
+              "size": 0.004,
+              "type": "noise"
+            },
+            {
+              "from": [
+                0,
+                1
+              ],
+              "input": "fib",
+              "name": "fibr",
+              "to": [
+                0.82,
+                1.0
+              ],
+              "type": "remap"
+            },
+            {
+              "a": "bw5",
+              "b": "fibr",
+              "name": "final",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "final",
+              "name": "o",
+              "roughness": 0.95,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+p +ps +ph +phs +f +par +r +cream +blk +red +grn +single +ringc +d1 +d2 +dbl +t1 +t2 +tre +ring +outer +ob +bb +b1 +b2 +b3 +b4 +tx0 +tx1 +u1 +tx2 +u2 +tx3 +u3 +tx4 +u4 +tx5 +u5 +tx6 +u6 +tx7 +u7 +tx8 +u8 +tx9 +u9 +tx10 +u10 +tx11 +u11 +tx12 +u12 +tx13 +u13 +tx14 +u14 +tx15 +u15 +tx16 +u16 +tx17 +u17 +tx18 +u18 +tx19 +u19 +mtxt +wht +b5 +w0 +mw0 +w1 +mw1 +w2 +mw2 +w3 +mw3 +w4 +mw4 +w5 +mw5 +silver +bw0 +bw1 +bw2 +bw3 +bw4 +bw5 +fib +fibr +final +o"
+      }
+    ],
+    "current": 0
+  }
+}

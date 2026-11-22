@@ -1,0 +1,144 @@
+{
+  "name": "wl-lane-wood",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 1.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "n",
+      "octaves": 4,
+      "seed": 9,
+      "size": 0.3,
+      "type": "noise"
+    },
+    {
+      "input": "n",
+      "name": "wood",
+      "stops": [
+        [
+          0,
+          "#c98a45"
+        ],
+        [
+          1,
+          "#e2b06a"
+        ]
+      ],
+      "type": "ramp"
+    },
+    {
+      "name": "tg",
+      "size": [
+        0.1,
+        1.0
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "a": 0.003,
+      "b": "tg.edge",
+      "name": "seam",
+      "op": "step",
+      "type": "math"
+    },
+    {
+      "name": "dark",
+      "type": "color",
+      "value": "#6b4320"
+    },
+    {
+      "a": "wood",
+      "b": "dark",
+      "name": "col",
+      "opacity": "seam",
+      "type": "blend"
+    },
+    {
+      "base_color": "col",
+      "clearcoat": 0.6,
+      "name": "o",
+      "roughness": 0.3,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "wl-lane-wood",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 1.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "n",
+              "octaves": 4,
+              "seed": 9,
+              "size": 0.3,
+              "type": "noise"
+            },
+            {
+              "input": "n",
+              "name": "wood",
+              "stops": [
+                [
+                  0,
+                  "#c98a45"
+                ],
+                [
+                  1,
+                  "#e2b06a"
+                ]
+              ],
+              "type": "ramp"
+            },
+            {
+              "name": "tg",
+              "size": [
+                0.1,
+                1.0
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "a": 0.003,
+              "b": "tg.edge",
+              "name": "seam",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "name": "dark",
+              "type": "color",
+              "value": "#6b4320"
+            },
+            {
+              "a": "wood",
+              "b": "dark",
+              "name": "col",
+              "opacity": "seam",
+              "type": "blend"
+            },
+            {
+              "base_color": "col",
+              "clearcoat": 0.6,
+              "name": "o",
+              "roughness": 0.3,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+n +wood +tg +seam +dark +col +o"
+      }
+    ],
+    "current": 0
+  }
+}

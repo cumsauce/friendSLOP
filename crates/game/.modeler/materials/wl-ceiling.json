@@ -1,0 +1,170 @@
+{
+  "name": "wl-ceiling",
+  "format_version": 1,
+  "domain": "tile",
+  "tile": 2.0,
+  "resolution": 512,
+  "nodes": [
+    {
+      "name": "tg",
+      "size": [
+        0.2,
+        0.2
+      ],
+      "type": "tile_grid"
+    },
+    {
+      "id": "tg.id",
+      "name": "r",
+      "type": "random"
+    },
+    {
+      "a": "r",
+      "b": 0.8,
+      "name": "on",
+      "op": "step",
+      "type": "math"
+    },
+    {
+      "coords": "tg.local",
+      "name": "dot",
+      "radius": 0.008,
+      "type": "circle"
+    },
+    {
+      "name": "md",
+      "sdf": "dot",
+      "type": "mask"
+    },
+    {
+      "a": "md",
+      "b": "on",
+      "name": "m",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "name": "base",
+      "type": "color",
+      "value": "#07071c"
+    },
+    {
+      "name": "star",
+      "type": "color",
+      "value": "#e8f0ff"
+    },
+    {
+      "a": "base",
+      "b": "star",
+      "name": "col",
+      "opacity": "m",
+      "type": "blend"
+    },
+    {
+      "a": "star",
+      "b": "m",
+      "name": "em",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "base_color": "col",
+      "emissive": "em",
+      "name": "o",
+      "roughness": 0.9,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 1,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "wl-ceiling",
+          "format_version": 1,
+          "domain": "tile",
+          "tile": 2.0,
+          "resolution": 512,
+          "nodes": [
+            {
+              "name": "tg",
+              "size": [
+                0.2,
+                0.2
+              ],
+              "type": "tile_grid"
+            },
+            {
+              "id": "tg.id",
+              "name": "r",
+              "type": "random"
+            },
+            {
+              "a": "r",
+              "b": 0.8,
+              "name": "on",
+              "op": "step",
+              "type": "math"
+            },
+            {
+              "coords": "tg.local",
+              "name": "dot",
+              "radius": 0.008,
+              "type": "circle"
+            },
+            {
+              "name": "md",
+              "sdf": "dot",
+              "type": "mask"
+            },
+            {
+              "a": "md",
+              "b": "on",
+              "name": "m",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "name": "base",
+              "type": "color",
+              "value": "#07071c"
+            },
+            {
+              "name": "star",
+              "type": "color",
+              "value": "#e8f0ff"
+            },
+            {
+              "a": "base",
+              "b": "star",
+              "name": "col",
+              "opacity": "m",
+              "type": "blend"
+            },
+            {
+              "a": "star",
+              "b": "m",
+              "name": "em",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "base_color": "col",
+              "emissive": "em",
+              "name": "o",
+              "roughness": 0.9,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [],
+        "label": "+tg +r +on +dot +md +m +base +star +col +em +o"
+      }
+    ],
+    "current": 0
+  }
+}

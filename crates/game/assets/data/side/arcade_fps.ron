@@ -1,0 +1,73 @@
+// The arcade's FPS machine: a deathmatch against bots in its own arena
+// (crates/side-nyc/src/features/arcade_fps.rs). Edit and save: the running
+// game picks it up within a second.
+(
+    // Where the arena's map origin hangs in the world (far under the
+    // commune, past every other area's reach), the arena's half size (x, z)
+    // and how high it goes (m): what counts as being inside.
+    arena_at: (500.0, -200.0, -50.0),
+    arena_half: (17.0, 17.0),
+    arena_height: 7.0,
+    match_rules: (
+        // First to this many frags wins; or the most when the clock runs out (s).
+        kill_limit: 15,
+        time_limit: 300.0,
+        player_health: 100.0,
+        // Seconds dead before you are back at a spawn point.
+        respawn_secs: 3.0,
+        // Seconds before a taken health / ammo pickup comes back, and how close takes one (m).
+        pickup_respawn_secs: 20.0,
+        pickup_radius: 1.0,
+    ),
+    // The AK-47.
+    gun: (
+        damage: 22.0,
+        head_mult: 2.0,
+        rounds_per_min: 600.0,
+        mag: 30,
+        reserve: 120,
+        reload_secs: 2.3,
+        // Spread (degrees) standing still, and added at a full run.
+        spread_deg: 0.6,
+        spread_move_deg: 2.2,
+        // Degrees of recoil per shot, and how fast the view settles (degrees per second).
+        kick_deg: 1.1,
+        kick_settle: 9.0,
+        range: 80.0,
+    ),
+    bots: (
+        count: 4,
+        health: 100.0,
+        walk_speed: 2.2,
+        run_speed: 4.0,
+        // How far (m) and how wide (degrees) a bot sees.
+        sight: 30.0,
+        fov_deg: 110.0,
+        // Seconds from spotting someone to the first shot, and between shots.
+        reaction_secs: 0.5,
+        fire_secs: 0.22,
+        // Spread (degrees) per 10 m of range, and the damage of a hit.
+        spread_deg_per_10m: 1.8,
+        damage: 9.0,
+        // The range (m) a bot likes to fight at, and how long (s) it remembers where it lost someone.
+        preferred_range: 9.0,
+        memory_secs: 4.0,
+        respawn_secs: 3.0,
+        death_secs: 0.5,
+    ),
+    view: (
+        // The rifle's grip in its model (m) and where the grip sits against the camera.
+        grip: (0.0, 0.87, -0.11),
+        hand: (0.2, -0.21, -0.4),
+        scale: 0.7,
+        // Walk bob: metres, and cycles per metre walked; sway: metres per radian looked.
+        bob: 0.018,
+        bob_rate: 0.45,
+        sway: 0.12,
+        // A wall this close (m) in front lowers the gun.
+        wall_lower: 0.9,
+        // The model's draw and fire clip lengths (s).
+        draw_secs: 0.6,
+        fire_secs: 0.14,
+    ),
+)

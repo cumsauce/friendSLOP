@@ -1,0 +1,772 @@
+// jackdaw 0.20.2 | bevy 0.20
+// SALT: We're not needing `Cargo.lock` anyway. x didn't set us up for
+// success. We need more SME's. We haven't considered the problem space
+// enough. BSN syntax needs more changes. And `Children` sugaring? Ask
+// Sam "Salt" Saltman.
+// Written by the modeler (export_model to .bsn): edit the map document, not this file.
+bevy_ecs::hierarchy::Children [
+    #arcade_fps_ground
+    jackdaw_scene_types::node_id::SceneNodeId(3609793024183145460)
+    bevy_transform::components::transform::Transform
+    jackdaw_scene_types::types::GltfSource {
+        path: "maps/arcade_fps.gltf",
+        scene_index: 0,
+    }
+    --
+    #blk_ceiling
+    jackdaw_scene_types::node_id::SceneNodeId(5779559928002980068)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 6.2, z: 0.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_crate0
+    jackdaw_scene_types::node_id::SceneNodeId(7777798468199952585)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 7.0, y: 0.8, z: 12.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_crate1
+    jackdaw_scene_types::node_id::SceneNodeId(7777797918444138480)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -7.0, y: 0.8, z: 12.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_crate2
+    jackdaw_scene_types::node_id::SceneNodeId(7777799567711580796)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 7.0, y: 0.8, z: -12.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_crate3
+    jackdaw_scene_types::node_id::SceneNodeId(7777799017955766691)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -7.0, y: 0.8, z: -12.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_crate4
+    jackdaw_scene_types::node_id::SceneNodeId(7777800667223209007)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 12.0, y: 0.8, z: 6.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_crate5
+    jackdaw_scene_types::node_id::SceneNodeId(7777800117467394902)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -12.0, y: 0.8, z: 6.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_crate6
+    jackdaw_scene_types::node_id::SceneNodeId(7777801766734837218)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 12.0, y: 0.8, z: -6.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_crate7
+    jackdaw_scene_types::node_id::SceneNodeId(7777801216979023113)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -12.0, y: 0.8, z: -6.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_crate_top0
+    jackdaw_scene_types::node_id::SceneNodeId(6758603119614886291)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 7.0, y: 2.4, z: 12.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_crate_top1
+    jackdaw_scene_types::node_id::SceneNodeId(6758602569859072186)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -12.0, y: 2.4, z: -6.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_floor
+    jackdaw_scene_types::node_id::SceneNodeId(135053676073785738)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: -0.2, z: 0.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_lowwall0
+    jackdaw_scene_types::node_id::SceneNodeId(2162330778161162062)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.6, z: 10.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_lowwall1
+    jackdaw_scene_types::node_id::SceneNodeId(2162331327916976167)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.6, z: -10.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_lowwall2
+    jackdaw_scene_types::node_id::SceneNodeId(2162331877672790273)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 11.0, y: 0.6, z: 0.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_lowwall3
+    jackdaw_scene_types::node_id::SceneNodeId(2162332427428604378)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -11.0, y: 0.6, z: 0.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_pillar0
+    jackdaw_scene_types::node_id::SceneNodeId(577176088580377183)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 10.0, y: 3.0, z: 10.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_pillar1
+    jackdaw_scene_types::node_id::SceneNodeId(577176638336191288)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -10.0, y: 3.0, z: 10.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_pillar2
+    jackdaw_scene_types::node_id::SceneNodeId(577174989068748972)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 10.0, y: 3.0, z: -10.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_pillar3
+    jackdaw_scene_types::node_id::SceneNodeId(577175538824563077)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -10.0, y: 3.0, z: -10.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_platform
+    jackdaw_scene_types::node_id::SceneNodeId(7940431642514859992)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 1.2, z: 0.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_rail_e
+    jackdaw_scene_types::node_id::SceneNodeId(6337644198952010785)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 3.8, y: 2.85, z: 0.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_rail_w
+    jackdaw_scene_types::node_id::SceneNodeId(6337634303347356886)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -3.8, y: 2.85, z: 0.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_n1
+    jackdaw_scene_types::node_id::SceneNodeId(2049566810421688488)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.15, z: -7.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_n2
+    jackdaw_scene_types::node_id::SceneNodeId(2049565161154246172)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.3, z: -6.6 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_n3
+    jackdaw_scene_types::node_id::SceneNodeId(2049565710910060277)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.45, z: -6.2 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_n4
+    jackdaw_scene_types::node_id::SceneNodeId(2049568459689130805)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.6, z: -5.8 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_n5
+    jackdaw_scene_types::node_id::SceneNodeId(2049569009444944910)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.75, z: -5.4 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_n6
+    jackdaw_scene_types::node_id::SceneNodeId(2049567360177502594)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.9, z: -5.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_n7
+    jackdaw_scene_types::node_id::SceneNodeId(2049567909933316699)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 1.05, z: -4.6 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_n8
+    jackdaw_scene_types::node_id::SceneNodeId(2049561862619361539)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 1.2, z: -4.2 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_s1
+    jackdaw_scene_types::node_id::SceneNodeId(2036616762467173868)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.15, z: 7.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_s2
+    jackdaw_scene_types::node_id::SceneNodeId(2036618411734616184)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.3, z: 6.6 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_s3
+    jackdaw_scene_types::node_id::SceneNodeId(2036617861978802079)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.45, z: 6.2 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_s4
+    jackdaw_scene_types::node_id::SceneNodeId(2036619511246244395)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.6, z: 5.8 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_s5
+    jackdaw_scene_types::node_id::SceneNodeId(2036618961490430290)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.75, z: 5.4 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_s6
+    jackdaw_scene_types::node_id::SceneNodeId(2036620610757872606)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.9, z: 5.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_s7
+    jackdaw_scene_types::node_id::SceneNodeId(2036620061002058501)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 1.05, z: 4.6 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_stair_s8
+    jackdaw_scene_types::node_id::SceneNodeId(2036612914176475129)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 1.2, z: 4.2 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_wall_e
+    jackdaw_scene_types::node_id::SceneNodeId(8413661479575974019)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 16.75, y: 3.0, z: 0.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_wall_n
+    jackdaw_scene_types::node_id::SceneNodeId(8413665327866672757)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 3.0, z: -16.75 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_wall_s
+    jackdaw_scene_types::node_id::SceneNodeId(8413671375180627918)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 3.0, z: 16.75 },
+    }
+    friendslop_world::map::Block
+    --
+    #blk_wall_w
+    jackdaw_scene_types::node_id::SceneNodeId(8413669176157371496)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -16.75, y: 3.0, z: 0.0 },
+    }
+    friendslop_world::map::Block
+    --
+    #dm_spawn_0
+    jackdaw_scene_types::node_id::SceneNodeId(5681270594689989687)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 13.0, y: 0.0, z: 13.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_spawn_0",
+    }
+    --
+    #dm_spawn_1
+    jackdaw_scene_types::node_id::SceneNodeId(5681271144445803792)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -13.0, y: 0.0, z: 13.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_spawn_1",
+    }
+    --
+    #dm_spawn_2
+    jackdaw_scene_types::node_id::SceneNodeId(5681269495178361476)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 13.0, y: 0.0, z: -13.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_spawn_2",
+    }
+    --
+    #dm_spawn_3
+    jackdaw_scene_types::node_id::SceneNodeId(5681270044934175581)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -13.0, y: 0.0, z: -13.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_spawn_3",
+    }
+    --
+    #dm_spawn_4
+    jackdaw_scene_types::node_id::SceneNodeId(5681272793713246109)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.0, z: 14.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_spawn_4",
+    }
+    --
+    #dm_spawn_5
+    jackdaw_scene_types::node_id::SceneNodeId(5681273343469060214)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.0, z: -14.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_spawn_5",
+    }
+    --
+    #dm_spawn_6
+    jackdaw_scene_types::node_id::SceneNodeId(5681271694201617898)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 14.0, y: 0.0, z: 0.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_spawn_6",
+    }
+    --
+    #dm_spawn_7
+    jackdaw_scene_types::node_id::SceneNodeId(5681272243957432003)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -14.0, y: 0.0, z: 0.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_spawn_7",
+    }
+    --
+    #dm_wp_0
+    jackdaw_scene_types::node_id::SceneNodeId(3467416711638751989)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 13.0, y: 0.0, z: 13.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_0",
+    }
+    --
+    #dm_wp_1
+    jackdaw_scene_types::node_id::SceneNodeId(3467417261394566094)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -13.0, y: 0.0, z: 13.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_1",
+    }
+    --
+    #dm_wp_10
+    jackdaw_scene_types::node_id::SceneNodeId(4564414398733503867)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 7.0, y: 0.0, z: -7.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_10",
+    }
+    --
+    #dm_wp_11
+    jackdaw_scene_types::node_id::SceneNodeId(4564413848977689762)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -7.0, y: 0.0, z: -7.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_11",
+    }
+    --
+    #dm_wp_12
+    jackdaw_scene_types::node_id::SceneNodeId(4564415498245132078)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.0, z: 6.5 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_12",
+    }
+    --
+    #dm_wp_13
+    jackdaw_scene_types::node_id::SceneNodeId(4564414948489317973)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.0, z: -6.5 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_13",
+    }
+    --
+    #dm_wp_14
+    jackdaw_scene_types::node_id::SceneNodeId(4564412199710247445)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 6.5, y: 0.0, z: 0.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_14",
+    }
+    --
+    #dm_wp_15
+    jackdaw_scene_types::node_id::SceneNodeId(4564411649954433340)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -6.5, y: 0.0, z: 0.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_15",
+    }
+    --
+    #dm_wp_16
+    jackdaw_scene_types::node_id::SceneNodeId(4564413299221875656)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 2.4, z: 2.5 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_16",
+    }
+    --
+    #dm_wp_17
+    jackdaw_scene_types::node_id::SceneNodeId(4564412749466061551)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 2.4, z: -2.5 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_17",
+    }
+    --
+    #dm_wp_18
+    jackdaw_scene_types::node_id::SceneNodeId(4564410000686991023)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 2.5, y: 2.4, z: 0.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_18",
+    }
+    --
+    #dm_wp_19
+    jackdaw_scene_types::node_id::SceneNodeId(4564409450931176918)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -2.5, y: 2.4, z: 0.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_19",
+    }
+    --
+    #dm_wp_2
+    jackdaw_scene_types::node_id::SceneNodeId(3467415612127123778)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 13.0, y: 0.0, z: -13.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_2",
+    }
+    --
+    #dm_wp_20
+    jackdaw_scene_types::node_id::SceneNodeId(4562997128245023726)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.0, z: 8.5 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_20",
+    }
+    --
+    #dm_wp_21
+    jackdaw_scene_types::node_id::SceneNodeId(4562997678000837831)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.0, z: -8.5 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_21",
+    }
+    --
+    #dm_wp_22
+    jackdaw_scene_types::node_id::SceneNodeId(4562998227756651937)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 9.0, y: 0.0, z: 4.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_22",
+    }
+    --
+    #dm_wp_23
+    jackdaw_scene_types::node_id::SceneNodeId(4562998777512466042)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -9.0, y: 0.0, z: -4.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_23",
+    }
+    --
+    #dm_wp_24
+    jackdaw_scene_types::node_id::SceneNodeId(4562994929221767304)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.6, z: 6.6 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_24",
+    }
+    --
+    #dm_wp_25
+    jackdaw_scene_types::node_id::SceneNodeId(4562995478977581409)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 1.2, z: 5.8 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_25",
+    }
+    --
+    #dm_wp_26
+    jackdaw_scene_types::node_id::SceneNodeId(4562996028733395515)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 1.8, z: 5.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_26",
+    }
+    --
+    #dm_wp_27
+    jackdaw_scene_types::node_id::SceneNodeId(4562996578489209620)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 2.4, z: 4.2 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_27",
+    }
+    --
+    #dm_wp_28
+    jackdaw_scene_types::node_id::SceneNodeId(4563001526291536570)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.6, z: -6.6 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_28",
+    }
+    --
+    #dm_wp_29
+    jackdaw_scene_types::node_id::SceneNodeId(4563002076047350675)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 1.2, z: -5.8 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_29",
+    }
+    --
+    #dm_wp_3
+    jackdaw_scene_types::node_id::SceneNodeId(3467416161882937883)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -13.0, y: 0.0, z: -13.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_3",
+    }
+    --
+    #dm_wp_30
+    jackdaw_scene_types::node_id::SceneNodeId(4563422639245046770)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 1.8, z: -5.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_30",
+    }
+    --
+    #dm_wp_31
+    jackdaw_scene_types::node_id::SceneNodeId(4563422089489232665)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 2.4, z: -4.2 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_31",
+    }
+    --
+    #dm_wp_4
+    jackdaw_scene_types::node_id::SceneNodeId(3467414512615495567)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.0, z: 13.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_4",
+    }
+    --
+    #dm_wp_5
+    jackdaw_scene_types::node_id::SceneNodeId(3467415062371309672)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.0, z: -13.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_5",
+    }
+    --
+    #dm_wp_6
+    jackdaw_scene_types::node_id::SceneNodeId(3467413413103867356)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 13.0, y: 0.0, z: 0.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_6",
+    }
+    --
+    #dm_wp_7
+    jackdaw_scene_types::node_id::SceneNodeId(3467413962859681461)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -13.0, y: 0.0, z: 0.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_7",
+    }
+    --
+    #dm_wp_8
+    jackdaw_scene_types::node_id::SceneNodeId(3467412313592239145)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 7.0, y: 0.0, z: 7.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_8",
+    }
+    --
+    #dm_wp_9
+    jackdaw_scene_types::node_id::SceneNodeId(3467412863348053250)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -7.0, y: 0.0, z: 7.0 },
+    }
+    friendslop_world::map::Spot {
+        name: "dm_wp_9",
+    }
+    --
+    #pickup_0
+    jackdaw_scene_types::node_id::SceneNodeId(2156257902551276162)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 8.5, y: 0.0, z: 8.5 },
+    }
+    friendslop_world::map::Arcade {
+        game: "dm_health",
+        id: 0,
+        points: 50,
+        radius: 0.8,
+    }
+    --
+    #pickup_1
+    jackdaw_scene_types::node_id::SceneNodeId(2156257352795462057)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -8.5, y: 0.0, z: 8.5 },
+    }
+    friendslop_world::map::Arcade {
+        game: "dm_health",
+        id: 1,
+        points: 50,
+        radius: 0.8,
+    }
+    --
+    #pickup_2
+    jackdaw_scene_types::node_id::SceneNodeId(2156256803039647951)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 8.5, y: 0.0, z: -8.5 },
+    }
+    friendslop_world::map::Arcade {
+        game: "dm_health",
+        id: 2,
+        points: 50,
+        radius: 0.8,
+    }
+    --
+    #pickup_3
+    jackdaw_scene_types::node_id::SceneNodeId(2156256253283833846)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -8.5, y: 0.0, z: -8.5 },
+    }
+    friendslop_world::map::Arcade {
+        game: "dm_health",
+        id: 3,
+        points: 50,
+        radius: 0.8,
+    }
+    --
+    #pickup_4
+    jackdaw_scene_types::node_id::SceneNodeId(2156255703528019740)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 2.4, z: 0.0 },
+    }
+    friendslop_world::map::Arcade {
+        game: "dm_ammo",
+        id: 4,
+        points: 30,
+        radius: 0.8,
+    }
+    --
+    #pickup_5
+    jackdaw_scene_types::node_id::SceneNodeId(2156255153772205635)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 14.0, y: 0.0, z: -4.0 },
+    }
+    friendslop_world::map::Arcade {
+        game: "dm_ammo",
+        id: 5,
+        points: 30,
+        radius: 0.8,
+    }
+    --
+    #pickup_6
+    jackdaw_scene_types::node_id::SceneNodeId(2156254604016391529)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: -14.0, y: 0.0, z: 4.0 },
+    }
+    friendslop_world::map::Arcade {
+        game: "dm_ammo",
+        id: 6,
+        points: 30,
+        radius: 0.8,
+    }
+    --
+    #pickup_7
+    jackdaw_scene_types::node_id::SceneNodeId(2156254054260577424)
+    bevy_transform::components::transform::Transform {
+        translation: glam::Vec3 { x: 0.0, y: 0.0, z: 11.5 },
+    }
+    friendslop_world::map::Arcade {
+        game: "dm_ammo",
+        id: 7,
+        points: 30,
+        radius: 0.8,
+    }
+]

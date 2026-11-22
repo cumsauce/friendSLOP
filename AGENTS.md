@@ -160,7 +160,7 @@ crates/places/       friendslop-places: warehouse, underground, smoking, skills,
 crates/village/      friendslop-village: villagers, caught, punishment, hide_and_seek, romance, wendys, ...
 crates/story/        friendslop-story: campaign, objective, landlord, totems, gods_tears, abuela, gamble, ...
 crates/afterlife/    friendslop-afterlife: afterlife, fat_cat, kitty_lemonade, mute_spell, systemd
-crates/side-nyc/     friendslop-side-nyc: NYC and its ideas (fulton, fulton_hunt, hats, high_places, ice_cream, miami, nyc, nyc_traffic, penn, street_people, toilets, trains, vessel, vessel_jump, wallet, boba)
+crates/side-nyc/     friendslop-side-nyc: NYC and its ideas (fulton, fulton_hunt, hats, high_places, ice_cream, miami, neverland (the arcade: Skee-Ball, darts), arcade_fps (the FRAG machine: deathmatch vs bots in its own arena), nyc, nyc_traffic, penn, street_people, toilets, trains, vessel, vessel_jump, wallet, boba)
 crates/side/         friendslop-side: standalone ideas (affair, fusion, goat, rats, shipwreck, ...)
 crates/fusion/       the generated soundtrack (no Bevy): synths in code; the score (every mood's songs) and the mix
                      are data in assets/data/music/; `cargo run -p fusion --bin fusion-render -- help`

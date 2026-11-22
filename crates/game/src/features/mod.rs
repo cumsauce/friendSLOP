@@ -101,6 +101,7 @@ impl Plugin for FeaturesProtocolPlugin {
         app.add_plugins(organ_butcher::protocol);
         app.add_plugins(fan_museum::protocol);
         app.add_plugins(stamina::protocol);
+        app.add_plugins(arcade_fps::protocol);
     }
 }
 
@@ -207,6 +208,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(jokah::plugin);
         app.add_plugins(michael::plugin);
         app.add_plugins(neverland::plugin);
+        app.add_plugins(arcade_fps::plugin);
         app.add_plugins(achievements::plugin);
         app.add_plugins(wastes::plugin);
         app.add_plugins(fan_museum::plugin);

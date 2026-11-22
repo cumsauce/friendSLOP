@@ -20,6 +20,7 @@ pub mod features {
     pub use friendslop_play::features::*;
     pub use friendslop_story::features::*;
     pub use friendslop_village::features::*;
+    pub mod arcade_fps;
     pub mod boba;
     pub mod fulton;
     pub mod fulton_ambience;
@@ -73,5 +74,7 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::michael::TUNING,
         &features::michael::MAP,
         &features::neverland::TUNING,
+        &features::arcade_fps::TUNING,
+        &features::arcade_fps::MAP,
     ]
 }

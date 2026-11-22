@@ -1,0 +1,453 @@
+{
+  "name": "wl-frag-marquee",
+  "format_version": 1,
+  "domain": "card",
+  "tile": 1.0,
+  "resolution": 256,
+  "nodes": [
+    {
+      "center": [
+        0.5,
+        0.5
+      ],
+      "name": "bg",
+      "size": [
+        1,
+        1
+      ],
+      "type": "rect"
+    },
+    {
+      "center": [
+        0.5,
+        0.5
+      ],
+      "font": "bold",
+      "name": "t",
+      "size": 0.3,
+      "text": "FRAG",
+      "type": "text"
+    },
+    {
+      "name": "mt",
+      "sdf": "t",
+      "softness": 0.004,
+      "type": "mask"
+    },
+    {
+      "mode": "glow",
+      "name": "mg",
+      "sdf": "t",
+      "type": "mask",
+      "width": 0.05
+    },
+    {
+      "name": "black",
+      "type": "color",
+      "value": "#07040a"
+    },
+    {
+      "name": "red",
+      "type": "color",
+      "value": "#ff2a2a"
+    },
+    {
+      "name": "glowc",
+      "type": "color",
+      "value": "#ff0040"
+    },
+    {
+      "a": "black",
+      "b": "glowc",
+      "name": "c1",
+      "opacity": "mg",
+      "type": "blend"
+    },
+    {
+      "a": "c1",
+      "b": "red",
+      "name": "c2",
+      "opacity": "mt",
+      "type": "blend"
+    },
+    {
+      "a": "glowc",
+      "b": "mg",
+      "name": "em1",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "red",
+      "b": "mt",
+      "name": "em2",
+      "op": "mul",
+      "type": "math"
+    },
+    {
+      "a": "em1",
+      "b": "em2",
+      "name": "em",
+      "op": "add",
+      "type": "math"
+    },
+    {
+      "base_color": "c2",
+      "emissive": "em",
+      "name": "o",
+      "roughness": 0.4,
+      "type": "output"
+    }
+  ],
+  "params": {},
+  "version": 3,
+  "history": {
+    "nodes": [
+      {
+        "model": {
+          "name": "wl-frag-marquee",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "name": "bg",
+              "size": [
+                1,
+                1
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "font": "bold",
+              "name": "t",
+              "size": 0.5,
+              "text": "FRAG",
+              "type": "text"
+            },
+            {
+              "name": "mt",
+              "sdf": "t",
+              "softness": 0.004,
+              "type": "mask"
+            },
+            {
+              "mode": "glow",
+              "name": "mg",
+              "sdf": "t",
+              "type": "mask",
+              "width": 0.06
+            },
+            {
+              "name": "black",
+              "type": "color",
+              "value": "#07040a"
+            },
+            {
+              "name": "red",
+              "type": "color",
+              "value": "#ff2a2a"
+            },
+            {
+              "name": "glowc",
+              "type": "color",
+              "value": "#ff0040"
+            },
+            {
+              "a": "black",
+              "b": "glowc",
+              "name": "c1",
+              "opacity": "mg",
+              "type": "blend"
+            },
+            {
+              "a": "c1",
+              "b": "red",
+              "name": "c2",
+              "opacity": "mt",
+              "type": "blend"
+            },
+            {
+              "a": "glowc",
+              "b": "mg",
+              "name": "em1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "red",
+              "b": "mt",
+              "name": "em2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "em1",
+              "b": "em2",
+              "name": "em",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "c2",
+              "emissive": "em",
+              "name": "o",
+              "roughness": 0.4,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 1
+        },
+        "parent": null,
+        "children": [
+          1
+        ],
+        "label": "+bg +t +mt +mg +black +red +glowc +c1 +c2 +em1 +em2 +em +o"
+      },
+      {
+        "model": {
+          "name": "wl-frag-marquee",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "name": "bg",
+              "size": [
+                1,
+                1
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "coords": "xf",
+              "font": "bold",
+              "name": "t",
+              "size": 0.42,
+              "text": "FRAG",
+              "type": "text"
+            },
+            {
+              "name": "mt",
+              "sdf": "t",
+              "softness": 0.004,
+              "type": "mask"
+            },
+            {
+              "mode": "glow",
+              "name": "mg",
+              "sdf": "t",
+              "type": "mask",
+              "width": 0.05
+            },
+            {
+              "name": "black",
+              "type": "color",
+              "value": "#07040a"
+            },
+            {
+              "name": "red",
+              "type": "color",
+              "value": "#ff2a2a"
+            },
+            {
+              "name": "glowc",
+              "type": "color",
+              "value": "#ff0040"
+            },
+            {
+              "a": "black",
+              "b": "glowc",
+              "name": "c1",
+              "opacity": "mg",
+              "type": "blend"
+            },
+            {
+              "a": "c1",
+              "b": "red",
+              "name": "c2",
+              "opacity": "mt",
+              "type": "blend"
+            },
+            {
+              "a": "glowc",
+              "b": "mg",
+              "name": "em1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "red",
+              "b": "mt",
+              "name": "em2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "em1",
+              "b": "em2",
+              "name": "em",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "c2",
+              "emissive": "em",
+              "name": "o",
+              "roughness": 0.4,
+              "type": "output"
+            },
+            {
+              "name": "xf",
+              "offset": [
+                0,
+                0
+              ],
+              "scale": [
+                2.2,
+                1.0
+              ],
+              "type": "transform"
+            }
+          ],
+          "params": {},
+          "version": 2
+        },
+        "parent": 0,
+        "children": [
+          2
+        ],
+        "label": "+xf ~t ~mg"
+      },
+      {
+        "model": {
+          "name": "wl-frag-marquee",
+          "format_version": 1,
+          "domain": "card",
+          "tile": 1.0,
+          "resolution": 256,
+          "nodes": [
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "name": "bg",
+              "size": [
+                1,
+                1
+              ],
+              "type": "rect"
+            },
+            {
+              "center": [
+                0.5,
+                0.5
+              ],
+              "font": "bold",
+              "name": "t",
+              "size": 0.3,
+              "text": "FRAG",
+              "type": "text"
+            },
+            {
+              "name": "mt",
+              "sdf": "t",
+              "softness": 0.004,
+              "type": "mask"
+            },
+            {
+              "mode": "glow",
+              "name": "mg",
+              "sdf": "t",
+              "type": "mask",
+              "width": 0.05
+            },
+            {
+              "name": "black",
+              "type": "color",
+              "value": "#07040a"
+            },
+            {
+              "name": "red",
+              "type": "color",
+              "value": "#ff2a2a"
+            },
+            {
+              "name": "glowc",
+              "type": "color",
+              "value": "#ff0040"
+            },
+            {
+              "a": "black",
+              "b": "glowc",
+              "name": "c1",
+              "opacity": "mg",
+              "type": "blend"
+            },
+            {
+              "a": "c1",
+              "b": "red",
+              "name": "c2",
+              "opacity": "mt",
+              "type": "blend"
+            },
+            {
+              "a": "glowc",
+              "b": "mg",
+              "name": "em1",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "red",
+              "b": "mt",
+              "name": "em2",
+              "op": "mul",
+              "type": "math"
+            },
+            {
+              "a": "em1",
+              "b": "em2",
+              "name": "em",
+              "op": "add",
+              "type": "math"
+            },
+            {
+              "base_color": "c2",
+              "emissive": "em",
+              "name": "o",
+              "roughness": 0.4,
+              "type": "output"
+            }
+          ],
+          "params": {},
+          "version": 3
+        },
+        "parent": 1,
+        "children": [],
+        "label": "~t -xf"
+      }
+    ],
+    "current": 2
+  }
+}

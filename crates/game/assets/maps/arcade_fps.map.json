@@ -1,0 +1,2746 @@
+{
+  "scene": "arcade_fps",
+  "entities": [
+    {
+      "name": "arcade_fps_ground",
+      "translation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "gltf": "maps/arcade_fps.gltf"
+    },
+    {
+      "name": "blk_ceiling",
+      "kind": "block",
+      "translation": [
+        0.0,
+        6.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        34.0,
+        0.4,
+        34.0
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_crate0",
+      "kind": "block",
+      "translation": [
+        7.0,
+        0.8,
+        12.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.6,
+        1.6,
+        1.6
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_crate1",
+      "kind": "block",
+      "translation": [
+        -7.0,
+        0.8,
+        12.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.6,
+        1.6,
+        1.6
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_crate2",
+      "kind": "block",
+      "translation": [
+        7.0,
+        0.8,
+        -12.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.6,
+        1.6,
+        1.6
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_crate3",
+      "kind": "block",
+      "translation": [
+        -7.0,
+        0.8,
+        -12.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.6,
+        1.6,
+        1.6
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_crate4",
+      "kind": "block",
+      "translation": [
+        12.0,
+        0.8,
+        6.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.6,
+        1.6,
+        1.6
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_crate5",
+      "kind": "block",
+      "translation": [
+        -12.0,
+        0.8,
+        6.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.6,
+        1.6,
+        1.6
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_crate6",
+      "kind": "block",
+      "translation": [
+        12.0,
+        0.8,
+        -6.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.6,
+        1.6,
+        1.6
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_crate7",
+      "kind": "block",
+      "translation": [
+        -12.0,
+        0.8,
+        -6.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.6,
+        1.6,
+        1.6
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_crate_top0",
+      "kind": "block",
+      "translation": [
+        7.0,
+        2.4,
+        12.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.6,
+        1.6,
+        1.6
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_crate_top1",
+      "kind": "block",
+      "translation": [
+        -12.0,
+        2.4,
+        -6.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.6,
+        1.6,
+        1.6
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_floor",
+      "kind": "block",
+      "translation": [
+        0.0,
+        -0.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        34.0,
+        0.4,
+        34.0
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_lowwall0",
+      "kind": "block",
+      "translation": [
+        0.0,
+        0.6,
+        10.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        6.0,
+        1.2,
+        0.5
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_lowwall1",
+      "kind": "block",
+      "translation": [
+        0.0,
+        0.6,
+        -10.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        6.0,
+        1.2,
+        0.5
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_lowwall2",
+      "kind": "block",
+      "translation": [
+        11.0,
+        0.6,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        0.5,
+        1.2,
+        6.0
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_lowwall3",
+      "kind": "block",
+      "translation": [
+        -11.0,
+        0.6,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        0.5,
+        1.2,
+        6.0
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_pillar0",
+      "kind": "block",
+      "translation": [
+        10.0,
+        3.0,
+        10.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.5,
+        6.0,
+        1.5
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_pillar1",
+      "kind": "block",
+      "translation": [
+        -10.0,
+        3.0,
+        10.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.5,
+        6.0,
+        1.5
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_pillar2",
+      "kind": "block",
+      "translation": [
+        10.0,
+        3.0,
+        -10.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.5,
+        6.0,
+        1.5
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_pillar3",
+      "kind": "block",
+      "translation": [
+        -10.0,
+        3.0,
+        -10.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.5,
+        6.0,
+        1.5
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_platform",
+      "kind": "block",
+      "translation": [
+        0.0,
+        1.2,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        8.0,
+        2.4,
+        8.0
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_rail_e",
+      "kind": "block",
+      "translation": [
+        3.8,
+        2.85,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        0.4,
+        0.9,
+        7.2
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_rail_w",
+      "kind": "block",
+      "translation": [
+        -3.8,
+        2.85,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        0.4,
+        0.9,
+        7.2
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_n1",
+      "kind": "block",
+      "translation": [
+        0.0,
+        0.15,
+        -7.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        0.3,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_n2",
+      "kind": "block",
+      "translation": [
+        0.0,
+        0.3,
+        -6.6
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        0.6,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_n3",
+      "kind": "block",
+      "translation": [
+        0.0,
+        0.45,
+        -6.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        0.9,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_n4",
+      "kind": "block",
+      "translation": [
+        0.0,
+        0.6,
+        -5.8
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        1.2,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_n5",
+      "kind": "block",
+      "translation": [
+        0.0,
+        0.75,
+        -5.4
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        1.5,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_n6",
+      "kind": "block",
+      "translation": [
+        0.0,
+        0.9,
+        -5.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        1.8,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_n7",
+      "kind": "block",
+      "translation": [
+        0.0,
+        1.05,
+        -4.6
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        2.1,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_n8",
+      "kind": "block",
+      "translation": [
+        0.0,
+        1.2,
+        -4.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        2.4,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_s1",
+      "kind": "block",
+      "translation": [
+        0.0,
+        0.15,
+        7.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        0.3,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_s2",
+      "kind": "block",
+      "translation": [
+        0.0,
+        0.3,
+        6.6
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        0.6,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_s3",
+      "kind": "block",
+      "translation": [
+        0.0,
+        0.45,
+        6.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        0.9,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_s4",
+      "kind": "block",
+      "translation": [
+        0.0,
+        0.6,
+        5.8
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        1.2,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_s5",
+      "kind": "block",
+      "translation": [
+        0.0,
+        0.75,
+        5.4
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        1.5,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_s6",
+      "kind": "block",
+      "translation": [
+        0.0,
+        0.9,
+        5.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        1.8,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_s7",
+      "kind": "block",
+      "translation": [
+        0.0,
+        1.05,
+        4.6
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        2.1,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_stair_s8",
+      "kind": "block",
+      "translation": [
+        0.0,
+        1.2,
+        4.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        4.0,
+        2.4,
+        0.4
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_wall_e",
+      "kind": "block",
+      "translation": [
+        16.75,
+        3.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        0.5,
+        6.0,
+        34.0
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_wall_n",
+      "kind": "block",
+      "translation": [
+        0.0,
+        3.0,
+        -16.75
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        34.0,
+        6.0,
+        0.5
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_wall_s",
+      "kind": "block",
+      "translation": [
+        0.0,
+        3.0,
+        16.75
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        34.0,
+        6.0,
+        0.5
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "blk_wall_w",
+      "kind": "block",
+      "translation": [
+        -16.75,
+        3.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        0.5,
+        6.0,
+        34.0
+      ],
+      "components": {
+        "Block": {}
+      }
+    },
+    {
+      "name": "dm_spawn_0",
+      "kind": "spot",
+      "translation": [
+        13.0,
+        0.0,
+        13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_spawn_0"
+        }
+      }
+    },
+    {
+      "name": "dm_spawn_1",
+      "kind": "spot",
+      "translation": [
+        -13.0,
+        0.0,
+        13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_spawn_1"
+        }
+      }
+    },
+    {
+      "name": "dm_spawn_2",
+      "kind": "spot",
+      "translation": [
+        13.0,
+        0.0,
+        -13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_spawn_2"
+        }
+      }
+    },
+    {
+      "name": "dm_spawn_3",
+      "kind": "spot",
+      "translation": [
+        -13.0,
+        0.0,
+        -13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_spawn_3"
+        }
+      }
+    },
+    {
+      "name": "dm_spawn_4",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        0.0,
+        14.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_spawn_4"
+        }
+      }
+    },
+    {
+      "name": "dm_spawn_5",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        0.0,
+        -14.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_spawn_5"
+        }
+      }
+    },
+    {
+      "name": "dm_spawn_6",
+      "kind": "spot",
+      "translation": [
+        14.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_spawn_6"
+        }
+      }
+    },
+    {
+      "name": "dm_spawn_7",
+      "kind": "spot",
+      "translation": [
+        -14.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_spawn_7"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_0",
+      "kind": "spot",
+      "translation": [
+        13.0,
+        0.0,
+        13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_0"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_1",
+      "kind": "spot",
+      "translation": [
+        -13.0,
+        0.0,
+        13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_1"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_10",
+      "kind": "spot",
+      "translation": [
+        7.0,
+        0.0,
+        -7.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_10"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_11",
+      "kind": "spot",
+      "translation": [
+        -7.0,
+        0.0,
+        -7.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_11"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_12",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        0.0,
+        6.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_12"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_13",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        0.0,
+        -6.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_13"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_14",
+      "kind": "spot",
+      "translation": [
+        6.5,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_14"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_15",
+      "kind": "spot",
+      "translation": [
+        -6.5,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_15"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_16",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        2.4,
+        2.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_16"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_17",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        2.4,
+        -2.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_17"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_18",
+      "kind": "spot",
+      "translation": [
+        2.5,
+        2.4,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_18"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_19",
+      "kind": "spot",
+      "translation": [
+        -2.5,
+        2.4,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_19"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_2",
+      "kind": "spot",
+      "translation": [
+        13.0,
+        0.0,
+        -13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_2"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_20",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        0.0,
+        8.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_20"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_21",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        0.0,
+        -8.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_21"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_22",
+      "kind": "spot",
+      "translation": [
+        9.0,
+        0.0,
+        4.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_22"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_23",
+      "kind": "spot",
+      "translation": [
+        -9.0,
+        0.0,
+        -4.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_23"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_24",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        0.6,
+        6.6
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_24"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_25",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        1.2,
+        5.8
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_25"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_26",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        1.8,
+        5.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_26"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_27",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        2.4,
+        4.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_27"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_28",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        0.6,
+        -6.6
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_28"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_29",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        1.2,
+        -5.8
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_29"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_3",
+      "kind": "spot",
+      "translation": [
+        -13.0,
+        0.0,
+        -13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_3"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_30",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        1.8,
+        -5.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_30"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_31",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        2.4,
+        -4.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_31"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_4",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        0.0,
+        13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_4"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_5",
+      "kind": "spot",
+      "translation": [
+        0.0,
+        0.0,
+        -13.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_5"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_6",
+      "kind": "spot",
+      "translation": [
+        13.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_6"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_7",
+      "kind": "spot",
+      "translation": [
+        -13.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_7"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_8",
+      "kind": "spot",
+      "translation": [
+        7.0,
+        0.0,
+        7.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_8"
+        }
+      }
+    },
+    {
+      "name": "dm_wp_9",
+      "kind": "spot",
+      "translation": [
+        -7.0,
+        0.0,
+        7.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Spot": {
+          "name": "dm_wp_9"
+        }
+      }
+    },
+    {
+      "name": "pickup_0",
+      "kind": "arcade",
+      "translation": [
+        8.5,
+        0.0,
+        8.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Arcade": {
+          "game": "dm_health",
+          "id": 0,
+          "points": 50,
+          "radius": 0.8
+        }
+      }
+    },
+    {
+      "name": "pickup_1",
+      "kind": "arcade",
+      "translation": [
+        -8.5,
+        0.0,
+        8.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Arcade": {
+          "game": "dm_health",
+          "id": 1,
+          "points": 50,
+          "radius": 0.8
+        }
+      }
+    },
+    {
+      "name": "pickup_2",
+      "kind": "arcade",
+      "translation": [
+        8.5,
+        0.0,
+        -8.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Arcade": {
+          "game": "dm_health",
+          "id": 2,
+          "points": 50,
+          "radius": 0.8
+        }
+      }
+    },
+    {
+      "name": "pickup_3",
+      "kind": "arcade",
+      "translation": [
+        -8.5,
+        0.0,
+        -8.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Arcade": {
+          "game": "dm_health",
+          "id": 3,
+          "points": 50,
+          "radius": 0.8
+        }
+      }
+    },
+    {
+      "name": "pickup_4",
+      "kind": "arcade",
+      "translation": [
+        0.0,
+        2.4,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Arcade": {
+          "game": "dm_ammo",
+          "id": 4,
+          "points": 30,
+          "radius": 0.8
+        }
+      }
+    },
+    {
+      "name": "pickup_5",
+      "kind": "arcade",
+      "translation": [
+        14.0,
+        0.0,
+        -4.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Arcade": {
+          "game": "dm_ammo",
+          "id": 5,
+          "points": 30,
+          "radius": 0.8
+        }
+      }
+    },
+    {
+      "name": "pickup_6",
+      "kind": "arcade",
+      "translation": [
+        -14.0,
+        0.0,
+        4.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Arcade": {
+          "game": "dm_ammo",
+          "id": 6,
+          "points": 30,
+          "radius": 0.8
+        }
+      }
+    },
+    {
+      "name": "pickup_7",
+      "kind": "arcade",
+      "translation": [
+        0.0,
+        0.0,
+        11.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "yaw": 0.0,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "components": {
+        "Arcade": {
+          "game": "dm_ammo",
+          "id": 7,
+          "points": 30,
+          "radius": 0.8
+        }
+      }
+    }
+  ],
+  "terrains": []
+}

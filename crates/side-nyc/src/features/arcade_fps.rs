@@ -463,9 +463,10 @@ impl Graph {
         for i in 0..points.len() {
             for j in (i + 1)..points.len() {
                 let climb = (points[i].y - points[j].y).abs();
-                if points[i].distance(points[j]) <= reach
-                    && climb <= 0.7
-                    && clear(points[i], points[j])
+                let run = points[i].xz().distance(points[j].xz()).max(0.1);
+                // A step, or a slope the walkers can climb (about 38 degrees).
+                let walkable = climb <= 0.5 || climb / run <= 0.8;
+                if points[i].distance(points[j]) <= reach && walkable && clear(points[i], points[j])
                 {
                     edges[i].push(j);
                     edges[j].push(i);
@@ -1775,6 +1776,17 @@ fn stop(mut m: ResMut<Match>, mut busy: ResMut<HandsBusy>) {
     busy.0 = false;
 }
 
+/// The soundtrack's `arcade_fps` signal: on while the camera is in the arena
+/// (moods.ron plays the FRAG mood for it).
+fn music_signals(
+    camera: Query<&GlobalTransform, (With<Camera3d>, Without<crate::world::MapCamera>)>,
+    signals: Option<ResMut<crate::music::MusicSignals>>,
+) {
+    let Some(mut signals) = signals else { return };
+    let inside = crate::music::camera_at(&camera).is_some_and(in_arena);
+    signals.flag("arcade_fps", inside);
+}
+
 /// `FRIENDSLOP_START=arcade_fps` (the first spawn point, in the match).
 fn starts() -> Vec<(String, Vec3)> {
     level()
@@ -1806,6 +1818,7 @@ pub fn plugin(app: &mut App) {
                 .chain()
                 .run_if(in_state(AppState::InGame)),
         )
+        .add_systems(Update, music_signals.run_if(in_state(AppState::InGame)))
         .add_systems(OnExit(AppState::InGame), stop);
 }
 

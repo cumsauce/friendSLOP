@@ -160,6 +160,11 @@
         "BOOM_A": [(0, Min7Aeo, 8), (5, Min7, 8)],
         "BOOM_B": [(3, Maj7, 8), (10, Dom7, 4), (0, Min7Aeo, 4)],
         "BOOM_HOOK": [(8, Maj7Lyd, 8), (10, Dom7, 8)],
+        // The FRAG arena (arcade FPS): hard dance in A minor, i - VI - III - VII,
+        // then the drop's power chords.
+        "FRAG_A": [(0, Min, 4), (8, Maj, 4), (3, Maj, 4), (10, Maj, 4)],
+        "FRAG_B": [(8, Maj7Lyd, 4), (10, MajMix, 4), (0, Min7Aeo, 4), (7, Dom7, 4)],
+        "FRAG_HOOK": [(0, Power, 4), (8, Power, 4), (3, Power, 4), (10, Power, 4)],
         // The Michael experience theatre, from the friend's MIDI: C minor at
         // 120. The vamp is Cm7 into two bars of F and two of Eb; the turn is
         // Fm7 - Bb9 - Cm11 - F9; the outro vamps C and G.
@@ -391,6 +396,15 @@
             instant: true,
         ),
         (
+            // The FRAG arena (the arcade FPS machine): high-energy hard dance,
+            // crisp and wide, loud and cutting in the moment you step in.
+            name: "Frag",
+            tone: (warmth: -0.3, width: 1.4, wow: 0.0, lay_back_ms: 0.0, loose_ms: 0.0),
+            level_db: 2.0,
+            wet: 0.8,
+            urgent: true, instant: true,
+        ),
+        (
             // The Michael experience theatre: crisp 80s pop, wide, a touch of
             // tape sheen. Stage reverb a little wet.
             name: "Michael",
@@ -451,6 +465,8 @@
         // Miami floats over New York: it goes first. Flat out inside Factory Town.
         // The surf hall hangs over New York: it goes first.
         (when: Signal("surf", Gt, 0.0), mood: "Surf"),
+        // The arcade FPS arena: the FRAG machine's hard dance.
+        (when: Signal("arcade_fps", Gt, 0.0), mood: "Frag", intensity: "1.0"),
         (when: Signal("factory_town", Gt, 0.0), mood: "Miami", intensity: "1.0"),
         (when: Signal("miami", Gt, 0.0), mood: "Miami", intensity: "0.7"),
         (when: Signal("nyc_shop_bodega", Gt, 0.0), mood: "Bodega"),

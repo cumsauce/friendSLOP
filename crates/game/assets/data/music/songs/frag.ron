@@ -1,0 +1,30 @@
+#![enable(implicit_some)]
+// Frag: song 1 (its own song). See moods.ron for what the fields mean.
+// "Kill Screen" for the FRAG arena (the arcade FPS machine): hard dance at
+// 150. Four on the floor with a rolling shaker and a clap, an octave sub
+// pumping off the beat, brass-saw stabs, a driving arpeggio, a riff lead
+// on the hook and B, and a pad that only swells in the breakdown. The drums
+// are squashed and driven so the kick punches.
+(
+    mood: "Frag", band: "street",
+    bpm: 150.0, swing: 0.0, key: 9,
+    a: "FRAG_A", b: "FRAG_B", hook: "FRAG_HOOK",
+    intensity: 1.0, odd: 0.0, modulate: 0.0, kime: 0.0,
+    mix: {
+        "drums": (
+            transient: Some((0.45, -0.2)),
+            comp: Some((-26.0, 6.0, 2.0, 60.0, 0.5)),
+            drive: Some((0.25, 0.7)),
+            width: Some((1.1, 120.0)),
+        ),
+    },
+    parts: [
+        (play: Drums(groove: "House", clap: true)),
+        (play: Lane(lane: "shaker")),
+        (play: Bass(lines: ["HOUSE", "OCTAVE"]), inst: SubBass, bus: "bass"),
+        (play: Chords(comp: "HouseStab"), inst: PolyBrass, not: [Breakdown]),
+        (play: Arp, inst: Lead, not: [Intro]),
+        (play: Melody(style: "riff"), inst: Lead, sections: [Hook, B]),
+        (play: Pad(), inst: Pad, sections: [Intro, Breakdown]),
+    ],
+)

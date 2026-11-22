@@ -1055,6 +1055,7 @@ mod tests {
             "boba",
             "penn_njt",
             "penn_lirr",
+            "arcade_fps",
         ];
         fn names(c: &fusion::direct::Cond, out: &mut Vec<String>) {
             use fusion::direct::Cond;

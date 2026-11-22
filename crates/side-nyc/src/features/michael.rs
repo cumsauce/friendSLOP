@@ -104,7 +104,7 @@ pub fn local(at: Vec3) -> Vec3 {
 
 /// The stage spot (world): where Michael dances, on the stage deck.
 pub fn stage_at() -> Vec3 {
-    local(Vec3::new(0.0, 1.1, -8.5))
+    local(Vec3::new(0.0, -0.7, -11.5))
 }
 
 /// Where you land in the lobby (world), just inside the inner doors.
@@ -603,7 +603,7 @@ mod tests {
         let t = tuning();
         assert!(t.door_reach > 0.0);
         // Stage spot is on the stage deck (the map's own marker).
-        assert_eq!(stage_at(), local(Vec3::new(0.0, 1.1, -8.5)));
+        assert_eq!(stage_at(), local(Vec3::new(0.0, -0.7, -11.5)));
         // Lobby lands inside the theatre, the street outside it.
         assert!(in_theater(lobby_at() - theater_at()));
         assert!(!in_theater(street_at() - theater_at()));

@@ -42,6 +42,7 @@ impl Plugin for MapPlugin {
             .register_type::<SpeedGap>()
             .register_type::<RampLook>()
             .register_type::<Pad>()
+            .register_type::<Arcade>()
             .register_type::<Ridge>()
             .add_systems(Update, (spawn_maps, load_gltf_sources).chain());
     }
@@ -226,6 +227,20 @@ pub struct Wedge;
 pub struct Pad {
     pub stage: u32,
     pub finish: bool,
+}
+
+/// A Wonderland arcade machine marker (the theatre's Skee-Ball lanes and
+/// dartboards; the game reads them from the map file). `game` is `skeeball`
+/// (a lane's ball start, `id` = lane), `skeeball_hole` (that lane's hole
+/// worth `points`, `radius` metres wide), `dartboard` (the board's centre,
+/// facing the marker's yaw, `id` = board) or `oche` (that board's throw line).
+#[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
+#[reflect(Component, Default)]
+pub struct Arcade {
+    pub game: String,
+    pub id: u32,
+    pub points: u32,
+    pub radius: f32,
 }
 
 /// One point of a surf ramp's ridge: ramp `ramp` of stage `stage`, point

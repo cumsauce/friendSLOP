@@ -41,6 +41,7 @@ pub mod features {
     pub mod vessel;
     pub mod vessel_jump;
     pub mod wallet;
+    pub mod wonderland;
 }
 
 /// This crate's data files (see `friendslop_data`).
@@ -71,5 +72,6 @@ pub fn data_files() -> Vec<&'static dyn friendslop_data::DataFile> {
         &features::jokah::TUNING,
         &features::michael::TUNING,
         &features::michael::MAP,
+        &features::wonderland::TUNING,
     ]
 }

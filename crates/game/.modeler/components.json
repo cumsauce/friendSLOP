@@ -167,6 +167,16 @@
         "metal": "f32"
       },
       "doc": "How surf stage `stage`'s ramps look (they are drawn from their ridge points): colour r, g, b, glow (emissive times colour), roughness, metalness. Without one: dark blue steel."
+    },
+    "Arcade": {
+      "type": "friendslop_world::map::Arcade",
+      "fields": {
+        "game": "string",
+        "id": "u32",
+        "points": "u32",
+        "radius": "f32"
+      },
+      "doc": "A Wonderland arcade machine marker: `game` is skeeball (a lane's ball start, `id` = lane), skeeball_hole (that lane's hole worth `points`, `radius` m), dartboard (board centre, facing = the marker's yaw, `id` = board) or oche (that board's throw line)."
     }
   }
 }

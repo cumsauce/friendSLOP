@@ -164,6 +164,9 @@ pub struct PadSettings {
     pub deadzone: f32,
     /// Look speed, a multiple of the default, `LOOK_MIN..=LOOK_MAX`.
     pub look: f32,
+    /// Mouse look speed, a multiple of the default, `LOOK_MIN..=LOOK_MAX`
+    /// (the tigers drift it while you play, #472).
+    pub mouse: f32,
     /// Button names in hints: `None` = from the pad, else this family.
     pub labels: Option<crate::input::PadFamily>,
 }
@@ -172,6 +175,7 @@ impl PadSettings {
     pub const DEFAULT: Self = Self {
         deadzone: 0.15,
         look: 1.0,
+        mouse: 1.0,
         labels: None,
     };
     pub const MAX_DEADZONE: f32 = 0.4;
@@ -181,9 +185,10 @@ impl PadSettings {
 
     pub fn to_text(self) -> String {
         format!(
-            "deadzone={}\nlook={}\nlabels={}\n",
+            "deadzone={}\nlook={}\nmouse={}\nlabels={}\n",
             self.deadzone,
             self.look,
+            self.mouse,
             self.labels.map_or("auto", |f| f.name())
         )
     }
@@ -205,6 +210,7 @@ impl PadSettings {
             match k.trim() {
                 "deadzone" => p.deadzone = v,
                 "look" => p.look = v,
+                "mouse" => p.mouse = v,
                 _ => {}
             }
         }
@@ -227,6 +233,12 @@ impl PadSettings {
                 Self::LOOK_MIN,
                 Self::LOOK_MAX,
                 Self::DEFAULT.look,
+            ),
+            mouse: ok(
+                self.mouse,
+                Self::LOOK_MIN,
+                Self::LOOK_MAX,
+                Self::DEFAULT.mouse,
             ),
             labels: self.labels,
         }
@@ -1113,6 +1125,7 @@ mod tests {
         let p = PadSettings {
             deadzone: 0.25,
             look: 1.5,
+            mouse: 2.0,
             labels: Some(crate::input::PadFamily::PlayStation),
         };
         assert_eq!(PadSettings::from_text(&p.to_text()), p);

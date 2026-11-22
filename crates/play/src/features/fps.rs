@@ -604,7 +604,11 @@ fn walk_controls(
     mut was_walking: Local<bool>,
     time: Res<Time<Real>>,
     mut last_sent: Local<Option<(WalkControl, f32)>>,
-    (overlay, busy): (Option<Res<crate::ui::Overlay>>, Res<HandsBusy>),
+    (overlay, busy, mouse_look): (
+        Option<Res<crate::ui::Overlay>>,
+        Res<HandsBusy>,
+        Option<Res<crate::controls::MouseLook>>,
+    ),
 ) {
     let Some(w) = my_walker(me.as_deref(), &walkers, &duelists) else {
         // Duelling (the duel drives the cursor) or not spawned yet.
@@ -659,8 +663,9 @@ fn walk_controls(
         return;
     }
     if grab && !busy.0 {
-        view.yaw -= motion.delta.x * tuning().look_sensitivity;
-        view.pitch = (view.pitch - motion.delta.y * tuning().look_sensitivity).clamp(-1.5, 1.5);
+        let sens = tuning().look_sensitivity * mouse_look.map_or(1.0, |m| m.0);
+        view.yaw -= motion.delta.x * sens;
+        view.pitch = (view.pitch - motion.delta.y * sens).clamp(-1.5, 1.5);
     }
     let virt = virt.map(|v| *v).unwrap_or_default();
     // Touch drag / right stick (#106) look whether or not a cursor is grabbed.

@@ -1,0 +1,11 @@
+// Tigers (#472): not actual tigers. Every time you change "Mouse look" in
+// the settings and go back to the game, your mouse look speed starts sliding
+// up or down (a coin flip) and keeps sliding until you change it again.
+(
+    // How fast it slides: the speed is multiplied (or divided) by
+    // e^(rate * minutes), so 0.1 is about 10% a minute.
+    rate_per_minute: 0.1,
+    // The slide stops here, as a multiple of the speed you set.
+    min: 0.2,
+    max: 5.0,
+)

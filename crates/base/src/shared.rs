@@ -108,6 +108,18 @@ pub mod camera {
 pub mod controls {
     use bevy::prelude::*;
 
+    /// Mouse look speed, a multiple of `fps`'s `look_sensitivity`: the
+    /// settings' "Mouse look speed" times the tigers' drift (#472). Set by
+    /// the game's `tigers.rs`, read by `fps.rs` and the duel.
+    #[derive(Resource, Debug, Clone, Copy, PartialEq)]
+    pub struct MouseLook(pub f32);
+
+    impl Default for MouseLook {
+        fn default() -> Self {
+            Self(1.0)
+        }
+    }
+
     /// Movement and look from touch / gamepad this frame, read by `fps.rs`.
     #[derive(Resource, Default, Debug, Clone, Copy)]
     pub struct VirtualInput {

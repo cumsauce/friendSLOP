@@ -1063,7 +1063,10 @@ fn player_play(
     mut gun: Query<&mut Viewmodel>,
     mut clips: Query<&mut crate::rigged::RigClip, With<Viewmodel>>,
     sight: Sight,
-    sfx: Option<Res<crate::assets::Sfx>>,
+    (mut audio, mut shot): (
+        Option<ResMut<Assets<crate::sound::AudioSample>>>,
+        Local<Option<Handle<crate::sound::AudioSample>>>,
+    ),
     toast: Option<ResMut<crate::hud::Toast>>,
 ) {
     let Some(me_id) = me else { return };
@@ -1256,8 +1259,8 @@ fn player_play(
             if let Ok(mut g) = gun.single_mut() {
                 g.clip_left = t.view.fire_secs;
             }
-            if let Some(sfx) = sfx {
-                crate::assets::play_sfx(&mut commands, &sfx.gunshot, 0.5);
+            if let Some(sound) = shot_sound(&mut audio, &mut shot) {
+                crate::assets::play_sfx(&mut commands, &sound, 0.8);
             }
         }
     }
@@ -1285,6 +1288,10 @@ fn bots_play(
     )>,
     sight: Sight,
     sfx: Option<Res<crate::assets::Sfx>>,
+    (mut audio, mut shot): (
+        Option<ResMut<Assets<crate::sound::AudioSample>>>,
+        Local<Option<Handle<crate::sound::AudioSample>>>,
+    ),
     mut busy: ResMut<HandsBusy>,
 ) {
     let Some(me_id) = me else { return };
@@ -1497,12 +1504,12 @@ fn bots_play(
                     dmg_to_bots.push((id, dmg, bot.id));
                 }
             }
-            if let Some(sfx) = &sfx {
+            if let Some(sound) = shot_sound(&mut audio, &mut shot) {
                 crate::spatial::play_at(
                     &mut commands,
-                    &sfx.gunshot,
+                    &sound,
                     tf.translation + Vec3::Y,
-                    0.4,
+                    0.7,
                     crate::spatial::Carry::LOUD,
                 );
             }
@@ -1553,6 +1560,22 @@ fn bots_play(
             busy.0 = true;
         }
     }
+}
+
+/// The rifle's crack, made in code (a sharp crack and a low boom), so the
+/// machine never depends on a sample file or its sample rate.
+fn shot_sound(
+    audio: &mut Option<ResMut<Assets<crate::sound::AudioSample>>>,
+    slot: &mut Option<Handle<crate::sound::AudioSample>>,
+) -> Option<Handle<crate::sound::AudioSample>> {
+    if slot.is_none() {
+        let audio = audio.as_mut()?;
+        const RATE: u32 = 22_050;
+        *slot = Some(audio.add(crate::sound::wav_or_silence(
+            &crate::features::bear::wav_bytes(&crate::features::helicopter::gunshot(RATE), RATE),
+        )));
+    }
+    slot.clone()
 }
 
 /// Turn `yaw` toward `want` by at most `step` radians.

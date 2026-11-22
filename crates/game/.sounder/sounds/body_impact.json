@@ -1,0 +1,268 @@
+{
+  "name": "body_impact",
+  "format_version": 1,
+  "kind": "oneshot",
+  "sample_rate": 48000,
+  "seed": 1,
+  "nodes": [
+    {
+      "name": "c_noise",
+      "type": "noise"
+    },
+    {
+      "freq": 3800,
+      "input": "c_noise",
+      "mode": "hp",
+      "name": "c_hp",
+      "slope": 24,
+      "type": "filter"
+    },
+    {
+      "name": "c_decay",
+      "time": 0.015,
+      "type": "decay"
+    },
+    {
+      "gain": "c_decay",
+      "input": "c_hp",
+      "name": "slap",
+      "type": "gain"
+    },
+    {
+      "amp": 1,
+      "color": "pink",
+      "name": "f_noise",
+      "type": "noise"
+    },
+    {
+      "freq": 350,
+      "input": "f_noise",
+      "mode": "bp",
+      "name": "f_bp",
+      "q": 0.7,
+      "type": "filter"
+    },
+    {
+      "name": "f_decay",
+      "time": 0.12,
+      "type": "decay"
+    },
+    {
+      "gain": "f_decay",
+      "input": "f_bp",
+      "name": "flesh",
+      "type": "gain"
+    },
+    {
+      "color": "brown",
+      "name": "w_noise",
+      "type": "noise"
+    },
+    {
+      "freq": 110,
+      "input": "w_noise",
+      "mode": "lp",
+      "name": "w_lp",
+      "slope": 24,
+      "type": "filter"
+    },
+    {
+      "name": "w_decay",
+      "time": 0.45,
+      "type": "decay"
+    },
+    {
+      "gain": "w_decay",
+      "input": "w_lp",
+      "name": "w_gain",
+      "type": "gain"
+    },
+    {
+      "curve": "exp",
+      "from": 95,
+      "name": "t_ramp",
+      "time": 0.22,
+      "to": 45,
+      "type": "ramp"
+    },
+    {
+      "freq": "t_ramp",
+      "name": "t_osc",
+      "shape": "sine",
+      "type": "osc"
+    },
+    {
+      "name": "t_env",
+      "time": 0.3,
+      "type": "decay"
+    },
+    {
+      "inputs": [
+        {
+          "gain": 1,
+          "input": "w_heft"
+        },
+        {
+          "gain": 0.45,
+          "input": "t_heft"
+        }
+      ],
+      "name": "w_mix",
+      "to": "mono",
+      "type": "mix"
+    },
+    {
+      "inputs": [
+        {
+          "gain": 0.5,
+          "input": "slap"
+        },
+        {
+          "at": 0.005,
+          "gain": 3.2,
+          "input": "flesh"
+        },
+        {
+          "at": 0.011,
+          "gain": 0.34,
+          "input": "w_mix"
+        }
+      ],
+      "name": "mix_all",
+      "to": "mono",
+      "type": "mix"
+    },
+    {
+      "air_db": -2,
+      "glue": 0.45,
+      "input": "mix_all",
+      "name": "fin",
+      "punch": 0.3,
+      "tail_db": -1,
+      "type": "finish",
+      "warmth": 0.15,
+      "weight_db": 3.5
+    },
+    {
+      "fade_in": 0.0005,
+      "input": "fin",
+      "name": "out",
+      "peak_db": -2,
+      "type": "output"
+    },
+    {
+      "gain": "$heft_amt",
+      "input": "w_gain",
+      "name": "w_heft",
+      "type": "gain"
+    },
+    {
+      "gain": "t_env",
+      "input": "t_osc",
+      "name": "t_amp",
+      "type": "gain"
+    },
+    {
+      "gain": "$thump_amt",
+      "input": "t_amp",
+      "name": "t_heft",
+      "type": "gain"
+    }
+  ],
+  "params": {
+    "flesh_band": 480.0,
+    "heft_amt": 1.5,
+    "thump_amt": 0.85
+  },
+  "macros": [
+    {
+      "name": "heft",
+      "value": 0.6935156250000001,
+      "default": 0.5,
+      "doc": "how heavy the hit lands",
+      "claim": [
+        "lufs",
+        1
+      ],
+      "game": false,
+      "map": [
+        {
+          "node": "w_heft",
+          "field": "gain",
+          "from": 0.7,
+          "to": 1.6
+        },
+        {
+          "node": "t_heft",
+          "field": "gain",
+          "from": 0.35,
+          "to": 0.9
+        }
+      ]
+    },
+    {
+      "name": "flesh",
+      "value": 0.8122395833333333,
+      "default": 0.5,
+      "doc": "how fleshy versus bony the mid is",
+      "claim": [
+        "centroid",
+        1
+      ],
+      "game": false,
+      "map": [
+        {
+          "node": "f_bp",
+          "field": "freq",
+          "from": 350.0,
+          "to": 700.0
+        }
+      ]
+    }
+  ],
+  "spec": {
+    "brief": "a body hit: a dull fleshy whump when someone gets punted by a car — a cloth slap, a mid flesh thump, a heavy chest thud underneath",
+    "components": [
+      {
+        "role": "crack",
+        "node": "slap",
+        "at": [
+          0.0,
+          0.03
+        ],
+        "length_ms": [
+          8.0,
+          45.0
+        ],
+        "note": "the cloth and skin slap on contact"
+      },
+      {
+        "role": "body",
+        "node": "flesh",
+        "at": [
+          0.0,
+          0.12
+        ],
+        "length_ms": [
+          40.0,
+          160.0
+        ],
+        "note": "the flesh and ribs compressing"
+      },
+      {
+        "role": "weight",
+        "node": "w_mix",
+        "at": [
+          0.0,
+          0.25
+        ],
+        "length_ms": [
+          60.0,
+          260.0
+        ],
+        "note": "the heavy chest thud under it"
+      }
+    ]
+  },
+  "version": 10
+}

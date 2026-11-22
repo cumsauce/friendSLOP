@@ -122,6 +122,10 @@ Each is a `.gltf` + `.bin`; their baked textures are shared KTX2 files in
 - `audio/sfx/crow_caw.wav` — "[Crow caw](https://opengameart.org/content/crow-caw)", CC0.
 - `audio/sfx/hunter/` — the Fulton St hunter's footsteps, run, screeches, roll slaps and groan, synthesized
   in the sounder (no samples; sources in `.sounder/sources/`). Ours, CC0.
+- `audio/sfx/nyc/` — the NYC cab horns, synthesized in the sounder (no samples; saved in
+  `.sounder/sounds/`). Ours, CC0.
+- `audio/sfx/body_impact_*.ogg` — the body-hit thud when you're punted, synthesized in the
+  sounder (no samples; saved in `.sounder/sounds/`). Ours, CC0.
 - `audio/sfx/eat.ogg` — "[apple bite](https://opengameart.org/content/apple-bite)", CC0.
 - `audio/music/catsong.ogg` — "Catsong" by **Dan Knoflicek** (uploaded to
   [OpenGameArt](https://opengameart.org/content/catsong) as CC0). No longer played (the

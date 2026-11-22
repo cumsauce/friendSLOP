@@ -16,6 +16,7 @@ use crate::AppState;
 use crate::features::fps::Walker;
 use crate::features::interact::deny;
 use crate::player::PlayerOwner;
+use crate::sound::AudioSample;
 
 /// One road, driven both ways: from `a` to `b` in the right-hand lane, a U-turn,
 /// and back.
@@ -402,35 +403,45 @@ fn draw_cars(
     }
 }
 
-const HORN_RATE: u32 = crate::features::synth_audio::RATE;
-
-/// A cab horn: two slightly sour square-ish tones, a short "HONK".
-pub fn horn_samples(rate: u32) -> Vec<f32> {
-    let n = (0.45 * rate as f32) as usize;
-    let mut out = Vec::with_capacity(n);
-    let (mut p1, mut p2) = (0.0f32, 0.0f32);
-    for i in 0..n {
-        let t = i as f32 / rate as f32;
-        let (i1, i2) = (415.0 / rate as f32, 494.0 / rate as f32);
-        p1 = (p1 + i1).fract();
-        p2 = (p2 + i2).fract();
-        let s1 = crate::features::synth_audio::saw(p1, i1);
-        let s2 = crate::features::synth_audio::saw(p2, i2);
-        let env = (t * 60.0).min(1.0) * ((0.45 - t) * 25.0).clamp(0.0, 1.0);
-        out.push(((s1 + s2) * 1.4).tanh() * env * 0.6);
-    }
-    crate::features::synth_audio::master(&mut out, rate, 3500.0, 0.7);
-    out
+/// Local: the cab horns (made in the sounder, `assets/audio/sfx/nyc/`), taken
+/// in turn so a street of honks doesn't repeat itself. A file that's missing
+/// just means silence.
+#[derive(Resource)]
+struct HornSounds {
+    takes: [Handle<AudioSample>; 3],
+    next: usize,
 }
 
-fn play_honk(ev: On<Honk>, mut commands: Commands) {
-    crate::spatial::play_wav_at(
+impl HornSounds {
+    fn load(assets: &AssetServer) -> Self {
+        let take = |i: usize| assets.load(format!("audio/sfx/nyc/car_horn_{i}.ogg"));
+        Self {
+            takes: [1, 2, 3].map(take),
+            next: 0,
+        }
+    }
+}
+
+fn play_honk(
+    ev: On<Honk>,
+    mut commands: Commands,
+    mut sounds: Option<ResMut<HornSounds>>,
+    assets: Option<Res<AssetServer>>,
+) {
+    let Some(sounds) = sounds.as_deref_mut() else {
+        if let Some(assets) = assets {
+            commands.insert_resource(HornSounds::load(&assets));
+        }
+        return;
+    };
+    crate::spatial::play_at(
         &mut commands,
+        &sounds.takes[sounds.next],
         ev.at,
         1.0,
         crate::spatial::Carry::LOUD,
-        || crate::features::bear::wav_bytes(&horn_samples(HORN_RATE), HORN_RATE),
     );
+    sounds.next = (sounds.next + 1) % sounds.takes.len();
 }
 
 #[cfg(test)]

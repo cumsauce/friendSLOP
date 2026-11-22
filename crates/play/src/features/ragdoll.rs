@@ -17,6 +17,7 @@ use serde::{Deserialize, Serialize};
 use super::fps::{Walker, teleport};
 use crate::people::{CharacterRig, RigRoot};
 use crate::player::Player;
+use crate::sound::AudioSample;
 
 /// Half the body's height: the tumble turns about this point above the feet.
 pub const HALF: f32 = 0.9;
@@ -52,6 +53,12 @@ pub fn tuning() -> std::sync::Arc<Tuning> {
 #[derive(Component, Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
 pub struct Ragdoll {
     pub tilt: Quat,
+}
+
+/// Server → clients: a body just got hit at `at` (the thud everyone hears).
+#[derive(Event, Serialize, Deserialize, Clone, Copy, Debug)]
+pub struct Punted {
+    pub at: Vec3,
 }
 
 /// Server: a hit waiting to be turned into a tumble.
@@ -131,13 +138,15 @@ pub fn limp(left: f32, recover: f32) -> f32 {
 }
 
 pub fn protocol(app: &mut App) {
-    app.replicate::<Ragdoll>().add_systems(
-        Update,
-        (start_tumbles, tumble, sweep_orphan_bodies)
-            .chain()
-            .before(super::fps::WalkSet)
-            .run_if(in_state(ServerState::Running)),
-    );
+    app.replicate::<Ragdoll>()
+        .add_server_event::<Punted>(Channel::Unordered)
+        .add_systems(
+            Update,
+            (start_tumbles, tumble, sweep_orphan_bodies)
+                .chain()
+                .before(super::fps::WalkSet)
+                .run_if(in_state(ServerState::Running)),
+        );
 }
 
 /// A body whose player is gone (despawned mid-tumble) would tumble on
@@ -155,7 +164,49 @@ fn sweep_orphan_bodies(
 }
 
 pub fn plugin(app: &mut App) {
-    app.add_systems(Update, tilt_bodies);
+    app.add_observer(play_impact)
+        .add_systems(Update, tilt_bodies);
+}
+
+/// Local: the thud of a body getting hit (made in the sounder,
+/// `assets/audio/sfx/body_impact_*.ogg`), taken in turn. A file that's
+/// missing just means silence.
+#[derive(Resource)]
+struct ImpactSounds {
+    takes: [Handle<AudioSample>; 3],
+    next: usize,
+}
+
+impl ImpactSounds {
+    fn load(assets: &AssetServer) -> Self {
+        let take = |i: usize| assets.load(format!("audio/sfx/body_impact_{i}.ogg"));
+        Self {
+            takes: [1, 2, 3].map(take),
+            next: 0,
+        }
+    }
+}
+
+fn play_impact(
+    ev: On<Punted>,
+    mut commands: Commands,
+    mut sounds: Option<ResMut<ImpactSounds>>,
+    assets: Option<Res<AssetServer>>,
+) {
+    let Some(sounds) = sounds.as_deref_mut() else {
+        if let Some(assets) = assets {
+            commands.insert_resource(ImpactSounds::load(&assets));
+        }
+        return;
+    };
+    crate::spatial::play_at(
+        &mut commands,
+        &sounds.takes[sounds.next],
+        ev.at + Vec3::Y * 0.6,
+        2.0,
+        crate::spatial::Carry::LOUD,
+    );
+    sounds.next = (sounds.next + 1) % sounds.takes.len();
 }
 
 fn physics(trees: &Option<Res<avian3d::collider_tree::ColliderTrees>>) -> bool {
@@ -173,6 +224,11 @@ fn start_tumbles(
             commands.entity(b).try_despawn();
         }
         let centre = walker.pos + Vec3::Y * HALF;
+        // The thud everyone hears: the hit that started the tumble.
+        commands.server_trigger(ToClients {
+            targets: SendTargets::All,
+            message: Punted { at: centre },
+        });
         let spin = spin_for(knock.vel, &tu);
         let body = physics(&trees).then(|| {
             commands

@@ -45,8 +45,9 @@ use serde::{Deserialize, Serialize};
 
 use super::fulton::Hunt;
 use super::fulton::{
-    CELL, HIDE_AT, Kind, LOCKER_DOORS_X, Level, LevelModels, Station, TILES, TileSet, Tuning,
-    cell_of, cell_world, floor_at, level_at, level_of, map_cell, street_at, tuning,
+    CELL, HIDE_AT, Kind, LOCKER_DOORS_X, Level, LevelModels, Station, TERMINAL_SCREEN, TILES,
+    TileSet, Tuning, cell_of, cell_world, floor_at, level_at, level_of, map_cell, street_at,
+    tuning,
 };
 use crate::AppState;
 use crate::features::fps::{Hiding, WalkInput, Walker, teleport};
@@ -1586,13 +1587,20 @@ fn climb(
 pub fn plugin(app: &mut App) {
     app.add_observer(on_phone)
         .add_observer(click_locker)
+        .add_observer(click_terminal)
         .init_resource::<Call>()
         .add_systems(OnExit(AppState::InGame), |mut call: ResMut<Call>| {
             *call = Call::default()
         })
         .add_systems(
             Update,
-            (place_lockers, load_locker_sounds, hunter_opens, auto_close)
+            (
+                place_lockers,
+                place_terminals,
+                load_locker_sounds,
+                hunter_opens,
+                auto_close,
+            )
                 .chain()
                 .run_if(in_state(AppState::InGame)),
         )
@@ -2070,6 +2078,65 @@ fn auto_close(
             *n,
         );
         commands.entity(e).remove::<CloseIn>();
+    }
+}
+
+/// Every terminal: its node and where its screen is (world).
+pub fn terminal_spots(t: &Tuning, set: &TileSet, levels: &[Level]) -> Vec<(Node, Vec3)> {
+    let mut out = Vec::new();
+    for (li, l) in levels.iter().enumerate() {
+        for z in 0..l.depth {
+            for x in 0..l.width {
+                let f = l.fill((x, z));
+                let Kind::Corridor(Some(i)) = f.kind else {
+                    continue;
+                };
+                if set.pieces.get(i as usize).is_some_and(|p| p.terminal) {
+                    let at = cell_world(t, li, l, (x, z)) + f.rotation() * TERMINAL_SCREEN;
+                    out.push(((li, x, z), at));
+                }
+            }
+        }
+    }
+    out
+}
+
+/// A terminal's click point.
+#[derive(Component)]
+struct Terminal;
+
+/// Local: a clickable on every terminal's screen (children of the level's
+/// models, so they go with them). Clicking one starts the Andrew dating sim.
+fn place_terminals(
+    mut commands: Commands,
+    station: Option<Res<Station>>,
+    levels: Query<(Entity, &LevelModels), Added<LevelModels>>,
+) {
+    let Some(station) = station else { return };
+    if levels.is_empty() {
+        return;
+    }
+    let t = tuning();
+    let set = TILES.get();
+    let spots = terminal_spots(&t, &set, station.levels());
+    for (root, l) in &levels {
+        for (_, at) in spots.iter().filter(|(n, _)| n.0 == l.0) {
+            commands.spawn((
+                Terminal,
+                Transform::from_translation(*at),
+                Visibility::default(),
+                Clickable::at_height(0.0)
+                    .radius(90.0)
+                    .labelled("date Andrew"),
+                ChildOf(root),
+            ));
+        }
+    }
+}
+
+fn click_terminal(ev: On<Clicked>, mut commands: Commands, terminals: Query<(), With<Terminal>>) {
+    if terminals.contains(ev.entity) {
+        commands.trigger(crate::features::dating_sim::StartDate);
     }
 }
 
@@ -3239,6 +3306,29 @@ mod tests {
             assert!(pos.y <= 3.0 + 1e-3, "overshot to {pos}");
         }
         assert!(pos.distance(goal) < 0.05 && g.speed < 0.1);
+    }
+
+    #[test]
+    fn terminals_stand_at_dead_ends_and_never_change_the_layout() {
+        let (t, set, levels) = data();
+        let spots = terminal_spots(&t, &set, &levels);
+        assert!(!spots.is_empty(), "no terminal in the whole station");
+        for ((li, x, z), _) in &spots {
+            let f = levels[*li].fill((*x, *z));
+            assert_eq!(
+                f.mask.count_ones(),
+                1,
+                "terminal off a dead end at {li},{x},{z}"
+            );
+            assert_eq!(f.track, 0);
+        }
+        // The same plan without the terminal piece has the same open sides everywhere.
+        let mut bare = set.clone();
+        bare.pieces.retain(|p| !p.terminal);
+        let plain = Station::new(&t, &bare);
+        for (a, b) in levels.iter().zip(plain.levels()) {
+            assert!(a.cells.iter().zip(&b.cells).all(|(p, q)| p.mask == q.mask));
+        }
     }
 
     #[test]

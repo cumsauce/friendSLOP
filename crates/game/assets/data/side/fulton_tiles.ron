@@ -5,6 +5,9 @@
 //   open:   the sides a corridor carries on through, as modelled (N is -z,
 //           E +x, S +z, W -x). Every quarter turn of a piece is tried.
 //   weight: how much each turn is wanted.
+//   terminal: (optional) a computer terminal at the dead end (click it to date
+//           Andrew, #462). Never part of the WFC: after the plan, `weight` is the chance
+//           (0..1) that each plain dead end becomes one.
 //   hide:   (optional) it has a hiding spot: the middle locker of the lockers piece.
 //   track:  (optional) open sides that carry a subway track on (they only meet
 //           other track sides): the platform pieces.
@@ -15,6 +18,7 @@
         (model: "fs_tile_closed.gltf", open: [], weight: 0.5),
         (model: "fs_tile_end.gltf", open: [N], weight: 0.5),
         (model: "fs_tile_lockers.gltf", open: [N], weight: 1.6, hide: true),
+        (model: "fs_tile_terminal.gltf", open: [N], weight: 0.3, terminal: true),
         (model: "fs_tile_straight.gltf", open: [N, S], weight: 3.2),
         (model: "fs_tile_corner.gltf", open: [N, E], weight: 3.0),
         (model: "fs_tile_tee.gltf", open: [N, E, S], weight: 1.4),

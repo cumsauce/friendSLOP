@@ -200,6 +200,7 @@ impl Plugin for FeaturesPlugin {
         app.add_plugins(hats::plugin);
         app.add_plugins(organ_butcher::plugin);
         app.add_plugins(hi::plugin);
+        app.add_plugins(dating_sim::plugin);
         app.add_plugins(kittens::plugin);
         app.add_plugins(toilets::plugin);
         app.add_plugins(emotes::plugin);

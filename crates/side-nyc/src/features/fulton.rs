@@ -636,6 +636,10 @@ pub struct Piece {
     /// A hiding spot in it (the lockers), at [`HIDE_AT`] in the piece's own frame.
     #[serde(default)]
     pub hide: bool,
+    /// A computer terminal at the closed end ([`TERMINAL_BLOCK`], [`TERMINAL_SCREEN`]):
+    /// click it to date Andrew (#462). Solid like the lockers.
+    #[serde(default)]
+    pub terminal: bool,
     /// The open sides that carry the subway's track on (a platform with its
     /// track bed): they only meet other track sides. The platform runs along
     /// these, its deck on the piece's N half, the track bed on its S half.
@@ -675,6 +679,19 @@ pub const LOCKER_DOORS_X: [f32; 7] = [-2.1, -1.4, -0.7, 0.0, 0.7, 1.4, 2.1];
 /// The bank's collider, in the piece's own frame: its centre, then its full
 /// size (the seven doors, their backs against the wall).
 pub const LOCKERS_BLOCK: (Vec3, Vec3) = (Vec3::new(0.0, 1.05, 2.48), Vec3::new(4.9, 2.1, 0.64));
+
+/// The terminal's desk collider, in the piece's own frame: centre, then full size.
+pub const TERMINAL_BLOCK: (Vec3, Vec3) = (Vec3::new(0.0, 0.4, 2.42), Vec3::new(1.5, 0.8, 0.7));
+/// Where its screen is, in the piece's own frame (the model's `terminal_screen` marker).
+pub const TERMINAL_SCREEN: Vec3 = Vec3::new(0.0, 1.1, 2.2);
+
+impl Piece {
+    /// Something solid stands in it (the lockers or the terminal): the hunter
+    /// and the spawn spots keep out.
+    pub fn prop(&self) -> bool {
+        self.hide || self.terminal
+    }
+}
 
 /// The tile kit (`assets/data/side/fulton_tiles.ron`).
 #[derive(Deserialize, Default, Debug, Clone)]
@@ -1230,6 +1247,11 @@ type Var = (u8, Fill, f32);
 fn variants(set: &TileSet) -> Vec<Var> {
     let mut out = Vec::new();
     for (i, p) in set.pieces.iter().enumerate() {
+        // (Terminals are swapped in for dead ends after the plan: see
+        // `dress_terminals`, so they never change the layout.)
+        if p.terminal {
+            continue;
+        }
         let mask = p.open.iter().fold(0, |m, s| m | bit(s.wfc()));
         let track = p.track.iter().fold(0, |m, s| m | bit(s.wfc())) & mask;
         let mut seen = Vec::new();
@@ -3517,6 +3539,7 @@ impl StationPlan {
         if let Some(above) = self.levels.last_mut() {
             link_low_doors(above, &level);
         }
+        dress_terminals(t, &TILES.get(), l, &mut level);
         self.levels.push(level);
         self.levels.last()
     }
@@ -3524,6 +3547,49 @@ impl StationPlan {
     /// Plan until at least `n` levels (or all of them) are planned.
     pub fn plan_to(&mut self, t: &Tuning, n: usize) {
         while self.count() < n && self.plan_next(t).is_some() {}
+    }
+}
+
+/// Swap some plain dead ends for the terminal piece (#462): each with the
+/// terminal piece's `weight` as its chance, rolled from the seed, so a level's
+/// layout is the one it would have had without terminals. Never on the way
+/// in or out, and never where rubble, a squeeze or stairs already crowd the cell.
+fn dress_terminals(t: &Tuning, set: &TileSet, li: usize, level: &mut Level) {
+    let Some((term, chance)) = set
+        .pieces
+        .iter()
+        .position(|p| p.terminal)
+        .map(|i| (i as u8, set.pieces[i].weight))
+    else {
+        return;
+    };
+    let plain_end = |i: u8| {
+        set.pieces
+            .get(i as usize)
+            .is_some_and(|p| p.open.len() == 1 && p.track.is_empty() && !p.hide && !p.terminal)
+    };
+    for z in 0..level.depth {
+        for x in 0..level.width {
+            let i = z * level.width + x;
+            let f = level.cells[i];
+            let Kind::Corridor(Some(p)) = f.kind else {
+                continue;
+            };
+            let c = (x, z);
+            if f.track != 0
+                || !plain_end(p)
+                || c == level.arrive
+                || c == level.goal
+                || level.rubble[i] != 0
+                || level.squeeze[i] != 0
+                || level.stairs[i] != 0
+                || level.sunk[i]
+                || dress_roll(t, [li, x, z, 0x7e12]) >= chance
+            {
+                continue;
+            }
+            level.cells[i].kind = Kind::Corridor(Some(term));
+        }
     }
 }
 
@@ -3815,6 +3881,12 @@ pub fn colliders(t: &Tuning, li: usize, level: &Level) -> Vec<Block> {
                         out.push(Block {
                             centre: at + r * LOCKERS_BLOCK.0,
                             size: LOCKERS_BLOCK.1,
+                            rotation: r,
+                        });
+                    } else if set.pieces.get(i as usize).is_some_and(|p| p.terminal) {
+                        out.push(Block {
+                            centre: at + r * TERMINAL_BLOCK.0,
+                            size: TERMINAL_BLOCK.1,
                             rotation: r,
                         });
                     }
@@ -4214,7 +4286,7 @@ pub fn service_doors(t: &Tuning, li: usize, level: &Level) -> Vec<(wfc::Cell, wf
             let i = z * level.width + x;
             let f = level.fill(c);
             let ok = match f.kind {
-                Kind::Corridor(Some(p)) => !set.pieces.get(p as usize).is_some_and(|p| p.hide),
+                Kind::Corridor(Some(p)) => !set.pieces.get(p as usize).is_some_and(|p| p.prop()),
                 // (The fallback's open hall.)
                 Kind::Corridor(None) => f.mask != 0,
                 Kind::Room(_) => !level.sunk(c),
@@ -4359,7 +4431,7 @@ pub fn corridor_dressing(t: &Tuning, set: &TileSet, li: usize, level: &Level) ->
             let Kind::Corridor(Some(pi)) = f.kind else {
                 continue;
             };
-            if f.track != 0 || set.pieces.get(pi as usize).is_none_or(|p| p.hide) {
+            if f.track != 0 || set.pieces.get(pi as usize).is_none_or(|p| p.prop()) {
                 continue;
             }
             let at = cell_world(t, li, level, c);

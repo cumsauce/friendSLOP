@@ -1,0 +1,67 @@
+// "Andrew dating sim" (#462): the script. crates/side/src/features/dating_sim.rs
+// plays it. Click a computer terminal in the Fulton St station to start, 1-4 to answer, Esc to leave.
+// A scene says its line and offers choices; each choice moves `affection` and
+// goes to another scene. A scene with no choices ends the date: the first
+// ending whose `min` the affection reaches is shown.
+(
+    start: "meet",
+    scenes: {
+        "meet": (
+            line: "Andrew is already at the table, holding a menu upside down. \"Oh! You came. Hi.\"",
+            choices: [
+                (text: "\"Hi.\" (sit down)", affection: 1, next: "order"),
+                (text: "\"Your menu is upside down.\"", affection: 0, next: "order"),
+                (text: "Say nothing and stare warmly", affection: -1, next: "order"),
+            ],
+        ),
+        "order": (
+            line: "\"I don't know what's good. Everything is soup, I think. Do you like soup?\"",
+            choices: [
+                (text: "\"I love soup.\"", affection: 2, next: "hobby"),
+                (text: "\"Soup is a stew that gave up.\"", affection: -1, next: "hobby"),
+                (text: "Order for both of you, confidently", affection: 1, next: "hobby"),
+            ],
+        ),
+        "hobby": (
+            line: "\"So what do you do for fun? I post. Mostly I post. Sometimes I log off and look at a wall.\"",
+            choices: [
+                (text: "\"I look at walls too.\"", affection: 2, next: "wall"),
+                (text: "\"I build things in a modeler.\"", affection: 1, next: "wall"),
+                (text: "\"I cheat at skee-ball.\"", affection: -2, next: "wall"),
+                (text: "Ask about the posting", affection: 1, next: "wall"),
+            ],
+        ),
+        "wall": (
+            line: "Andrew leans in. \"Can I tell you a secret? I'm the one who sends the thing after you in Fulton.\"",
+            choices: [
+                (text: "\"That was YOU?\"", affection: 0, next: "bill"),
+                (text: "\"I knew. It was sweet.\"", affection: 3, next: "bill"),
+                (text: "Slowly stand up", affection: -2, next: "bill"),
+            ],
+        ),
+        "bill": (
+            line: "The bill comes. Andrew pats his pockets. \"I think I only have a wall.\"",
+            choices: [
+                (text: "Pay for everything", affection: 2, next: "door"),
+                (text: "Split it", affection: 1, next: "door"),
+                (text: "\"I'll take the wall.\"", affection: 3, next: "door"),
+            ],
+        ),
+        "door": (
+            line: "Outside, the night is cold and the streetlights hum. Andrew rocks on his heels. \"So. Um. Hi, again.\"",
+            choices: [
+                (text: "Kiss him on the cheek", affection: 3, next: "end"),
+                (text: "Shake his hand", affection: 0, next: "end"),
+                (text: "Wave and walk backwards into the dark", affection: 1, next: "end"),
+            ],
+        ),
+        "end": (line: "", choices: []),
+    },
+    // Best first; the first whose `min` the affection reaches wins.
+    endings: [
+        (min: 10, title: "Wall Husband", text: "Andrew moves in. You share a wall. It is the best relationship either of you has had."),
+        (min: 6, title: "Second Date", text: "He texts you \"hi\" at 2 a.m. You text back \"hi\". It is going really well."),
+        (min: 2, title: "Friends", text: "Andrew says he'll \"definitely post about this.\" You are not sure what that means."),
+        (min: -99, title: "Soup", text: "Andrew stares into his soup for a long time. You are not in the soup. You are not in his life."),
+    ],
+)

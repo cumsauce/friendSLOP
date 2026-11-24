@@ -1,0 +1,289 @@
+{
+  "name": "mj_aah",
+  "format_version": 1,
+  "kind": "oneshot",
+  "sample_rate": 48000,
+  "seed": 1,
+  "nodes": [
+    {
+      "type": "ramp",
+      "name": "t",
+      "from": 0,
+      "to": "=1.5 * $speed",
+      "time": 1.5,
+      "curve": "linear"
+    },
+    {
+      "type": "curve",
+      "name": "pitch",
+      "input": "t",
+      "curve": "smooth",
+      "points": [
+        [
+          0,
+          375
+        ],
+        [
+          0.05,
+          430
+        ],
+        [
+          0.14,
+          570
+        ],
+        [
+          0.5,
+          587
+        ],
+        [
+          0.7,
+          570
+        ],
+        [
+          0.85,
+          430
+        ]
+      ]
+    },
+    {
+      "type": "curve",
+      "name": "amp",
+      "input": "t",
+      "curve": "linear",
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0.03,
+          0
+        ],
+        [
+          0.07,
+          0.5
+        ],
+        [
+          0.2,
+          0.75
+        ],
+        [
+          0.35,
+          1
+        ],
+        [
+          0.6,
+          0.95
+        ],
+        [
+          0.78,
+          0.5
+        ],
+        [
+          0.88,
+          0
+        ]
+      ]
+    },
+    {
+      "type": "curve",
+      "name": "h",
+      "input": "t",
+      "curve": "linear",
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0.012,
+          0.7
+        ],
+        [
+          0.035,
+          1
+        ],
+        [
+          0.065,
+          0.06
+        ],
+        [
+          0.75,
+          0.1
+        ],
+        [
+          0.84,
+          0.18
+        ],
+        [
+          0.92,
+          0
+        ]
+      ]
+    },
+    {
+      "type": "curve",
+      "name": "tens",
+      "input": "t",
+      "curve": "linear",
+      "points": [
+        [
+          0,
+          0.65
+        ],
+        [
+          0.12,
+          0.92
+        ],
+        [
+          0.6,
+          0.85
+        ],
+        [
+          0.88,
+          0.5
+        ]
+      ]
+    },
+    {
+      "type": "curve",
+      "name": "rasp",
+      "input": "t",
+      "curve": "linear",
+      "points": [
+        [
+          0,
+          0.35
+        ],
+        [
+          0.15,
+          0.3
+        ],
+        [
+          0.4,
+          0.15
+        ],
+        [
+          0.88,
+          0.25
+        ]
+      ]
+    },
+    {
+      "type": "math",
+      "name": "f0",
+      "op": "mul",
+      "a": "pitch",
+      "b": "$pitch_ratio"
+    },
+    {
+      "type": "glottis",
+      "name": "voice",
+      "f0": "f0",
+      "tension": "tens",
+      "breath": 0.2,
+      "roughness": "rasp",
+      "vibrato_cents": 32,
+      "vibrato_hz": 6.5,
+      "amp": "amp"
+    },
+    {
+      "type": "noise",
+      "name": "air",
+      "color": "white",
+      "amp": "h"
+    },
+    {
+      "type": "filter",
+      "name": "air_hp",
+      "input": "air",
+      "mode": "hp",
+      "freq": 900,
+      "q": 0.7
+    },
+    {
+      "type": "mix",
+      "name": "src",
+      "inputs": [
+        {
+          "input": "voice",
+          "gain": 1
+        },
+        {
+          "input": "air_hp",
+          "gain": 0.3
+        }
+      ]
+    },
+    {
+      "type": "tract",
+      "name": "mouth",
+      "input": "src",
+      "vowel": "a",
+      "vowel_to": "ae",
+      "morph": 0.3,
+      "scale": 1.12,
+      "nasal": 0.08
+    },
+    {
+      "type": "exciter",
+      "name": "edge",
+      "input": "mouth"
+    },
+    {
+      "type": "reverb",
+      "name": "room",
+      "input": "edge",
+      "model": "room",
+      "mix": 0.08
+    },
+    {
+      "type": "output",
+      "name": "out",
+      "input": "room",
+      "lufs": -13,
+      "fade_in": 0.0005
+    }
+  ],
+  "params": {
+    "pitch_ratio": 1.0,
+    "speed": 1.0
+  },
+  "macros": [
+    {
+      "name": "pitch",
+      "value": 0.5,
+      "default": 0.5,
+      "doc": "voice pitch, +/- 6 semitones",
+      "claim": [
+        "centroid",
+        1
+      ],
+      "game": false,
+      "map": [
+        {
+          "param": "pitch_ratio",
+          "from": 0.7071,
+          "to": 1.4142,
+          "curve": "exp"
+        }
+      ]
+    },
+    {
+      "name": "speed",
+      "value": 0.5,
+      "default": 0.5,
+      "doc": "how fast it plays, half to double speed",
+      "game": false,
+      "map": [
+        {
+          "param": "speed",
+          "from": 0.5,
+          "to": 2.0,
+          "curve": "exp"
+        }
+      ]
+    }
+  ],
+  "version": 5
+}
